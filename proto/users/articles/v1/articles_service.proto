@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package app.miniboard.users.articles.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "accounts";
+
+service ArticlesService {
+    // List articles
+    //
+    // An endpoint to list the user's articles.
+    rpc ListArticles(ListArticlesRequest) returns (ListArticlesResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/{parent=users/*}/articles"
+        };
+    }
+
+    // Create article
+    //
+    // An endpoint to add an article for the user.
+    rpc CreateArticle(CreateArticleRequest) returns (Article) {
+        option (google.api.http) = {
+            post: "/api/v1/{parent=users/*}/articles}"
+            body: "article"
+        };
+    }
+}
+
+message ListArticlesRequest {
+    // Name of a user who owns articles.
+    string parent = 1;
+
+    // The maximum number of articles to return.
+    int64 page_size = 2;
+
+    // The next_page_token value returned from a previous List request, if any.
+    string page_token = 3;
+}
+
+message ListArticlesResponse {
+    // There will be a maximum number of articles returned based on the page_size field int the request.
+    repeated Article articles = 1;
+
+    // Token to retrieve the next page of results, or empty if there are no more results in the list.
+    string next_page_token = 2;
+}
+
+message CreateArticleRequest {
+    // Name of the owner.
+    string parent = 1;
+    // Article to create.
+    Article article = 2;
+}
+
+message Article {
+    // Name of the resource, for example "users/user1/articles/article1".
+    string name = 1;
+}
