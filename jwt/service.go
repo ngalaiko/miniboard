@@ -12,6 +12,8 @@ import (
 	"miniboard.app/application/storage"
 )
 
+const defaultIssuer = "miniboard.app"
+
 // Service issues and validates jwt tokens.
 type Service struct {
 	keyStorage *keyStorage
@@ -48,11 +50,46 @@ func (s *Service) NewToken(subject string, duration time.Duration) (string, erro
 	now := time.Now()
 	claims := &jwt.Claims{
 		ID:       uuid.New().String(),
-		Issuer:   "miniboard.app",
+		Issuer:   defaultIssuer,
 		Subject:  subject,
 		IssuedAt: jwt.NewNumericDate(now),
 		Expiry:   jwt.NewNumericDate(now.Add(duration)),
 	}
 
 	return jwt.Signed(s.signer).Claims(claims).CompactSerialize()
+}
+
+// Validate returns token subject if a token is valid.
+func (s *Service) Validate(raw string) (string, error) {
+	token, err := jwt.ParseSigned(raw)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to parse token")
+	}
+
+	if len(token.Headers) == 0 {
+		return "", errors.Wrap(err, "headers missing from the token")
+	}
+
+	id, err := uuid.Parse(token.Headers[0].KeyID)
+	if err != nil {
+		return "", errors.Wrap(err, "invalid id")
+	}
+
+	key, err := s.keyStorage.Get(id)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to find key '%s'", id)
+	}
+
+	claims := &jwt.Claims{}
+	if err := token.Claims(key.Public, claims); err != nil {
+		return "", errors.Wrapf(err, "failed to parse claims")
+	}
+
+	if err := claims.Validate(jwt.Expected{
+		Issuer: defaultIssuer,
+	}); err != nil {
+		return "", errors.Wrap(err, "token is invalid")
+	}
+
+	return claims.Subject, nil
 }

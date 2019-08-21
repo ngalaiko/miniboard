@@ -17,11 +17,21 @@ func Test_Service(t *testing.T) {
 		assert.NoError(t, err)
 
 		t.Run("When creating a token", func(t *testing.T) {
-			token, err := service.NewToken("test subject", time.Hour)
+			testSubject := "test subject"
+			token, err := service.NewToken(testSubject, time.Hour)
 
 			t.Run("It should return a token", func(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotEmpty(t, token)
+			})
+
+			t.Run("When parsing the token", func(t *testing.T) {
+				parsedSubject, err := service.Validate(token)
+
+				t.Run("It should no error", func(t *testing.T) {
+					assert.NoError(t, err)
+					assert.Equal(t, parsedSubject, testSubject)
+				})
 			})
 		})
 	})
