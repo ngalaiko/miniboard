@@ -4,9 +4,9 @@ package app.miniboard.users.auth.v1;
 
 import "google/api/annotations.proto";
 
-option go_package = "auth";
+option go_package = "authentications";
 
-service AuthService {
+service AuthenticationsService {
     // Create Authentication
     //
     // Returns a user authentication.
