@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-package app.miniboard.authentications.v1;
+package app.miniboard.auth.v1;
 
 import "google/api/annotations.proto";
 
-option go_package = "authenticaton";
+option go_package = "auth";
 
-service AuthenticationsService {
-    // Authenticate
+service AuthService {
+    // Create Authentication
     //
     // Returns new user authentication.
     rpc CreateAuthentication(CreateAuthenticationRequest) returns (Authentication) {
