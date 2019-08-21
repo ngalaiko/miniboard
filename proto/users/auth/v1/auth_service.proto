@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package app.miniboard.users.auth.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "auth";
+
+service AuthService {
+    // Create Authentication
+    //
+    // Returns a user authentication.
+    rpc CreateAuthentication(CreateAuthenticationRequest) returns (Authentication) {
+        option (google.api.http) = {
+            post: "/api/v1/{parent=users/*}/authentications"
+        };
+    }
+}
+
+message CreateAuthenticationRequest {
+    // User resource name.
+    string parent = 1;
+    // Password.
+    string password = 2;
+}
+
+message Authentication {
+    enum Type  {
+        // Invalid authentication.
+        TYPE_UNKNOWN = 0;
+        // Bearer authentication.
+        TYPE_BEARER = 1;
+    }
+    // Name of the resource, for example "authentications/authentication1".
+    string name = 1;
+
+    // Type of the authorization.
+    Type type = 2;
+
+    // Authorization token.
+    string token = 3;
+}

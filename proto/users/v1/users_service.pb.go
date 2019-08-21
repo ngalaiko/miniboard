@@ -65,6 +65,46 @@ func (m *GetUserRequest) GetName() string {
 	return ""
 }
 
+type CreateUserRequest struct {
+	// User's password.
+	Password             string   `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CreateUserRequest) Reset()         { *m = CreateUserRequest{} }
+func (m *CreateUserRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateUserRequest) ProtoMessage()    {}
+func (*CreateUserRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0476f69c73c5728c, []int{1}
+}
+
+func (m *CreateUserRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateUserRequest.Unmarshal(m, b)
+}
+func (m *CreateUserRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateUserRequest.Marshal(b, m, deterministic)
+}
+func (m *CreateUserRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateUserRequest.Merge(m, src)
+}
+func (m *CreateUserRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateUserRequest.Size(m)
+}
+func (m *CreateUserRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateUserRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateUserRequest proto.InternalMessageInfo
+
+func (m *CreateUserRequest) GetPassword() string {
+	if m != nil {
+		return m.Password
+	}
+	return ""
+}
+
 type User struct {
 	// Name of the resource, for example "users/user1".
 	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -77,7 +117,7 @@ func (m *User) Reset()         { *m = User{} }
 func (m *User) String() string { return proto.CompactTextString(m) }
 func (*User) ProtoMessage()    {}
 func (*User) Descriptor() ([]byte, []int) {
-	return fileDescriptor_0476f69c73c5728c, []int{1}
+	return fileDescriptor_0476f69c73c5728c, []int{2}
 }
 
 func (m *User) XXX_Unmarshal(b []byte) error {
@@ -107,13 +147,14 @@ func (m *User) GetName() string {
 
 func init() {
 	proto.RegisterType((*GetUserRequest)(nil), "app.miniboard.users.v1.GetUserRequest")
+	proto.RegisterType((*CreateUserRequest)(nil), "app.miniboard.users.v1.CreateUserRequest")
 	proto.RegisterType((*User)(nil), "app.miniboard.users.v1.User")
 }
 
 func init() { proto.RegisterFile("users/v1/users_service.proto", fileDescriptor_0476f69c73c5728c) }
 
 var fileDescriptor_0476f69c73c5728c = []byte{
-	// 207 bytes of a gzipped FileDescriptorProto
+	// 264 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x29, 0x2d, 0x4e, 0x2d,
 	0x2a, 0xd6, 0x2f, 0x33, 0xd4, 0x07, 0x33, 0xe2, 0x8b, 0x53, 0x8b, 0xca, 0x32, 0x93, 0x53, 0xf5,
 	0x0a, 0x8a, 0xf2, 0x4b, 0xf2, 0x85, 0xc4, 0x12, 0x0b, 0x0a, 0xf4, 0x72, 0x33, 0xf3, 0x32, 0x93,
@@ -121,12 +162,16 @@ var fileDescriptor_0476f69c73c5728c = []byte{
 	0x73, 0x52, 0xf5, 0x13, 0x0b, 0x32, 0xf5, 0x13, 0xf3, 0xf2, 0xf2, 0x4b, 0x12, 0x4b, 0x32, 0xf3,
 	0xf3, 0x8a, 0x21, 0xba, 0x94, 0x54, 0xb8, 0xf8, 0xdc, 0x53, 0x4b, 0x42, 0x8b, 0x53, 0x8b, 0x82,
 	0x52, 0x0b, 0x4b, 0x53, 0x8b, 0x4b, 0x84, 0x84, 0xb8, 0x58, 0xf2, 0x12, 0x73, 0x53, 0x25, 0x18,
-	0x15, 0x18, 0x35, 0x38, 0x83, 0xc0, 0x6c, 0x25, 0x29, 0x2e, 0x16, 0x90, 0x12, 0x6c, 0x72, 0x46,
-	0xf5, 0x5c, 0x3c, 0x20, 0xb9, 0xe2, 0x60, 0x88, 0x6b, 0x84, 0xf2, 0xb9, 0xd8, 0xa1, 0x26, 0x0a,
-	0xa9, 0xe9, 0x61, 0x77, 0x93, 0x1e, 0xaa, 0x95, 0x52, 0x32, 0xb8, 0xd4, 0x81, 0x14, 0x29, 0xc9,
-	0x35, 0x5d, 0x7e, 0x32, 0x99, 0x49, 0x42, 0x48, 0x0c, 0xec, 0x85, 0x32, 0x43, 0xfd, 0x6a, 0x90,
-	0xbd, 0xb6, 0x90, 0xc0, 0xd0, 0xaa, 0x75, 0x62, 0x8f, 0x62, 0x05, 0xb3, 0x93, 0xd8, 0xc0, 0x5e,
-	0x32, 0x06, 0x04, 0x00, 0x00, 0xff, 0xff, 0x98, 0x93, 0x5c, 0x82, 0x28, 0x01, 0x00, 0x00,
+	0x15, 0x18, 0x35, 0x38, 0x83, 0xc0, 0x6c, 0x25, 0x7d, 0x2e, 0x41, 0xe7, 0xa2, 0xd4, 0xc4, 0x92,
+	0x54, 0x64, 0x85, 0x52, 0x5c, 0x1c, 0x05, 0x89, 0xc5, 0xc5, 0xe5, 0xf9, 0x45, 0x29, 0x50, 0xc5,
+	0x70, 0xbe, 0x92, 0x14, 0x17, 0x0b, 0x48, 0x29, 0x36, 0xc3, 0x8c, 0x3e, 0x31, 0x72, 0xf1, 0x80,
+	0x24, 0x8b, 0x83, 0x21, 0xee, 0x17, 0xca, 0xe7, 0x62, 0x87, 0xba, 0x41, 0x48, 0x4d, 0x0f, 0xbb,
+	0x2f, 0xf4, 0x50, 0x1d, 0x29, 0x25, 0x83, 0x4b, 0x1d, 0x48, 0x91, 0x92, 0x5c, 0xd3, 0xe5, 0x27,
+	0x93, 0x99, 0x24, 0x84, 0xc4, 0xc0, 0x9e, 0x2e, 0x33, 0xd4, 0xaf, 0x06, 0x59, 0x6c, 0x0b, 0x09,
+	0x3e, 0xad, 0x5a, 0xa1, 0x42, 0x2e, 0x2e, 0x84, 0x77, 0x84, 0x34, 0x71, 0x99, 0x85, 0xe1, 0x65,
+	0x02, 0xd6, 0x4a, 0x81, 0xad, 0x15, 0x51, 0xe2, 0x87, 0x59, 0x0b, 0xb5, 0xd0, 0x8a, 0x51, 0xcb,
+	0x89, 0x3d, 0x8a, 0x15, 0xcc, 0x4b, 0x62, 0x03, 0x87, 0xbb, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff,
+	0x83, 0xe4, 0xc4, 0x26, 0xcd, 0x01, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -145,6 +190,10 @@ type UsersServiceClient interface {
 	//
 	// An endpoint to get an existing user.
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*User, error)
+	// Create user
+	//
+	// An endpoint to create a new existing user.
+	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error)
 }
 
 type usersServiceClient struct {
@@ -164,12 +213,25 @@ func (c *usersServiceClient) GetUser(ctx context.Context, in *GetUserRequest, op
 	return out, nil
 }
 
+func (c *usersServiceClient) CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
+	err := c.cc.Invoke(ctx, "/app.miniboard.users.v1.UsersService/CreateUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UsersServiceServer is the server API for UsersService service.
 type UsersServiceServer interface {
 	// Get user
 	//
 	// An endpoint to get an existing user.
 	GetUser(context.Context, *GetUserRequest) (*User, error)
+	// Create user
+	//
+	// An endpoint to create a new existing user.
+	CreateUser(context.Context, *CreateUserRequest) (*User, error)
 }
 
 // UnimplementedUsersServiceServer can be embedded to have forward compatible implementations.
@@ -178,6 +240,9 @@ type UnimplementedUsersServiceServer struct {
 
 func (*UnimplementedUsersServiceServer) GetUser(ctx context.Context, req *GetUserRequest) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
+}
+func (*UnimplementedUsersServiceServer) CreateUser(ctx context.Context, req *CreateUserRequest) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
 
 func RegisterUsersServiceServer(s *grpc.Server, srv UsersServiceServer) {
@@ -202,6 +267,24 @@ func _UsersService_GetUser_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UsersService_CreateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServiceServer).CreateUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/app.miniboard.users.v1.UsersService/CreateUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServiceServer).CreateUser(ctx, req.(*CreateUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _UsersService_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "app.miniboard.users.v1.UsersService",
 	HandlerType: (*UsersServiceServer)(nil),
@@ -209,6 +292,10 @@ var _UsersService_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUser",
 			Handler:    _UsersService_GetUser_Handler,
+		},
+		{
+			MethodName: "CreateUser",
+			Handler:    _UsersService_CreateUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
