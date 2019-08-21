@@ -15,28 +15,11 @@ service UsersService {
             get: "/api/v1/{name=users/*}"
         };
     }
-
-    // Create new user
-    //
-    // Creates a new user with provided username and password.
-    rpc CreateUser(CreateUserRequest) returns (User) {
-        option (google.api.http) = {
-            post: "/api/v1/users"
-            body: "*"
-        };
-    }
 }
 
 message GetUserRequest {
     // Name of the user resource to return.
     string name = 1;
-}
-
-message CreateUserRequest {
-    // Name of a user.
-    string username = 1;
-    // Password of a user.
-    string password = 2;
 }
 
 message User {
