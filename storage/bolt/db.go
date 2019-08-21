@@ -2,6 +2,7 @@ package bolt // import "miniboard.app/storage/bolt"
 
 import (
 	"context"
+	"os"
 
 	bolt "github.com/coreos/bbolt"
 	"github.com/pkg/errors"
@@ -18,7 +19,11 @@ type DB struct {
 
 // New creates new storage instance. Database is storad in the _path_.
 func New(ctx context.Context, path string) (*DB, error) {
-	logrus.Infof("creating bolt storage in %s", path)
+	if _, err := os.Open(path); err != nil {
+		logrus.Infof("[bolt]: creating storage in %s", path)
+	} else {
+		logrus.Infof("[bolt] found storage in %s", path)
+	}
 
 	db, err := bolt.Open(path, 0600, &bolt.Options{})
 	if err != nil {
@@ -28,9 +33,9 @@ func New(ctx context.Context, path string) (*DB, error) {
 	go func() {
 		<-ctx.Done()
 
-		logrus.Infof("closing bolt storage %s", path)
+		logrus.Infof("[bolt] closing storage %s", path)
 		if err := db.Close(); err != nil {
-			logrus.Errorf("closing bolt storage error: %s", err)
+			logrus.Errorf("[bolt] closing storage error: %s", err)
 		}
 	}()
 
@@ -41,14 +46,18 @@ func New(ctx context.Context, path string) (*DB, error) {
 
 // Namespace creates new bucket.
 func (db *DB) Namespace(name string) storage.Storage {
-	logrus.Infof("creating bolt bucket '%s'", name)
 	byteName := []byte(name)
 
 	if err := db.db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists(byteName)
+		if tx.Bucket(byteName) != nil {
+			logrus.Infof("[bolt] found bucket '%s'", name)
+			return nil
+		}
+		_, err := tx.CreateBucket(byteName)
+		logrus.Infof("[bolt] created bucket '%s'", name)
 		return err
 	}); err != nil {
-		logrus.Panicf("failed to create bucket: %s", name)
+		logrus.Panicf("[bolt] failed to create bucket: %s", name)
 	}
 
 	return &Bucket{

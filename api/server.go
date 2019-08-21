@@ -33,13 +33,14 @@ func NewServer(ctx context.Context, db storage.DB) *Server {
 
 // Serve starts the server.
 func (s *Server) Serve(ctx context.Context, lis net.Listener) error {
-	logrus.Infof("starting gRPC server on %s", lis.Addr())
+	logrus.Infof("[gRPC] starting server on %s", lis.Addr())
 
 	if err := s.grpcServer.Serve(lis); err != nil {
 		return errors.Wrap(err, "failed to start gRPC server")
 	}
 	go func() {
 		<-ctx.Done()
+		logrus.Infof("[gRPC] stopping server")
 		s.grpcServer.GracefulStop()
 	}()
 

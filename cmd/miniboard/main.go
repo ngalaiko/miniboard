@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"net"
-	"os"
 
 	"github.com/sirupsen/logrus"
 	"miniboard.app/application/api"
@@ -22,12 +21,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	file, err := os.OpenFile(*boltPath, os.O_RDWR|os.O_CREATE, 0666)
-	if err != nil {
-		logrus.Panicf("failed to open bolt file: %s", err)
-	}
-
-	db, err := bolt.New(ctx, file.Name())
+	db, err := bolt.New(ctx, *boltPath)
 	if err != nil {
 		logrus.Panicf("failed to create bolt database: %s", err)
 	}
