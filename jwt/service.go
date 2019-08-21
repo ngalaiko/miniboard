@@ -21,8 +21,8 @@ type Service struct {
 }
 
 // New creates new jwt service instance.
-func New(_ context.Context, publicKeyStorage storage.Storage) (*Service, error) {
-	keyStorage := newKeyStorage(publicKeyStorage)
+func New(_ context.Context, db storage.DB) (*Service, error) {
+	keyStorage := newKeyStorage(db)
 
 	key, err := keyStorage.Create()
 	if err != nil {

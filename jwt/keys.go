@@ -23,9 +23,9 @@ type keyStorage struct {
 	storage storage.Storage
 }
 
-func newKeyStorage(storage storage.Storage) *keyStorage {
+func newKeyStorage(db storage.DB) *keyStorage {
 	return &keyStorage{
-		storage: storage,
+		storage: db.Namespace("jwt_keys"),
 	}
 }
 

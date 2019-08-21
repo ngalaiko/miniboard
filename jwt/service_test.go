@@ -13,7 +13,7 @@ func Test_Service(t *testing.T) {
 	defer cancel()
 
 	t.Run("With new service", func(t *testing.T) {
-		service, err := New(ctx, testStorage(ctx, t))
+		service, err := New(ctx, testDB(ctx, t))
 		assert.NoError(t, err)
 
 		t.Run("When creating a token", func(t *testing.T) {

@@ -22,13 +22,10 @@ type Service struct {
 }
 
 // New returns new users storage instance.
-func New(
-	usersStorage storage.Storage,
-	passwordsStorage storage.Storage,
-) *Service {
+func New(db storage.DB) *Service {
 	return &Service{
-		usersStorage:     usersStorage,
-		passwordsStorage: passwordsStorage,
+		usersStorage:     db.Namespace("users"),
+		passwordsStorage: db.Namespace("passwords"),
 	}
 }
 

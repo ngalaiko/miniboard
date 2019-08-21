@@ -1,6 +1,11 @@
 package storage // import "miniboard.app/storage"
 
-// Storage used to store data.
+// DB contains namespaces.
+type DB interface {
+	Namespace(string) Storage
+}
+
+// Storage used to store key value data.
 type Storage interface {
 	// Store stores data by the id.
 	Store(id []byte, data []byte) error

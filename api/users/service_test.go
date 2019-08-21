@@ -21,7 +21,7 @@ func Test_UsersService(t *testing.T) {
 	db := testDB(ctx, t)
 
 	t.Run("With new service", func(t *testing.T) {
-		service := New(testStorage(t, db, "users"), testStorage(t, db, "hashes"))
+		service := New(db)
 
 		t.Run("When creating a new user empty name", func(t *testing.T) {
 			user, err := service.CreateUser(ctx, &users.CreateUserRequest{
@@ -87,7 +87,7 @@ func Test_UsersService(t *testing.T) {
 
 }
 
-func testDB(ctx context.Context, t *testing.T) *bolt.DB {
+func testDB(ctx context.Context, t *testing.T) storage.DB {
 	tmpfile, err := ioutil.TempFile("", "bolt")
 	if err != nil {
 		t.Fatalf("failed to create database: %s", err)
@@ -102,12 +102,4 @@ func testDB(ctx context.Context, t *testing.T) *bolt.DB {
 		t.Fatalf("failed to create database: %s", err)
 	}
 	return db
-}
-
-func testStorage(t *testing.T, db *bolt.DB, name string) storage.Storage {
-	bucket, err := db.Bucket(name)
-	if err != nil {
-		t.Fatalf("failed to create database: %s", err)
-	}
-	return bucket
 }

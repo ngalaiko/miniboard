@@ -17,7 +17,7 @@ func Test_keyStorage_Create__should_create_new_key(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	service := newKeyStorage(testStorage(ctx, t))
+	service := newKeyStorage(testDB(ctx, t))
 
 	key, err := service.Create()
 	assert.NoError(t, err)
@@ -30,7 +30,7 @@ func Test_keyStorage_Get(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	service := newKeyStorage(testStorage(ctx, t))
+	service := newKeyStorage(testDB(ctx, t))
 
 	t.Run("When a key doesn't exist", func(t *testing.T) {
 		t.Run("Then error should be not found", func(t *testing.T) {
@@ -60,7 +60,7 @@ func Test_keyStorage_Get(t *testing.T) {
 	assert.NotNil(t, key.Public)
 }
 
-func testStorage(ctx context.Context, t *testing.T) storage.Storage {
+func testDB(ctx context.Context, t *testing.T) storage.DB {
 	tmpfile, err := ioutil.TempFile("", "bolt")
 	if err != nil {
 		t.Fatalf("failed to create database: %s", err)
@@ -74,10 +74,5 @@ func testStorage(ctx context.Context, t *testing.T) storage.Storage {
 	if err != nil {
 		t.Fatalf("failed to create database: %s", err)
 	}
-
-	bucket, err := db.Bucket("test")
-	if err != nil {
-		t.Fatalf("failed to create database: %s", err)
-	}
-	return bucket
+	return db
 }

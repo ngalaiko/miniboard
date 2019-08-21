@@ -6,7 +6,10 @@ import (
 	bolt "github.com/coreos/bbolt"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"miniboard.app/application/storage"
 )
+
+var _ storage.DB = &DB{}
 
 // DB is a boltdb powered storage implementation.
 type DB struct {
@@ -36,15 +39,20 @@ func New(ctx context.Context, path string) (*DB, error) {
 	}, nil
 }
 
-// Bucket creates new bucket.
-func (db *DB) Bucket(name string) (*Bucket, error) {
+// Namespace creates new bucket.
+func (db *DB) Namespace(name string) storage.Storage {
 	logrus.Infof("creating bolt bucket '%s'", name)
 	byteName := []byte(name)
+
+	if err := db.db.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists(byteName)
+		return err
+	}); err != nil {
+		logrus.Panicf("failed to create bucket: %s", name)
+	}
+
 	return &Bucket{
-			db:   db.db,
-			name: byteName,
-		}, db.db.Update(func(tx *bolt.Tx) error {
-			_, err := tx.CreateBucketIfNotExists(byteName)
-			return err
-		})
+		db:   db.db,
+		name: byteName,
+	}
 }

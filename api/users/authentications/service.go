@@ -1,4 +1,4 @@
-package auth // import "miniboard.app/services/auth"
+package authentications // import "miniboard.app/services/authentications"
 
 import (
 	"context"
@@ -17,9 +17,9 @@ type Service struct {
 // New creates a new service instance.
 func New(
 	ctx context.Context,
-	publicKeyStorage storage.Storage,
+	db storage.DB,
 ) (*Service, error) {
-	jwt, err := jwt.New(ctx, publicKeyStorage)
+	jwt, err := jwt.New(ctx, db)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to init jwt service")
 	}
