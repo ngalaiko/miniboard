@@ -1,0 +1,37 @@
+package auth // import "miniboard.app/services/auth"
+
+import (
+	"context"
+
+	"github.com/pkg/errors"
+	"miniboard.app/application/jwt"
+	"miniboard.app/application/proto/users/authentications/v1"
+	"miniboard.app/application/storage"
+)
+
+// Service creates and validates new authorizations.
+type Service struct {
+	jwt *jwt.Service
+}
+
+// New creates a new service instance.
+func New(
+	ctx context.Context,
+	publicKeyStorage storage.Storage,
+) (*Service, error) {
+	jwt, err := jwt.New(ctx, publicKeyStorage)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to init jwt service")
+	}
+	return &Service{
+		jwt: jwt,
+	}, nil
+}
+
+// CreateAuthentication returns new JWT authentiction.
+func (s *Service) CreateAuthentication(
+	ctx context.Context,
+	request *authentications.CreateAuthenticationRequest,
+) (*authentications.Authentication, error) {
+	return nil, nil
+}
