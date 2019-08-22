@@ -39,7 +39,7 @@ func Test_UsersService(t *testing.T) {
 
 		t.Run("When creating a new user empty password", func(t *testing.T) {
 			user, err := service.CreateUser(ctx, &users.CreateUserRequest{
-				Name: "test name",
+				Username: "test name",
 			})
 			t.Run("Then an error should be returned", func(t *testing.T) {
 				assert.Nil(t, user)
@@ -66,17 +66,16 @@ func Test_UsersService(t *testing.T) {
 		t.Run("When creating a new user with password", func(t *testing.T) {
 			testName := "test name"
 			createdUser, err := service.CreateUser(ctx, &users.CreateUserRequest{
-				Name:     testName,
+				Username: testName,
 				Password: "test password",
 			})
 			t.Run("Then a user should be created", func(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotNil(t, createdUser)
 			})
-
 			t.Run("When getting the user", func(t *testing.T) {
 				user, err := service.GetUser(ctx, &users.GetUserRequest{
-					Name: testName,
+					Name: createdUser.Name,
 				})
 				t.Run("Then the user should be returned", func(t *testing.T) {
 					assert.NoError(t, err)

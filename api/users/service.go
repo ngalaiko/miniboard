@@ -2,8 +2,10 @@ package users // import "miniboard.app/api/users"
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -53,7 +55,7 @@ func (s *Service) CreateUser(
 	ctx context.Context,
 	request *users.CreateUserRequest,
 ) (*users.User, error) {
-	if request.Name == "" {
+	if request.Username == "" {
 		return nil, status.New(codes.InvalidArgument, "name is empty").Err()
 	}
 
@@ -61,12 +63,15 @@ func (s *Service) CreateUser(
 		return nil, status.New(codes.InvalidArgument, "password is empty").Err()
 	}
 
-	if err := s.passwordsService.Set(request.Name, request.Password); err != nil {
+	name := fmt.Sprintf("users/%s", uuid.New().String())
+
+	if err := s.passwordsService.Set(name, request.Password); err != nil {
 		return nil, status.New(codes.Internal, "failed to store password hash").Err()
 	}
 
 	user := &users.User{
-		Name: request.Name,
+		Name:     name,
+		Username: request.Username,
 	}
 
 	rawUser, err := proto.Marshal(user)
