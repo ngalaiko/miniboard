@@ -1,2 +1,6 @@
+# test db
 bolt.db
+
+# bazel
+bazel-*
 
