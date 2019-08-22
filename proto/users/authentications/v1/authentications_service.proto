@@ -13,6 +13,7 @@ service AuthenticationsService {
     rpc CreateAuthentication(CreateAuthenticationRequest) returns (Authentication) {
         option (google.api.http) = {
             post: "/api/v1/{parent=users/*}/authentications"
+            body: "*"
         };
     }
 }
