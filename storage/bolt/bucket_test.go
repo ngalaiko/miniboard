@@ -8,7 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
-	"miniboard.app/application/storage"
+	"miniboard.app/storage"
 )
 
 func Test_DB_Store(t *testing.T) {

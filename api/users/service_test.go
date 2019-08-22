@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"miniboard.app/application/proto/users/v1"
-	"miniboard.app/application/storage"
-	"miniboard.app/application/storage/bolt"
+	"miniboard.app/proto/users/v1"
+	"miniboard.app/storage"
+	"miniboard.app/storage/bolt"
 )
 
 func Test_UsersService(t *testing.T) {

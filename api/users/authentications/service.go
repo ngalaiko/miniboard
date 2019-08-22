@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
-	"miniboard.app/application/jwt"
-	"miniboard.app/application/proto/users/authentications/v1"
-	"miniboard.app/application/storage"
+	"miniboard.app/jwt"
+	"miniboard.app/proto/users/authentications/v1"
+	"miniboard.app/storage"
 )
 
 // Service creates and validates new authorizations.

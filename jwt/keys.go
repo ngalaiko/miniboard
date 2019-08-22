@@ -9,7 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	"miniboard.app/application/storage"
+	"miniboard.app/storage"
 )
 
 // key is an encryption key.

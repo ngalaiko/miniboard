@@ -1,4 +1,4 @@
-module miniboard.app/application
+module miniboard.app
 
 go 1.12
 

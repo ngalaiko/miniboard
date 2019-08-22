@@ -4,7 +4,7 @@ import (
 	"bytes"
 
 	bolt "github.com/coreos/bbolt"
-	"miniboard.app/application/storage"
+	"miniboard.app/storage"
 )
 
 var _ storage.Storage = &Bucket{}

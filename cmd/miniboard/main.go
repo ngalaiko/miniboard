@@ -6,8 +6,8 @@ import (
 	"net"
 
 	"github.com/sirupsen/logrus"
-	"miniboard.app/application/api"
-	"miniboard.app/application/storage/bolt"
+	"miniboard.app/api"
+	"miniboard.app/storage/bolt"
 )
 
 var (

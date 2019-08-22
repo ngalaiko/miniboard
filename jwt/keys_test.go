@@ -9,8 +9,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
-	"miniboard.app/application/storage"
-	"miniboard.app/application/storage/bolt"
+	"miniboard.app/storage"
+	"miniboard.app/storage/bolt"
 )
 
 func Test_keyStorage_Create__should_create_new_key(t *testing.T) {

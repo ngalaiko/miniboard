@@ -8,9 +8,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	usersservice "miniboard.app/application/api/users"
-	"miniboard.app/application/proto/users/v1"
-	"miniboard.app/application/storage"
+	usersservice "miniboard.app/api/users"
+	"miniboard.app/proto/users/v1"
+	"miniboard.app/storage"
 )
 
 // Server is the api server.

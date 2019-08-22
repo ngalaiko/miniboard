@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 	jose "gopkg.in/square/go-jose.v2"
 	"gopkg.in/square/go-jose.v2/jwt"
-	"miniboard.app/application/storage"
+	"miniboard.app/storage"
 )
 
 const defaultIssuer = "miniboard.app"

@@ -9,8 +9,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"miniboard.app/application/proto/users/v1"
-	"miniboard.app/application/storage"
+	"miniboard.app/proto/users/v1"
+	"miniboard.app/storage"
 )
 
 const bcryptCost = 10

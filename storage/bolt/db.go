@@ -7,7 +7,7 @@ import (
 	bolt "github.com/coreos/bbolt"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"miniboard.app/application/storage"
+	"miniboard.app/storage"
 )
 
 var _ storage.DB = &DB{}
