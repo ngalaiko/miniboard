@@ -20,9 +20,9 @@ type DB struct {
 // New creates new storage instance. Database is storad in the _path_.
 func New(ctx context.Context, path string) (*DB, error) {
 	if _, err := os.Open(path); err != nil {
-		logrus.Infof("[bolt]: creating storage in %s", path)
+		log("bolt").Infof("creating storage in %s", path)
 	} else {
-		logrus.Infof("[bolt] found storage in %s", path)
+		log("bolt").Infof("found storage in %s", path)
 	}
 
 	db, err := bolt.Open(path, 0600, &bolt.Options{})
@@ -33,9 +33,9 @@ func New(ctx context.Context, path string) (*DB, error) {
 	go func() {
 		<-ctx.Done()
 
-		logrus.Infof("[bolt] closing storage %s", path)
+		log("bolt").Infof("[bolt] closing storage %s", path)
 		if err := db.Close(); err != nil {
-			logrus.Errorf("[bolt] closing storage error: %s", err)
+			log("bolt").Errorf("[bolt] closing storage error: %s", err)
 		}
 	}()
 
@@ -50,18 +50,23 @@ func (db *DB) Namespace(name string) storage.Storage {
 
 	if err := db.db.Update(func(tx *bolt.Tx) error {
 		if tx.Bucket(byteName) != nil {
-			logrus.Infof("[bolt] found bucket '%s'", name)
+			log("bolt").Infof("found bucket '%s'", name)
 			return nil
 		}
 		_, err := tx.CreateBucket(byteName)
-		logrus.Infof("[bolt] created bucket '%s'", name)
+		log("bolt").Infof("created bucket '%s'", name)
 		return err
 	}); err != nil {
-		logrus.Panicf("[bolt] failed to create bucket: %s", name)
+		log("bolt").Panicf("failed to create bucket: %s", name)
 	}
 
 	return &Bucket{
 		db:   db.db,
 		name: byteName,
 	}
+}
+func log(src string) *logrus.Entry {
+	return logrus.WithFields(logrus.Fields{
+		"source": src,
+	})
 }

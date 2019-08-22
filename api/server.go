@@ -4,6 +4,7 @@ import (
 	"context"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/pkg/errors"
@@ -27,21 +28,34 @@ func NewServer(ctx context.Context, db storage.DB) *Server {
 
 	return &Server{
 		httpServer: &http.Server{
-			Handler: gwMux,
+			Handler: withAccessLogs(gwMux),
 		},
 	}
 }
 
+func withAccessLogs(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		defer log("access").WithFields(logrus.Fields{
+			"method":   r.Method,
+			"path":     r.URL.String(),
+			"ts":       start.Format(time.RFC3339),
+			"duration": time.Since(start),
+		}).Info()
+		h.ServeHTTP(w, r)
+	})
+}
+
 // Serve starts the server.
 func (s *Server) Serve(ctx context.Context, lis net.Listener) error {
-	logrus.Infof("[http] starting server on %s", lis.Addr())
+	log("http").Infof("starting server on %s", lis.Addr())
 
 	idleConnsClosed := make(chan struct{})
 	go func() {
 		<-ctx.Done()
-		logrus.Infof("[http] stopping server")
+		log("http").Infof("stopping server")
 		if err := s.httpServer.Shutdown(context.Background()); err != nil {
-			logrus.Errorf("[http] error stopping server: %s", err)
+			log("http").Errorf("error stopping server: %s", err)
 		}
 		close(idleConnsClosed)
 	}()
@@ -53,4 +67,10 @@ func (s *Server) Serve(ctx context.Context, lis net.Listener) error {
 	<-idleConnsClosed
 
 	return nil
+}
+
+func log(src string) *logrus.Entry {
+	return logrus.WithFields(logrus.Fields{
+		"source": src,
+	})
 }
