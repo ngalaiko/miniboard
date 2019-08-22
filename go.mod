@@ -11,6 +11,7 @@ require (
 	github.com/stretchr/testify v1.2.2
 	go.etcd.io/bbolt v1.3.3 // indirect
 	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
+	google.golang.org/appengine v1.4.0 // indirect
 	google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55 // indirect
 	google.golang.org/grpc v1.23.0
 	gopkg.in/square/go-jose.v2 v2.3.1
