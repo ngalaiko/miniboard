@@ -4,7 +4,6 @@ import (
 	"context"
 	"net"
 	"net/http"
-	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/pkg/errors"
@@ -48,19 +47,6 @@ func NewServer(ctx context.Context, db storage.DB) *Server {
 			Handler: withAccessLogs(gwMux),
 		},
 	}
-}
-
-func withAccessLogs(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		defer log("access").WithFields(logrus.Fields{
-			"method":   r.Method,
-			"path":     r.URL.String(),
-			"ts":       start.Format(time.RFC3339),
-			"duration": time.Since(start),
-		}).Info()
-		h.ServeHTTP(w, r)
-	})
 }
 
 // Serve starts the server.

@@ -12,8 +12,6 @@ import (
 	"miniboard.app/storage"
 )
 
-const bcryptCost = 10
-
 // Service controlls users resource.
 type Service struct {
 	usersStorage     storage.Storage
