@@ -88,7 +88,7 @@ func Test_DB_LoadPrefix(t *testing.T) {
 	})
 }
 
-func testBucket(ctx context.Context, t *testing.T) *Bucket {
+func testBucket(ctx context.Context, t *testing.T) storage.Storage {
 	tmpfile, err := ioutil.TempFile("", "bolt")
 	if err != nil {
 		t.Fatalf("failed to create database: %s", err)
@@ -103,9 +103,5 @@ func testBucket(ctx context.Context, t *testing.T) *Bucket {
 		t.Fatalf("failed to create database: %s", err)
 	}
 
-	bucket, err := db.Bucket("test")
-	if err != nil {
-		t.Fatalf("failed to create database: %s", err)
-	}
-	return bucket
+	return db.Namespace("test")
 }
