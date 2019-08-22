@@ -53,7 +53,7 @@ func (s *Service) CreateAuthentication(
 	}
 
 	return &authentications.Authentication{
-		Type:  authentications.Authentication_TYPE_BEARER,
+		Type:  "Bearer",
 		Token: token,
 	}, nil
 }

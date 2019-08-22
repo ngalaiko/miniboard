@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"miniboard.app/proto/users/authentications/v1"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
@@ -27,11 +28,11 @@ func Test_server(t *testing.T) {
 		server := httptest.NewServer(NewServer(ctx, db).httpServer.Handler)
 		defer server.Close()
 
-		t.Run("When getting a non existing user", func(t *testing.T) {
+		t.Run("When getting a non existing user without a header", func(t *testing.T) {
 			resp, err := http.Get(server.URL + "/api/v1/users/random-id")
-			t.Run("It should return NotFound", func(t *testing.T) {
+			t.Run("It should return 401", func(t *testing.T) {
 				assert.NoError(t, err)
-				assert.Equal(t, resp.StatusCode, http.StatusNotFound)
+				assert.Equal(t, resp.StatusCode, http.StatusUnauthorized)
 			})
 		})
 
@@ -66,6 +67,29 @@ func Test_server(t *testing.T) {
 					))
 					assert.NoError(t, err)
 					assert.Equal(t, resp.StatusCode, http.StatusOK)
+
+					authentication := &authentications.Authentication{}
+					parseResponse(t, resp, authentication)
+
+					assert.NotEmpty(t, authentication.Token)
+					assert.Equal(t, authentication.Type, "Bearer")
+
+					t.Run("When getting the user with the token", func(t *testing.T) {
+						resp, err := http.DefaultClient.Do(getAuth(t,
+							fmt.Sprintf("%s/api/v1/%s", server.URL, user.Name),
+							authentication,
+						))
+						t.Run("It should return the user", func(t *testing.T) {
+							assert.NoError(t, err)
+							assert.Equal(t, resp.StatusCode, http.StatusOK)
+
+							got := &users.User{}
+							parseResponse(t, resp, got)
+
+							assert.Equal(t, got.Username, username)
+						})
+					})
+					// TODO: get another user
 				})
 			})
 		})
@@ -76,6 +100,15 @@ func parseResponse(t *testing.T, resp *http.Response, dst interface{}) {
 	raw, err := ioutil.ReadAll(resp.Body)
 	assert.NoError(t, err)
 	assert.NoError(t, json.Unmarshal(raw, dst))
+}
+
+func getAuth(t *testing.T, url string, auth *authentications.Authentication) *http.Request {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	assert.NoError(t, err)
+
+	req.Header.Add("Authorization", fmt.Sprintf("%s %s", auth.Type, auth.Token))
+
+	return req
 }
 
 func postJSON(t *testing.T, url string, body interface{}) *http.Request {

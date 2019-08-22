@@ -44,7 +44,9 @@ func NewServer(ctx context.Context, db storage.DB) *Server {
 
 	return &Server{
 		httpServer: &http.Server{
-			Handler: withAccessLogs(gwMux),
+			Handler: withAccessLogs(
+				withAuthentication(gwMux, jwtService),
+			),
 		},
 	}
 }

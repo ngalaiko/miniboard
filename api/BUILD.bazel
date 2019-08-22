@@ -3,6 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 go_library(
     name = "go_default_library",
     srcs = [
+        "authentication.go",
         "logging.go",
         "server.go",
     ],
@@ -27,6 +28,7 @@ go_test(
     srcs = ["server_test.go"],
     embed = [":go_default_library"],
     deps = [
+        "//proto/users/authentications/v1:go_default_library",
         "//proto/users/v1:go_default_library",
         "//storage:go_default_library",
         "//storage/bolt:go_default_library",

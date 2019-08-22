@@ -26,15 +26,8 @@ message CreateAuthenticationRequest {
 }
 
 message Authentication {
-    enum Type  {
-        // Invalid authentication.
-        TYPE_UNKNOWN = 0;
-        // Bearer authentication.
-        TYPE_BEARER = 1;
-    }
-
     // Type of the authorization.
-    Type type = 1;
+    string type = 1;
 
     // Authorization token.
     string token = 2;
