@@ -10,7 +10,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	usersservice "miniboard.app/api/users"
+	authenticatationsservice "miniboard.app/api/users/authentications"
+	"miniboard.app/jwt"
 	"miniboard.app/passwords"
+	"miniboard.app/proto/users/authentications/v1"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
 )
@@ -24,9 +27,21 @@ type Server struct {
 func NewServer(ctx context.Context, db storage.DB) *Server {
 	passwordsService := passwords.NewService(db)
 	usersService := usersservice.New(db, passwordsService)
+	jwtService := jwt.NewService(db)
+	authenticationsService := authenticatationsservice.New(jwtService, passwordsService)
 
 	gwMux := runtime.NewServeMux()
-	users.RegisterUsersServiceHandlerClient(ctx, gwMux, usersservice.NewProxyClient(usersService))
+
+	users.RegisterUsersServiceHandlerClient(
+		ctx,
+		gwMux,
+		usersservice.NewProxyClient(usersService),
+	)
+	authentications.RegisterAuthenticationsServiceHandlerClient(
+		ctx,
+		gwMux,
+		authenticatationsservice.NewProxyClient(authenticationsService),
+	)
 
 	return &Server{
 		httpServer: &http.Server{

@@ -22,10 +22,7 @@ type Service struct {
 }
 
 // New creates a new service instance.
-func New(
-	jwtService *jwt.Service,
-	passwordsService *passwords.Service,
-) *Service {
+func New(jwtService *jwt.Service, passwordsService *passwords.Service) *Service {
 	return &Service{
 		jwt:       jwtService,
 		passwords: passwordsService,

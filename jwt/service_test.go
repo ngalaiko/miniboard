@@ -13,8 +13,7 @@ func Test_Service(t *testing.T) {
 	defer cancel()
 
 	t.Run("With new service", func(t *testing.T) {
-		service, err := NewService(testDB(ctx, t))
-		assert.NoError(t, err)
+		service := NewService(testDB(ctx, t))
 
 		t.Run("When creating a token", func(t *testing.T) {
 			testSubject := "test subject"

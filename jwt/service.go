@@ -20,14 +20,14 @@ type Service struct {
 }
 
 // NewService creates new jwt service instance.
-func NewService(db storage.DB) (*Service, error) {
+func NewService(db storage.DB) *Service {
 	keyStorage := newKeyStorage(db)
 
 	key, err := keyStorage.Create()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to generate key")
+		log("jwt").Panicf("failed to generate key: %s", err)
 	}
-	logrus.Infof("generated key: %s", key.ID)
+	log("jwt").Infof("generated encryption key: %s", key.ID)
 
 	options := (&jose.SignerOptions{}).
 		WithHeader("kid", key.ID).
@@ -41,7 +41,7 @@ func NewService(db storage.DB) (*Service, error) {
 	return &Service{
 		keyStorage: keyStorage,
 		signer:     signer,
-	}, nil
+	}
 }
 
 // NewToken returns new authorization.
@@ -91,4 +91,10 @@ func (s *Service) Validate(raw string) (string, error) {
 	}
 
 	return claims.Subject, nil
+}
+
+func log(src string) *logrus.Entry {
+	return logrus.WithFields(logrus.Fields{
+		"source": src,
+	})
 }
