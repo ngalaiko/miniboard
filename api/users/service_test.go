@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"miniboard.app/passwords"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
@@ -21,7 +22,7 @@ func Test_UsersService(t *testing.T) {
 	db := testDB(ctx, t)
 
 	t.Run("With new service", func(t *testing.T) {
-		service := New(db)
+		service := New(db, passwords.NewService(db))
 
 		t.Run("When creating a new user empty name", func(t *testing.T) {
 			user, err := service.CreateUser(ctx, &users.CreateUserRequest{

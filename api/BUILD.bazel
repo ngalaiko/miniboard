@@ -7,6 +7,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//api/users:go_default_library",
+        "//passwords:go_default_library",
         "//proto/users/v1:go_default_library",
         "//storage:go_default_library",
         "@com_github_grpc_ecosystem_grpc_gateway//runtime:go_default_library",

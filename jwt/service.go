@@ -1,7 +1,6 @@
-package jwt
+package jwt // import "miniboard.app/jwt"
 
 import (
-	"context"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,8 +19,8 @@ type Service struct {
 	signer     jose.Signer
 }
 
-// New creates new jwt service instance.
-func New(_ context.Context, db storage.DB) (*Service, error) {
+// NewService creates new jwt service instance.
+func NewService(db storage.DB) (*Service, error) {
 	keyStorage := newKeyStorage(db)
 
 	key, err := keyStorage.Create()

@@ -9,6 +9,7 @@ go_library(
     importpath = "miniboard.app/api/users",
     visibility = ["//visibility:public"],
     deps = [
+        "//passwords:go_default_library",
         "//proto/users/v1:go_default_library",
         "//storage:go_default_library",
         "@com_github_golang_protobuf//proto:go_default_library",
@@ -16,7 +17,6 @@ go_library(
         "@org_golang_google_grpc//:go_default_library",
         "@org_golang_google_grpc//codes:go_default_library",
         "@org_golang_google_grpc//status:go_default_library",
-        "@org_golang_x_crypto//bcrypt:go_default_library",
     ],
 )
 
@@ -25,6 +25,7 @@ go_test(
     srcs = ["service_test.go"],
     embed = [":go_default_library"],
     deps = [
+        "//passwords:go_default_library",
         "//proto/users/v1:go_default_library",
         "//storage:go_default_library",
         "//storage/bolt:go_default_library",

@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	usersservice "miniboard.app/api/users"
+	"miniboard.app/passwords"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
 )
@@ -21,7 +22,8 @@ type Server struct {
 
 // NewServer creates new api server.
 func NewServer(ctx context.Context, db storage.DB) *Server {
-	usersService := usersservice.New(db)
+	passwordsService := passwords.NewService(db)
+	usersService := usersservice.New(db, passwordsService)
 
 	gwMux := runtime.NewServeMux()
 	users.RegisterUsersServiceHandlerClient(ctx, gwMux, usersservice.NewProxyClient(usersService))

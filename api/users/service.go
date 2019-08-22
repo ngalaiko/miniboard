@@ -2,13 +2,12 @@ package users // import "miniboard.app/api/users"
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
-	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"miniboard.app/passwords"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
 )
@@ -18,14 +17,14 @@ const bcryptCost = 10
 // Service controlls users resource.
 type Service struct {
 	usersStorage     storage.Storage
-	passwordsStorage storage.Storage
+	passwordsService *passwords.Service
 }
 
 // New returns new users storage instance.
-func New(db storage.DB) *Service {
+func New(db storage.DB, passwordsService *passwords.Service) *Service {
 	return &Service{
 		usersStorage:     db.Namespace("users"),
-		passwordsStorage: db.Namespace("passwords"),
+		passwordsService: passwordsService,
 	}
 }
 
@@ -64,14 +63,7 @@ func (s *Service) CreateUser(
 		return nil, status.New(codes.InvalidArgument, "password is empty").Err()
 	}
 
-	hashName := fmt.Sprintf("%s/password", request.Name)
-
-	hash, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcryptCost)
-	if err != nil {
-		return nil, status.New(codes.Internal, "failed to calculate password hash").Err()
-	}
-
-	if err := s.passwordsStorage.Store([]byte(hashName), hash); err != nil {
+	if err := s.passwordsService.Set(request.Name, request.Password); err != nil {
 		return nil, status.New(codes.Internal, "failed to store password hash").Err()
 	}
 

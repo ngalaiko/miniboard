@@ -31,12 +31,10 @@ message Authentication {
         // Bearer authentication.
         TYPE_BEARER = 1;
     }
-    // Name of the resource, for example "authentications/authentication1".
-    string name = 1;
 
     // Type of the authorization.
-    Type type = 2;
+    Type type = 1;
 
     // Authorization token.
-    string token = 3;
+    string token = 2;
 }
