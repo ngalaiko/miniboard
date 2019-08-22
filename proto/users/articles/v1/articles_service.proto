@@ -21,7 +21,7 @@ service ArticlesService {
     // An endpoint to add an article for the user.
     rpc CreateArticle(CreateArticleRequest) returns (Article) {
         option (google.api.http) = {
-            post: "/api/v1/{parent=users/*}/articles}"
+            post: "/api/v1/{parent=users/*}/articles"
             body: "article"
         };
     }

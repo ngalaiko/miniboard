@@ -6,3 +6,4 @@ bazel-*
 
 # generated proto files
 *.pb.go
+*.gw.go

@@ -1,6 +1,8 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
 
+# gazelle:exclude authentications_service.pb.gw.go
+
 proto_library(
     name = "authentications_proto",
     srcs = ["authentications_service.proto"],
@@ -10,7 +12,10 @@ proto_library(
 
 go_proto_library(
     name = "authentications_go_proto",
-    compilers = ["@io_bazel_rules_go//proto:go_grpc"],
+    compilers = [
+        "@io_bazel_rules_go//proto:go_grpc",
+        "@grpc_ecosystem_grpc_gateway//protoc-gen-grpc-gateway:go_gen_grpc_gateway",  # keep
+    ],
     importpath = "miniboard.app/proto/users/authentications/v1",
     proto = ":authentications_proto",
     visibility = ["//visibility:public"],

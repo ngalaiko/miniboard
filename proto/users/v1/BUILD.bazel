@@ -1,6 +1,8 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
 
+# gazelle:exclude users_service.pb.gw.go
+
 proto_library(
     name = "users_proto",
     srcs = ["users_service.proto"],
@@ -10,7 +12,10 @@ proto_library(
 
 go_proto_library(
     name = "users_go_proto",
-    compilers = ["@io_bazel_rules_go//proto:go_grpc"],
+    compilers = [
+        "@io_bazel_rules_go//proto:go_grpc",
+        "@grpc_ecosystem_grpc_gateway//protoc-gen-grpc-gateway:go_gen_grpc_gateway",  # keep
+    ],
     importpath = "miniboard.app/proto/users/v1",
     proto = ":users_proto",
     visibility = ["//visibility:public"],

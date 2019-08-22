@@ -41,4 +41,17 @@ for label in $(bazel query 'kind(go_proto_library, //...)'); do
 		echo "ERR: no .pb.go file was found inside $out_path for the package ${package}"
 		exit 1
 	fi
+
+    found=0
+	for f in ${out_path}/*.gw.go; do
+		if [[ -f "${f}" ]]; then
+			found=1
+			ln -nsf "${relative_path}${f}" "${package}/"
+		fi
+	done
+	if [[ "${found}" == "0" ]]; then
+		echo "ERR: no .gw.go file was found inside $out_path for the package ${package}"
+		exit 1
+	fi
+
 done

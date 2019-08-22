@@ -3,11 +3,11 @@ package api // import "miniboard.app/api"
 import (
 	"context"
 	"net"
+	"net/http"
 
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 	usersservice "miniboard.app/api/users"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
@@ -15,34 +15,42 @@ import (
 
 // Server is the api server.
 type Server struct {
-	grpcServer *grpc.Server
+	httpServer *http.Server
 }
 
 // NewServer creates new api server.
 func NewServer(ctx context.Context, db storage.DB) *Server {
-	grpcServer := grpc.NewServer()
+	usersService := usersservice.New(db)
 
-	users.RegisterUsersServiceServer(grpcServer, usersservice.New(db))
-
-	reflection.Register(grpcServer)
+	gwMux := runtime.NewServeMux()
+	users.RegisterUsersServiceHandlerClient(ctx, gwMux, usersservice.NewProxyClient(usersService))
 
 	return &Server{
-		grpcServer: grpcServer,
+		httpServer: &http.Server{
+			Handler: gwMux,
+		},
 	}
 }
 
 // Serve starts the server.
 func (s *Server) Serve(ctx context.Context, lis net.Listener) error {
-	logrus.Infof("[gRPC] starting server on %s", lis.Addr())
+	logrus.Infof("[http] starting server on %s", lis.Addr())
 
-	if err := s.grpcServer.Serve(lis); err != nil {
-		return errors.Wrap(err, "failed to start gRPC server")
-	}
+	idleConnsClosed := make(chan struct{})
 	go func() {
 		<-ctx.Done()
-		logrus.Infof("[gRPC] stopping server")
-		s.grpcServer.GracefulStop()
+		logrus.Infof("[http] stopping server")
+		if err := s.httpServer.Shutdown(context.Background()); err != nil {
+			logrus.Errorf("[http] error stopping server: %s", err)
+		}
+		close(idleConnsClosed)
 	}()
+
+	if err := s.httpServer.Serve(lis); err != nil {
+		return errors.Wrap(err, "failed to start http server")
+	}
+
+	<-idleConnsClosed
 
 	return nil
 }

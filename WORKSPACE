@@ -29,6 +29,28 @@ load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
 gazelle_dependencies()
 
 http_archive(
+    name = "grpc_ecosystem_grpc_gateway",
+    url = "https://github.com/grpc-ecosystem/grpc-gateway/archive/v1.9.6.tar.gz",
+    strip_prefix = "grpc-gateway-1.9.6",
+)
+
+load(
+    "@grpc_ecosystem_grpc_gateway//:repositories.bzl",
+    grpc_gateway_repositories = "go_repositories",
+)
+
+grpc_gateway_repositories()
+
+http_archive(
+    name = "com_google_protobuf",
+    urls = [
+        "https://github.com/protocolbuffers/protobuf/archive/v3.9.0.zip",
+    ],
+    strip_prefix = "protobuf-3.9.0",
+    sha256 = "8eb5ca331ab8ca0da2baea7fc0607d86c46c80845deca57109a5d637ccb93bb4",
+)
+
+http_archive(
     name = "com_google_protobuf",
     urls = [
         "https://github.com/protocolbuffers/protobuf/archive/v3.9.0.zip",
