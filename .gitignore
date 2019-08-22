@@ -4,3 +4,5 @@ bolt.db
 # bazel
 bazel-*
 
+# generated proto files
+*.pb.go
