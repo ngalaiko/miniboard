@@ -25,6 +25,15 @@ service ArticlesService {
             body: "article"
         };
     }
+
+    // Get article
+    //
+    // An endpoint to get an article by id.
+    rpc GetArticle(GetArticleRequest) returns (Article) {
+        option (google.api.http) = {
+            get: "/api/v1/{name=users/*/articles/*}"
+        };
+    }
 }
 
 message ListArticlesRequest {
@@ -51,6 +60,11 @@ message CreateArticleRequest {
     string parent = 1;
     // Article to create.
     Article article = 2;
+}
+
+message GetArticleRequest {
+    // Name of the resource.
+    string name = 1;
 }
 
 message Article {

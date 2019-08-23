@@ -30,3 +30,8 @@ func (p *Proxy) ListArticles(ctx context.Context, in *articles.ListArticlesReque
 func (p *Proxy) CreateArticle(ctx context.Context, in *articles.CreateArticleRequest, opts ...grpc.CallOption) (*articles.Article, error) {
 	return p.service.CreateArticle(ctx, in)
 }
+
+// GetArticle calls GetArticle method on the service instance.
+func (p *Proxy) GetArticle(ctx context.Context, in *articles.GetArticleRequest, opts ...grpc.CallOption) (*articles.Article, error) {
+	return p.service.GetArticle(ctx, in)
+}

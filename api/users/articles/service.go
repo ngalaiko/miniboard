@@ -90,3 +90,20 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 
 	return request.Article, nil
 }
+
+// GetArticle returns an article.
+func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRequest) (*articles.Article, error) {
+	name := resource.ParseName(request.Name)
+
+	raw, err := s.storage.Load(name)
+	if err != nil {
+		return nil, status.New(codes.Internal, "failed to load the article").Err()
+	}
+
+	article := &articles.Article{}
+	if err := proto.Unmarshal(raw, article); err != nil {
+		return nil, status.New(codes.Internal, "failed to unmarshal the article").Err()
+	}
+
+	return article, nil
+}

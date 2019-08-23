@@ -39,6 +39,30 @@ func Test_articles(t *testing.T) {
 			})
 		})
 
+		t.Run("When creating an article", func(t *testing.T) {
+			resp, err := service.CreateArticle(ctx, &articles.CreateArticleRequest{
+				Parent: resource.NewName("users", "test1").String(),
+				Article: &articles.Article{
+					Url: "http://localhost",
+				},
+			})
+			t.Run("It should be created", func(t *testing.T) {
+				assert.NoError(t, err)
+				assert.NotEmpty(t, resp.Name)
+				assert.Equal(t, resp.Url, "http://localhost")
+			})
+			t.Run("When getting the article", func(t *testing.T) {
+				resp, err := service.GetArticle(ctx, &articles.GetArticleRequest{
+					Name: resp.Name,
+				})
+				t.Run("It should be returned", func(t *testing.T) {
+					assert.NoError(t, err)
+					assert.NotEmpty(t, resp.Name)
+					assert.Equal(t, resp.Url, "http://localhost")
+				})
+			})
+		})
+
 		t.Run("When adding a few articles", func(t *testing.T) {
 			parent := resource.NewName("users", "test")
 			for i := 0; i < 50; i++ {

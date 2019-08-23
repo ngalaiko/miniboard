@@ -110,9 +110,21 @@ func Test_server(t *testing.T) {
 
 							assert.Equal(t, article.Url, "http://localhost")
 							assert.NotEmpty(t, article.Name)
-						})
-						t.Run("When getting the article with the token", func(t *testing.T) {
-							t.Run("It should be returned", func(t *testing.T) {
+
+							t.Run("When getting the article with the token", func(t *testing.T) {
+								resp, err = http.DefaultClient.Do(getAuth(t,
+									fmt.Sprintf("%s/api/v1/%s", server.URL, article.Name),
+									authorization,
+								))
+								t.Run("It should be returned", func(t *testing.T) {
+									assert.NoError(t, err)
+
+									a := &articles.Article{}
+									parseResponse(t, resp, &a)
+
+									assert.NotEmpty(t, a.Name)
+									assert.Equal(t, a.Url, "http://localhost")
+								})
 							})
 						})
 						t.Run("When listing articles", func(t *testing.T) {
