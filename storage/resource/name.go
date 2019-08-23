@@ -3,8 +3,6 @@ package resource // import "miniboard.app/storage/resource"
 import (
 	"bytes"
 	"strings"
-
-	"github.com/google/uuid"
 )
 
 // Name is a resource name.
@@ -82,10 +80,10 @@ func (n *Name) ID() string {
 }
 
 // Child returns a new child _resource_.
-func (n *Name) Child(typ string) *Name {
+func (n *Name) Child(typ string, id string) *Name {
 	return &Name{
 		parts: append(n.parts, &idPart{
-			ID:   uuid.New().String(),
+			ID:   id,
 			Type: typ,
 		}),
 	}

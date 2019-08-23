@@ -5,6 +5,7 @@ import (
 	"net/url"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/segmentio/ksuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/proto/users/articles/v1"
@@ -35,7 +36,7 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 		return nil, status.New(codes.InvalidArgument, "url is invalid").Err()
 	}
 
-	name := resource.ParseName(request.Parent).Child("articles")
+	name := resource.ParseName(request.Parent).Child("articles", ksuid.New().String())
 
 	article := request.Article
 	article.Name = name.String()

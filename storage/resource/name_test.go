@@ -15,7 +15,7 @@ func Test_name(t *testing.T) {
 		assert.NotEmpty(t, resourceName.ID())
 
 		t.Run("When adding a child", func(t *testing.T) {
-			childName := resourceName.Child("child")
+			childName := resourceName.Child("child", "id")
 			assert.Len(t, childName.Path(), 2)
 			assert.Equal(t, childName.Parent(), resourceName)
 		})

@@ -41,7 +41,7 @@ func Test_DB(t *testing.T) {
 			})
 
 			t.Run("When child exists", func(t *testing.T) {
-				name := name.Child("child")
+				name := name.Child("child", "id")
 				data := []byte("data")
 				assert.NoError(t, db.Store(name, data))
 
