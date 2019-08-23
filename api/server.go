@@ -9,10 +9,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	usersservice "miniboard.app/api/users"
-	authenticatationsservice "miniboard.app/api/users/authentications"
+	authenticatationsservice "miniboard.app/api/users/authorizations"
 	"miniboard.app/jwt"
 	"miniboard.app/passwords"
-	"miniboard.app/proto/users/authentications/v1"
+	"miniboard.app/proto/users/authorizations/v1"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
 )
@@ -27,7 +27,7 @@ func NewServer(ctx context.Context, db storage.Storage) *Server {
 	passwordsService := passwords.NewService(db)
 	usersService := usersservice.New(db, passwordsService)
 	jwtService := jwt.NewService(db)
-	authenticationsService := authenticatationsservice.New(jwtService, passwordsService)
+	authorizationsService := authenticatationsservice.New(jwtService, passwordsService)
 
 	gwMux := runtime.NewServeMux()
 
@@ -36,16 +36,16 @@ func NewServer(ctx context.Context, db storage.Storage) *Server {
 		gwMux,
 		usersservice.NewProxyClient(usersService),
 	)
-	authentications.RegisterAuthenticationsServiceHandlerClient(
+	authorizations.RegisterAuthorizationsServiceHandlerClient(
 		ctx,
 		gwMux,
-		authenticatationsservice.NewProxyClient(authenticationsService),
+		authenticatationsservice.NewProxyClient(authorizationsService),
 	)
 
 	return &Server{
 		httpServer: &http.Server{
 			Handler: withAccessLogs(
-				withAuthentication(gwMux, jwtService),
+				withAuthorization(gwMux, jwtService),
 			),
 		},
 	}

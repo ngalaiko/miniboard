@@ -3,28 +3,28 @@ load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
 
 # gazelle:exclude authentications_service.pb.gw.go
 
+go_library(
+    name = "go_default_library",
+    embed = [":authorizations_go_proto"],
+    importpath = "miniboard.app/proto/users/authorizations/v1",
+    visibility = ["//visibility:public"],
+)
+
 proto_library(
-    name = "authentications_proto",
-    srcs = ["authentications_service.proto"],
+    name = "authorizations_proto",
+    srcs = ["authorizations_service.proto"],
     visibility = ["//visibility:public"],
     deps = ["@go_googleapis//google/api:annotations_proto"],
 )
 
 go_proto_library(
-    name = "authentications_go_proto",
+    name = "authorizations_go_proto",
     compilers = [
         "@io_bazel_rules_go//proto:go_grpc",
         "@grpc_ecosystem_grpc_gateway//protoc-gen-grpc-gateway:go_gen_grpc_gateway",  # keep
     ],
-    importpath = "miniboard.app/proto/users/authentications/v1",
-    proto = ":authentications_proto",
+    importpath = "miniboard.app/proto/users/authorizations/v1",
+    proto = ":authorizations_proto",
     visibility = ["//visibility:public"],
     deps = ["@go_googleapis//google/api:annotations_go_proto"],
-)
-
-go_library(
-    name = "go_default_library",
-    embed = [":authentications_go_proto"],
-    importpath = "miniboard.app/proto/users/authentications/v1",
-    visibility = ["//visibility:public"],
 )

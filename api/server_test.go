@@ -12,7 +12,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"miniboard.app/proto/users/authentications/v1"
+	"miniboard.app/proto/users/authorizations/v1"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
@@ -60,7 +60,7 @@ func Test_server(t *testing.T) {
 
 				t.Run("When creating an authorization", func(t *testing.T) {
 					resp, err = http.DefaultClient.Do(postJSON(t,
-						fmt.Sprintf("%s/api/v1/%s/authentications", server.URL, user.Name),
+						fmt.Sprintf("%s/api/v1/%s/authorizations", server.URL, user.Name),
 						map[string]interface{}{
 							"password": "password",
 						},
@@ -68,16 +68,16 @@ func Test_server(t *testing.T) {
 					assert.NoError(t, err)
 					assert.Equal(t, resp.StatusCode, http.StatusOK)
 
-					authentication := &authentications.Authentication{}
-					parseResponse(t, resp, authentication)
+					authorization := &authorizations.Authorization{}
+					parseResponse(t, resp, authorization)
 
-					assert.NotEmpty(t, authentication.Token)
-					assert.Equal(t, authentication.Type, "Bearer")
+					assert.NotEmpty(t, authorization.Token)
+					assert.Equal(t, authorization.Type, "Bearer")
 
 					t.Run("When getting the user with the token", func(t *testing.T) {
 						resp, err := http.DefaultClient.Do(getAuth(t,
 							fmt.Sprintf("%s/api/v1/%s", server.URL, user.Name),
-							authentication,
+							authorization,
 						))
 						t.Run("It should return the user", func(t *testing.T) {
 							assert.NoError(t, err)
@@ -102,7 +102,7 @@ func parseResponse(t *testing.T, resp *http.Response, dst interface{}) {
 	assert.NoError(t, json.Unmarshal(raw, dst))
 }
 
-func getAuth(t *testing.T, url string, auth *authentications.Authentication) *http.Request {
+func getAuth(t *testing.T, url string, auth *authorizations.Authorization) *http.Request {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	assert.NoError(t, err)
 

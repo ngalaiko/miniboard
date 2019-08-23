@@ -4,28 +4,28 @@ package app.miniboard.users.auth.v1;
 
 import "google/api/annotations.proto";
 
-option go_package = "authentications";
+option go_package = "authorizations";
 
-service AuthenticationsService {
-    // Create Authentication
+service AuthorizationsService {
+    // Create Authorization
     //
-    // Returns a user authentication.
-    rpc CreateAuthentication(CreateAuthenticationRequest) returns (Authentication) {
+    // Returns a user authorization.
+    rpc CreateAuthorization(CreateAuthorizationRequest) returns (Authorization) {
         option (google.api.http) = {
-            post: "/api/v1/{parent=users/*}/authentications"
+            post: "/api/v1/{parent=users/*}/authorizations"
             body: "*"
         };
     }
 }
 
-message CreateAuthenticationRequest {
+message CreateAuthorizationRequest {
     // User resource name.
     string parent = 1;
     // Password.
     string password = 2;
 }
 
-message Authentication {
+message Authorization {
     // Type of the authorization.
     string type = 1;
 

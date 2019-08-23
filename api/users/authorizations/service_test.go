@@ -1,4 +1,4 @@
-package authentications // import "miniboard.app/services/authentications"
+package authorizations // import "miniboard.app/services/authorizations"
 
 import (
 	"context"
@@ -11,12 +11,12 @@ import (
 	"google.golang.org/grpc/status"
 	"miniboard.app/jwt"
 	"miniboard.app/passwords"
-	"miniboard.app/proto/users/authentications/v1"
+	"miniboard.app/proto/users/authorizations/v1"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
 )
 
-func Test_AuthenticationsService(t *testing.T) {
+func Test_AuthorizationsService(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -27,7 +27,7 @@ func Test_AuthenticationsService(t *testing.T) {
 	t.Run("With new service", func(t *testing.T) {
 		service := New(jwt, passwords)
 		t.Run("When creating authorization for non existing user", func(t *testing.T) {
-			auth, err := service.CreateAuthentication(ctx, &authentications.CreateAuthenticationRequest{
+			auth, err := service.CreateAuthorization(ctx, &authorizations.CreateAuthorizationRequest{
 				Parent:   "users/name",
 				Password: "a passsword",
 			})

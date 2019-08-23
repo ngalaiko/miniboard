@@ -1,4 +1,4 @@
-package authentications // import "miniboard.app/services/authentications"
+package authorizations // import "miniboard.app/services/authorizations"
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 	"miniboard.app/jwt"
 	"miniboard.app/passwords"
-	"miniboard.app/proto/users/authentications/v1"
+	"miniboard.app/proto/users/authorizations/v1"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
 )
@@ -30,11 +30,11 @@ func New(jwtService *jwt.Service, passwordsService *passwords.Service) *Service 
 	}
 }
 
-// CreateAuthentication returns new JWT authentiction.
-func (s *Service) CreateAuthentication(
+// CreateAuthorization returns new JWT authentiction.
+func (s *Service) CreateAuthorization(
 	ctx context.Context,
-	request *authentications.CreateAuthenticationRequest,
-) (*authentications.Authentication, error) {
+	request *authorizations.CreateAuthorizationRequest,
+) (*authorizations.Authorization, error) {
 	valid, err := s.passwords.Validate(resource.ParseName(request.Parent), request.Password)
 	switch errors.Cause(err) {
 	case nil:
@@ -53,7 +53,7 @@ func (s *Service) CreateAuthentication(
 		return nil, status.New(codes.Internal, "failed to generage token").Err()
 	}
 
-	return &authentications.Authentication{
+	return &authorizations.Authorization{
 		Type:  "Bearer",
 		Token: token,
 	}, nil
