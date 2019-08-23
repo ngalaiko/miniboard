@@ -2,6 +2,7 @@ package articles // "miniboard.app/api/articles"
 
 import (
 	"context"
+	"encoding/base64"
 	"net/url"
 
 	"github.com/gogo/protobuf/proto"
@@ -27,7 +28,41 @@ func New(storage storage.Storage) *Service {
 
 // ListArticles returns a list of articles.
 func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticlesRequest) (*articles.ListArticlesResponse, error) {
-	return nil, nil
+	lookFor := resource.ParseName(request.Parent).Child("articles", "*")
+
+	var from *resource.Name
+	if request.PageToken != "" {
+		decoded, err := base64.StdEncoding.DecodeString(request.PageToken)
+		if err != nil {
+			return nil, status.New(codes.InvalidArgument, "invalid page token").Err()
+		}
+		from = resource.ParseName(string(decoded))
+	}
+
+	dd, err := s.storage.LoadChildren(lookFor, from, int(request.PageSize+1))
+	if err != nil {
+		return nil, status.New(codes.Internal, "failed to load articles").Err()
+	}
+
+	aa := make([]*articles.Article, 0, len(dd))
+	for _, d := range dd {
+		a := &articles.Article{}
+		if err := proto.Unmarshal(d, a); err != nil {
+			return nil, status.New(codes.Internal, "failed to unmarshal article").Err()
+		}
+		aa = append(aa, a)
+	}
+
+	var nextPageToken string
+	if len(aa) == int(request.PageSize+1) {
+		nextPageToken = base64.StdEncoding.EncodeToString([]byte(aa[len(aa)-1].Name))
+		aa = aa[:request.PageSize]
+	}
+
+	return &articles.ListArticlesResponse{
+		Articles:      aa,
+		NextPageToken: nextPageToken,
+	}, nil
 }
 
 // CreateArticle creates a new article.

@@ -48,11 +48,23 @@ func Test_DB(t *testing.T) {
 				}
 			})
 
+			t.Run("When loading with limit", func(t *testing.T) {
+				name := resource.NewName("test", "*")
+
+				dd, err := db.LoadChildren(name, nil, 5)
+				assert.NoError(t, err)
+
+				assert.Len(t, dd, 5)
+				for i, d := range dd {
+					assert.Equal(t, d, []byte(fmt.Sprintf("data %d", i)))
+				}
+			})
+
 			t.Run("When loading elements from", func(t *testing.T) {
 				name := resource.NewName("test", "*")
 				from := resource.NewName("test", "3")
 
-				dd, err := db.LoadChildren(name, from, 4)
+				dd, err := db.LoadChildren(name, from, 10)
 				assert.NoError(t, err)
 
 				assert.Len(t, dd, 7)

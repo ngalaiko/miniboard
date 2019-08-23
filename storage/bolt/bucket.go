@@ -52,7 +52,7 @@ func (db *DB) LoadChildren(name *resource.Name, from *resource.Name, limit int) 
 		}
 
 		data = make([][]byte, 0, limit)
-		for ; k != nil || len(data) < limit; k, v = c.Next() {
+		for ; k != nil && len(data) < limit; k, v = c.Next() {
 			data = append(data, v)
 		}
 		return nil

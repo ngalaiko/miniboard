@@ -2,6 +2,7 @@ package articles // "miniboard.app/api/articles"
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -35,6 +36,41 @@ func Test_articles(t *testing.T) {
 				status, ok := status.FromError(err)
 				assert.True(t, ok)
 				assert.Equal(t, status.Code(), codes.InvalidArgument)
+			})
+		})
+
+		t.Run("When adding a few articles", func(t *testing.T) {
+			parent := resource.NewName("users", "test")
+			for i := 0; i < 50; i++ {
+				resp, err := service.CreateArticle(ctx, &articles.CreateArticleRequest{
+					Parent: parent.String(),
+					Article: &articles.Article{
+						Url: fmt.Sprintf("http://localhost.com/%d", i),
+					},
+				})
+				assert.NotEmpty(t, resp.Name)
+				assert.Equal(t, resp.Url, fmt.Sprintf("http://localhost.com/%d", i))
+				assert.NoError(t, err)
+			}
+
+			t.Run("It should be possible to get then page by page", func(t *testing.T) {
+				pageToken := ""
+				for i := 0; i < 10; i++ {
+					resp, err := service.ListArticles(ctx, &articles.ListArticlesRequest{
+						Parent:    parent.String(),
+						PageSize:  5,
+						PageToken: pageToken,
+					})
+					assert.NoError(t, err)
+					assert.Len(t, resp.Articles, 5)
+					if i != 9 {
+						assert.NotEmpty(t, resp.NextPageToken)
+					} else {
+						assert.Empty(t, resp.NextPageToken)
+					}
+
+					pageToken = resp.NextPageToken
+				}
 			})
 		})
 	})
