@@ -23,7 +23,7 @@ type Server struct {
 }
 
 // NewServer creates new api server.
-func NewServer(ctx context.Context, db storage.DB) *Server {
+func NewServer(ctx context.Context, db storage.Storage) *Server {
 	passwordsService := passwords.NewService(db)
 	usersService := usersservice.New(db, passwordsService)
 	jwtService := jwt.NewService(db)

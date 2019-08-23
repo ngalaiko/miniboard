@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"miniboard.app/storage"
+	"miniboard.app/storage/resource"
 )
 
 // key is an encryption key.
@@ -23,9 +24,9 @@ type keyStorage struct {
 	storage storage.Storage
 }
 
-func newKeyStorage(db storage.DB) *keyStorage {
+func newKeyStorage(db storage.Storage) *keyStorage {
 	return &keyStorage{
-		storage: db.Namespace("jwt_keys"),
+		storage: db,
 	}
 }
 
@@ -36,7 +37,7 @@ func (s *keyStorage) Get(id uuid.UUID) (*key, error) {
 		return nil, errors.Wrap(err, "failed to marshal key id")
 	}
 
-	data, err := s.storage.Load(idBytes)
+	data, err := s.storage.Load(resource.NewName("jwt-key", string(idBytes)))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to load key")
 	}
@@ -72,7 +73,7 @@ func (s *keyStorage) Create() (*key, error) {
 		return nil, errors.Wrap(err, "failed to marshal key id")
 	}
 
-	if err := s.storage.Store(idBytes, data); err != nil {
+	if err := s.storage.Store(resource.NewName("jwt-key", string(idBytes)), data); err != nil {
 		return nil, errors.Wrap(err, "failed to store encryption key")
 	}
 

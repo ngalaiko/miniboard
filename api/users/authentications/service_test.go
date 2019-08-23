@@ -28,7 +28,7 @@ func Test_AuthenticationsService(t *testing.T) {
 		service := New(jwt, passwords)
 		t.Run("When creating authorization for non existing user", func(t *testing.T) {
 			auth, err := service.CreateAuthentication(ctx, &authentications.CreateAuthenticationRequest{
-				Parent:   "a user",
+				Parent:   "users/name",
 				Password: "a passsword",
 			})
 			t.Run("Then error should be NotFound", func(t *testing.T) {
@@ -41,7 +41,7 @@ func Test_AuthenticationsService(t *testing.T) {
 	})
 }
 
-func testDB(ctx context.Context, t *testing.T) storage.DB {
+func testDB(ctx context.Context, t *testing.T) storage.Storage {
 	tmpfile, err := ioutil.TempFile("", "bolt")
 	if err != nil {
 		t.Fatalf("failed to create database: %s", err)

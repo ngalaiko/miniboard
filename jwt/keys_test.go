@@ -60,7 +60,7 @@ func Test_keyStorage_Get(t *testing.T) {
 	assert.NotNil(t, key.Public)
 }
 
-func testDB(ctx context.Context, t *testing.T) storage.DB {
+func testDB(ctx context.Context, t *testing.T) storage.Storage {
 	tmpfile, err := ioutil.TempFile("", "bolt")
 	if err != nil {
 		t.Fatalf("failed to create database: %s", err)

@@ -11,6 +11,7 @@ import (
 	"miniboard.app/passwords"
 	"miniboard.app/proto/users/authentications/v1"
 	"miniboard.app/storage"
+	"miniboard.app/storage/resource"
 )
 
 const tokenDuration = time.Hour
@@ -34,7 +35,7 @@ func (s *Service) CreateAuthentication(
 	ctx context.Context,
 	request *authentications.CreateAuthenticationRequest,
 ) (*authentications.Authentication, error) {
-	valid, err := s.passwords.Validate(request.Parent, request.Password)
+	valid, err := s.passwords.Validate(resource.ParseName(request.Parent), request.Password)
 	switch errors.Cause(err) {
 	case nil:
 	case storage.ErrNotFound:

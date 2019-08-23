@@ -2,7 +2,6 @@ package users // import "miniboard.app/api/users"
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
@@ -11,6 +10,7 @@ import (
 	"miniboard.app/passwords"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
+	"miniboard.app/storage/resource"
 )
 
 // Service controlls users resource.
@@ -20,9 +20,9 @@ type Service struct {
 }
 
 // New returns new users storage instance.
-func New(db storage.DB, passwordsService *passwords.Service) *Service {
+func New(db storage.Storage, passwordsService *passwords.Service) *Service {
 	return &Service{
-		usersStorage:     db.Namespace("users"),
+		usersStorage:     db,
 		passwordsService: passwordsService,
 	}
 }
@@ -32,7 +32,7 @@ func (s *Service) GetUser(
 	ctx context.Context,
 	request *users.GetUserRequest,
 ) (*users.User, error) {
-	rawUser, err := s.usersStorage.Load([]byte(request.Name))
+	rawUser, err := s.usersStorage.Load(resource.ParseName(request.Name))
 	switch errors.Cause(err) {
 	case nil:
 	case storage.ErrNotFound:
@@ -62,14 +62,14 @@ func (s *Service) CreateUser(
 		return nil, status.New(codes.InvalidArgument, "password is empty").Err()
 	}
 
-	name := fmt.Sprintf("users/%s", request.Username)
+	name := resource.NewName("users", request.Username)
 
 	if err := s.passwordsService.Set(name, request.Password); err != nil {
 		return nil, status.New(codes.Internal, "failed to store password hash").Err()
 	}
 
 	user := &users.User{
-		Name: name,
+		Name: name.String(),
 	}
 
 	rawUser, err := proto.Marshal(user)
@@ -77,7 +77,7 @@ func (s *Service) CreateUser(
 		return nil, status.New(codes.Internal, "failed to marshal user").Err()
 	}
 
-	if err := s.usersStorage.Store([]byte(user.Name), rawUser); err != nil {
+	if err := s.usersStorage.Store(name, rawUser); err != nil {
 		return nil, status.New(codes.Internal, "failed to store user").Err()
 	}
 

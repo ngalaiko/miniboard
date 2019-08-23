@@ -10,7 +10,7 @@ import (
 	"miniboard.app/storage"
 )
 
-var _ storage.DB = &DB{}
+var _ storage.Storage = &DB{}
 
 // DB is a boltdb powered storage implementation.
 type DB struct {
@@ -44,27 +44,6 @@ func New(ctx context.Context, path string) (*DB, error) {
 	}, nil
 }
 
-// Namespace creates new bucket.
-func (db *DB) Namespace(name string) storage.Storage {
-	byteName := []byte(name)
-
-	if err := db.db.Update(func(tx *bolt.Tx) error {
-		if tx.Bucket(byteName) != nil {
-			log("bolt").Infof("found bucket '%s'", name)
-			return nil
-		}
-		_, err := tx.CreateBucket(byteName)
-		log("bolt").Infof("created bucket '%s'", name)
-		return err
-	}); err != nil {
-		log("bolt").Panicf("failed to create bucket: %s", name)
-	}
-
-	return &Bucket{
-		db:   db.db,
-		name: byteName,
-	}
-}
 func log(src string) *logrus.Entry {
 	return logrus.WithFields(logrus.Fields{
 		"source": src,

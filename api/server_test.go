@@ -122,7 +122,7 @@ func postJSON(t *testing.T, url string, body interface{}) *http.Request {
 	return req
 }
 
-func testDB(ctx context.Context, t *testing.T) storage.DB {
+func testDB(ctx context.Context, t *testing.T) storage.Storage {
 	tmpfile, err := ioutil.TempFile("", "bolt")
 	if err != nil {
 		t.Fatalf("failed to create database: %s", err)

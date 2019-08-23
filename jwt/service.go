@@ -20,7 +20,7 @@ type Service struct {
 }
 
 // NewService creates new jwt service instance.
-func NewService(db storage.DB) *Service {
+func NewService(db storage.Storage) *Service {
 	keyStorage := newKeyStorage(db)
 
 	key, err := keyStorage.Create()

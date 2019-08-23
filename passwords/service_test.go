@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
+	"miniboard.app/storage/resource"
 )
 
 func Test_passwords(t *testing.T) {
@@ -20,14 +21,14 @@ func Test_passwords(t *testing.T) {
 
 	t.Run("With an empty service", func(t *testing.T) {
 		t.Run("When validating non existing password", func(t *testing.T) {
-			valid, err := service.Validate("user", "password")
+			valid, err := service.Validate(resource.NewName("users", "1"), "password")
 			t.Run("Then it should not be valid", func(t *testing.T) {
 				assert.Equal(t, errors.Cause(err), storage.ErrNotFound)
 				assert.False(t, valid)
 			})
 		})
 		t.Run("When adding a password for a user", func(t *testing.T) {
-			username := "user"
+			username := resource.NewName("users", "1")
 			password := "user's password"
 			err := service.Set(username, password)
 			assert.NoError(t, err)
@@ -51,7 +52,7 @@ func Test_passwords(t *testing.T) {
 	})
 }
 
-func testDB(ctx context.Context, t *testing.T) storage.DB {
+func testDB(ctx context.Context, t *testing.T) storage.Storage {
 	tmpfile, err := ioutil.TempFile("", "bolt")
 	if err != nil {
 		t.Fatalf("failed to create database: %s", err)

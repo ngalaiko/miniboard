@@ -52,7 +52,7 @@ func Test_UsersService(t *testing.T) {
 
 		t.Run("When getting non existing user", func(t *testing.T) {
 			user, err := service.GetUser(ctx, &users.GetUserRequest{
-				Name: "test name",
+				Name: "users/name",
 			})
 			t.Run("Then an error should be returned", func(t *testing.T) {
 				assert.Nil(t, user)
@@ -87,7 +87,7 @@ func Test_UsersService(t *testing.T) {
 
 }
 
-func testDB(ctx context.Context, t *testing.T) storage.DB {
+func testDB(ctx context.Context, t *testing.T) storage.Storage {
 	tmpfile, err := ioutil.TempFile("", "bolt")
 	if err != nil {
 		t.Fatalf("failed to create database: %s", err)
