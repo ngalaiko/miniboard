@@ -33,6 +33,32 @@ func (db *DB) Load(name *resource.Name) ([]byte, error) {
 	})
 }
 
+// LoadChildren implements storage.Storage.
+func (db *DB) LoadChildren(name *resource.Name, from *resource.Name, limit int) ([][]byte, error) {
+	var data [][]byte
+	name = resource.NewName(name.Type(), "bucket").AddChild(name)
+	return data, db.view(name, func(bucket *bolt.Bucket) error {
+		c := bucket.Cursor()
+
+		var k, v []byte
+		if from == nil {
+			k, v = c.First()
+		} else {
+			k, v = c.Seek([]byte(from.ID()))
+		}
+
+		if k == nil {
+			return nil
+		}
+
+		data = make([][]byte, 0, limit)
+		for ; k != nil || len(data) < limit; k, v = c.Next() {
+			data = append(data, v)
+		}
+		return nil
+	})
+}
+
 func (db *DB) update(name *resource.Name, f func(*bolt.Bucket) error) error {
 	return db.db.Update(func(tx *bolt.Tx) error {
 		b, err := bucket(tx, name)

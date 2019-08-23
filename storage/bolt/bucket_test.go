@@ -2,6 +2,7 @@ package bolt // import "miniboard.app/storage/bolt_test"
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -25,6 +26,42 @@ func Test_DB(t *testing.T) {
 				loaded, err := db.Load(resource.NewName("test", uuid.New().String()))
 				assert.Empty(t, loaded)
 				assert.Equal(t, errors.Cause(err), storage.ErrNotFound)
+			})
+		})
+
+		t.Run("When a few elements exist", func(t *testing.T) {
+			for i := 0; i < 10; i++ {
+				name := resource.NewName("test", fmt.Sprint(i))
+				data := []byte(fmt.Sprintf("data %d", i))
+				assert.NoError(t, db.Store(name, data))
+			}
+
+			t.Run("When loading all elements", func(t *testing.T) {
+				name := resource.NewName("test", "*")
+
+				dd, err := db.LoadChildren(name, nil, 10)
+				assert.NoError(t, err)
+
+				assert.Len(t, dd, 10)
+				for i, d := range dd {
+					assert.Equal(t, d, []byte(fmt.Sprintf("data %d", i)))
+				}
+			})
+
+			t.Run("When loading elements from", func(t *testing.T) {
+				name := resource.NewName("test", "*")
+				from := resource.NewName("test", "3")
+
+				dd, err := db.LoadChildren(name, from, 4)
+				assert.NoError(t, err)
+
+				assert.Len(t, dd, 7)
+
+				i := 3
+				for _, d := range dd {
+					assert.Equal(t, d, []byte(fmt.Sprintf("data %d", i)))
+					i++
+				}
 			})
 		})
 
