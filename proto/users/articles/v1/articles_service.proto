@@ -4,7 +4,7 @@ package app.miniboard.users.articles.v1;
 
 import "google/api/annotations.proto";
 
-option go_package = "accounts";
+option go_package = "articles";
 
 service ArticlesService {
     // List articles
@@ -56,4 +56,7 @@ message CreateArticleRequest {
 message Article {
     // Name of the resource, for example "users/user1/articles/article1".
     string name = 1;
+
+    // Url of the article.
+    string url = 2;
 }

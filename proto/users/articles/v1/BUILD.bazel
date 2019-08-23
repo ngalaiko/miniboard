@@ -4,27 +4,27 @@ load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
 # gazelle:exclude articles_service.pb.gw.go
 
 proto_library(
-    name = "accounts_proto",
+    name = "articles_proto",
     srcs = ["articles_service.proto"],
     visibility = ["//visibility:public"],
     deps = ["@go_googleapis//google/api:annotations_proto"],
 )
 
 go_proto_library(
-    name = "accounts_go_proto",
+    name = "articles_go_proto",
     compilers = [
         "@io_bazel_rules_go//proto:go_grpc",
         "@grpc_ecosystem_grpc_gateway//protoc-gen-grpc-gateway:go_gen_grpc_gateway",  # keep
     ],
     importpath = "miniboard.app/proto/users/articles/v1",
-    proto = ":accounts_proto",
+    proto = ":articles_proto",
     visibility = ["//visibility:public"],
     deps = ["@go_googleapis//google/api:annotations_go_proto"],
 )
 
 go_library(
     name = "go_default_library",
-    embed = [":accounts_go_proto"],
+    embed = [":articles_go_proto"],
     importpath = "miniboard.app/proto/users/articles/v1",
     visibility = ["//visibility:public"],
 )
