@@ -1,5 +1,6 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+# Golang rules.
 http_archive(
     name = "io_bazel_rules_go",
     urls = [
@@ -8,7 +9,11 @@ http_archive(
     ],
     sha256 = "313f2c7a23fecc33023563f082f381a32b9b7254f727a7dd2d6380ccc6dfe09b",
 )
+load("@io_bazel_rules_go//go:deps.bzl", "go_rules_dependencies", "go_register_toolchains")
+go_rules_dependencies()
+go_register_toolchains()
 
+# Gazelle.
 http_archive(
     name = "bazel_gazelle",
     urls = [
@@ -17,30 +22,22 @@ http_archive(
     ],
     sha256 = "be9296bfd64882e3c08e3283c58fcb461fa6dd3c171764fcc4cf322f60615a9b",
 )
-
-load("@io_bazel_rules_go//go:deps.bzl", "go_rules_dependencies", "go_register_toolchains")
-
-go_rules_dependencies()
-
-go_register_toolchains()
-
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
-
 gazelle_dependencies()
 
+# gRPC-JSON compiler.
 http_archive(
     name = "grpc_ecosystem_grpc_gateway",
     url = "https://github.com/grpc-ecosystem/grpc-gateway/archive/v1.9.6.tar.gz",
     strip_prefix = "grpc-gateway-1.9.6",
 )
-
 load(
     "@grpc_ecosystem_grpc_gateway//:repositories.bzl",
     grpc_gateway_repositories = "go_repositories",
 )
-
 grpc_gateway_repositories()
 
+# Protobuf compiler.
 http_archive(
     name = "com_google_protobuf",
     urls = [
@@ -49,20 +46,28 @@ http_archive(
     strip_prefix = "protobuf-3.9.0",
     sha256 = "8eb5ca331ab8ca0da2baea7fc0607d86c46c80845deca57109a5d637ccb93bb4",
 )
-
-http_archive(
-    name = "com_google_protobuf",
-    urls = [
-        "https://github.com/protocolbuffers/protobuf/archive/v3.9.0.zip",
-    ],
-    strip_prefix = "protobuf-3.9.0",
-    sha256 = "8eb5ca331ab8ca0da2baea7fc0607d86c46c80845deca57109a5d637ccb93bb4",
-)
-
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-
 protobuf_deps()
 
-load("//:repositories.bzl", "go_repositories")
+# Docker image.
+http_archive(
+    name = "io_bazel_rules_docker",
+    sha256 = "e513c0ac6534810eb7a14bf025a0f159726753f97f74ab7863c650d26e01d677",
+    strip_prefix = "rules_docker-0.9.0",
+    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.9.0/rules_docker-v0.9.0.tar.gz"],
+)
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load(
+    "@io_bazel_rules_docker//repositories:repositories.bzl",
+    container_repositories = "repositories",
+)
+container_repositories()
+load(
+    "@io_bazel_rules_docker//go:image.bzl",
+    _go_image_repos = "repositories",
+)
+_go_image_repos()
 
+# Golang app's deps.
+load("//:repositories.bzl", "go_repositories")
 go_repositories()
