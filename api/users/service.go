@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -63,15 +62,14 @@ func (s *Service) CreateUser(
 		return nil, status.New(codes.InvalidArgument, "password is empty").Err()
 	}
 
-	name := fmt.Sprintf("users/%s", uuid.New().String())
+	name := fmt.Sprintf("users/%s", request.Username)
 
 	if err := s.passwordsService.Set(name, request.Password); err != nil {
 		return nil, status.New(codes.Internal, "failed to store password hash").Err()
 	}
 
 	user := &users.User{
-		Name:     name,
-		Username: request.Username,
+		Name: name,
 	}
 
 	rawUser, err := proto.Marshal(user)

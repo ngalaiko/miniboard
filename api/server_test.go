@@ -37,7 +37,7 @@ func Test_server(t *testing.T) {
 		})
 
 		t.Run("When creating a user", func(t *testing.T) {
-			username := "test user"
+			username := "user"
 			password := "password"
 
 			resp, err := http.DefaultClient.Do(postJSON(
@@ -56,7 +56,7 @@ func Test_server(t *testing.T) {
 				user := &users.User{}
 				parseResponse(t, resp, user)
 
-				assert.Equal(t, user.Username, username)
+				assert.Equal(t, user.Name, "users/"+username)
 
 				t.Run("When creating an authorization", func(t *testing.T) {
 					resp, err = http.DefaultClient.Do(postJSON(t,
@@ -86,7 +86,7 @@ func Test_server(t *testing.T) {
 							got := &users.User{}
 							parseResponse(t, resp, got)
 
-							assert.Equal(t, got.Username, username)
+							assert.Equal(t, got.Name, "users/"+username)
 						})
 					})
 					// TODO: get another user

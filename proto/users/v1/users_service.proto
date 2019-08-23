@@ -43,7 +43,4 @@ message CreateUserRequest {
 message User {
     // Name of the resource, for example "users/user1".
     string name = 1;
-
-    // Name of the user.
-    string username = 2;
 }
