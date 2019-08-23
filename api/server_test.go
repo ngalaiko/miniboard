@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"miniboard.app/proto/users/articles/v1"
 	"miniboard.app/proto/users/authorizations/v1"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
@@ -47,6 +48,7 @@ func Test_server(t *testing.T) {
 					"username": username,
 					"password": password,
 				},
+				nil,
 			))
 
 			t.Run("It should return new user", func(t *testing.T) {
@@ -64,6 +66,7 @@ func Test_server(t *testing.T) {
 						map[string]interface{}{
 							"password": "password",
 						},
+						nil,
 					))
 					assert.NoError(t, err)
 					assert.Equal(t, resp.StatusCode, http.StatusOK)
@@ -89,7 +92,50 @@ func Test_server(t *testing.T) {
 							assert.Equal(t, got.Name, "users/"+username)
 						})
 					})
-					// TODO: get another user
+
+					t.Run("When crating an article with the token", func(t *testing.T) {
+						resp, err := http.DefaultClient.Do(postJSON(t,
+							fmt.Sprintf("%s/api/v1/%s/articles", server.URL, user.Name),
+							map[string]interface{}{
+								"url": "http://localhost",
+							},
+							authorization,
+						))
+						t.Run("It should create the article", func(t *testing.T) {
+							assert.NoError(t, err)
+
+							article := &articles.Article{}
+
+							parseResponse(t, resp, article)
+
+							assert.Equal(t, article.Url, "http://localhost")
+							assert.NotEmpty(t, article.Name)
+						})
+						t.Run("When getting the article with the token", func(t *testing.T) {
+							t.Run("It should be returned", func(t *testing.T) {
+							})
+						})
+						t.Run("When listing articles", func(t *testing.T) {
+							resp, err = http.DefaultClient.Do(getAuth(t,
+								fmt.Sprintf("%s/api/v1/%s/articles?page_size=1", server.URL, user.Name),
+								authorization,
+							))
+							t.Run("It should be in the list", func(t *testing.T) {
+								assert.NoError(t, err)
+
+								aa := struct {
+									Articles      []*articles.Article `json:"articles"`
+									NextPageToken string              `json:"next_page_token"`
+								}{}
+								parseResponse(t, resp, &aa)
+
+								assert.Len(t, aa.Articles, 1)
+								assert.Empty(t, aa.NextPageToken)
+								assert.NotEmpty(t, aa.Articles[0].Name)
+								assert.Equal(t, aa.Articles[0].Url, "http://localhost")
+							})
+						})
+					})
 				})
 			})
 		})
@@ -99,6 +145,7 @@ func Test_server(t *testing.T) {
 func parseResponse(t *testing.T, resp *http.Response, dst interface{}) {
 	raw, err := ioutil.ReadAll(resp.Body)
 	assert.NoError(t, err)
+	t.Log(string(raw))
 	assert.NoError(t, json.Unmarshal(raw, dst))
 }
 
@@ -111,14 +158,16 @@ func getAuth(t *testing.T, url string, auth *authorizations.Authorization) *http
 	return req
 }
 
-func postJSON(t *testing.T, url string, body interface{}) *http.Request {
+func postJSON(t *testing.T, url string, body interface{}, auth *authorizations.Authorization) *http.Request {
 	data, err := json.Marshal(body)
 	assert.NoError(t, err)
 
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(data))
 	assert.NoError(t, err)
 
-	req.Header.Add("Content-Type", "application/json")
+	if auth != nil {
+		req.Header.Add("Authorization", fmt.Sprintf("%s %s", auth.Type, auth.Token))
+	}
 	return req
 }
 

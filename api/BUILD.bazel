@@ -11,9 +11,11 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//api/users:go_default_library",
+        "//api/users/articles:go_default_library",
         "//api/users/authorizations:go_default_library",
         "//jwt:go_default_library",
         "//passwords:go_default_library",
+        "//proto/users/articles/v1:go_default_library",
         "//proto/users/authorizations/v1:go_default_library",
         "//proto/users/v1:go_default_library",
         "//storage:go_default_library",
@@ -28,6 +30,7 @@ go_test(
     srcs = ["server_test.go"],
     embed = [":go_default_library"],
     deps = [
+        "//proto/users/articles/v1:go_default_library",
         "//proto/users/authorizations/v1:go_default_library",
         "//proto/users/v1:go_default_library",
         "//storage:go_default_library",

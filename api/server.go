@@ -9,9 +9,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	usersservice "miniboard.app/api/users"
+	articlesservice "miniboard.app/api/users/articles"
 	authenticatationsservice "miniboard.app/api/users/authorizations"
 	"miniboard.app/jwt"
 	"miniboard.app/passwords"
+	"miniboard.app/proto/users/articles/v1"
 	"miniboard.app/proto/users/authorizations/v1"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
@@ -28,6 +30,7 @@ func NewServer(ctx context.Context, db storage.Storage) *Server {
 	usersService := usersservice.New(db, passwordsService)
 	jwtService := jwt.NewService(db)
 	authorizationsService := authenticatationsservice.New(jwtService, passwordsService)
+	articlesService := articlesservice.New(db)
 
 	gwMux := runtime.NewServeMux()
 
@@ -40,6 +43,11 @@ func NewServer(ctx context.Context, db storage.Storage) *Server {
 		ctx,
 		gwMux,
 		authenticatationsservice.NewProxyClient(authorizationsService),
+	)
+	articles.RegisterArticlesServiceHandlerClient(
+		ctx,
+		gwMux,
+		articlesservice.NewProxyClient(articlesService),
 	)
 
 	return &Server{

@@ -67,16 +67,19 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 
 // CreateArticle creates a new article.
 func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArticleRequest) (*articles.Article, error) {
+	if request.Article.Url == "" {
+		return nil, status.New(codes.InvalidArgument, "url is empty").Err()
+	}
+
 	if _, err := url.Parse(request.Article.Url); err != nil {
 		return nil, status.New(codes.InvalidArgument, "url is invalid").Err()
 	}
 
 	name := resource.ParseName(request.Parent).Child("articles", ksuid.New().String())
 
-	article := request.Article
-	article.Name = name.String()
+	request.Article.Name = name.String()
 
-	rawArticle, err := proto.Marshal(article)
+	rawArticle, err := proto.Marshal(request.Article)
 	if err != nil {
 		return nil, status.New(codes.Internal, "failed to marshal the article").Err()
 	}
@@ -85,5 +88,5 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 		return nil, status.New(codes.Internal, "failed to store the article").Err()
 	}
 
-	return article, nil
+	return request.Article, nil
 }
