@@ -82,6 +82,19 @@ func Test_UsersService(t *testing.T) {
 					assert.Equal(t, user.Name, createdUser.Name)
 				})
 			})
+			t.Run("When creating the new again", func(t *testing.T) {
+				user, err := service.CreateUser(ctx, &users.CreateUserRequest{
+					Username: testName,
+					Password: "test password",
+				})
+				t.Run("Then an error should be returned", func(t *testing.T) {
+					assert.Nil(t, user)
+					assert.Error(t, err)
+
+					status, _ := status.FromError(err)
+					assert.Equal(t, status.Code(), codes.AlreadyExists)
+				})
+			})
 		})
 	})
 

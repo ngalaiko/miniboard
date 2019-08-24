@@ -64,7 +64,12 @@ func (s *Service) CreateUser(
 
 	name := resource.NewName("users", request.Username)
 
-	if err := s.passwordsService.Set(name, request.Password); err != nil {
+	err := s.passwordsService.Set(name, request.Password)
+	switch errors.Cause(err) {
+	case nil:
+	case storage.ErrAlreadyExists:
+		return nil, status.New(codes.AlreadyExists, "user already exists").Err()
+	default:
 		return nil, status.New(codes.Internal, "failed to store password hash").Err()
 	}
 

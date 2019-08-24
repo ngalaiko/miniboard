@@ -16,6 +16,9 @@ import (
 func (db *DB) Store(name *resource.Name, data []byte) error {
 	name = resource.NewName(name.Type(), "bucket").AddChild(name)
 	return db.update(name, func(bucket *bolt.Bucket) error {
+		if bucket.Get([]byte(name.ID())) != nil {
+			return storage.ErrAlreadyExists
+		}
 		return bucket.Put([]byte(name.ID()), data)
 	})
 }
