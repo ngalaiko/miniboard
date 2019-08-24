@@ -64,15 +64,6 @@ func (s *Service) CreateUser(
 
 	name := resource.NewName("users", request.Username)
 
-	err := s.passwordsService.Set(name, request.Password)
-	switch errors.Cause(err) {
-	case nil:
-	case storage.ErrAlreadyExists:
-		return nil, status.New(codes.AlreadyExists, "user already exists").Err()
-	default:
-		return nil, status.New(codes.Internal, "failed to store password hash").Err()
-	}
-
 	user := &users.User{
 		Name: name.String(),
 	}
@@ -82,8 +73,16 @@ func (s *Service) CreateUser(
 		return nil, status.New(codes.Internal, "failed to marshal user").Err()
 	}
 
-	if err := s.usersStorage.Store(name, rawUser); err != nil {
+	switch errors.Cause(s.usersStorage.Store(name, rawUser)) {
+	case nil:
+	case storage.ErrAlreadyExists:
+		return nil, status.New(codes.AlreadyExists, "user already exists").Err()
+	default:
 		return nil, status.New(codes.Internal, "failed to store user").Err()
+	}
+
+	if err := s.passwordsService.Set(name, request.Password); err != nil {
+		return nil, status.New(codes.Internal, "failed to store password hash").Err()
 	}
 
 	return user, nil
