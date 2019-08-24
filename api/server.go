@@ -17,6 +17,7 @@ import (
 	"miniboard.app/proto/users/authorizations/v1"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
+	"miniboard.app/web"
 )
 
 // Server is the api server.
@@ -50,11 +51,13 @@ func NewServer(ctx context.Context, db storage.Storage) *Server {
 		articlesservice.NewProxyClient(articlesService),
 	)
 
+	mux := http.NewServeMux()
+	mux.Handle("/api/", withAuthorization(gwMux, jwtService))
+	mux.Handle("/", web.Handler())
+
 	return &Server{
 		httpServer: &http.Server{
-			Handler: withAccessLogs(
-				withAuthorization(gwMux, jwtService),
-			),
+			Handler: withAccessLogs(mux),
 		},
 	}
 }

@@ -1,0 +1,21 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@build_bazel_rules_svelte//:defs.bzl", "svelte", "bundle_dev", "bundle_prod")
+
+svelte(
+    name = "App",
+    entry_point = "App.svelte",
+    srcs = ["main.js"],
+    deps = [
+        "//web/src/treeview:Treeview",
+        "//web/src/grid:Grid",
+    ],
+)
+
+bundle_prod(
+    name = "app",
+    entry_point = "main.js",
+    deps = [":App"],
+)
+
+exports_files(["index.html"])

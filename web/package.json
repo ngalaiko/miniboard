@@ -1,0 +1,15 @@
+{
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@bazel/ibazel": "0.9.1",
+    "@bazel/typescript": "0.26.0",
+    "@bazel/bazel": "0.25.1",
+    "lite-server": "2.4.0",
+    "typescript": "3.1.1",
+    "compression": "1.7.2"
+  },
+  "dependencies": {
+    "express": "4.16.3",
+    "compression": "1.7.2"
+  }
+}
