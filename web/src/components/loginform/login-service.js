@@ -12,9 +12,11 @@ export class LoginService {
   }
 
   getAuthorization(username, password) {
-    return this.api.post(
-     `/api/v1/users/${username}/authorizations`, {
-      password: password 
+    return this.api.postJSON(
+     `/api/v1/authorizations`, {
+        username: username,
+        password: password,
+        grant_type: "password"
     })
   }
 
@@ -39,7 +41,7 @@ export class LoginService {
   }
 
   signup(username, password) {
-    return this.api.post(
+    return this.api.postJSON(
       `/api/v1/users`, {
         username: username,
         password: password 

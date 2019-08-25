@@ -9,7 +9,9 @@
 
     let router = new Router()
 
-    router.register("/", Login, api)
+    router.register("/", Login, {
+        api: api,
+    })
 
     let pathname = location.pathname;
 </script>

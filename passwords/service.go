@@ -22,13 +22,13 @@ func NewService(db storage.Storage) *Service {
 }
 
 // Set sets _user_ password to _password_.
-func (s *Service) Set(userName *resource.Name, password string) error {
+func (s *Service) Set(userName string, password string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcryptCost)
 	if err != nil {
 		return errors.Wrap(err, "failed to calculate password hash")
 	}
 
-	if err := s.storage.Store(resource.NewName("passwords", userName.ID()), hash); err != nil {
+	if err := s.storage.Store(resource.NewName("passwords", userName), hash); err != nil {
 		return errors.Wrap(err, "failed to store password hash")
 	}
 
@@ -36,8 +36,8 @@ func (s *Service) Set(userName *resource.Name, password string) error {
 }
 
 // Validate validates user's password.
-func (s *Service) Validate(userName *resource.Name, password string) (bool, error) {
-	hash, err := s.storage.Load(resource.NewName("passwords", userName.ID()))
+func (s *Service) Validate(userName string, password string) (bool, error) {
+	hash, err := s.storage.Load(resource.NewName("passwords", userName))
 	switch err {
 	case nil:
 		return bcrypt.CompareHashAndPassword(hash, []byte(password)) == nil, nil

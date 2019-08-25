@@ -81,7 +81,7 @@ func (s *Service) CreateUser(
 		return nil, status.New(codes.Internal, "failed to store user").Err()
 	}
 
-	if err := s.passwordsService.Set(name, request.Password); err != nil {
+	if err := s.passwordsService.Set(request.Username, request.Password); err != nil {
 		return nil, status.New(codes.Internal, "failed to store password hash").Err()
 	}
 

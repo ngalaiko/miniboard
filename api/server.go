@@ -8,13 +8,13 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	authenticatationsservice "miniboard.app/api/authorizations"
 	usersservice "miniboard.app/api/users"
 	articlesservice "miniboard.app/api/users/articles"
-	authenticatationsservice "miniboard.app/api/users/authorizations"
 	"miniboard.app/jwt"
 	"miniboard.app/passwords"
+	"miniboard.app/proto/authorizations/v1"
 	"miniboard.app/proto/users/articles/v1"
-	"miniboard.app/proto/users/authorizations/v1"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
 	"miniboard.app/web"
@@ -52,7 +52,10 @@ func NewServer(ctx context.Context, db storage.Storage) *Server {
 	)
 
 	mux := http.NewServeMux()
-	mux.Handle("/api/", withAuthorization(gwMux, jwtService))
+	mux.Handle("/api/", withAuthorization(
+		convertFormData(gwMux),
+		jwtService),
+	)
 	mux.Handle("/", web.Handler())
 
 	return &Server{

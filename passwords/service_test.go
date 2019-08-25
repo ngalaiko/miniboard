@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
-	"miniboard.app/storage/resource"
 )
 
 func Test_passwords(t *testing.T) {
@@ -21,14 +20,14 @@ func Test_passwords(t *testing.T) {
 
 	t.Run("With an empty service", func(t *testing.T) {
 		t.Run("When validating non existing password", func(t *testing.T) {
-			valid, err := service.Validate(resource.NewName("users", "1"), "password")
+			valid, err := service.Validate("users", "password")
 			t.Run("Then it should not be valid", func(t *testing.T) {
 				assert.Equal(t, errors.Cause(err), storage.ErrNotFound)
 				assert.False(t, valid)
 			})
 		})
 		t.Run("When adding a password for a user", func(t *testing.T) {
-			username := resource.NewName("users", "1")
+			username := "users"
 			password := "user's password"
 			err := service.Set(username, password)
 			assert.NoError(t, err)

@@ -14,7 +14,7 @@ export class Router {
     router.listen()
   }
 
-  register(path, component, ...props) {
+  register(path, component, props) {
     this.routes[path] = [{
       component: component,
       props: props

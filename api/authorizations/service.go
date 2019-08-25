@@ -1,4 +1,4 @@
-package authorizations // import "miniboard.app/services/authorizations"
+package authorizations
 
 import (
 	"context"
@@ -9,9 +9,8 @@ import (
 	"google.golang.org/grpc/status"
 	"miniboard.app/jwt"
 	"miniboard.app/passwords"
-	"miniboard.app/proto/users/authorizations/v1"
+	"miniboard.app/proto/authorizations/v1"
 	"miniboard.app/storage"
-	"miniboard.app/storage/resource"
 )
 
 const tokenDuration = time.Hour
@@ -35,7 +34,16 @@ func (s *Service) CreateAuthorization(
 	ctx context.Context,
 	request *authorizations.CreateAuthorizationRequest,
 ) (*authorizations.Authorization, error) {
-	valid, err := s.passwords.Validate(resource.ParseName(request.Parent), request.Password)
+	switch request.GrantType {
+	case "password":
+		return s.passwordAuthorization(request.Username, request.Password)
+	default:
+		return nil, status.New(codes.InvalidArgument, "unknown grant type").Err()
+	}
+}
+
+func (s *Service) passwordAuthorization(username string, password string) (*authorizations.Authorization, error) {
+	valid, err := s.passwords.Validate(username, password)
 	switch errors.Cause(err) {
 	case nil:
 	case storage.ErrNotFound:
@@ -48,13 +56,13 @@ func (s *Service) CreateAuthorization(
 		return nil, status.New(codes.InvalidArgument, "password is not valid").Err()
 	}
 
-	token, err := s.jwt.NewToken(request.Parent, tokenDuration)
+	token, err := s.jwt.NewToken(username, tokenDuration)
 	if err != nil {
 		return nil, status.New(codes.Internal, "failed to generage token").Err()
 	}
 
 	return &authorizations.Authorization{
-		Type:  "Bearer",
-		Token: token,
+		TokenType:   "Bearer",
+		AccessToken: token,
 	}, nil
 }

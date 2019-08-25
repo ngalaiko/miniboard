@@ -1,10 +1,10 @@
-package authorizations // import "miniboard.app/api/users/authorizations"
+package authorizations
 
 import (
 	"context"
 
 	"google.golang.org/grpc"
-	"miniboard.app/proto/users/authorizations/v1"
+	"miniboard.app/proto/authorizations/v1"
 )
 
 var _ authorizations.AuthorizationsServiceClient = &Proxy{}

@@ -6,7 +6,7 @@ load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
 go_library(
     name = "go_default_library",
     embed = [":authorizations_go_proto"],
-    importpath = "miniboard.app/proto/users/authorizations/v1",
+    importpath = "miniboard.app/proto/authorizations/v1",
     visibility = ["//visibility:public"],
 )
 
@@ -23,7 +23,7 @@ go_proto_library(
         "@io_bazel_rules_go//proto:go_grpc",
         "@grpc_ecosystem_grpc_gateway//protoc-gen-grpc-gateway:go_gen_grpc_gateway",  # keep
     ],
-    importpath = "miniboard.app/proto/users/authorizations/v1",
+    importpath = "miniboard.app/proto/authorizations/v1",
     proto = ":authorizations_proto",
     visibility = ["//visibility:public"],
     deps = ["@go_googleapis//google/api:annotations_go_proto"],

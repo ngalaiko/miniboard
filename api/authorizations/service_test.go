@@ -1,4 +1,4 @@
-package authorizations // import "miniboard.app/services/authorizations"
+package authorizations
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 	"miniboard.app/jwt"
 	"miniboard.app/passwords"
-	"miniboard.app/proto/users/authorizations/v1"
+	"miniboard.app/proto/authorizations/v1"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
 )
@@ -26,10 +26,23 @@ func Test_AuthorizationsService(t *testing.T) {
 
 	t.Run("With new service", func(t *testing.T) {
 		service := New(jwt, passwords)
+		t.Run("When creating authorization for with unknown type", func(t *testing.T) {
+			auth, err := service.CreateAuthorization(ctx, &authorizations.CreateAuthorizationRequest{
+				Username: "users/name",
+				Password: "a passsword",
+			})
+			t.Run("Then error should be InavlidArgument", func(t *testing.T) {
+				status, ok := status.FromError(err)
+				assert.True(t, ok)
+				assert.Nil(t, auth)
+				assert.Equal(t, status.Code(), codes.InvalidArgument)
+			})
+		})
 		t.Run("When creating authorization for non existing user", func(t *testing.T) {
 			auth, err := service.CreateAuthorization(ctx, &authorizations.CreateAuthorizationRequest{
-				Parent:   "users/name",
-				Password: "a passsword",
+				Username:  "users/name",
+				Password:  "a passsword",
+				GrantType: "password",
 			})
 			t.Run("Then error should be NotFound", func(t *testing.T) {
 				status, ok := status.FromError(err)
