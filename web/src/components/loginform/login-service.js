@@ -18,11 +18,6 @@ export class LoginService {
     })
   }
 
-  handleLoggedIn(data) {
-    console.log("logged in", data)
-    // todo: create and return authorization
-  }
-
   ifError(error) {
     if (error.code !== undefined) {
       throw error.message

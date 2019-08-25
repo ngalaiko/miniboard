@@ -16,6 +16,7 @@
             return
         }
         loginService.login(username, password)
+        .then(auth => { api.authenticate(auth) })
         .catch(e => { error = e });
     }
 </script>
