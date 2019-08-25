@@ -68,24 +68,18 @@ load(
 )
 _go_image_repos()
 
-# JavaScript.
+# Svetle.
 http_archive(
     name = "build_bazel_rules_nodejs",
     sha256 = "5c86b055c57e15bf32d9009a15bcd6d8e190c41b1ff2fb18037b75e0012e4e7c",
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.26.0/rules_nodejs-0.26.0.tar.gz"],
 )
-load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
-yarn_install(
-  name = "npm",
-  package_json = "//web:package.json",
-  yarn_lock = "//web:yarn.lock",
-)
 http_archive(
-        name = "build_bazel_rules_svelte",
-        url = "https://github.com/thelgevold/rules_svelte/archive/0.5.tar.gz",
-        strip_prefix = "rules_svelte-0.5",
-        sha256 = "783ffc6039f1932f623752dce6a5195ed8206678425e9d04f2ea494189bd9b56"
-        )
+    name = "build_bazel_rules_svelte",
+    url = "https://github.com/thelgevold/rules_svelte/archive/0.5.tar.gz",
+    strip_prefix = "rules_svelte-0.5",
+    sha256 = "783ffc6039f1932f623752dce6a5195ed8206678425e9d04f2ea494189bd9b56"
+)
 load("@build_bazel_rules_svelte//:defs.bzl", "rules_svelte_dependencies")
 rules_svelte_dependencies()
 

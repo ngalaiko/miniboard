@@ -1,19 +1,19 @@
-<div>
-  <h1>{title}</h1>
+<script>
+    import Login from './pages/login/Login.svelte';
+</script>
 
-  <Grid></Grid>
-
-  <h4>Treeview</h4>
-  <Treeview locations={locations}></Treeview>
+<div class="app">
+  <Login />
 </div>
 
-<script>
-  import Grid from "./grid/Grid.svelte";
-  import Treeview from './treeview/Treeview.svelte';
+<style>
 
-  import { LocationService } from './treeview/location-service';
+.app {
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-bottom: 30px;
+    font-family: helvetica neue, Helvetica, Arial, sans-serif;
+    text-rendering: optimizeLegibility
+}
 
-  let locationService = new LocationService();
-  let locations = locationService.getLocations();
-  let title = "Svelte Bazel Demo";
-</script>
+</style>

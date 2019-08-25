@@ -1,7 +1,7 @@
 import App from "./App.svelte";
 
-var demoApp = new App({
+var miniboard = new App({
   target: document.querySelector("main")
 });
 
-export default demoApp;
+export default miniboard;

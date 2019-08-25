@@ -7,8 +7,7 @@ svelte(
     entry_point = "App.svelte",
     srcs = ["main.js"],
     deps = [
-        "//web/src/treeview:Treeview",
-        "//web/src/grid:Grid",
+        "//web/src/pages/login:Login",
     ],
 )
 

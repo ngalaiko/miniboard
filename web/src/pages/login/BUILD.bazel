@@ -1,0 +1,11 @@
+load("@build_bazel_rules_svelte//:defs.bzl", "svelte")
+
+package(default_visibility = ["//visibility:public"])
+
+svelte(
+    name = "Login",
+    entry_point = "Login.svelte",
+    deps = [
+        "//web/src/components/loginform:LoginForm",
+    ],
+)
