@@ -8,15 +8,25 @@
 
     let loginService = new LoginService(api);
 
+    let error = "";
+
     function handleClick() {
-        loginService.login(username, password);
+        error = ""
+        if (username == "" || password === "") {
+            return
+        }
+        loginService.login(username, password)
+        .catch(e => { error = e });
     }
 </script>
 
 <form class="form">
     <input type="text" bind:value={username} placeholder="name" required="" />
     <input type="password" bind:value={password} placeholder="password" required="" />
-    <button hidden=true on:click|preventDefault={handleClick}>Login</button>
+    {#if error != ""}
+    <div class="alert">{error}</div>
+    {/if}
+    <button hidden=true on:click|preventDefault={handleClick} />
 </form>
 
 <style>
@@ -39,6 +49,15 @@ input {
 
 input:focus{
     outline-width: 0
+}
+
+.alert{
+    color: #b94a48;
+    background-color: #f2dede;
+    border-color: #eed3d7;
+    padding: 8px;
+    border: 1px solid #fbeed5;
+    overflow: auto;
 }
 
 </style>

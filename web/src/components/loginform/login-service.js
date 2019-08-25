@@ -24,11 +24,11 @@ export class LoginService {
   }
 
   ifError(error) {
-    if (error.message !== undefined) {
-      throw Error(`api error: ${error.message}`)
-      // todo: show error message
+    if (error.code !== undefined) {
+      throw error.message
     }
-    throw error
+    console.error(error)
+    throw "something went wrong, try again"
   }
 
   ifNotFound(then) {
