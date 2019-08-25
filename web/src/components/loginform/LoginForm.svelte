@@ -1,10 +1,12 @@
 <script>
     import { LoginService } from './login-service';
 
-    let loginService = new LoginService();
+    export let api;
 
     let username = "";
     let password = "";
+
+    let loginService = new LoginService(api);
 
     function handleClick() {
         loginService.login(username, password);
@@ -12,25 +14,16 @@
 </script>
 
 <form class="form">
-    <label for="form-username">Username</label>
-    <input type="text" bind:value={username} required="" />
-    <label for="form-password">Password</label>
-    <input type="password" bind:value={password} required="" />
-    <div class="buttons">
-        <button on:click|preventDefault={handleClick}>Login</button>
-    </div>
+    <input type="text" bind:value={username} placeholder="name" required="" />
+    <input type="password" bind:value={password} placeholder="password" required="" />
+    <button hidden=true on:click|preventDefault={handleClick}>Login</button>
 </form>
 
 <style>
 
 form {
-    margin: 50px auto 0;
-    max-width: 280px
-}
-
-label {
-    cursor: pointer;
-    display: block
+    margin: 25% auto 0;
+    max-width: 250px
 }
 
 input {
@@ -44,28 +37,8 @@ input {
     -webkit-appearance: none
 }
 
-.buttons {
-    margin-top: 10px;
-    margin-bottom: 20px
-}
-
-button {
-    display: inline-block;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    font-size: 1.1em;
-    cursor: pointer;
-    padding: 3px 10px;
-    border: 1px solid;
-    border-radius: unset;
-    border-color: #3079ed;
-    background: #4d90fe;
-    color: #fff
-}
-
-button:hover, .button:focus {
-    border-color: #2f5bb7;
-    background: #357ae8
+input:focus{
+    outline-width: 0
 }
 
 </style>

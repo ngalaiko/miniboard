@@ -1,17 +1,12 @@
 <script>
     import LoginForm from '../../components/loginform/LoginForm.svelte'
+
+    export let api;
 </script>
 
 <div class="login">
-    <LoginForm />
+    <LoginForm api={api} />
 </div>
 
 <style>
-
-.login {
-    padding-left: 5px;
-    padding-right: 5px;
-    margin-bottom: 30px
-}
-
 </style>

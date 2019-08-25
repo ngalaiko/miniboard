@@ -6,4 +6,5 @@ svelte(
     name = "LoginForm",
     entry_point = "LoginForm.svelte",
     srcs = ["login-service.js"],
+    deps = ["//web/src/components/api:Api"],
 )
