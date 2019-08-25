@@ -8,8 +8,7 @@ svelte(
     srcs = ["main.js"],
     deps = [
         "//web/src/pages/login:Login",
-        "//web/src/pages/notfound:NotFound",
-        "//web/src/components/navaid:Navaid",
+        "//web/src/components/router:Router",
     ],
 )
 

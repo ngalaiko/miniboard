@@ -2,19 +2,22 @@
 
 <script>
     import Login from './pages/login/Login.svelte';
-    import NotFound from './pages/notfound/NotFound.svelte';
     import { Api } from './components/api/api';
-    import navid from "./components/navaid/navaid";
+    import { Router } from "./components/router/router";
 
-    let api = new Api();
-    let router = navid();
+    let api = new Api()
+
+    let router = new Router()
+
+    router.register("/", Login, api)
 
     let pathname = location.pathname;
 </script>
 
 <div class="app">
-   // todo: router component
-  <Login api={api} />
+  {#each router.route(pathname) as { component, props } }
+    <svelte:component this={ component } { ...props }/>
+  {/each}
 </div>
 
 <style>
