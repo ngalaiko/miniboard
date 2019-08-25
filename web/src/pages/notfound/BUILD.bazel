@@ -3,7 +3,6 @@ load("@build_bazel_rules_svelte//:defs.bzl", "svelte")
 package(default_visibility = ["//visibility:public"])
 
 svelte(
-    name = "Api",
-    entry_point = "Api.svelte",
-    srcs = ["api.js"],
+    name = "NotFound",
+    entry_point = "NotFound.svelte",
 )
