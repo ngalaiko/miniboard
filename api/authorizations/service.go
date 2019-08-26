@@ -11,6 +11,7 @@ import (
 	"miniboard.app/passwords"
 	"miniboard.app/proto/authorizations/v1"
 	"miniboard.app/storage"
+	"miniboard.app/storage/resource"
 )
 
 const tokenDuration = time.Hour
@@ -36,14 +37,14 @@ func (s *Service) CreateAuthorization(
 ) (*authorizations.Authorization, error) {
 	switch request.GrantType {
 	case "password":
-		return s.passwordAuthorization(request.Username, request.Password)
+		return s.passwordAuthorization(resource.NewName("users", request.Username), request.Password)
 	default:
 		return nil, status.New(codes.InvalidArgument, "unknown grant type").Err()
 	}
 }
 
-func (s *Service) passwordAuthorization(username string, password string) (*authorizations.Authorization, error) {
-	valid, err := s.passwords.Validate(username, password)
+func (s *Service) passwordAuthorization(user *resource.Name, password string) (*authorizations.Authorization, error) {
+	valid, err := s.passwords.Validate(user, password)
 	switch errors.Cause(err) {
 	case nil:
 	case storage.ErrNotFound:
@@ -56,7 +57,7 @@ func (s *Service) passwordAuthorization(username string, password string) (*auth
 		return nil, status.New(codes.InvalidArgument, "password is not valid").Err()
 	}
 
-	token, err := s.jwt.NewToken(username, tokenDuration)
+	token, err := s.jwt.NewToken(user, tokenDuration)
 	if err != nil {
 		return nil, status.New(codes.Internal, "failed to generage token").Err()
 	}

@@ -20,6 +20,7 @@ go_test(
     deps = [
         "//storage:go_default_library",
         "//storage/bolt:go_default_library",
+        "//storage/resource:go_default_library",
         "@com_github_pkg_errors//:go_default_library",
         "@com_github_stretchr_testify//assert:go_default_library",
     ],

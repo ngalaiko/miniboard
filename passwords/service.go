@@ -20,13 +20,13 @@ func NewService(db storage.Storage) *Service {
 }
 
 // Set sets _user_ password to _password_.
-func (s *Service) Set(userName string, password string) error {
+func (s *Service) Set(user *resource.Name, password string) error {
 	hash, err := argon2pw.GenerateSaltedHash(password)
 	if err != nil {
 		return errors.Wrap(err, "failed to calculate password hash")
 	}
 
-	if err := s.storage.Store(resource.NewName("passwords", userName), []byte(hash)); err != nil {
+	if err := s.storage.Store(resource.NewName("passwords", user.ID()), []byte(hash)); err != nil {
 		return errors.Wrap(err, "failed to store password hash")
 	}
 
@@ -34,8 +34,8 @@ func (s *Service) Set(userName string, password string) error {
 }
 
 // Validate validates user's password.
-func (s *Service) Validate(userName string, password string) (bool, error) {
-	hash, err := s.storage.Load(resource.NewName("passwords", userName))
+func (s *Service) Validate(user *resource.Name, password string) (bool, error) {
+	hash, err := s.storage.Load(resource.NewName("passwords", user.ID()))
 	switch err {
 	case nil:
 		valid, _ := argon2pw.CompareHashWithPassword(string(hash), password)

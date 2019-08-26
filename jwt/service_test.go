@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"miniboard.app/storage/resource"
 )
 
 func Test_Service(t *testing.T) {
@@ -16,7 +17,7 @@ func Test_Service(t *testing.T) {
 		service := NewService(testDB(ctx, t))
 
 		t.Run("When creating a token", func(t *testing.T) {
-			testSubject := "test subject"
+			testSubject := resource.NewName("test", "test subject")
 			token, err := service.NewToken(testSubject, time.Hour)
 
 			t.Run("It should return a token", func(t *testing.T) {
@@ -29,7 +30,7 @@ func Test_Service(t *testing.T) {
 
 				t.Run("It should no error", func(t *testing.T) {
 					assert.NoError(t, err)
-					assert.Equal(t, parsedSubject, testSubject)
+					assert.Equal(t, testSubject.String(), parsedSubject)
 				})
 			})
 		})

@@ -62,7 +62,7 @@ func withAuthorization(h http.Handler, jwtService *jwt.Service) http.Handler {
 			return
 		}
 
-		if !strings.HasPrefix(r.URL.Path, fmt.Sprintf("/api/v1/users/%s", subject)) {
+		if !strings.HasPrefix(r.URL.Path, fmt.Sprintf("/api/v1/%s", subject)) {
 			w.WriteHeader(http.StatusForbidden)
 			w.Write(errForbidden)
 			return

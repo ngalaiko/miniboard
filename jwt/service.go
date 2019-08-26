@@ -9,6 +9,7 @@ import (
 	jose "gopkg.in/square/go-jose.v2"
 	"gopkg.in/square/go-jose.v2/jwt"
 	"miniboard.app/storage"
+	"miniboard.app/storage/resource"
 )
 
 const defaultIssuer = "miniboard.app"
@@ -45,12 +46,12 @@ func NewService(db storage.Storage) *Service {
 }
 
 // NewToken returns new authorization.
-func (s *Service) NewToken(subject string, duration time.Duration) (string, error) {
+func (s *Service) NewToken(subject *resource.Name, duration time.Duration) (string, error) {
 	now := time.Now()
 	claims := &jwt.Claims{
 		ID:       uuid.New().String(),
 		Issuer:   defaultIssuer,
-		Subject:  subject,
+		Subject:  subject.String(),
 		IssuedAt: jwt.NewNumericDate(now),
 		Expiry:   jwt.NewNumericDate(now.Add(duration)),
 	}
