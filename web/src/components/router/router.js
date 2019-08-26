@@ -1,30 +1,26 @@
 import navid from '../navaid/navaid'
 
-import NotFound from '../../pages/notfound/NotFound.svelte'
-
 export class Router {
   constructor() {
-    let router = navid()
-    this.routes = {}
+    this.router = navid()
+    this.currentComponent = []
 
-    this.notFound = [{
-      component: NotFound
-    }]
+  }
 
-    router.listen()
+  listen() {
+    this.router.listen()
   }
 
   register(path, component, props) {
-    this.routes[path] = [{
-      component: component,
-      props: props
-    }]
+    this.router.on(path, params => {
+        this.currentComponent = [{
+          component: component,
+          props: { ...props, ...params }
+      }]
+    })
   }
 
-  route(path) {
-    if (path in this.routes) {
-      return this.routes[path]
-    }
-    return this.notFound
+  current() {
+    return this.currentComponent
   }
 }

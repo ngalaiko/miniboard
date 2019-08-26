@@ -1,6 +1,5 @@
-// taken from: https://github.com/lukeed/navaid/tree/d8aad3df9a6dba401a54c53a52b3e14954385a4e/src
+// src: https://github.com/lukeed/navaid/tree/d8aad3df9a6dba401a54c53a52b3e14954385a4e/src
 // licence: https://github.com/lukeed/navaid/blob/d8aad3df9a6dba401a54c53a52b3e14954385a4e/license
-
 export default function Navaid(base, on404) {
 	var rgx, routes=[], $={};
 
@@ -19,7 +18,7 @@ export default function Navaid(base, on404) {
 	}
 
 	$.on = function (pat, fn) {
-		//(pat = convert(pat)).fn = fn;
+		(pat = convert(pat)).fn = fn;
 		routes.push(pat);
 		return $;
 	}
@@ -88,4 +87,33 @@ function wrap(type, fn) {
 		fn.apply(this, arguments);
 		return dispatchEvent(ev);
 	}
+}
+
+// src: https://github.com/lukeed/regexparam/blob/bcd6bb25080de388a9ca10a6c0f355de1deeb75c/src/index.js
+// licence: https://github.com/lukeed/regexparam/blob/bcd6bb25080de388a9ca10a6c0f355de1deeb75c/license
+function convert(str, loose) {
+	if (str instanceof RegExp) return { keys:false, pattern:str };
+	var c, o, tmp, ext, keys=[], pattern='', arr = str.split('/');
+	arr[0] || arr.shift();
+
+	while (tmp = arr.shift()) {
+		c = tmp[0];
+		if (c === '*') {
+			keys.push('wild');
+			pattern += '/(.*)';
+		} else if (c === ':') {
+			o = tmp.indexOf('?', 1);
+			ext = tmp.indexOf('.', 1);
+			keys.push( tmp.substring(1, !!~o ? o : !!~ext ? ext : tmp.length) );
+			pattern += !!~o && !~ext ? '(?:/([^/]+?))?' : '/([^/]+?)';
+			if (!!~ext) pattern += (!!~o ? '?' : '') + '\\' + tmp.substring(ext);
+		} else {
+			pattern += '/' + tmp;
+		}
+	}
+
+	return {
+		keys: keys,
+		pattern: new RegExp('^' + pattern + (loose ? '(?=$|\/)' : '\/?$'), 'i')
+	};
 }
