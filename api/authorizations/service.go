@@ -57,7 +57,7 @@ func (s *Service) passwordAuthorization(user *resource.Name, password string) (*
 		return nil, status.New(codes.InvalidArgument, "password is not valid").Err()
 	}
 
-	token, err := s.jwt.NewToken(user, tokenDuration)
+	token, err := s.jwt.NewToken(user)
 	if err != nil {
 		return nil, status.New(codes.Internal, "failed to generage token").Err()
 	}

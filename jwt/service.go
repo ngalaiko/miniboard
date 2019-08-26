@@ -15,13 +15,15 @@ import (
 )
 
 const (
-	defaultIssuer    = "miniboard.app"
-	rotationInterval = time.Hour
+	defaultIssuer = "miniboard.app"
 )
 
 // Service issues and validates jwt tokens.
 type Service struct {
 	keyStorage *keyStorage
+
+	rotationInterval time.Duration
+	expiryInterval   time.Duration
 
 	signer      jose.Signer
 	signerGuard *sync.RWMutex
@@ -32,8 +34,10 @@ func NewService(ctx context.Context, db storage.Storage) *Service {
 	keyStorage := newKeyStorage(db)
 
 	s := &Service{
-		keyStorage:  keyStorage,
-		signerGuard: &sync.RWMutex{},
+		keyStorage:       keyStorage,
+		signerGuard:      &sync.RWMutex{},
+		rotationInterval: time.Hour,
+		expiryInterval:   time.Hour,
 	}
 
 	if err := s.newSigner(); err != nil {
@@ -72,14 +76,14 @@ func (s *Service) newSigner() error {
 }
 
 // NewToken returns new authorization.
-func (s *Service) NewToken(subject *resource.Name, duration time.Duration) (string, error) {
+func (s *Service) NewToken(subject *resource.Name) (string, error) {
 	now := time.Now()
 	claims := &jwt.Claims{
 		ID:       uuid.New().String(),
 		Issuer:   defaultIssuer,
 		Subject:  subject.String(),
 		IssuedAt: jwt.NewNumericDate(now),
-		Expiry:   jwt.NewNumericDate(now.Add(duration)),
+		Expiry:   jwt.NewNumericDate(now.Add(s.expiryInterval)),
 	}
 
 	s.signerGuard.RLock()
@@ -123,7 +127,7 @@ func (s *Service) Validate(raw string) (string, error) {
 }
 
 func (s *Service) rotateKeys(ctx context.Context) {
-	timer := time.NewTicker(rotationInterval)
+	timer := time.NewTicker(s.rotationInterval)
 	for {
 		select {
 		case <-ctx.Done():
