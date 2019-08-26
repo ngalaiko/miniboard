@@ -1,4 +1,4 @@
-package jwt // import "miniboard.app/jwt"
+package jwt
 
 import (
 	"crypto"
@@ -22,16 +22,23 @@ type key struct {
 
 type keyStorage struct {
 	storage storage.Storage
+	cache   *cache
 }
 
 func newKeyStorage(db storage.Storage) *keyStorage {
 	return &keyStorage{
 		storage: db,
+		cache:   newCache(),
 	}
 }
 
 // Get returns a key by id.
 func (s *keyStorage) Get(id uuid.UUID) (*key, error) {
+	fromCache, cached := s.cache.Get(id)
+	if cached {
+		return fromCache, nil
+	}
+
 	idBytes, err := id.MarshalBinary()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal key id")
@@ -47,11 +54,14 @@ func (s *keyStorage) Get(id uuid.UUID) (*key, error) {
 		return nil, errors.Wrap(err, "failed to parse key")
 	}
 
-	return &key{
+	k := &key{
 		ID:      id,
 		Private: privateKey,
 		Public:  privateKey.Public(),
-	}, nil
+	}
+	s.cache.Save(id, k)
+
+	return k, nil
 }
 
 // Create returns a new key.
@@ -77,9 +87,12 @@ func (s *keyStorage) Create() (*key, error) {
 		return nil, errors.Wrap(err, "failed to store encryption key")
 	}
 
-	return &key{
+	k := &key{
 		ID:      id,
 		Private: privateKey,
 		Public:  privateKey.Public(),
-	}, nil
+	}
+	s.cache.Save(id, k)
+
+	return k, nil
 }
