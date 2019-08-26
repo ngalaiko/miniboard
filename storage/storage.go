@@ -8,6 +8,8 @@ type Storage interface {
 	Store(*resource.Name, []byte) error
 	// Load returns data by the resource name.
 	Load(*resource.Name) ([]byte, error)
+	// Delete deletes data by the resource name.
+	Delete(*resource.Name) error
 	// LoadChildren returns the list of resouce's children.
 	// If _from_ is not nil, returns _limit_ documents starting with _from_ ordered by descanding.
 	// If _from_ is nil, returns _limit_ first documents ordered by descanding.

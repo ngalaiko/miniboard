@@ -101,6 +101,15 @@ func Test_DB(t *testing.T) {
 					}
 				})
 			})
+
+			t.Run("When it's deleted", func(t *testing.T) {
+				assert.NoError(t, db.Delete(name))
+
+				t.Run("Data should not ne found", func(t *testing.T) {
+					_, err := db.Load(name)
+					assert.Equal(t, storage.ErrNotFound, err)
+				})
+			})
 		})
 	})
 }

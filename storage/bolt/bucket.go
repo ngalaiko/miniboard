@@ -36,6 +36,14 @@ func (db *DB) Load(name *resource.Name) ([]byte, error) {
 	})
 }
 
+// Delete deletes data by _name_.
+func (db *DB) Delete(name *resource.Name) error {
+	name = resource.NewName(name.Type(), "bucket").AddChild(name)
+	return db.update(name, func(bucket *bolt.Bucket) error {
+		return bucket.Delete([]byte(name.ID()))
+	})
+}
+
 // LoadChildren implements storage.Storage.
 func (db *DB) LoadChildren(name *resource.Name, from *resource.Name, limit int) ([][]byte, error) {
 	var data [][]byte
