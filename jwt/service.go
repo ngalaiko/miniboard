@@ -1,6 +1,8 @@
 package jwt // import "miniboard.app/jwt"
 
 import (
+	"context"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,37 +14,61 @@ import (
 	"miniboard.app/storage/resource"
 )
 
-const defaultIssuer = "miniboard.app"
+const (
+	defaultIssuer    = "miniboard.app"
+	rotationInterval = time.Hour
+)
 
 // Service issues and validates jwt tokens.
 type Service struct {
 	keyStorage *keyStorage
-	signer     jose.Signer
+
+	signer      jose.Signer
+	signerGuard *sync.RWMutex
 }
 
 // NewService creates new jwt service instance.
-func NewService(db storage.Storage) *Service {
+func NewService(ctx context.Context, db storage.Storage) *Service {
 	keyStorage := newKeyStorage(db)
 
-	key, err := keyStorage.Create()
-	if err != nil {
-		log("jwt").Panicf("failed to generate key: %s", err)
+	s := &Service{
+		keyStorage:  keyStorage,
+		signerGuard: &sync.RWMutex{},
 	}
-	log("jwt").Infof("generated encryption key: %s", key.ID)
+
+	if err := s.newSigner(); err != nil {
+		log("jwt").Panicf("failed to generate encryption key: %s", err)
+	}
+
+	go s.rotateKeys(ctx)
+
+	return s
+}
+
+func (s *Service) newSigner() error {
+	key, err := s.keyStorage.Create()
+	if err != nil {
+		return err
+	}
+	log("jwt").Infof("new encryption key: %s", key.ID)
 
 	options := (&jose.SignerOptions{}).
 		WithHeader("kid", key.ID).
 		WithType("JWT")
 
-	signer, err := jose.NewSigner(jose.SigningKey{
+	sng, err := jose.NewSigner(jose.SigningKey{
 		Algorithm: jose.ES256,
 		Key:       key.Private,
 	}, options)
-
-	return &Service{
-		keyStorage: keyStorage,
-		signer:     signer,
+	if err != nil {
+		return err
 	}
+
+	s.signerGuard.Lock()
+	s.signer = sng
+	s.signerGuard.Unlock()
+
+	return nil
 }
 
 // NewToken returns new authorization.
@@ -56,6 +82,8 @@ func (s *Service) NewToken(subject *resource.Name, duration time.Duration) (stri
 		Expiry:   jwt.NewNumericDate(now.Add(duration)),
 	}
 
+	s.signerGuard.RLock()
+	defer s.signerGuard.RUnlock()
 	return jwt.Signed(s.signer).Claims(claims).CompactSerialize()
 }
 
@@ -92,6 +120,20 @@ func (s *Service) Validate(raw string) (string, error) {
 	}
 
 	return claims.Subject, nil
+}
+
+func (s *Service) rotateKeys(ctx context.Context) {
+	timer := time.NewTicker(rotationInterval)
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-timer.C:
+			if err := s.newSigner(); err != nil {
+				log("jwt").Errorf("failed to rotate keys: %s", err)
+			}
+		}
+	}
 }
 
 func log(src string) *logrus.Entry {

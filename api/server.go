@@ -29,7 +29,7 @@ type Server struct {
 func NewServer(ctx context.Context, db storage.Storage) *Server {
 	passwordsService := passwords.NewService(db)
 	usersService := usersservice.New(db, passwordsService)
-	jwtService := jwt.NewService(db)
+	jwtService := jwt.NewService(ctx, db)
 	authorizationsService := authenticatationsservice.New(jwtService, passwordsService)
 	articlesService := articlesservice.New(db)
 

@@ -14,7 +14,7 @@ func Test_Service(t *testing.T) {
 	defer cancel()
 
 	t.Run("With new service", func(t *testing.T) {
-		service := NewService(testDB(ctx, t))
+		service := NewService(ctx, testDB(ctx, t))
 
 		t.Run("When creating a token", func(t *testing.T) {
 			testSubject := resource.NewName("test", "test subject")

@@ -21,7 +21,7 @@ func Test_AuthorizationsService(t *testing.T) {
 	defer cancel()
 
 	db := testDB(ctx, t)
-	jwt := jwt.NewService(db)
+	jwt := jwt.NewService(ctx, db)
 	passwords := passwords.NewService(db)
 
 	t.Run("With new service", func(t *testing.T) {
