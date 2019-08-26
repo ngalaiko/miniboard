@@ -1,4 +1,4 @@
-package passwords // import "miniboard.app/passwords"
+package passwords
 
 import (
 	"context"

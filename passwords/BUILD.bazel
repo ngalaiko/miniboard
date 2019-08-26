@@ -9,7 +9,7 @@ go_library(
         "//storage:go_default_library",
         "//storage/resource:go_default_library",
         "@com_github_pkg_errors//:go_default_library",
-        "@org_golang_x_crypto//bcrypt:go_default_library",
+        "@com_github_raja_argon2pw//:go_default_library",
     ],
 )
 

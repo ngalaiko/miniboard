@@ -277,3 +277,9 @@ def go_repositories():
         sum = "h1:9yBfKyw4ECGTdALaF09Snw3sLJmYIX6AbPJrAy6MrDc=",
         version = "v1.0.2",
     )
+    go_repository(
+        name = "com_github_raja_argon2pw",
+        importpath = "github.com/raja/argon2pw",
+        sum = "h1:RIUM12+uQdj5/cWQLlEmZDD8xj5kQN1X9kTK0xfXjGQ=",
+        version = "v1.0.1",
+    )
