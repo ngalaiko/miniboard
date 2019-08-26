@@ -28,7 +28,7 @@
     {#if error != ""}
     <div class="alert">{error}</div>
     {/if}
-    <button hidden=true on:click|preventDefault={handleClick} />
+    <button on:click|preventDefault={handleClick} />
 </form>
 
 <style>
@@ -36,6 +36,13 @@
 form {
     margin: 25% auto 0;
     max-width: 250px
+}
+
+button {
+     padding-left: 0; padding-right: 0;
+     border-left-width: 0; border-right-width: 0;
+     white-space: nowrap;
+     overflow: hidden;
 }
 
 input {
