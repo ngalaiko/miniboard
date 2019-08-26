@@ -40,24 +40,35 @@ func Test_keyStorage_Get(t *testing.T) {
 		})
 	})
 
-	t.Run("When a key exists", func(t *testing.T) {
+	t.Run("When a creating a key", func(t *testing.T) {
 		key, err := service.Create()
 		assert.NoError(t, err)
+		assert.NotNil(t, key)
+		assert.NotNil(t, key.Private)
+		assert.NotNil(t, key.Public)
 
-		t.Run("Then it should be returned", func(t *testing.T) {
-			fromStorage, err := service.Get(key.ID)
-			assert.NoError(t, err)
-
-			assert.Equal(t, fromStorage, key)
+		t.Run("It should be added to the cache", func(t *testing.T) {
+			found, ok := service.cache.Get(key.ID)
+			assert.True(t, ok)
+			assert.Equal(t, key, found)
 		})
 
-	})
+		t.Run("If key is not cached", func(t *testing.T) {
+			service.cache.store.Delete(key.ID)
 
-	key, err := service.Create()
-	assert.NoError(t, err)
-	assert.NotNil(t, key)
-	assert.NotNil(t, key.Private)
-	assert.NotNil(t, key.Public)
+			t.Run("Then it should be returned", func(t *testing.T) {
+				fromStorage, err := service.Get(key.ID)
+				assert.NoError(t, err)
+				assert.Equal(t, fromStorage, key)
+			})
+
+			t.Run("And cached", func(t *testing.T) {
+				found, ok := service.cache.Get(key.ID)
+				assert.True(t, ok)
+				assert.Equal(t, key, found)
+			})
+		})
+	})
 }
 
 func testDB(ctx context.Context, t *testing.T) storage.Storage {
