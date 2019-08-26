@@ -1,4 +1,4 @@
-package jwt // import "miniboard.app/jwt"
+package jwt
 
 import (
 	"context"
@@ -31,6 +31,10 @@ func Test_Service(t *testing.T) {
 					assert.NoError(t, err)
 					assert.Equal(t, testSubject.String(), parsedSubject)
 				})
+			})
+
+			t.Run("When the token is rotated", func(t *testing.T) {
+				assert.NoError(t, service.newSigner())
 			})
 		})
 	})

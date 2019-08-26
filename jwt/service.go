@@ -1,12 +1,12 @@
-package jwt // import "miniboard.app/jwt"
+package jwt
 
 import (
 	"context"
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 	jose "gopkg.in/square/go-jose.v2"
 	"gopkg.in/square/go-jose.v2/jwt"
@@ -34,9 +34,10 @@ func NewService(ctx context.Context, db storage.Storage) *Service {
 	keyStorage := newKeyStorage(db)
 
 	s := &Service{
-		keyStorage:       keyStorage,
-		signerGuard:      &sync.RWMutex{},
-		rotationInterval: time.Hour,
+		keyStorage:  keyStorage,
+		signerGuard: &sync.RWMutex{},
+		// TODO: remove old keys.
+		rotationInterval: 24 * time.Hour,
 		expiryInterval:   time.Hour,
 	}
 
@@ -79,7 +80,7 @@ func (s *Service) newSigner() error {
 func (s *Service) NewToken(subject *resource.Name) (string, error) {
 	now := time.Now()
 	claims := &jwt.Claims{
-		ID:       uuid.New().String(),
+		ID:       ksuid.New().String(),
 		Issuer:   defaultIssuer,
 		Subject:  subject.String(),
 		IssuedAt: jwt.NewNumericDate(now),
@@ -102,10 +103,7 @@ func (s *Service) Validate(raw string) (string, error) {
 		return "", errors.Wrap(err, "headers missing from the token")
 	}
 
-	id, err := uuid.Parse(token.Headers[0].KeyID)
-	if err != nil {
-		return "", errors.Wrap(err, "invalid id")
-	}
+	id := token.Headers[0].KeyID
 
 	key, err := s.keyStorage.Get(id)
 	if err != nil {

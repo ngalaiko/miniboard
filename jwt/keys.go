@@ -7,15 +7,15 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/segmentio/ksuid"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
 )
 
 // key is an encryption key.
 type key struct {
-	ID      uuid.UUID
+	ID      string
 	Private crypto.PrivateKey
 	Public  crypto.PublicKey
 }
@@ -33,18 +33,13 @@ func newKeyStorage(db storage.Storage) *keyStorage {
 }
 
 // Get returns a key by id.
-func (s *keyStorage) Get(id uuid.UUID) (*key, error) {
+func (s *keyStorage) Get(id string) (*key, error) {
 	fromCache, cached := s.cache.Get(id)
 	if cached {
 		return fromCache, nil
 	}
 
-	idBytes, err := id.MarshalBinary()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal key id")
-	}
-
-	data, err := s.storage.Load(resource.NewName("jwt-key", string(idBytes)))
+	data, err := s.storage.Load(resource.NewName("jwt-key", id))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to load key")
 	}
@@ -76,14 +71,9 @@ func (s *keyStorage) Create() (*key, error) {
 		return nil, errors.Wrap(err, "failed to marshal encryption key")
 	}
 
-	id := uuid.New()
+	id := ksuid.New().String()
 
-	idBytes, err := id.MarshalBinary()
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal key id")
-	}
-
-	if err := s.storage.Store(resource.NewName("jwt-key", string(idBytes)), data); err != nil {
+	if err := s.storage.Store(resource.NewName("jwt-key", id), data); err != nil {
 		return nil, errors.Wrap(err, "failed to store encryption key")
 	}
 

@@ -2,8 +2,6 @@ package jwt
 
 import (
 	"sync"
-
-	"github.com/google/uuid"
 )
 
 // in-memory cache for encryption keys.
@@ -18,11 +16,17 @@ func newCache() *cache {
 }
 
 // Save saves the _key_ by _id_
-func (c *cache) Save(id uuid.UUID, k *key) {
+func (c *cache) Save(id string, k *key) {
 	c.store.Store(id, k)
 }
 
-func (c *cache) Get(id uuid.UUID) (*key, bool) {
+// Delete deletes the key by _id_.
+func (c *cache) Delete(id string) {
+	c.store.Delete(id)
+}
+
+// Get returns a _key_ by _id_.
+func (c *cache) Get(id string) (*key, bool) {
 	value, ok := c.store.Load(id)
 	if !ok {
 		return nil, false

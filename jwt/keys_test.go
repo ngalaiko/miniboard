@@ -1,4 +1,4 @@
-package jwt // import "miniboard.app/jwt"
+package jwt
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/storage"
@@ -34,7 +33,7 @@ func Test_keyStorage_Get(t *testing.T) {
 
 	t.Run("When a key doesn't exist", func(t *testing.T) {
 		t.Run("Then error should be not found", func(t *testing.T) {
-			key, err := service.Get(uuid.New())
+			key, err := service.Get("random id")
 			assert.Nil(t, key)
 			assert.Equal(t, errors.Cause(err), storage.ErrNotFound)
 		})
