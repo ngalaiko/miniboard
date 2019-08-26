@@ -6,8 +6,7 @@ export class LoginService {
   // login returns a Promise with authorization.
   login(username, password) {
     return this.getAuthorization(username, password)
-      .then(this.ifNotFound(() => { return this.signup(username, password) }))
-      .then(this.handleLoggedIn)
+      .then(this.ifNotFound(() => this.signup(username, password) ))
       .catch(this.ifError)
   }
 

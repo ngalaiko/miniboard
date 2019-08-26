@@ -7,6 +7,3 @@
 <div class="login">
     <LoginForm api={api} />
 </div>
-
-<style>
-</style>

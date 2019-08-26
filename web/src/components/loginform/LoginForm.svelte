@@ -16,8 +16,9 @@
             return
         }
         loginService.login(username, password)
-        .then(auth => { api.authenticate(auth) })
-        .catch(e => { error = e });
+            .then(auth => api.authenticate(auth) )
+            .then(() => { location.href = `/users/${username}` } )
+            .catch(e => { error = e });
     }
 </script>
 
