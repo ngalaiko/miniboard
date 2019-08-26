@@ -11,9 +11,11 @@
 
     let router = new Router()
     router.register("/", Login, {
-        api: api,
+        api: api
     })
-    router.register("/users/:username", User)
+    router.register("/users/:username", User, {
+        api: api
+    })
     router.register("*", NotFound)
     router.listen()
 

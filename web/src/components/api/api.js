@@ -1,24 +1,47 @@
+import { LocalStorage } from '../localstorage/local-storage'
+
 export class Api {
   constructor() {
-    this.authentication = null
+    this.localStorage = new LocalStorage();
   }
 
-  postJSON(url, data) {
-    return this.post(url, JSON.stringify(data), 'application/json')
-  }
-
-  post(url, data, contentType) {
-    return fetch(url, {
-        method: 'POST',
-        body: data,
+  get(url) {
+    let options = {
+        method: 'GET',
         headers: {
-            'Content-Type': contentType,
+          'Authorization': this.authorization()
+      }
+    }
+    return fetch(url, options)
+      .then(response => response.json())
+      // todo: handle errors
+  }
+
+  post(url, data) {
+    let options = {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type':  'application/json',
+            'Authorization': this.authorization()
         },
-    })
-    .then(response => response.json())
+    }
+    return fetch(url, options)
+      .then(response => response.json())
+      // todo: handle errors
   }
 
   authenticate(auth) {
-    this.authentication = auth
+    this.localStorage.set('authentication.access_token', auth.access_token)
+    this.localStorage.set('authentication.token_type', auth.token_type)
+  }
+
+  authorization() {
+    let access_token = this.localStorage.get('authentication.access_token')
+    let token_type = this.localStorage.get('authentication.token_type')
+    if (access_token !== null && token_type !== null) {
+      return `${token_type} ${access_token} `
+    }
+    return ''
   }
 }

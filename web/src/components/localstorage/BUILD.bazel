@@ -1,0 +1,9 @@
+load("@build_bazel_rules_svelte//:defs.bzl", "svelte")
+
+package(default_visibility = ["//visibility:public"])
+
+svelte(
+    name = "LocalStorage",
+    entry_point = "LocalStorage.svelte",
+    srcs = ["local-storage.js"],
+)

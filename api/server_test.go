@@ -33,7 +33,7 @@ func Test_server(t *testing.T) {
 			resp, err := http.Get(server.URL + "/api/v1/users/random-id")
 			t.Run("It should return 401", func(t *testing.T) {
 				assert.NoError(t, err)
-				assert.Equal(t, resp.StatusCode, http.StatusUnauthorized)
+				assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 			})
 		})
 
