@@ -34,11 +34,10 @@ func NewService(ctx context.Context, db storage.Storage) *Service {
 	keyStorage := newKeyStorage(db)
 
 	s := &Service{
-		keyStorage:  keyStorage,
-		signerGuard: &sync.RWMutex{},
-		// TODO: remove old keys.
-		rotationInterval: 24 * time.Hour,
-		expiryInterval:   time.Hour,
+		keyStorage:       keyStorage,
+		signerGuard:      &sync.RWMutex{},
+		rotationInterval: 2 * time.Hour,
+		expiryInterval:   3 * time.Hour,
 	}
 
 	if err := s.newSigner(); err != nil {
@@ -46,6 +45,7 @@ func NewService(ctx context.Context, db storage.Storage) *Service {
 	}
 
 	go s.rotateKeys(ctx)
+	go s.cleanupOldKeys(ctx)
 
 	return s
 }
@@ -55,7 +55,7 @@ func (s *Service) newSigner() error {
 	if err != nil {
 		return err
 	}
-	log("jwt").Infof("new encryption key: %s", key.ID)
+	log("jwt").Infof("%s: new encryption key", key.ID)
 
 	options := (&jose.SignerOptions{}).
 		WithHeader("kid", key.ID).
@@ -136,6 +136,47 @@ func (s *Service) rotateKeys(ctx context.Context) {
 			}
 		}
 	}
+}
+
+func (s *Service) cleanupOldKeys(ctx context.Context) {
+	timer := time.NewTicker(s.expiryInterval)
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-timer.C:
+			if err := s.deleteOldKeys(); err != nil {
+				log("jwt").Errorf("failed to delete keys: %s", err)
+			}
+		}
+	}
+}
+
+func (s *Service) deleteOldKeys() error {
+	kk, err := s.keyStorage.List()
+	if err != nil {
+		return errors.Wrap(err, "can't list keys from the storage")
+	}
+
+	deleteBefore := time.Now().Add(-2 * s.expiryInterval)
+	for _, k := range kk {
+		ksID, err := ksuid.Parse(k.ID)
+		if err != nil {
+			log("jwt").Errorf("%s: malformed kuid", k.ID)
+			continue
+		}
+
+		if ksID.Time().After(deleteBefore) {
+			continue
+		}
+		if err := s.keyStorage.Delete(k.ID); err != nil {
+			log("jwt").Errorf("%s: can't delete key: %s", k.ID, err)
+			continue
+		}
+		log("jwt").Infof("%s: key removed", k.ID)
+	}
+
+	return nil
 }
 
 func log(src string) *logrus.Entry {

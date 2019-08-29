@@ -67,10 +67,16 @@ func Test_keyStorage_Get(t *testing.T) {
 				assert.Equal(t, key, found)
 			})
 		})
-		t.Run("It should be listed", func(t *testing.T) {
-			keys, err := service.List()
+		t.Run("When creating another key", func(t *testing.T) {
+			_, err := service.Create()
 			assert.NoError(t, err)
-			assert.Len(t, keys, 1)
+			t.Run("Both should be listed", func(t *testing.T) {
+				keys, err := service.List()
+				assert.NoError(t, err)
+				assert.Len(t, keys, 2)
+
+				assert.NotEqual(t, keys[0].ID, keys[1].ID)
+			})
 		})
 	})
 }

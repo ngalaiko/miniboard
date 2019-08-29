@@ -2,7 +2,6 @@ package authorizations
 
 import (
 	"context"
-	"time"
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -13,8 +12,6 @@ import (
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
 )
-
-const tokenDuration = time.Hour
 
 // Service creates and validates new authorizations.
 type Service struct {

@@ -69,8 +69,10 @@ func (n *Name) Type() string {
 
 // Parent returns resource's parent.
 func (n *Name) Parent() *Name {
+	partsCopy := make([]*idPart, len(n.parts))
+	copy(partsCopy, n.parts)
 	return &Name{
-		parts: n.parts[:len(n.parts)-1],
+		parts: n.parts[:len(partsCopy)-1],
 	}
 }
 
@@ -81,8 +83,10 @@ func (n *Name) ID() string {
 
 // Child returns a new child _resource_.
 func (n *Name) Child(typ string, id string) *Name {
+	partsCopy := make([]*idPart, len(n.parts))
+	copy(partsCopy, n.parts)
 	return &Name{
-		parts: append(n.parts, &idPart{
+		parts: append(partsCopy, &idPart{
 			ID:   id,
 			Type: typ,
 		}),

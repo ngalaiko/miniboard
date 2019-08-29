@@ -59,6 +59,15 @@ func (s *keyStorage) Get(id string) (*key, error) {
 	return k, nil
 }
 
+// Delete deletes a key by id.
+func (s *keyStorage) Delete(id string) error {
+	if err := s.storage.Delete(resource.NewName("jwt-key", id)); err != nil {
+		return errors.Wrap(err, "failed to delete key")
+	}
+	s.cache.Delete(id)
+	return nil
+}
+
 // Create returns a new key.
 func (s *keyStorage) Create() (*key, error) {
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
@@ -98,7 +107,8 @@ func (s *keyStorage) List() ([]*key, error) {
 	for _, d := range dd {
 		privateKey, err := x509.ParseECPrivateKey(d.Data)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse key")
+			log("jwt").Errorf("failed to parse key '%s': %s", d.Name, err)
+			continue
 		}
 		kk = append(kk, &key{
 			ID:      d.Name.ID(),
