@@ -1,4 +1,4 @@
-package bolt // import "miniboard.app/storage/bolt"
+package bolt
 
 import (
 	"strings"
@@ -45,10 +45,9 @@ func (db *DB) Delete(name *resource.Name) error {
 }
 
 // LoadChildren implements storage.Storage.
-func (db *DB) LoadChildren(name *resource.Name, from *resource.Name, limit int) ([][]byte, error) {
-	var data [][]byte
-	name = resource.NewName(name.Type(), "bucket").AddChild(name)
-	return data, db.view(name, func(bucket *bolt.Bucket) error {
+func (db *DB) LoadChildren(name *resource.Name, from *resource.Name, limit int) ([]*resource.Resource, error) {
+	var data []*resource.Resource
+	return data, db.view(resource.NewName(name.Type(), "bucket").AddChild(name), func(bucket *bolt.Bucket) error {
 		c := bucket.Cursor()
 
 		var k, v []byte
@@ -62,9 +61,12 @@ func (db *DB) LoadChildren(name *resource.Name, from *resource.Name, limit int) 
 			return nil
 		}
 
-		data = make([][]byte, 0, limit)
+		data = make([]*resource.Resource, 0, limit)
 		for ; k != nil && len(data) < limit; k, v = c.Next() {
-			data = append(data, v)
+			data = append(data, &resource.Resource{
+				Name: name.Parent().Child(name.Type(), string(k)),
+				Data: v,
+			})
 		}
 		return nil
 	})

@@ -1,4 +1,4 @@
-package bolt // import "miniboard.app/storage/bolt"
+package bolt
 
 import (
 	"context"

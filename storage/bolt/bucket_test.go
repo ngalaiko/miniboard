@@ -1,4 +1,4 @@
-package bolt // import "miniboard.app/storage/bolt_test"
+package bolt
 
 import (
 	"context"
@@ -44,7 +44,7 @@ func Test_DB(t *testing.T) {
 
 				assert.Len(t, dd, 10)
 				for i, d := range dd {
-					assert.Equal(t, d, []byte(fmt.Sprintf("data %d", i)))
+					assert.Equal(t, d.Data, []byte(fmt.Sprintf("data %d", i)))
 				}
 			})
 
@@ -56,7 +56,7 @@ func Test_DB(t *testing.T) {
 
 				assert.Len(t, dd, 5)
 				for i, d := range dd {
-					assert.Equal(t, d, []byte(fmt.Sprintf("data %d", i)))
+					assert.Equal(t, d.Data, []byte(fmt.Sprintf("data %d", i)))
 				}
 			})
 
@@ -71,7 +71,7 @@ func Test_DB(t *testing.T) {
 
 				i := 3
 				for _, d := range dd {
-					assert.Equal(t, d, []byte(fmt.Sprintf("data %d", i)))
+					assert.Equal(t, d.Data, []byte(fmt.Sprintf("data %d", i)))
 					i++
 				}
 			})

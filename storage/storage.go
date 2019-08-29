@@ -1,4 +1,4 @@
-package storage // import "miniboard.app/storage"
+package storage
 
 import "miniboard.app/storage/resource"
 
@@ -15,5 +15,5 @@ type Storage interface {
 	// If _from_ is nil, returns _limit_ first documents ordered by descanding.
 	// NOTE: name.ID() doesn't matter in this case and treated as a wildcard.
 	// NOTE: IDs of the resource must be sortable to get the right order.
-	LoadChildren(name *resource.Name, from *resource.Name, limit int) ([][]byte, error)
+	LoadChildren(name *resource.Name, from *resource.Name, limit int) ([]*resource.Resource, error)
 }

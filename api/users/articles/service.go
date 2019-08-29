@@ -47,7 +47,7 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 	aa := make([]*articles.Article, 0, len(dd))
 	for _, d := range dd {
 		a := &articles.Article{}
-		if err := proto.Unmarshal(d, a); err != nil {
+		if err := proto.Unmarshal(d.Data, a); err != nil {
 			return nil, status.New(codes.Internal, "failed to unmarshal article").Err()
 		}
 		aa = append(aa, a)

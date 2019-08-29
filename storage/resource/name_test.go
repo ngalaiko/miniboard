@@ -1,4 +1,4 @@
-package resource // import "miniboard.app/storage/resource"
+package resource
 
 import (
 	"testing"

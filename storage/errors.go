@@ -1,4 +1,4 @@
-package storage // import "miniboard.app/storage"
+package storage
 
 import "errors"
 
