@@ -86,3 +86,26 @@ func (s *keyStorage) Create() (*key, error) {
 
 	return k, nil
 }
+
+// List returns all keys from the storage.
+func (s *keyStorage) List() ([]*key, error) {
+	dd, err := s.storage.LoadChildren(resource.NewName("jwt-key", "*"), nil, 50)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to load keys")
+	}
+
+	kk := make([]*key, 0, len(dd))
+	for _, d := range dd {
+		privateKey, err := x509.ParseECPrivateKey(d.Data)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to parse key")
+		}
+		kk = append(kk, &key{
+			ID:      d.Name.ID(),
+			Public:  privateKey.Public,
+			Private: privateKey,
+		})
+	}
+
+	return kk, nil
+}
