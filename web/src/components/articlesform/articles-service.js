@@ -12,11 +12,14 @@ export class ArticlesService {
     .then(this.ifError)
   }
 
-  ifError(error) {
-    if (error.code !== undefined) {
-      throw error.message
+  ifError(resp) {
+    if (resp.error === undefined) {
+      return resp
     }
-    console.error(error)
+    if (resp.code !== undefined) {
+      throw resp.message
+    }
+    console.error(resp)
     throw "something went wrong, try again"
   }
 }

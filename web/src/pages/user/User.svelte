@@ -13,6 +13,7 @@
 
 <div>
     {#if (user != null)}
+    welcome, {user.name}
     <Articles api={api} user={user} />
     {/if}
 </div>

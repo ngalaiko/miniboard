@@ -10,6 +10,7 @@
     let error = ""
 
     function handleClick() {
+        error = ""
         articlesService.add(url)
             .catch(err => { error = err })
     }
