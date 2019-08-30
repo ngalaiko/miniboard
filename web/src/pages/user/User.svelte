@@ -1,14 +1,18 @@
 <script>
-    export let username
+    import Articles from '../articles/Articles.svelte'
 
-    export let api;
+    export let username
+    export let api
+
+    let user = null
 
     api.get(`/api/v1/users/${username}`)
-        .then(resp => console.log(resp))
+        .then(resp => { user = resp })
         .catch(err => console.error(err))
 </script>
 
 <div>
-    welcome, {username}
+    {#if (user != null)}
+    <Articles api={api} user={user} />
+    {/if}
 </div>
-

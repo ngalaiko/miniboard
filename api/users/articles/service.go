@@ -71,7 +71,7 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 		return nil, status.New(codes.InvalidArgument, "url is empty").Err()
 	}
 
-	if _, err := url.Parse(request.Article.Url); err != nil {
+	if _, err := url.ParseRequestURI(request.Article.Url); err != nil {
 		return nil, status.New(codes.InvalidArgument, "url is invalid").Err()
 	}
 
