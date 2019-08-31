@@ -31,6 +31,19 @@ export class Api {
       // todo: handle errors
   }
 
+
+  delete(url) {
+    let options = {
+        method: 'DELETE',
+        headers: {
+          'Authorization': this.authorization()
+      }
+    }
+    return fetch(url, options)
+      .then(response => response.json())
+      // todo: handle errors
+  }
+
   authenticate(auth) {
     this.localStorage.set('authentication.access_token', auth.access_token)
     this.localStorage.set('authentication.token_type', auth.token_type)

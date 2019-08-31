@@ -14,12 +14,19 @@
 
     let url = ""
     let error = ""
-    function handleAdd() {
+    function onAdd() {
         error = ""
         articlesService.add(url)
             .catch(err => { error = err })
             .then(article => { articlesList = [article].concat(articlesList) } )
             .then(() => { url = "" })
+    }
+
+    function onDelete(article) {
+        return () => {
+            articlesService.delete(article)
+                .then(() => { articlesList = articlesList.filter(a => a.name != article.name) })
+        }
     }
 </script>
 
@@ -29,11 +36,12 @@
         {#if (error != "")}
             <div class="alert">{error}</div>
         {/if}
-        <button on:click|preventDefault={handleAdd}>Add</button>
+        <button on:click|preventDefault={onAdd}>+</button>
     </div>
     <div>
         {#each articlesList as article}
             <Article {...article} />
+            <button on:click|preventDefault={onDelete(article)}>x</button>
         {/each}
     </div>
 </div>
