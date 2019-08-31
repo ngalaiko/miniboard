@@ -3,6 +3,7 @@ package articles // import "miniboard.app/api/articles"
 import (
 	"context"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"google.golang.org/grpc"
 	"miniboard.app/proto/users/articles/v1"
 )
@@ -34,4 +35,9 @@ func (p *Proxy) CreateArticle(ctx context.Context, in *articles.CreateArticleReq
 // GetArticle calls GetArticle method on the service instance.
 func (p *Proxy) GetArticle(ctx context.Context, in *articles.GetArticleRequest, opts ...grpc.CallOption) (*articles.Article, error) {
 	return p.service.GetArticle(ctx, in)
+}
+
+// DeleteArticle calls DeleteArticle method on the service instance.
+func (p *Proxy) DeleteArticle(ctx context.Context, in *articles.DeleteArticleRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	return p.service.DeleteArticle(ctx, in)
 }

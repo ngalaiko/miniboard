@@ -61,6 +61,23 @@ func Test_articles(t *testing.T) {
 					assert.Equal(t, resp.Url, "http://localhost")
 				})
 			})
+			t.Run("When deleting the article", func(t *testing.T) {
+				_, err = service.DeleteArticle(ctx, &articles.DeleteArticleRequest{
+					Name: resp.Name,
+				})
+				assert.NoError(t, err)
+				t.Run("It should be deleted", func(t *testing.T) {
+					_, err = service.GetArticle(ctx, &articles.GetArticleRequest{
+						Name: resp.Name,
+					})
+					assert.Error(t, err)
+
+					status, ok := status.FromError(err)
+					assert.True(t, ok)
+
+					assert.Equal(t, codes.NotFound, status.Code())
+				})
+			})
 		})
 
 		t.Run("When adding a few articles", func(t *testing.T) {

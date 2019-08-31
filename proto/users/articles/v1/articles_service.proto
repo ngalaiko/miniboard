@@ -3,6 +3,7 @@ syntax = "proto3";
 package app.miniboard.users.articles.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 
 option go_package = "articles";
 
@@ -32,6 +33,15 @@ service ArticlesService {
     rpc GetArticle(GetArticleRequest) returns (Article) {
         option (google.api.http) = {
             get: "/api/v1/{name=users/*/articles/*}"
+        };
+    }
+
+    // Delete article
+    //
+    // An endpoint to delete an article by id.
+    rpc DeleteArticle(DeleteArticleRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            delete: "/api/v1/{name=users/*/articles/*}"
         };
     }
 }
@@ -64,6 +74,11 @@ message CreateArticleRequest {
 
 message GetArticleRequest {
     // Name of the resource.
+    string name = 1;
+}
+
+message DeleteArticleRequest {
+    // Name of the resource to delete.
     string name = 1;
 }
 

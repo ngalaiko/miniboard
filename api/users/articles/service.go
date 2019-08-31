@@ -6,6 +6,8 @@ import (
 	"net/url"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -96,7 +98,11 @@ func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRe
 	name := resource.ParseName(request.Name)
 
 	raw, err := s.storage.Load(name)
-	if err != nil {
+	switch errors.Cause(err) {
+	case nil:
+	case storage.ErrNotFound:
+		return nil, status.New(codes.NotFound, "not found").Err()
+	default:
 		return nil, status.New(codes.Internal, "failed to load the article").Err()
 	}
 
@@ -106,4 +112,15 @@ func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRe
 	}
 
 	return article, nil
+}
+
+// DeleteArticle removes an article.
+func (s *Service) DeleteArticle(ctx context.Context, request *articles.DeleteArticleRequest) (*empty.Empty, error) {
+	name := resource.ParseName(request.Name)
+
+	if err := s.storage.Delete(name); err != nil {
+		return nil, status.New(codes.Internal, "failed to delete the article").Err()
+	}
+
+	return &empty.Empty{}, nil
 }
