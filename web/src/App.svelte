@@ -26,8 +26,7 @@
     let pathname = location.pathname
 
     function setUser(username) {
-      api.get(`/api/v1/${username}`)
-        .then(resp => { user = resp })
+      user = api.get(`/api/v1/${username}`)
     }
 
     function set(obj, key, value) {
@@ -41,8 +40,12 @@
     {#if user == null }
       <LoginForm api={api} on:loggedin={event => setUser(`users/${event.detail}`)} />
     {:else}
-      <Header api={api} />
-      <svelte:component this={component} {...set(props, 'user', user)} />
+      {#await user}
+        logging in...
+      {:then user}
+        <Header api={api} />
+        <svelte:component this={component} {...set(props, 'user', user)} />
+      {/await}
     {/if}
   {/each}
 </div>
