@@ -44,7 +44,7 @@ func Test_DB(t *testing.T) {
 
 				assert.Len(t, dd, 10)
 				for i, d := range dd {
-					assert.Equal(t, d.Data, []byte(fmt.Sprintf("data %d", i)))
+					assert.Equal(t, d.Data, []byte(fmt.Sprintf("data %d", 9-i)))
 				}
 			})
 
@@ -56,23 +56,23 @@ func Test_DB(t *testing.T) {
 
 				assert.Len(t, dd, 5)
 				for i, d := range dd {
-					assert.Equal(t, d.Data, []byte(fmt.Sprintf("data %d", i)))
+					assert.Equal(t, d.Data, []byte(fmt.Sprintf("data %d", 9-i)))
 				}
 			})
 
 			t.Run("When loading elements from", func(t *testing.T) {
 				name := resource.NewName("test", "*")
-				from := resource.NewName("test", "3")
+				from := resource.NewName("test", "6")
 
 				dd, err := db.LoadChildren(name, from, 10)
 				assert.NoError(t, err)
 
 				assert.Len(t, dd, 7)
 
-				i := 3
+				i := 6
 				for _, d := range dd {
 					assert.Equal(t, d.Data, []byte(fmt.Sprintf("data %d", i)))
-					i++
+					i--
 				}
 			})
 		})

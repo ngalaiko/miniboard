@@ -52,7 +52,7 @@ func (db *DB) LoadChildren(name *resource.Name, from *resource.Name, limit int) 
 
 		var k, v []byte
 		if from == nil {
-			k, v = c.First()
+			k, v = c.Last()
 		} else {
 			k, v = c.Seek([]byte(from.ID()))
 		}
@@ -62,7 +62,7 @@ func (db *DB) LoadChildren(name *resource.Name, from *resource.Name, limit int) 
 		}
 
 		data = make([]*resource.Resource, 0, limit)
-		for ; k != nil && len(data) < limit; k, v = c.Next() {
+		for ; k != nil && len(data) < limit; k, v = c.Prev() {
 			data = append(data, &resource.Resource{
 				Name: name.Parent().Child(name.Type(), string(k)),
 				Data: v,
