@@ -1,9 +1,11 @@
 <script>
     import { createEventDispatcher } from 'svelte'
 
+    export let api
+
     export let name
     export let url
-    export let api
+    export let title
 
     const dispatch = createEventDispatcher()
     
@@ -14,6 +16,10 @@
 </script>
 
 <div>
-    <a>{url}</a>
+    {#if title != undefined}
+        <a>{title}</a>
+    {:else}
+        <a>{url}</a>
+    {/if}
     <button on:click|preventDefault={onDelete}>x</button>
 </div>

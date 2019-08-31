@@ -283,3 +283,45 @@ def go_repositories():
         sum = "h1:RIUM12+uQdj5/cWQLlEmZDD8xj5kQN1X9kTK0xfXjGQ=",
         version = "v1.0.1",
     )
+    go_repository(
+        name = "com_github_cixtor_readability",
+        importpath = "github.com/cixtor/readability",
+        sum = "h1:rR10mtcsYE+rP5pXf/OSPaXGk5ZMJJBemjk+m1jWVnY=",
+        version = "v0.0.0-20190121170000-6cf00f402df7",
+    )
+    go_repository(
+        name = "com_github_agonopol_readability",
+        importpath = "github.com/agonopol/readability",
+        sum = "h1:wrlDe114BsJ9V/hW6o6dyibfejk7zFB7kREgRa9KEIk=",
+        version = "v0.0.0-20140711123834-78c53fd542aa",
+    )
+    go_repository(
+        name = "com_github_moovweb_gokogiri",
+        importpath = "github.com/moovweb/gokogiri",
+        sum = "h1:s7OD9KAZ/X1BdIlXtaZUgROv/5OaFo1MlsSetrtxIis=",
+        version = "v0.0.0-20180713195410-a1a828153468",
+    )
+    go_repository(
+        name = "com_github_andybalholm_cascadia",
+        importpath = "github.com/andybalholm/cascadia",
+        sum = "h1:hOCXnnZ5A+3eVDX8pvgl4kofXv2ELss0bKcqRySc45o=",
+        version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_philipjkim_fastimage",
+        importpath = "github.com/philipjkim/fastimage",
+        sum = "h1:9hRIqt9W24We2BHFGVAZYg4FISN1CDmWQK9Ugrr90FU=",
+        version = "v0.0.0-20180529065536-806cdf4a57ca",
+    )
+    go_repository(
+        name = "com_github_philipjkim_goreadability",
+        importpath = "github.com/philipjkim/goreadability",
+        sum = "h1:AaxQTmsNwIoJc/DOikyKIpL14L/5UbMBua8evI3i0dQ=",
+        version = "v0.0.0-20190422094628-0f3b4a11b312",
+    )
+    go_repository(
+        name = "com_github_puerkitobio_goquery",
+        importpath = "github.com/PuerkitoBio/goquery",
+        sum = "h1:uGvmFXOA73IKluu/F84Xd1tt/z07GYm8X49XKHP7EJk=",
+        version = "v1.5.0",
+    )

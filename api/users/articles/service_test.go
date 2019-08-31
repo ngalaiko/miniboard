@@ -1,4 +1,4 @@
-package articles // "miniboard.app/api/articles"
+package articles
 
 import (
 	"context"
@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/proto/users/articles/v1"
+	"miniboard.app/reader/mock"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
 	"miniboard.app/storage/resource"
@@ -22,6 +23,7 @@ func Test_articles(t *testing.T) {
 
 	t.Run("With articles service", func(t *testing.T) {
 		service := New(testDB(ctx, t))
+		service.newReader = mock.New
 
 		t.Run("When creating an article with invalid url", func(t *testing.T) {
 			resp, err := service.CreateArticle(ctx, &articles.CreateArticleRequest{
@@ -59,6 +61,9 @@ func Test_articles(t *testing.T) {
 					assert.NoError(t, err)
 					assert.NotEmpty(t, resp.Name)
 					assert.Equal(t, resp.Url, "http://localhost")
+					assert.NotEmpty(t, resp.Title)
+					assert.NotEmpty(t, resp.IconURL)
+					assert.NotEmpty(t, resp.CreateTime)
 				})
 			})
 			t.Run("When deleting the article", func(t *testing.T) {

@@ -10,6 +10,8 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//proto/users/articles/v1:go_default_library",
+        "//reader:go_default_library",
+        "//reader/http:go_default_library",
         "//storage:go_default_library",
         "//storage/resource:go_default_library",
         "@com_github_gogo_protobuf//proto:go_default_library",
@@ -28,6 +30,7 @@ go_test(
     embed = [":go_default_library"],
     deps = [
         "//proto/users/articles/v1:go_default_library",
+        "//reader/mock:go_default_library",
         "//storage:go_default_library",
         "//storage/bolt:go_default_library",
         "//storage/resource:go_default_library",

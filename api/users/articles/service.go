@@ -1,4 +1,4 @@
-package articles // "miniboard.app/api/articles"
+package articles
 
 import (
 	"context"
@@ -12,6 +12,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/proto/users/articles/v1"
+	"miniboard.app/reader"
+	"miniboard.app/reader/http"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
 )
@@ -19,12 +21,15 @@ import (
 // Service controlls articles resource.
 type Service struct {
 	storage storage.Storage
+
+	newReader func(*url.URL) (reader.Reader, error)
 }
 
 // New returns a new articles service instance.
 func New(storage storage.Storage) *Service {
 	return &Service{
-		storage: storage,
+		storage:   storage,
+		newReader: http.New,
 	}
 }
 
@@ -73,8 +78,14 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 		return nil, status.New(codes.InvalidArgument, "url is empty").Err()
 	}
 
-	if _, err := url.ParseRequestURI(request.Article.Url); err != nil {
+	articleURL, err := url.ParseRequestURI(request.Article.Url)
+	if err != nil {
 		return nil, status.New(codes.InvalidArgument, "url is invalid").Err()
+	}
+
+	r, err := s.newReader(articleURL)
+	if err == nil {
+		enrich(request.Article, r)
 	}
 
 	name := resource.ParseName(request.Parent).Child("articles", ksuid.New().String())
@@ -91,6 +102,11 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 	}
 
 	return request.Article, nil
+}
+
+func enrich(article *articles.Article, r reader.Reader) {
+	article.Title = r.Title()
+	article.IconURL = r.IconURL()
 }
 
 // GetArticle returns an article.

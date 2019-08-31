@@ -1,4 +1,4 @@
-package articles // import "miniboard.app/api/articles"
+package articles
 
 import (
 	"context"

@@ -1,0 +1,9 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["reader.go"],
+    importpath = "miniboard.app/reader/mock",
+    visibility = ["//visibility:public"],
+    deps = ["//reader:go_default_library"],
+)

@@ -4,6 +4,7 @@ package app.miniboard.users.articles.v1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "articles";
 
@@ -88,4 +89,13 @@ message Article {
 
     // Url of the article.
     string url = 2;
+
+    // Title of the article.
+    string title = 3;
+
+    // Icon url.
+    repeated string iconURL = 4;
+
+    // Time when article was added.
+    google.protobuf.Timestamp create_time = 5;
 }
