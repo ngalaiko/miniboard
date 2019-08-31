@@ -6,8 +6,5 @@ svelte(
     name = "Articles",
     entry_point = "Articles.svelte",
     srcs = ["articles-service.js"],
-    deps = [
-        "//web/src/pages/article:Article",
-        "//web/src/components/articlesform:ArticlesForm",
-    ],
+    deps = ["//web/src/pages/article:Article"],
 )
