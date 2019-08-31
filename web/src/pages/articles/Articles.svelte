@@ -22,11 +22,8 @@
             .then(() => { url = "" })
     }
 
-    function onDelete(article) {
-        return () => {
-            articlesService.delete(article)
-                .then(() => { articlesList = articlesList.filter(a => a.name != article.name) })
-        }
+    function onDeleted(name) {
+        articlesList = articlesList.filter(article => article.name != name)
     }
 </script>
 
@@ -40,8 +37,7 @@
     </div>
     <div>
         {#each articlesList as article}
-            <Article {...article} />
-            <button on:click|preventDefault={onDelete(article)}>x</button>
+            <Article on:deleted={(e) => onDeleted(e.detail)} api={api} {...article} } />
         {/each}
     </div>
 </div>
