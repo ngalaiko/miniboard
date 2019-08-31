@@ -1,14 +1,17 @@
 <script>
-    import { LoginService } from './login-service';
+    import { LoginService } from './login-service'
+    import { createEventDispatcher } from 'svelte'
 
-    export let api;
+    export let api
 
-    let username = "";
-    let password = "";
+    let username = ""
+    let password = ""
 
-    let loginService = new LoginService(api);
+    let loginService = new LoginService(api)
 
-    let error = "";
+    let error = ""
+
+    const dispatch = createEventDispatcher()
 
     function handleClick() {
         error = ""
@@ -17,8 +20,8 @@
         }
         loginService.login(username, password)
             .then(auth => api.authenticate(auth) )
-            .then(() => { location.href = `/users/${username}` } )
-            .catch(e => { error = e });
+            .catch(e => { error = e })
+            .then(() => dispatch('loggedin', username))
     }
 </script>
 

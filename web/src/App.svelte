@@ -6,25 +6,44 @@
     import { Api } from './components/api/api';
     import { Router } from "./components/router/router";
     import NotFound from './pages/notfound/NotFound.svelte'
+    import LoginForm from './components/loginform/LoginForm.svelte'
+    import Header from './components/header/Header.svelte'
 
     let api = new Api()
+    let user = null
+
+    if (api.authorized()) {
+        setUser(api.subject())
+    }
 
     let router = new Router()
-    router.register("/", Login, {
-        api: api
+    router.register('/', User, {
+        api: api,
     })
-    router.register("/users/:username", User, {
-        api: api
-    })
-    router.register("*", NotFound)
+    router.register('*', NotFound)
     router.listen()
 
-    let pathname = location.pathname;
+    let pathname = location.pathname
+
+    function setUser(username) {
+      api.get(`/api/v1/${username}`)
+        .then(resp => { user = resp })
+    }
+
+    function set(obj, key, value) {
+      obj[key] = value
+      return obj
+    }
 </script>
 
 <div class="app">
   {#each router.current() as { component, props } }
-    <svelte:component this={ component } { ...props }/>
+    {#if user == null }
+      <LoginForm api={api} on:loggedin={event => setUser(`users/${event.detail}`)} />
+    {:else}
+      <Header api={api} />
+      <svelte:component this={component} {...set(props, 'user', user)} />
+    {/if}
   {/each}
 </div>
 

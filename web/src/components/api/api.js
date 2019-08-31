@@ -2,7 +2,7 @@ import { LocalStorage } from '../localstorage/local-storage'
 
 export class Api {
   constructor() {
-    this.localStorage = new LocalStorage();
+    this.localStorage = new LocalStorage()
   }
 
   get(url) {
@@ -31,7 +31,6 @@ export class Api {
       // todo: handle errors
   }
 
-
   delete(url) {
     let options = {
         method: 'DELETE',
@@ -56,5 +55,27 @@ export class Api {
       return `${token_type} ${access_token} `
     }
     return ''
+  }
+
+  authorized() {
+    return this.authorization() != ''
+  }
+
+  logout() {
+    this.localStorage.remove('authentication.access_token')
+    this.localStorage.remove('authentication.token_type')
+  }
+
+  subject() {
+    let token = this.localStorage.get('authentication.access_token')
+    if (token == null) {
+      return ''
+    }
+    let base64Url = token.split('.')[1]
+    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    var jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    }).join(''));
+    return JSON.parse(jsonPayload).sub
   }
 }

@@ -10,4 +10,8 @@ export class LocalStorage {
   get(key) {
     return this.storage.getItem(key)
   }
+
+  remove(key) {
+    return this.storage.removeItem(key)
+  }
 }
