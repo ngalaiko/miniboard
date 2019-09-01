@@ -6,6 +6,5 @@
 </script>
 
 <div>
-    welcome, {user.name}
     <Articles api={api} user={user} />
 </div>

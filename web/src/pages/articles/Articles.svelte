@@ -12,15 +12,16 @@
     articlesService.next()
         .then(list => { articlesList = articlesList.concat(list) })
 
-    let url = ""
-    let error = ""
+    let url = ''
+    let error = ''
     function onAdd() {
-        error = ""
+        error = ''
 
         let rnd = Math.random()
         articlesList = [{
           'url': url,
-          'title': 'Loading...',
+          'title': url,
+          'create_time': Date.now(),
           'random': rnd
         }].concat(articlesList)
 
@@ -29,7 +30,8 @@
             .then(article => {
               articlesList = [article].concat(articlesList.filter(article => article.random != rnd ))
             })
-            .then(() => { url = "" })
+
+        url = ''
     }
 
     function onDeleted(name) {
@@ -45,9 +47,32 @@
         {/if}
         <button on:click|preventDefault={onAdd}>+</button>
     </div>
-    <div>
+    <div class='list'>
         {#each articlesList as article}
             <Article on:deleted={(e) => onDeleted(e.detail)} api={api} {...article} } />
         {/each}
     </div>
 </div>
+
+<style>
+    .list {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    input {
+        border: 1px solid #ccc;
+        padding: 3px;
+        line-height: 20px;
+        width: 250px;
+        font-size: 99%;
+        margin-bottom: 10px;
+        margin-top: 5px;
+        -webkit-appearance: none
+    }
+
+    input:focus{
+        outline-width: 0
+    }
+</style>

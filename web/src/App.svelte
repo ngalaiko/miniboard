@@ -56,7 +56,9 @@
     padding-left: 5px;
     padding-right: 5px;
     font-family: helvetica neue, Helvetica, Arial, sans-serif;
-    text-rendering: optimizeLegibility
+    text-rendering: optimizeLegibility;
+    max-width: 750px;
+    margin: auto;
 }
 
 </style>

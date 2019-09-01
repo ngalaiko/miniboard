@@ -76,6 +76,8 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 
 // CreateArticle creates a new article.
 func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArticleRequest) (*articles.Article, error) {
+	now := time.Now()
+
 	if request.Article.Url == "" {
 		return nil, status.New(codes.InvalidArgument, "url is empty").Err()
 	}
@@ -94,7 +96,7 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 
 	request.Article.Name = name.String()
 	request.Article.CreateTime = &timestamp.Timestamp{
-		Seconds: time.Now().In(time.UTC).Unix(),
+		Seconds: now.In(time.UTC).Unix(),
 	}
 
 	rawArticle, err := proto.Marshal(request.Article)

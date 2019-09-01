@@ -18,7 +18,7 @@
   }
 
   button {
-      display: inline-block;
+      background: inherit;
       -webkit-appearance: none;
       -moz-appearance: none;
       font-size: 1.1em;
@@ -29,7 +29,7 @@
   }
   
   button:hover, .button:focus {
-      border-color: #2f5bb7;
-      outline-width: 0
+      outline-width: 0;
+      text-decoration: underline;
   }
 </style>
