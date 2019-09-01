@@ -16,9 +16,19 @@
     let error = ""
     function onAdd() {
         error = ""
+
+        let rnd = Math.random()
+        articlesList = [{
+          'url': url,
+          'title': 'Loading...',
+          'random': rnd
+        }].concat(articlesList)
+
         articlesService.add(url)
             .catch(err => { error = err })
-            .then(article => { articlesList = [article].concat(articlesList) } )
+            .then(article => {
+              articlesList = [article].concat(articlesList.filter(article => article.random != rnd ))
+            })
             .then(() => { url = "" })
     }
 
