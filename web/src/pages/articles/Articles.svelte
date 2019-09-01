@@ -40,13 +40,13 @@
 </script>
 
 <div>
-    <div>
+    <form>
         <input type="text" bind:value={url} placeholder="add" required="" />
         {#if (error != "")}
             <div class="alert">{error}</div>
         {/if}
-        <button on:click|preventDefault={onAdd}>+</button>
-    </div>
+        <button on:click|preventDefault={onAdd} />
+    </form>
     <div class='list'>
         {#each articlesList as article}
             <Article on:deleted={(e) => onDeleted(e.detail)} api={api} {...article} } />
@@ -62,17 +62,30 @@
     }
 
     input {
-        border: 1px solid #ccc;
-        padding: 3px;
-        line-height: 20px;
-        width: 250px;
-        font-size: 99%;
+        border: 1px solid;
+        width: 100%;
+        padding-left: 7px;
+        font-size: 1.1em;
+        padding: 5px;
+    }
+
+    form {
+        display: flex;
+        flex-direction: row;
+        margin: 0px;
         margin-bottom: 10px;
-        margin-top: 5px;
-        -webkit-appearance: none
     }
 
     input:focus{
         outline-width: 0
+    }
+
+    button {
+        width: 0;
+        height: 0;
+        padding-left: 0; padding-right: 0;
+        border-left-width: 0; border-right-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
     }
 </style>

@@ -15,6 +15,7 @@
   div {
     display: flex;
     flex-direction: row-reverse;
+    margin-bottom: 15px;
   }
 
   button {
