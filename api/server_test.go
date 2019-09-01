@@ -11,6 +11,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/golang/protobuf/jsonpb"
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/proto/authorizations/v1"
 	"miniboard.app/proto/users/articles/v1"
@@ -56,7 +57,7 @@ func Test_server(t *testing.T) {
 				assert.Equal(t, resp.StatusCode, http.StatusOK)
 
 				user := &users.User{}
-				parseResponse(t, resp, user)
+				assert.NoError(t, jsonpb.Unmarshal(resp.Body, user))
 
 				assert.Equal(t, user.Name, "users/"+username)
 
@@ -75,7 +76,7 @@ func Test_server(t *testing.T) {
 					assert.Equal(t, resp.StatusCode, http.StatusOK)
 
 					authorization := &authorizations.Authorization{}
-					parseResponse(t, resp, authorization)
+					assert.NoError(t, jsonpb.Unmarshal(resp.Body, authorization))
 
 					assert.NotEmpty(t, authorization.AccessToken)
 					assert.Equal(t, authorization.TokenType, "Bearer")
@@ -90,7 +91,7 @@ func Test_server(t *testing.T) {
 							assert.Equal(t, resp.StatusCode, http.StatusOK)
 
 							got := &users.User{}
-							parseResponse(t, resp, got)
+							assert.NoError(t, jsonpb.Unmarshal(resp.Body, got))
 
 							assert.Equal(t, got.Name, "users/"+username)
 						})
@@ -108,8 +109,7 @@ func Test_server(t *testing.T) {
 							assert.NoError(t, err)
 
 							article := &articles.Article{}
-
-							parseResponse(t, resp, article)
+							assert.NoError(t, jsonpb.Unmarshal(resp.Body, article))
 
 							assert.Equal(t, article.Url, "http://localhost")
 							assert.NotEmpty(t, article.Name)
@@ -123,7 +123,7 @@ func Test_server(t *testing.T) {
 									assert.NoError(t, err)
 
 									a := &articles.Article{}
-									parseResponse(t, resp, &a)
+									assert.NoError(t, jsonpb.Unmarshal(resp.Body, a))
 
 									assert.NotEmpty(t, a.Name)
 									assert.Equal(t, a.Url, "http://localhost")
@@ -138,11 +138,8 @@ func Test_server(t *testing.T) {
 							t.Run("It should be in the list", func(t *testing.T) {
 								assert.NoError(t, err)
 
-								aa := struct {
-									Articles      []*articles.Article `json:"articles"`
-									NextPageToken string              `json:"next_page_token"`
-								}{}
-								parseResponse(t, resp, &aa)
+								aa := &articles.ListArticlesResponse{}
+								assert.NoError(t, jsonpb.Unmarshal(resp.Body, aa))
 
 								assert.Empty(t, aa.NextPageToken)
 								if assert.Len(t, aa.Articles, 1) {
@@ -156,13 +153,6 @@ func Test_server(t *testing.T) {
 			})
 		})
 	})
-}
-
-func parseResponse(t *testing.T, resp *http.Response, dst interface{}) {
-	raw, err := ioutil.ReadAll(resp.Body)
-	assert.NoError(t, err)
-	t.Log(string(raw))
-	assert.NoError(t, json.Unmarshal(raw, dst))
 }
 
 func getAuth(t *testing.T, url string, auth *authorizations.Authorization) *http.Request {

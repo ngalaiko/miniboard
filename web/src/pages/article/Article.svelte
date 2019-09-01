@@ -6,6 +6,8 @@
     export let name
     export let url
     export let title
+    export let create_time
+    export let iconURL
 
     const dispatch = createEventDispatcher()
     
@@ -18,8 +20,9 @@
 <div>
     {#if title != undefined}
         <a>{title}</a>
-    {:else}
-        <a>{url}</a>
     {/if}
+    <a>{url}</a>
+    <div>{create_time}</div>
+    <div>{iconURL}</div>
     <button on:click|preventDefault={onDelete}>x</button>
 </div>

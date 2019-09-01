@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/base64"
 	"net/url"
+	"time"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
 	"google.golang.org/grpc/codes"
@@ -91,6 +93,9 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 	name := resource.ParseName(request.Parent).Child("articles", ksuid.New().String())
 
 	request.Article.Name = name.String()
+	request.Article.CreateTime = &timestamp.Timestamp{
+		Seconds: time.Now().In(time.UTC).Unix(),
+	}
 
 	rawArticle, err := proto.Marshal(request.Article)
 	if err != nil {

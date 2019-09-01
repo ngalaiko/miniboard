@@ -37,6 +37,7 @@ go_test(
         "//proto/users/v1:go_default_library",
         "//storage:go_default_library",
         "//storage/bolt:go_default_library",
+        "@com_github_golang_protobuf//jsonpb:go_default_library_gen",
         "@com_github_stretchr_testify//assert:go_default_library",
     ],
 )
