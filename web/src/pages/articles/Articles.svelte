@@ -6,11 +6,18 @@
     export let api
     export let user
 
-    let articlesService = new ArticlesService(api, user)
+    let pageSize = 4
+    let articlesService = new ArticlesService(api, user )
 
     let articlesList = []
-    articlesService.next()
-        .then(list => { articlesList = articlesList.concat(list) })
+
+    function loadMore() {
+        return articlesService.next(pageSize*2)
+            .then(list => { articlesList = articlesList.concat(list) })
+    }
+    loadMore()
+
+    let pageStart = 0
 
     let url = ''
     let error = ''
@@ -28,7 +35,7 @@
         articlesService.add(url)
             .catch(err => { error = err })
             .then(article => {
-              articlesList = [article].concat(articlesList.filter(article => article.random != rnd ))
+                articlesList = [article].concat(articlesList.filter(article => article.random != rnd ))
             })
 
         url = ''
@@ -37,18 +44,35 @@
     function onDeleted(name) {
         articlesList = articlesList.filter(article => article.name != name)
     }
+
+    function previousPage() {
+        pageStart -= pageSize
+    }
+
+    function nextPage() {
+        loadMore().then(() => { pageStart += pageSize })
+    }
 </script>
 
 <div>
     <form>
-        <input type="text" bind:value={url} placeholder="add" required="" />
+        <input type="text" bind:value={url} placeholder="https://..." required="" />
         {#if (error != "")}
             <div class="alert">{error}</div>
         {/if}
-        <button on:click|preventDefault={onAdd} />
+        <button class="button-add" on:click|preventDefault={onAdd} />
     </form>
+    <div class='pagination'>
+        {#if pageStart != 0}
+            <button class="button-pagination button-previous" on:click|preventDefault={previousPage} >previous</button>
+        {/if}
+        <div />
+        {#if articlesList.length >= pageStart + pageSize }
+            <button class="button-pagination button-next"  on:click|preventDefault={nextPage} >next</button>
+        {/if}
+    </div>
     <div class='list'>
-        {#each articlesList as article}
+        {#each articlesList.slice(pageStart, pageStart+pageSize) as article, i (article.name) }
             <Article on:deleted={(e) => onDeleted(e.detail)} api={api} {...article} } />
         {/each}
     </div>
@@ -58,7 +82,6 @@
     .list {
       display: flex;
       flex-direction: column;
-      justify-content: center;
     }
 
     input {
@@ -80,12 +103,48 @@
         margin-bottom: 20px;
     }
 
-    button {
+    .button-add {
         width: 0;
         height: 0;
         padding-left: 0; padding-right: 0;
         border-left-width: 0; border-right-width: 0;
         white-space: nowrap;
         overflow: hidden;
+    }
+
+    .pagination {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .button-pagination {
+        background: inherit;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        font-size: 1.1em;
+        cursor: pointer;
+        border: 0px;
+    }
+
+    .button-next::after {
+        content: " »";
+    }
+
+    .button-next {
+        align-self: flex-end;
+    }
+
+    .button-previous {
+        align-self: flex-start;
+    }
+
+    .button-previous::before {
+        content: "« ";
+    }
+
+    .button-pagination:hover, .button-pagination:focus {
+        outline-width: 0;
+        text-decoration: underline;
     }
 </style>
