@@ -64,20 +64,20 @@
     input {
         border: 1px solid;
         width: 100%;
-        padding-left: 7px;
         font-size: 1.1em;
         padding: 5px;
+        padding-left: 7px;
+    }
+
+    input:focus{
+        outline-width: 0
     }
 
     form {
         display: flex;
         flex-direction: row;
         margin: 0px;
-        margin-bottom: 10px;
-    }
-
-    input:focus{
-        outline-width: 0
+        margin-bottom: 20px;
     }
 
     button {

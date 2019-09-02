@@ -1,21 +1,26 @@
 <script>
+    import { createEventDispatcher } from 'svelte'
+
     export let api
+
+    const dispatch = createEventDispatcher()
 
     function onLogout() {
         api.logout()
-        location.href = '/'
+        dispatch('logout')
     }
 </script>
 
 <div>
-    <button on:click|preventDefault={onLogout}>Logout</button>
+    <button on:click|preventDefault={onLogout}>logout</button>
 </div>
 
 <style>
   div {
     display: flex;
     flex-direction: row-reverse;
-    margin-bottom: 15px;
+    margin-top: 15px;
+    margin-bottom: 20px;
   }
 
   button {

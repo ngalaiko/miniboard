@@ -21,7 +21,7 @@
         loginService.login(username, password)
             .then(auth => api.authenticate(auth) )
             .catch(e => { error = e })
-            .then(() => dispatch('loggedin', username))
+            .then(() => dispatch('login', username))
     }
 </script>
 
@@ -35,41 +35,37 @@
 </form>
 
 <style>
+    form {
+        margin: 25% auto 0;
+        max-width: 250px
+    }
 
-form {
-    margin: 25% auto 0;
-    max-width: 250px
-}
+    button {
+        padding-left: 0; padding-right: 0;
+        border-left-width: 0; border-right-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+    }
 
-button {
-     padding-left: 0; padding-right: 0;
-     border-left-width: 0; border-right-width: 0;
-     white-space: nowrap;
-     overflow: hidden;
-}
+    input {
+        border: 1px solid;
+        width: 100%;
+        font-size: 1.1em;
+        padding: 5px;
+        padding-left: 7px;
+        margin-bottom: 10px;
+    }
 
-input {
-    border: 1px solid #ccc;
-    padding: 3px;
-    line-height: 20px;
-    width: 250px;
-    font-size: 99%;
-    margin-bottom: 10px;
-    margin-top: 5px;
-    -webkit-appearance: none
-}
+    input:focus{
+        outline-width: 0
+    }
 
-input:focus{
-    outline-width: 0
-}
-
-.alert{
-    color: #b94a48;
-    background-color: #f2dede;
-    border-color: #eed3d7;
-    padding: 8px;
-    border: 1px solid #fbeed5;
-    overflow: auto;
-}
-
+    .alert{
+        color: #b94a48;
+        background-color: #f2dede;
+        border-color: #eed3d7;
+        padding: 8px;
+        border: 1px solid #fbeed5;
+        overflow: auto;
+    }
 </style>

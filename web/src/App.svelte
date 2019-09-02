@@ -38,12 +38,12 @@
 <div class="app">
   {#each router.current() as { component, props } }
     {#if user == null }
-      <LoginForm api={api} on:loggedin={event => setUser(`users/${event.detail}`)} />
+      <LoginForm api={api} on:login={event => setUser(`users/${event.detail}`)} />
     {:else}
       {#await user}
         logging in...
       {:then user}
-        <Header api={api} />
+        <Header api={api} on:logout={() => { user = null } }/>
         <svelte:component this={component} {...set(props, 'user', user)} />
       {/await}
     {/if}
