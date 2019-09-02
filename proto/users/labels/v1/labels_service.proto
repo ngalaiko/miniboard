@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package app.miniboard.users.labels.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "labels";
+
+service LabelsService {
+    // Create label
+    //
+    // An endpoint to add new label.
+    rpc CreateLabel(CreateLabelRequest) returns (Label) {
+        option (google.api.http) = {
+            post: "/api/v1/{parent=users/*}/labels"
+            body: "label"
+        };
+    }
+
+    // Get Label
+    //
+    // An endpoint to get label by id.
+    rpc GetLabel(GetLabelRequest) returns (Label) {
+        option (google.api.http) = {
+            get: "/api/v1/{name=users/*/labels/*}"
+        };
+    }
+}
+
+message CreateLabelRequest {
+    // Name of the owner.
+    string parent = 1;
+
+    // Label to create.
+    Label label = 2;
+}
+
+message GetLabelRequest {
+    // Name of the resource.
+    string name = 1;
+}
+
+message Label {
+    // Name of the resource, for example "users/user1/labels/label1".
+    string name = 1;
+
+    // Title of the label, for example "links".
+    string title = 2;
+}

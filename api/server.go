@@ -11,10 +11,12 @@ import (
 	authenticatationsservice "miniboard.app/api/authorizations"
 	usersservice "miniboard.app/api/users"
 	articlesservice "miniboard.app/api/users/articles"
+	labelsservice "miniboard.app/api/users/labels"
 	"miniboard.app/jwt"
 	"miniboard.app/passwords"
 	"miniboard.app/proto/authorizations/v1"
 	"miniboard.app/proto/users/articles/v1"
+	"miniboard.app/proto/users/labels/v1"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
 	"miniboard.app/web"
@@ -32,6 +34,7 @@ func NewServer(ctx context.Context, db storage.Storage) *Server {
 	jwtService := jwt.NewService(ctx, db)
 	authorizationsService := authenticatationsservice.New(jwtService, passwordsService)
 	articlesService := articlesservice.New(db)
+	labelsService := labelsservice.New(db)
 
 	gwMux := runtime.NewServeMux()
 
@@ -49,6 +52,11 @@ func NewServer(ctx context.Context, db storage.Storage) *Server {
 		ctx,
 		gwMux,
 		articlesservice.NewProxyClient(articlesService),
+	)
+	labels.RegisterLabelsServiceHandlerClient(
+		ctx,
+		gwMux,
+		labelsservice.NewProxyClient(labelsService),
 	)
 
 	mux := http.NewServeMux()
