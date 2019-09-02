@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package app.miniboard.users.categories.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "categories";
+
+service CategoriesService {
+    // List categories
+    //
+    // An endpoint to list the user's categories.
+    rpc ListCategories(ListCategoriesRequest) returns (ListCategoriesResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/{parent=users/*}/categories"
+        };
+    }
+
+    // Create category
+    //
+    // An endpoint to add new category.
+    rpc CreateCategory(CreateCategoryRequest) returns (Category) {
+        option (google.api.http) = {
+            post: "/api/v1/{parent=users/*}/categories"
+            body: "category"
+        };
+    }
+
+    // Get Category
+    //
+    // An endpoint to get category by id.
+    rpc GetCategory(GetCategoryRequest) returns (Category) {
+        option (google.api.http) = {
+            get: "/api/v1/{name=users/*/categories/*}"
+        };
+    }
+}
+
+message ListCategoriesRequest {
+    // Name of a user who owns categories.
+    string parent = 1;
+
+    // The maximum number of articles to return.
+    int64 page_size = 2;
+
+    // The next_page_token value returned from a previous List request, if any.
+    string page_token = 3;
+}
+
+message ListCategoriesResponse {
+    // There will be a maximum number of articles returned based on the page_size field int the request.
+    repeated Category categories = 1;
+
+    // Token to retrieve the next page of results, or empty if there are no more results in the list.
+    string next_page_token = 2;
+}
+
+message CreateCategoryRequest {
+    // Name of the owner.
+    string parent = 1;
+
+    // Category to create.
+    Category category = 2;
+}
+
+message GetCategoryRequest {
+    // Name of the resource.
+    string name = 1;
+}
+
+message Category {
+    // Name of the resource, for example "users/user1/categories/category1".
+    string name = 1;
+
+    // Title of the category.
+    string title = 2;
+
+    message Color {
+        string textColor = 1;
+        string backgroundColor = 2;
+    }
+
+    Color color = 3;
+}
