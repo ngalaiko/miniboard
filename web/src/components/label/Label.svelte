@@ -1,7 +1,11 @@
 <script>
+    import { createEventDispatcher } from 'svelte'
+
     export let editable = false
     export let name
     export let title
+
+    const dispatch = createEventDispatcher()
 
     // prevents linebreak
     function onKeyDown(e) {
@@ -15,7 +19,7 @@
             return
         }
 
-        console.log("enter pressed")
+        dispatch('created', name)
         editable = false
 
         if (e.preventDefault) {
@@ -24,11 +28,15 @@
             e.returnValue = false;
         }
     }
+
+    function onDelete() {
+        dispatch('deleted', name)
+    }
 </script>
 
 <span class='container'>
     <div contenteditable={editable} class='label' on:keydown={onKeyDown}>{title}</div>
-    <button class='button-delete'>x</button>
+    <button class='button-delete' on:click|preventDefault={onDelete}>x</button>
 </span>
 
 <style>

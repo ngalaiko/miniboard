@@ -12,19 +12,23 @@
 
     let labels = []
 
-    function addLabel() {
+    function onAdd() {
         labels = labels.concat([{
             title: 'enter name',
             editable: true,
         }])
     }
+
+    function onDeleted() {
+        this.$destroy();
+    }
 </script>
 
 <span class='container'>
     {#each labels as label}
-        <Label {...label} />
+        <Label {...label} on:deleted={onDeleted} />
     {/each}
-    <button class='button-add' on:click|preventDefault={addLabel}>➕</button>
+    <button class='button-add' on:click|preventDefault={onAdd}>➕</button>
 </span>
 
 <style>
