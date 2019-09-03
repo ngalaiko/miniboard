@@ -1,6 +1,7 @@
 <script>
     import { createEventDispatcher } from 'svelte'
     import TimeAgo from '../../components/timeago/TimeAgo.svelte'
+    import Labels from '../../components/labels/Labels.svelte'
 
     export let api
 
@@ -8,7 +9,8 @@
     export let url
     export let title
     export let create_time
-    export let iconURL
+    export let icon_url
+    export let label_ids
 
     const dispatch = createEventDispatcher()
     
@@ -19,7 +21,10 @@
 </script>
 
 <div class='article'>
-  <a class='article-header'>{title}</a>
+  <span>
+    <span class='title'>{title}</span>
+    <Labels api={api} labelIds={label_ids} />
+  </span>
   <ul class='article-info'>
     <li><a class='link padding' href={url}>original</a></li>
     <li class='separator flex'><TimeAgo date={create_time}/></li>
@@ -28,65 +33,64 @@
 </div>
 
 <style>
-  .article {
-    border: 1px solid;
-    border-radius: unset;
-    margin-bottom: 20px;
-    padding: 5px;
-    padding-left: 7px;
-    padding-right: 7px;
-  }
+    .article {
+        border: 1px solid;
+        border-radius: unset;
+        margin-bottom: 20px;
+        padding: 5px;
+        padding-left: 7px;
+        padding-right: 7px;
+    }
+    
+    .title {
+        font-size: 1.2em;
+        font-weight: 500;
+    }
 
-  .article-header {
-    display: inline-block;
-    font-size: 1.1em;
-    font-weight: 500;
-  }
+    .article-info {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        margin: 0px;
+        padding: 0px;
+        margin-top: 5px;
+        font-size: 0.9em;
+    }
 
-  .article-info {
-    display: flex;
-    flex-flow: row wrap;
-    align-items: center;
-    margin: 0px;
-    padding: 0px;
-    margin-top: 5px;
-    font-size: 0.9em;
-  }
+    li {
+        display: inline;
+        white-space: nowrap;
+    }
 
-  li {
-    display: inline;
-    white-space: nowrap;
-  }
+    .separator {
+        padding-left: 0.3em;
+    }
 
-  .separator {
-    padding-left: 0.3em;
-  }
+    .separator:before {
+        content: "|";
+        padding-right: 0.3em;
+    }
 
-  .separator:before {
-    content: "|";
-    padding-right: 0.3em;
-  }
+    .flex {
+        display: flex;
+    }
 
-  .flex {
-    display: flex;
-  }
+    .link {
+        color: inherit;
+    }
 
-  .link {
-    color: inherit;
-  }
-
-  button {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    font-size: inherit;
-    border: 0px;
-	padding: 0px;
-    cursor: pointer;
-    background: inherit;
-  }
-  
-  button:hover, .button:focus {
-    outline-width: 0;
-    text-decoration: underline;
-  }
+    button {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        font-size: inherit;
+        border: 0px;
+        padding: 0px;
+        cursor: pointer;
+        background: inherit;
+    }
+    
+    button:hover, .button:focus {
+        outline-width: 0;
+        text-decoration: underline;
+    }
 </style>

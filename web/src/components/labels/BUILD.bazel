@@ -1,0 +1,10 @@
+load("@build_bazel_rules_svelte//:defs.bzl", "svelte")
+
+package(default_visibility = ["//visibility:public"])
+
+svelte(
+    name = "Labels",
+    entry_point = "Labels.svelte",
+    srcs = ["labels-service.js"],
+    deps = ["//web/src/components/label:Label"],
+)

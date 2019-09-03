@@ -33,8 +33,8 @@
       border: 1px solid;
       border-radius: unset;
   }
-  
-  button:hover, .button:focus {
+
+  button:hover, button:focus {
       outline-width: 0;
       text-decoration: underline;
   }

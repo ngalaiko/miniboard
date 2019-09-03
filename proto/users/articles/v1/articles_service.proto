@@ -114,7 +114,7 @@ message Article {
     string title = 3;
 
     // Icon url.
-    repeated string iconURL = 4;
+    repeated string icon_url = 4;
 
     // Time when article was added.&articles.List
     google.protobuf.Timestamp create_time = 5;
