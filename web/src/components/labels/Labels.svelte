@@ -14,7 +14,8 @@
 
     function addLabel() {
         labels = labels.concat([{
-            title: 'new label'
+            title: 'enter name',
+            editable: true,
         }])
     }
 </script>

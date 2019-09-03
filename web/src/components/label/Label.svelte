@@ -1,7 +1,10 @@
 <script>
+    export let editable = false
+    export let name
     export let title
 
-    function preventNewLine(e) {
+    // prevents linebreak
+    function onKeyDown(e) {
         if (!e) {
             e = window.event;
         }
@@ -12,6 +15,9 @@
             return
         }
 
+        console.log("enter pressed")
+        editable = false
+
         if (e.preventDefault) {
             e.preventDefault();
         } else {
@@ -20,21 +26,44 @@
     }
 </script>
 
-<div contenteditable='true' class='label' on:keydown={preventNewLine}>{title}</div>
+<span class='container'>
+    <div contenteditable={editable} class='label' on:keydown={onKeyDown}>{title}</div>
+    <button class='button-delete'>x</button>
+</span>
 
 <style>
-    .label {
+    .container {
         display: inline-block;
         vertical-align: text-top;
-        border: 1px solid;
+        border: 0px;
         border-radius: 10px;
-        padding: 0px 4px;
         font-size: 0.8em;
         cursor: text;
+        padding: 0 5px;
+        border: 1px solid;
+        margin: 0px;
         margin-left: 3px;
     }
 
-    .label:hover, .label:focus {
+    .label {
+        display: inline-block;
+        vertical-align: text-top;
+        border-right: 1px solid;
+        padding-right: 5px;
+    }
+
+    .button-delete {
+        display: inline-block;
+        vertical-align: text-top;
+        background: inherit;
+        border: 0px;
+        border-radius: unset;
+        padding: 0px;
+        margin: 0px;
+        cursor: pointer;
+    }
+
+    .button-delete:hover, .button-delete:focus, .label:hover, .label:focus {
         outline-width: 0;
     }
 </style>
