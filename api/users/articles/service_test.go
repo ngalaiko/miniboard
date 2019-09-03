@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/proto/users/articles/v1"
@@ -66,6 +67,24 @@ func Test_articles(t *testing.T) {
 					assert.NotEmpty(t, resp.CreateTime)
 				})
 			})
+			t.Run("When updating labels", func(t *testing.T) {
+				resp, err := service.UpdateArticle(ctx, &articles.UpdateArticleRequest{
+					Article: &articles.Article{
+						Name:     resp.Name,
+						LabelIds: []string{resource.NewName("labels", "new").String()},
+					},
+					UpdateMask: &field_mask.FieldMask{
+						Paths: []string{"label_ids"},
+					},
+				})
+				assert.NoError(t, err)
+				t.Run("It should be updated", func(t *testing.T) {
+					if assert.NoError(t, err) {
+						assert.Equal(t, []string{"labels/new"}, resp.LabelIds)
+					}
+				})
+			})
+
 			t.Run("When deleting the article", func(t *testing.T) {
 				_, err = service.DeleteArticle(ctx, &articles.DeleteArticleRequest{
 					Name: resp.Name,

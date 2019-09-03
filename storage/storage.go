@@ -6,6 +6,8 @@ import "miniboard.app/storage/resource"
 type Storage interface {
 	// Store stores data by the resource name.
 	Store(*resource.Name, []byte) error
+	// Update updates data by the resource name.
+	Update(*resource.Name, []byte) error
 	// Load returns data by the resource name.
 	Load(*resource.Name) ([]byte, error)
 	// Delete deletes data by the resource name.

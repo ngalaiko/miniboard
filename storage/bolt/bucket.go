@@ -13,12 +13,21 @@ import (
 // <resource_type>/buckets/resource/path/<resource_id>: <resource_data>
 
 // Store stores _data_ by _in_ in the bucket.
+// Returns ErrAlreadyExists if the key _in_ already exists.
 func (db *DB) Store(name *resource.Name, data []byte) error {
 	name = resource.NewName(name.Type(), "bucket").AddChild(name)
 	return db.update(name, func(bucket *bolt.Bucket) error {
 		if bucket.Get([]byte(name.ID())) != nil {
 			return storage.ErrAlreadyExists
 		}
+		return bucket.Put([]byte(name.ID()), data)
+	})
+}
+
+// Update stores _data_ by _in_ in the bucket.
+func (db *DB) Update(name *resource.Name, data []byte) error {
+	name = resource.NewName(name.Type(), "bucket").AddChild(name)
+	return db.update(name, func(bucket *bolt.Bucket) error {
 		return bucket.Put([]byte(name.ID()), data)
 	})
 }

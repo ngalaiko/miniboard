@@ -129,6 +129,22 @@ func Test_server(t *testing.T) {
 									assert.Equal(t, a.Url, "http://localhost")
 								})
 							})
+							t.Run("When udpating article with not existing label", func(t *testing.T) {
+								resp, err := http.DefaultClient.Do(patchJSON(t,
+									fmt.Sprintf("%s/api/v1/%s", server.URL, article.Name),
+									map[string]interface{}{
+										"article": map[string]interface{}{
+											"label_ids": []string{"labels/new"},
+										},
+										"update_mask": []string{"label_ids"},
+									},
+									authorization,
+								))
+								t.Run("Error should be returned", func(t *testing.T) {
+									assert.NoError(t, err)
+									assert.Equal(t, http.StatusOK, resp.StatusCode)
+								})
+							})
 						})
 						t.Run("When listing articles", func(t *testing.T) {
 							resp, err = http.DefaultClient.Do(getAuth(t,
@@ -169,6 +185,19 @@ func postJSON(t *testing.T, url string, body interface{}, auth *authorizations.A
 	assert.NoError(t, err)
 
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(data))
+	assert.NoError(t, err)
+
+	if auth != nil {
+		req.Header.Add("Authorization", fmt.Sprintf("%s %s", auth.TokenType, auth.AccessToken))
+	}
+	return req
+}
+
+func patchJSON(t *testing.T, url string, body interface{}, auth *authorizations.Authorization) *http.Request {
+	data, err := json.Marshal(body)
+	assert.NoError(t, err)
+
+	req, err := http.NewRequest(http.MethodPatch, url, bytes.NewBuffer(data))
 	assert.NoError(t, err)
 
 	if auth != nil {

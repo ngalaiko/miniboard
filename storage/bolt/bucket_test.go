@@ -110,6 +110,16 @@ func Test_DB(t *testing.T) {
 					assert.Equal(t, storage.ErrNotFound, err)
 				})
 			})
+
+			t.Run("When it's updated", func(t *testing.T) {
+				assert.NoError(t, db.Update(name, []byte("updated")))
+
+				t.Run("Data should not ne found", func(t *testing.T) {
+					d, err := db.Load(name)
+					assert.NoError(t, err)
+					assert.Equal(t, []byte("updated"), d)
+				})
+			})
 		})
 	})
 }

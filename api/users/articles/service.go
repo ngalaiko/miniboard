@@ -116,10 +116,48 @@ func enrich(article *articles.Article, r reader.Reader) {
 	article.IconURL = r.IconURL()
 }
 
+// UpdateArticle updates the article.
+func (s *Service) UpdateArticle(ctx context.Context, request *articles.UpdateArticleRequest) (*articles.Article, error) {
+	name := resource.ParseName(request.Article.Name)
+
+	article, err := s.getArticle(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	var updated bool
+
+	for _, path := range request.UpdateMask.GetPaths() {
+		switch path {
+		case "label_ids":
+			article.LabelIds = request.Article.LabelIds
+			updated = true
+		}
+	}
+
+	if !updated {
+		return article, nil
+	}
+
+	rawArticle, err := proto.Marshal(article)
+	if err != nil {
+		return nil, status.New(codes.Internal, "failed to marshal the article").Err()
+	}
+
+	if err := s.storage.Update(name, rawArticle); err != nil {
+		return nil, status.New(codes.Internal, "failed to store the article").Err()
+	}
+
+	return article, nil
+}
+
 // GetArticle returns an article.
 func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRequest) (*articles.Article, error) {
 	name := resource.ParseName(request.Name)
+	return s.getArticle(ctx, name)
+}
 
+func (s *Service) getArticle(ctx context.Context, name *resource.Name) (*articles.Article, error) {
 	raw, err := s.storage.Load(name)
 	switch errors.Cause(err) {
 	case nil:

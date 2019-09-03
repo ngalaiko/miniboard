@@ -5,6 +5,7 @@ package app.miniboard.users.articles.v1;
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
 
 option go_package = "articles";
 
@@ -24,6 +25,16 @@ service ArticlesService {
     rpc CreateArticle(CreateArticleRequest) returns (Article) {
         option (google.api.http) = {
             post: "/api/v1/{parent=users/*}/articles"
+            body: "article"
+        };
+    }
+
+    // Update article
+    //
+    // An endpoint to update the article.
+    rpc UpdateArticle(UpdateArticleRequest) returns (Article) {
+        option (google.api.http) = {
+            patch: "/api/v1/{article.name=users/*/articles/*}"
             body: "article"
         };
     }
@@ -73,6 +84,15 @@ message CreateArticleRequest {
     Article article = 2;
 }
 
+message UpdateArticleRequest {
+    // The article resource which replaces the resource on the server.
+    Article article = 1;
+
+    // FieldMask of fields to update.
+    // see https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+    google.protobuf.FieldMask update_mask = 2;
+}
+
 message GetArticleRequest {
     // Name of the resource.
     string name = 1;
@@ -98,4 +118,7 @@ message Article {
 
     // Time when article was added.&articles.List
     google.protobuf.Timestamp create_time = 5;
+
+	// List of article's labels ids.
+	repeated string label_ids = 6;
 }
