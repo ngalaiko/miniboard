@@ -31,6 +31,20 @@ export class Api {
       // todo: handle errors
   }
 
+  patch(url, data) {
+    let options = {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type':  'application/json',
+            'Authorization': this.authorization()
+        },
+    }
+    return fetch(url, options)
+      .then(response => response.json())
+      // todo: handle errors
+  }
+
   delete(url) {
     let options = {
         method: 'DELETE',

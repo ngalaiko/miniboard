@@ -1,14 +1,13 @@
-<script context="module">
-    import { LabelsService } from './labels-service.js'
-    import Label from '../label/Label.svelte'
-
-    export let api
-
-    let labelsService = new LabelsService(api)
-</script>
-
 <script>
+    import Label from '../label/Label.svelte'
+    import { createEventDispatcher } from 'svelte'
+
     export let labelIds
+
+    export let articleName
+
+    export let labelsService
+    const dispatch = createEventDispatcher()
 
     let labels = []
 
@@ -24,6 +23,8 @@
     }
 
     function onCreated(e) {
+        labelsService.create(e.detail)
+            .then(resp => { dispatch('labeladded', resp.name) })
     }
 </script>
 
@@ -36,6 +37,7 @@
 
 <style>
     .container {
+        vertical-align: middle;
     }
 
     .button-add {

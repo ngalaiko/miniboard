@@ -1,13 +1,15 @@
 <script>
     import Article from '../article/Article.svelte'
     import { ArticlesService } from './articles-service.js'
+    import { LabelsService } from './labels-service.js'
     import ArticlesForm from '../../components/articlesform/ArticlesForm.svelte'
 
     export let api
     export let user
 
     let pageSize = 4
-    let articlesService = new ArticlesService(api, user )
+    let articlesService = new ArticlesService(api, user)
+    let labelsService = new LabelsService(api, user)
 
     let articlesList = []
 
@@ -73,7 +75,7 @@
     </div>
     <div class='list'>
         {#each articlesList.slice(pageStart, pageStart+pageSize) as article, i (article.name) }
-            <Article on:deleted={(e) => onDeleted(e.detail)} api={api} {...article} } />
+            <Article on:deleted={(e) => onDeleted(e.detail)} api={api} labelsService={labelsService} {...article} } />
         {/each}
     </div>
 </div>

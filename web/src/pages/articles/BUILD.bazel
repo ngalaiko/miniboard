@@ -5,6 +5,9 @@ package(default_visibility = ["//visibility:public"])
 svelte(
     name = "Articles",
     entry_point = "Articles.svelte",
-    srcs = ["articles-service.js"],
+    srcs = [
+        "labels-service.js",
+        "articles-service.js",
+    ],
     deps = ["//web/src/pages/article:Article"],
 )

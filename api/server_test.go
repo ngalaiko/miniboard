@@ -129,20 +129,22 @@ func Test_server(t *testing.T) {
 									assert.Equal(t, a.Url, "http://localhost")
 								})
 							})
-							t.Run("When udpating article with not existing label", func(t *testing.T) {
+							t.Run("When udpating article with label", func(t *testing.T) {
 								resp, err := http.DefaultClient.Do(patchJSON(t,
-									fmt.Sprintf("%s/api/v1/%s", server.URL, article.Name),
+									fmt.Sprintf("%s/api/v1/%s?update_mask=label_ids", server.URL, article.Name),
 									map[string]interface{}{
-										"article": map[string]interface{}{
-											"label_ids": []string{"labels/new"},
-										},
-										"update_mask": []string{"label_ids"},
+										"label_ids": []string{"labels/new"},
 									},
 									authorization,
 								))
-								t.Run("Error should be returned", func(t *testing.T) {
+								t.Run("It should update the article", func(t *testing.T) {
 									assert.NoError(t, err)
 									assert.Equal(t, http.StatusOK, resp.StatusCode)
+
+									article := &articles.Article{}
+									assert.NoError(t, jsonpb.Unmarshal(resp.Body, article))
+
+									assert.Equal(t, []string{"labels/new"}, article.LabelIds)
 								})
 							})
 						})

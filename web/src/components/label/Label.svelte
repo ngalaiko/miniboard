@@ -19,14 +19,14 @@
             return
         }
 
-        dispatch('created', this.innerText)
-        editable = false
-
         if (e.preventDefault) {
             e.preventDefault();
         } else {
             e.returnValue = false;
         }
+
+        dispatch('created', this.innerText)
+        editable = false
     }
 
     function onDelete() {

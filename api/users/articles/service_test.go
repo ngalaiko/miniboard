@@ -63,7 +63,7 @@ func Test_articles(t *testing.T) {
 					assert.NotEmpty(t, resp.Name)
 					assert.Equal(t, resp.Url, "http://localhost")
 					assert.NotEmpty(t, resp.Title)
-					assert.NotEmpty(t, resp.IconURL)
+					assert.NotEmpty(t, resp.IconUrl)
 					assert.NotEmpty(t, resp.CreateTime)
 				})
 			})

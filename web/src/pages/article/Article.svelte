@@ -4,6 +4,7 @@
     import Labels from '../../components/labels/Labels.svelte'
 
     export let api
+    export let labelsService
 
     export let name
     export let url
@@ -12,18 +13,29 @@
     export let icon_url
     export let label_ids
 
+    if (label_ids === undefined) {
+        label_ids = []
+    }
+
     const dispatch = createEventDispatcher()
     
     function onDelete() {
-      api.delete(`/api/v1/${name}`)
-        .then(() => dispatch('deleted', name))
+        api.delete(`/api/v1/${name}`)
+            .then(() => dispatch('deleted', name))
+    }
+
+    function onLabelAdded(e) {
+        label_ids = [e.detail].concat(label_ids)
+        api.patch(`/api/v1/${name}?update_mask=label_ids`, {
+            label_ids: label_ids,
+        })
     }
 </script>
 
 <div class='article'>
   <span>
     <span class='title'>{title}</span>
-    <Labels api={api} labelIds={label_ids} />
+    <Labels api={api} labelsService={labelsService} labelIds={label_ids} on:labeladded={onLabelAdded} />
   </span>
   <ul class='article-info'>
     <li><a class='link padding' href={url}>original</a></li>
