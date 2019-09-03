@@ -10,6 +10,12 @@
     const dispatch = createEventDispatcher()
 
     let labels = []
+    labelIds.forEach(labelName => {
+        labelsService.get(labelName)
+            .then(label => {
+                labels = labels.concat([label])
+            })
+    })
 
     function onAdd() {
         labels = labels.concat([{
@@ -18,7 +24,10 @@
         }])
     }
 
-    function onDeleted() {
+    function onDeleted(e) {
+        if (e.detail != null) {
+            dispatch('labeldeleted', e.detail)
+        }
         this.$destroy();
     }
 

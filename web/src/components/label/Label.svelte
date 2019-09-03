@@ -30,7 +30,7 @@
     }
 
     function onDelete() {
-        dispatch('deleted')
+        dispatch('deleted', name)
     }
 </script>
 

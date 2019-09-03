@@ -30,12 +30,25 @@
             label_ids: label_ids,
         })
     }
+
+    function onLabelDeleted(e) {
+        label_ids = label_ids.filter(labelId => labelId != e.detail)
+        api.patch(`/api/v1/${name}?update_mask=label_ids`, {
+            label_ids: label_ids,
+        })
+    }
 </script>
 
 <div class='article'>
   <span>
     <span class='title'>{title}</span>
-    <Labels api={api} labelsService={labelsService} labelIds={label_ids} on:labeladded={onLabelAdded} />
+    <Labels
+        api={api} 
+        labelsService={labelsService} 
+        labelIds={label_ids} 
+        on:labeladded={onLabelAdded} 
+        on:labeldeleted={onLabelDeleted} 
+    />
   </span>
   <ul class='article-info'>
     <li><a class='link padding' href={url}>original</a></li>

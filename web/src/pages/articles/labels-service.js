@@ -9,4 +9,8 @@ export class LabelsService {
       title: title,
     })
   }
+
+  get(labelName) {
+    return this.api.get(`/api/v1/${labelName}`)
+  }
 }
