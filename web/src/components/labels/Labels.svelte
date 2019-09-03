@@ -22,11 +22,14 @@
     function onDeleted() {
         this.$destroy();
     }
+
+    function onCreated(e) {
+    }
 </script>
 
 <span class='container'>
     {#each labels as label}
-        <Label {...label} on:deleted={onDeleted} />
+        <Label {...label} on:deleted={onDeleted} on:created={onCreated} />
     {/each}
     <button class='button-add' on:click|preventDefault={onAdd}>➕</button>
 </span>

@@ -19,7 +19,7 @@
             return
         }
 
-        dispatch('created', name)
+        dispatch('created', this.innerText)
         editable = false
 
         if (e.preventDefault) {
@@ -30,7 +30,7 @@
     }
 
     function onDelete() {
-        dispatch('deleted', name)
+        dispatch('deleted')
     }
 </script>
 
