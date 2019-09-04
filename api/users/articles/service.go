@@ -114,6 +114,7 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 func enrich(article *articles.Article, r reader.Reader) {
 	article.Title = r.Title()
 	article.IconUrl = r.IconURL()
+	article.Content = r.Content()
 }
 
 // UpdateArticle updates the article.

@@ -121,4 +121,7 @@ message Article {
 
 	// List of article's labels ids.
 	repeated string label_ids = 6;
+
+    // Readable content of the article.
+    bytes content = 7;
 }

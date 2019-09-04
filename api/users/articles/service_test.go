@@ -65,6 +65,7 @@ func Test_articles(t *testing.T) {
 					assert.NotEmpty(t, resp.Title)
 					assert.NotEmpty(t, resp.IconUrl)
 					assert.NotEmpty(t, resp.CreateTime)
+					assert.NotEmpty(t, resp.Content)
 				})
 			})
 			t.Run("When updating labels", func(t *testing.T) {
