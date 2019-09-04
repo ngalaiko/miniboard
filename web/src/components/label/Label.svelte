@@ -1,11 +1,27 @@
 <script>
     import { createEventDispatcher } from 'svelte'
+    import { onMount } from 'svelte';
 
     export let editable = false
     export let name
     export let title
 
     const dispatch = createEventDispatcher()
+
+    function onKeyDown(e) {
+        if (!e) {
+            e = window.event;
+        }
+        var keyCode = e.which || e.keyCode,
+            target = e.target || e.srcElement;
+
+        if (keyCode !== 13) { // Enter
+            return
+        }
+
+        dispatch('created', this.value)
+        editable = false
+    }
 
     function onKeyPress() {
         this.style.width = 0 
@@ -15,10 +31,16 @@
     function onDelete() {
         dispatch('deleted', name)
     }
+
+	onMount(() => {
+        let i = document.getElementById(name)
+        i.style.width = 0
+        i.style.width = 7 + i.scrollWidth + 'px'
+	})
 </script>
 
 <span class='container'>
-    <input class='label' value={title} on:input={onKeyPress}/>
+    <input id={name} class='label' disabled={!editable} value={title} on:input={onKeyPress} on:keydown={onKeyDown} />
     <button class='button-delete' on:click|preventDefault={onDelete}>x</button>
 </span>
 
@@ -43,7 +65,8 @@
         border-right: 1px solid;
         padding-right: 5px;
         min-width: 20px;
-        width: 30px;
+        background: inherit;
+        color: inherit;
     }
 
     .button-delete {
@@ -59,5 +82,8 @@
 
     .button-delete:hover, .button-delete:focus, .label:hover, .label:focus {
         outline-width: 0;
+    }
+
+    .labal:disabled {
     }
 </style>
