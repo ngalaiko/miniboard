@@ -25,6 +25,15 @@ service LabelsService {
             get: "/api/v1/{name=users/*/labels/*}"
         };
     }
+
+    // List Labels
+    //
+    // An endpoint to list all user's labels.
+    rpc ListLabels(ListLabelsRequest) returns (ListLabelsResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/{parent=users/*}/labels"
+        };
+    }
 }
 
 message CreateLabelRequest {
@@ -38,6 +47,25 @@ message CreateLabelRequest {
 message GetLabelRequest {
     // Name of the resource.
     string name = 1;
+}
+
+message ListLabelsRequest {
+    // Users' name.
+    string parent = 1;
+
+    // The maximum number of articles to return.
+    int64 page_size = 2;
+
+    // The next_page_token value returned from a previous List request, if any.
+    string page_token = 3;
+}
+
+message ListLabelsResponse {
+    // List of existing labels.
+    repeated Label labels = 1;
+
+    // Token to retrieve the next page of results, or empty if there are no more results in the list.
+    string next_page_token = 2;
 }
 
 message Label {

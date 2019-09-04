@@ -2,6 +2,7 @@ package labels
 
 import (
 	"context"
+	"encoding/base64"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
@@ -66,4 +67,43 @@ func (s *Service) GetLabel(ctx context.Context, request *labels.GetLabelRequest)
 	}
 
 	return label, nil
+}
+
+// ListLabels returns list of existing labels.
+func (s *Service) ListLabels(ctx context.Context, request *labels.ListLabelsRequest) (*labels.ListLabelsResponse, error) {
+	lookFor := resource.ParseName(request.Parent).Child("labels", "*")
+
+	var from *resource.Name
+	if request.PageToken != "" {
+		decoded, err := base64.StdEncoding.DecodeString(request.PageToken)
+		if err != nil {
+			return nil, status.New(codes.InvalidArgument, "invalid page token").Err()
+		}
+		from = resource.ParseName(string(decoded))
+	}
+
+	dd, err := s.storage.LoadChildren(lookFor, from, int(request.PageSize+1))
+	if err != nil {
+		return nil, status.New(codes.Internal, "failed to load labels").Err()
+	}
+
+	ll := make([]*labels.Label, 0, len(dd))
+	for _, d := range dd {
+		l := &labels.Label{}
+		if err := proto.Unmarshal(d.Data, l); err != nil {
+			return nil, status.New(codes.Internal, "failed to unmarshal label").Err()
+		}
+		ll = append(ll, l)
+	}
+
+	var nextPageToken string
+	if len(ll) == int(request.PageSize+1) {
+		nextPageToken = base64.StdEncoding.EncodeToString([]byte(ll[len(ll)-1].Name))
+		ll = ll[:request.PageSize]
+	}
+
+	return &labels.ListLabelsResponse{
+		Labels:        ll,
+		NextPageToken: nextPageToken,
+	}, nil
 }

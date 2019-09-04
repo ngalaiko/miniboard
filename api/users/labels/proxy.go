@@ -30,3 +30,8 @@ func (p *Proxy) CreateLabel(ctx context.Context, in *labels.CreateLabelRequest, 
 func (p *Proxy) GetLabel(ctx context.Context, in *labels.GetLabelRequest, opts ...grpc.CallOption) (*labels.Label, error) {
 	return p.service.GetLabel(ctx, in)
 }
+
+// ListLabels calls ListLabels method on the service instance.
+func (p *Proxy) ListLabels(ctx context.Context, in *labels.ListLabelsRequest, opts ...grpc.CallOption) (*labels.ListLabelsResponse, error) {
+	return p.service.ListLabels(ctx, in)
+}
