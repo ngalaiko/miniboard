@@ -6,6 +6,8 @@
     export let name
     export let title
 
+    export let tips = []
+
     const dispatch = createEventDispatcher()
 
     function onKeyDown(e) {

@@ -2,13 +2,12 @@
     import Label from '../label/Label.svelte'
     import { createEventDispatcher } from 'svelte'
 
-    export let labelIds
-
-    export let articleName
+    export let tips
 
     export let labelsService
     const dispatch = createEventDispatcher()
 
+    export let labelIds
     let labels = []
     labelIds.forEach(labelName => {
         labelsService.get(labelName)
@@ -39,7 +38,12 @@
 
 <span class='container'>
     {#each labels as label}
-        <Label {...label} on:deleted={onDeleted} on:created={onCreated} />
+        <Label
+            {...label}
+            on:deleted={onDeleted}
+            on:created={onCreated}
+            tips={labelsService.titles}
+        />
     {/each}
     <button class='button-add' on:click|preventDefault={onAdd}>➕</button>
 </span>

@@ -4,6 +4,7 @@ export class LabelsService {
     this.user = user
     this.titleToLabel = {}
     this.nameToLabel = {}
+    this.titles = []
 
     // todo: list all in smaller batches
     this.api.get(`/api/v1/${this.user.name}/labels?page_size=100`)
@@ -38,7 +39,12 @@ export class LabelsService {
   }
 
   saveLabel(label) {
+    if (this.titleToLabel[label.title] !== undefined) {
+      return
+    }
+
     this.titleToLabel[label.title] = label
     this.nameToLabel[label.name] = label
+    this.titles.push(label.title)
   }
 }
