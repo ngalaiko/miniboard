@@ -39,10 +39,25 @@
         i.style.width = 0
         i.style.width = 7 + i.scrollWidth + 'px'
 	})
+
+	let randId = 'label-' + Math.random()
 </script>
 
 <span class='container'>
-    <input id={name} class='label' disabled={!editable} value={title} on:input={onKeyPress} on:keydown={onKeyDown} />
+    <input
+		id={name}
+		class='label'
+		disabled={!editable}
+		value={title}
+ 		on:input={onKeyPress}
+		on:keydown={onKeyDown}
+		list={randId}
+	/>
+	<datalist id={randId}>
+		{#each tips as tip}
+			<option value={tip}></option>
+		{/each}
+    </datalist>
     <button class='button-delete' on:click|preventDefault={onDelete}>X</button>
 </span>
 
