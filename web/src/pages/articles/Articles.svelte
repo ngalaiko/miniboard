@@ -60,7 +60,6 @@
 	// change pageSize on window resize
 	window.onresize = function(event) {
 		let newSize = getPageSize()
-		console.log(newSize, pageSize)
 		if (newSize != pageSize) {
 			pageSize = newSize
 		}
