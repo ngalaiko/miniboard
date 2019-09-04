@@ -7,7 +7,7 @@
     export let api
     export let user
 
-    let pageSize = 4
+    let pageSize = 5
     let articlesService = new ArticlesService(api, user)
     let labelsService = new LabelsService(api, user)
 
@@ -69,7 +69,7 @@
             <button class="button-pagination button-previous" on:click|preventDefault={previousPage} >previous</button>
         {/if}
         <div />
-        {#if articlesList.length >= pageStart + pageSize }
+        {#if articlesList.length > pageStart + pageSize }
             <button class="button-pagination button-next"  on:click|preventDefault={nextPage} >next</button>
         {/if}
     </div>
@@ -118,6 +118,7 @@
       display: flex;
       flex-direction: row;
       justify-content: space-between;
+	  margin-bottom: 5px;
     }
 
     .button-pagination {
