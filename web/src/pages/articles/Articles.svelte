@@ -3,6 +3,7 @@
     import { ArticlesService } from './articles-service.js'
     import { LabelsService } from './labels-service.js'
     import ArticlesForm from '../../components/articlesform/ArticlesForm.svelte'
+    import { onMount } from 'svelte';
 
     export let api
     export let user
@@ -18,6 +19,7 @@
             .then(list => { articlesList = articlesList.concat(list) })
     }
     loadMore()
+		.then(() => { pageSize = getPageSize() })
 
     let pageStart = 0
 
@@ -54,6 +56,21 @@
     function nextPage() {
         loadMore().then(() => { pageStart += pageSize })
     }
+
+	// change pageSize on window resize
+	window.onresize = function(event) {
+		let newSize = getPageSize()
+		console.log(newSize, pageSize)
+		if (newSize != pageSize) {
+			pageSize = newSize
+		}
+	}
+
+	function getPageSize() {
+		let list = document.getElementsByClassName('articles list')[0]
+		let size = Math.floor((window.innerHeight - list.offsetTop) / 100)
+		return size > 1 ? size : 1
+	}
 </script>
 
 <div>
@@ -73,7 +90,7 @@
             <button class="button-pagination button-next"  on:click|preventDefault={nextPage} >next</button>
         {/if}
     </div>
-    <div class='list'>
+    <div class='articles list'>
         {#each articlesList.slice(pageStart, pageStart+pageSize) as article, i (article.name) }
             <Article on:deleted={(e) => onDeleted(e.detail)} api={api} labelsService={labelsService} {...article} } />
         {/each}
