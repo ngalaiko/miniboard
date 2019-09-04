@@ -27,7 +27,7 @@
 
     function onKeyPress() {
         this.style.width = 0 
-        this.style.width = 5 + this.scrollWidth + 'px'
+		this.style.width = 2 + this.value.length + 'ch'
     }
 
     function onDelete() {
@@ -35,9 +35,11 @@
     }
 
 	onMount(() => {
-        let i = document.getElementById(name)
-        i.style.width = 0
-        i.style.width = 7 + i.scrollWidth + 'px'
+		let labels = document.getElementsByClassName(name)
+		Array.prototype.forEach.call(labels, (label) => {
+			label.style.width = 0
+			label.style.width = 2 + label.value.length + 'ch'
+		})
 	})
 
 	let randId = 'label-' + Math.random()
@@ -45,8 +47,7 @@
 
 <span class='container'>
     <input
-		id={name}
-		class='label'
+		class='label {name}'
 		disabled={!editable}
 		value={title}
  		on:input={onKeyPress}
