@@ -3,6 +3,7 @@ module miniboard.app
 go 1.12
 
 require (
+	github.com/PuerkitoBio/goquery v1.5.0
 	github.com/coreos/bbolt v1.3.3
 	github.com/gogo/protobuf v1.2.1
 	github.com/golang/protobuf v1.3.2

@@ -2,20 +2,18 @@ package http
 
 import (
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
-	"path/filepath"
 
 	"github.com/pkg/errors"
-	"golang.org/x/net/html"
-	"golang.org/x/net/html/atom"
 	"miniboard.app/reader"
 )
 
 // Reader returns simplified HTML content.
 type Reader struct {
-	root *html.Node
-	url  *url.URL
+	doc *Document
+	url *url.URL
 }
 
 // New erturns new reader from a url.
@@ -27,95 +25,37 @@ func New(url *url.URL) (reader.Reader, error) {
 	defer func() {
 		_ = resp.Body.Close()
 	}()
-
 	return NewFromReader(resp.Body, url)
 }
 
 // NewFromReader returns new reader from io.Reader.
 // URL is needed to form complete links to images.
 func NewFromReader(raw io.Reader, url *url.URL) (*Reader, error) {
-	n, err := html.Parse(raw)
+	content, err := ioutil.ReadAll(raw)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse html")
+		return nil, errors.Wrap(err, "failed to read body")
+	}
+	doc, err := NewDocument(content, url)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse document")
 	}
 	return &Reader{
-		root: n,
-		url:  url,
+		doc: doc,
+		url: url,
 	}, nil
 }
 
 // Title returns the page title.
 func (r *Reader) Title() (title string) {
-	bfs(r.root, func(n *html.Node) bool {
-		if n.DataAtom != atom.Head {
-			return true
-		}
-		bfs(n, func(n *html.Node) bool {
-			if n.DataAtom != atom.Title {
-				return true
-			}
+	return r.doc.Title()
+}
 
-			if n.FirstChild == nil {
-				return false
-			}
-
-			title = n.FirstChild.Data
-			return false
-		})
-		return false
-	})
-	return
+// Content returns page content.
+func (r *Reader) Content() []byte {
+	return r.doc.Content()
 }
 
 // IconURL returns a link to the first page favicon.
 func (r *Reader) IconURL() (iconURLs []string) {
-	bfs(r.root, func(n *html.Node) bool {
-		if n.DataAtom != atom.Head {
-			return true
-		}
-
-		bfs(n, func(n *html.Node) bool {
-			if n.DataAtom != atom.Link {
-				return true
-			}
-			for _, attr := range n.Attr {
-				extention := filepath.Ext(attr.Val)
-				if extention != ".png" && extention != ".ico" {
-					continue
-				}
-				u, err := url.Parse(attr.Val)
-				if err != nil {
-					continue
-				}
-				if u.Hostname() != "" {
-					iconURLs = append(iconURLs, u.String())
-					return false
-				}
-
-				iconURLs = append(iconURLs, r.url.String()+attr.Val)
-				return false
-			}
-			return false
-		})
-		return true
-	})
-	return
+	return r.doc.IconURL()
 }
-
-// executes forEach function on every node, including the first one in BFS order.
-// if forEach returns true, search continues.
-func bfs(node *html.Node, forEach func(*html.Node) bool) {
-	if node == nil {
-		return
-	}
-	if !forEach(node) {
-		return
-	}
-	n := node.FirstChild
-	for n != nil {
-		bfs(n, forEach)
-		n = n.NextSibling
-	}
-}
-
-// dfs

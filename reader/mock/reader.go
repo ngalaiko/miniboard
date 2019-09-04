@@ -22,3 +22,8 @@ func (m *mock) Title() string {
 func (m *mock) IconURL() []string {
 	return []string{"http://example.com/icon.png"}
 }
+
+// Content returns page content.
+func (m *mock) Content() []byte {
+	return []byte("page!")
+}

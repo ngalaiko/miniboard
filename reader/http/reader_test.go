@@ -22,6 +22,9 @@ func Test(t *testing.T) {
 	assert.Contains(t, iconURL, "http://example.com/favicon-32x32.png")
 	assert.Contains(t, iconURL, "http://example.com/apple-touch-icon.png")
 	assert.Contains(t, iconURL, "http://example.com/favicon.ico")
+
+	content := r.Content()
+	assert.NotEmpty(t, content)
 }
 
 func testData(t *testing.T) *os.File {
