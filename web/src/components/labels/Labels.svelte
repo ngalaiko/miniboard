@@ -46,7 +46,8 @@
 
 <style>
     .container {
-        vertical-align: middle;
+        display: inline-flex;
+        align-items: center;
     }
 
     .button-add {

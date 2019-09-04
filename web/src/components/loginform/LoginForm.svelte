@@ -57,7 +57,8 @@
     }
 
     input:focus{
-        outline-width: 0
+        outline: none;
+        outline-width: 0;
     }
 
     .alert{

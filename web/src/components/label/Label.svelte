@@ -41,17 +41,15 @@
 
 <span class='container'>
     <input id={name} class='label' disabled={!editable} value={title} on:input={onKeyPress} on:keydown={onKeyDown} />
-    <button class='button-delete' on:click|preventDefault={onDelete}>x</button>
+    <button class='button-delete' on:click|preventDefault={onDelete}>X</button>
 </span>
 
 <style>
     .container {
-        display: inline-block;
-        vertical-align: text-top;
+        display: flex;
         border: 0px;
         border-radius: 10px;
         font-size: 0.8em;
-        cursor: text;
         padding: 0 5px;
         border: 1px solid;
         margin: 0px;
@@ -60,30 +58,30 @@
 
     .label {
         border: 0px;
-        display: inline-block;
-        vertical-align: text-top;
         border-right: 1px solid;
+        padding: 0px;
         padding-right: 5px;
         min-width: 20px;
         background: inherit;
         color: inherit;
+        margin: auto;
+        text-align: center;
     }
 
     .button-delete {
-        display: inline-block;
-        vertical-align: text-top;
         background: inherit;
         border: 0px;
         border-radius: unset;
         padding: 0px;
         margin: 0px;
         cursor: pointer;
+        margin: auto;
+        text-align: center;
+        padding-left: 3px;
     }
 
     .button-delete:hover, .button-delete:focus, .label:hover, .label:focus {
         outline-width: 0;
-    }
-
-    .labal:disabled {
+        outline: none;
     }
 </style>
