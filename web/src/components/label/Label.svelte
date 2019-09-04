@@ -7,26 +7,9 @@
 
     const dispatch = createEventDispatcher()
 
-    // prevents linebreak
-    function onKeyDown(e) {
-        if (!e) {
-            e = window.event;
-        }
-        var keyCode = e.which || e.keyCode,
-            target = e.target || e.srcElement;
-
-        if (keyCode !== 13) { // Enter
-            return
-        }
-
-        if (e.preventDefault) {
-            e.preventDefault();
-        } else {
-            e.returnValue = false;
-        }
-
-        dispatch('created', this.innerText)
-        editable = false
+    function onKeyPress() {
+        this.style.width = 0 
+        this.style.width = 5 + this.scrollWidth + 'px'
     }
 
     function onDelete() {
@@ -35,7 +18,7 @@
 </script>
 
 <span class='container'>
-    <div contenteditable={editable} class='label' on:keydown={onKeyDown}>{title}</div>
+    <input class='label' value={title} on:input={onKeyPress}/>
     <button class='button-delete' on:click|preventDefault={onDelete}>x</button>
 </span>
 
@@ -54,10 +37,13 @@
     }
 
     .label {
+        border: 0px;
         display: inline-block;
         vertical-align: text-top;
         border-right: 1px solid;
         padding-right: 5px;
+        min-width: 20px;
+        width: 30px;
     }
 
     .button-delete {
