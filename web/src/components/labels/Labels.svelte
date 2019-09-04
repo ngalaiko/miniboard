@@ -31,6 +31,19 @@
     }
 
     function onCreated(e) {
+		let create = true
+		// if the label already exists, don't add it again
+		labels.forEach(label => {
+			if (label.title == e.detail) {
+				this.$destroy()
+				create = false
+			}
+		})
+
+		if (!create) {
+			return
+		}
+
         labelsService.create(e.detail)
             .then(resp => { dispatch('labeladded', resp.name) })
     }
