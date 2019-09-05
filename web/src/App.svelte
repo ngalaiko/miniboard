@@ -3,12 +3,13 @@
 <script>
     import Articles from './components/articles/Articles.svelte';
     import NotFound from './components/notfound/NotFound.svelte';
-    import Api from './components/api/api';
+    import Client from './components/client/client';
     import Router from "./components/router/navaid";
     import LoginForm from './components/loginform/LoginForm.svelte'
     import Header from './components/header/Header.svelte'
 
-    let api = new Api()
+    let client = new Client()
+    let api = client.api
     let user = null
 
     let component

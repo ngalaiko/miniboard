@@ -6,5 +6,5 @@ svelte(
     name = "Api",
     srcs = ["api.js"],
     entry_point = "Api.svelte",
-    deps = ["//web/src/components/localstorage:LocalStorage"],
+    deps = ["//web/src/components/client/api/localstorage:LocalStorage"],
 )

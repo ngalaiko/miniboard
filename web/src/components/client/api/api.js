@@ -1,4 +1,4 @@
-import LocalStorage from '../localstorage/localstorage'
+import LocalStorage from './localstorage/localstorage'
 
 export default class Api {
     constructor() {
@@ -24,7 +24,6 @@ export default class Api {
     send(url, method, body) {
         let options = {
             method: method,
-            
             headers: {
                 'Content-Type':  'application/json',
                 'Authorization': this.authorization()
