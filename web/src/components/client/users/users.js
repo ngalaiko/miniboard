@@ -8,5 +8,9 @@ export default function users(api) {
         })
     }
 
+    $.get = async (name) => {
+        return await api.get(`/api/v1/${name}`)
+    }
+
     return $
 }

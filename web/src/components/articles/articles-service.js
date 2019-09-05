@@ -1,7 +1,6 @@
 export class ArticlesService {
-  constructor(api, user) {
+  constructor(api) {
     this.api  = api
-    this.user = user
     this.from = ''
   }
 
@@ -11,7 +10,7 @@ export class ArticlesService {
     if (this.from === undefined) {
       return new Promise((resolve, reject) => { resolve([]) })
     }
-    return this.api.get(`/api/v1/${this.user.name}/articles?page_size=${pageSize}&page_token=${this.from}`)
+    return this.api.get(`/api/v1/${this.api.subject()}/articles?page_size=${pageSize}&page_token=${this.from}`)
       .then(resp => { 
         this.from = resp.next_page_token 
         return resp.articles
@@ -20,7 +19,7 @@ export class ArticlesService {
 
   // create returns a Promise with the article.
   add(url) {
-    return this.api.post(`/api/v1/${this.user.name}/articles`, {
+    return this.api.post(`/api/v1/${this.api.subject()}/articles`, {
       url: url
     })
     .then(this.ifError)

@@ -1,13 +1,12 @@
 export class LabelsService {
-  constructor(api, user) {
+  constructor(api) {
     this.api = api
-    this.user = user
     this.titleToLabel = {}
     this.nameToLabel = {}
     this.titles = []
 
     // todo: list all in smaller batches
-    this.api.get(`/api/v1/${this.user.name}/labels?page_size=100`)
+    this.api.get(`/api/v1/${this.api.subject()}/labels?page_size=100`)
       .then(resp => resp.labels.forEach(label => {
         this.saveLabel(label)
       }))
@@ -18,7 +17,7 @@ export class LabelsService {
     if (known !== undefined) {
       return new Promise(resolve => resolve(known))
     }
-    return this.api.post(`/api/v1/${this.user.name}/labels`, {
+    return this.api.post(`/api/v1/${this.api.subject()}/labels`, {
       title: title,
     }).then(label => {
       this.saveLabel(label)

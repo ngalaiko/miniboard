@@ -1,10 +1,10 @@
 <script>
     import LoginService from './login-service'
-    import { createEventDispatcher } from 'svelte'
 
     export let api
     export let authorizations
     export let users
+    export let router
 
     let username = ''
     let password = ''
@@ -12,8 +12,6 @@
     let loginService = new LoginService(authorizations, users)
 
     let error = ''
-
-    const dispatch = createEventDispatcher()
 
     async function handleClick() {
         error = ''
@@ -24,7 +22,7 @@
 
         api.authenticate(auth)
 
-        dispatch('login', username)
+        router.route("/")
     }
 </script>
 
@@ -32,7 +30,7 @@
     <input type='text' bind:value={username} placeholder='name' required='' />
     <input type='password' bind:value={password} placeholder='password' required='' />
     {#if error != ''}
-    <div class='alert'>{error}</div>
+        <div class='alert'>{error}</div>
     {/if}
     <button on:click|preventDefault={handleClick} />
 </form>

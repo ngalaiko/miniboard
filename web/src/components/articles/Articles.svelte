@@ -5,11 +5,10 @@
     import { onMount } from 'svelte';
 
     export let api
-    export let user
 
     let pageSize = 5
-    let articlesService = new ArticlesService(api, user)
-    let labelsService = new LabelsService(api, user)
+    let articlesService = new ArticlesService(api)
+    let labelsService = new LabelsService(api)
 
     let articlesList = []
 

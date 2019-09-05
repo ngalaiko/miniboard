@@ -1,13 +1,10 @@
 <script>
-    import { createEventDispatcher } from 'svelte'
-
     export let api
-
-    const dispatch = createEventDispatcher()
+    export let router
 
     function onLogout() {
         api.logout()
-        dispatch('logout')
+        router.route('/login')
     }
 </script>
 

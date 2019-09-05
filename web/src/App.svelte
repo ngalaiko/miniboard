@@ -1,5 +1,3 @@
-<svelte:window on:pushstate={x => pathname = x.target.location.pathname} on:popstate={x => pathname = x.target.location.pathname}/>
-
 <script>
     import Articles from './components/articles/Articles.svelte';
     import NotFound from './components/notfound/NotFound.svelte';
@@ -10,14 +8,9 @@
 
     let client = new Client()
     let api = client.api
-    let user = null
 
     let component
     let props
-
-    if (api.authorized()) {
-        setUser(api.subject())
-    }
 
     let router = new Router()
     router.on('/', () => {
@@ -26,37 +19,30 @@
             api: api,
         }
     })
+    router.on('/login', () => {
+        component = LoginForm
+        props = {
+            api: api,
+            authorizations: client.authorizations,
+            users: client.users,
+            router: router,
+        }
+    })
     .on('*', () => {
         component = NotFound
     })
     .listen()
 
-    function setUser(username) {
-        user = api.get(`/api/v1/${username}`)
-    }
-
-    function set(obj, key, value) {
-        obj[key] = value
-        return obj
+    if (!api.authorized()) {
+        router.route("/login")
     }
 </script>
 
 <div class="app">
-    {#if user == null }
-        <LoginForm
-            api={client.api}
-            authorizations={client.authorizations}
-            users={client.users}
-            on:login={event => setUser(`users/${event.detail}`)}
-        />
-    {:else}
-        {#await user}
-            logging in...
-        {:then user}
-            <Header api={api} on:logout={() => { user = null } }/>
-            <svelte:component this={component} {...set(props, 'user', user)} />
-        {/await}
+    {#if api.authorized() }
+        <Header api={api} router={router} />
     {/if}
+    <svelte:component this={component} {...props} />
 </div>
 
 <style>
