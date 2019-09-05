@@ -83,7 +83,9 @@ func (s *Service) ListLabels(ctx context.Context, request *labels.ListLabelsRequ
 	}
 
 	dd, err := s.storage.LoadChildren(lookFor, from, int(request.PageSize+1))
-	if err != nil {
+	switch errors.Cause(err) {
+	case storage.ErrNotFound, nil:
+	default:
 		return nil, status.New(codes.Internal, "failed to load labels").Err()
 	}
 
