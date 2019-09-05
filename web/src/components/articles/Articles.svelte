@@ -1,13 +1,11 @@
 <script>
     import Article from '../article/Article.svelte'
-    import { LabelsService } from './labels-service.js'
 
     export let api
     export let articles
+    export let labels
 
     let pageSize = 5
-    let labelsService = new LabelsService(api)
-
     let articlesList = []
 
     async function loadMore() {
@@ -88,7 +86,7 @@
             <Article
                 on:deleted={(e) => onDeleted(e.detail)}
                 on:labelsupdated={(e) => onUpdated(e.detail)}
-                labelsService={labelsService}
+                labels={labels}
                 {...article}
             />
         {/each}

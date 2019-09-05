@@ -3,7 +3,7 @@
     import TimeAgo from '../../components/timeago/TimeAgo.svelte'
     import Labels from '../../components/labels/Labels.svelte'
 
-    export let labelsService
+    export let labels
 
     export let name
     export let url
@@ -39,7 +39,7 @@
   <span>
     <span class='title'>{title}</span>
     <Labels
-        labelsService={labelsService} 
+        labels={labels} 
         labelIds={label_ids} 
         on:labeladded={onLabelAdded} 
         on:labeldeleted={onLabelDeleted} 

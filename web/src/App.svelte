@@ -18,6 +18,7 @@
         props = {
             api: api,
             articles: client.articles,
+            labels: client.labels,
         }
     })
     router.on('/login', () => {

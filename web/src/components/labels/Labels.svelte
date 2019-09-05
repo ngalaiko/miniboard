@@ -4,20 +4,19 @@
 
     export let tips
 
-    export let labelsService
+    export let labels
     const dispatch = createEventDispatcher()
 
     export let labelIds
-    let labels = []
-    labelIds.forEach(labelName => {
-        labelsService.get(labelName)
-            .then(label => {
-                labels = labels.concat([label])
-            })
+    let labelsList = []
+
+    labelIds.forEach(async (labelName) => {
+        let label = await labels.get(labelName)
+        labelsList = labelsList.concat([label])
     })
 
     function onAdd() {
-        labels = labels.concat([{
+        labelsList = labelsList.concat([{
             title: 'enter name',
             editable: true,
         }])
@@ -30,10 +29,10 @@
         this.$destroy();
     }
 
-    function onCreated(e) {
+    async function onCreated(e) {
 		let create = true
 		// if the label already exists, don't add it again
-		labels.forEach(label => {
+		labelsList.forEach(label => {
 			if (label.title == e.detail) {
 				this.$destroy()
 				create = false
@@ -44,18 +43,19 @@
 			return
 		}
 
-        labelsService.create(e.detail)
-            .then(resp => { dispatch('labeladded', resp.name) })
+        let label = await labels.create(e.detail)
+
+        dispatch('labeladded', label.name)
     }
 </script>
 
 <span class='container'>
-    {#each labels as label}
+    {#each labelsList as label}
         <Label
             {...label}
             on:deleted={onDeleted}
             on:created={onCreated}
-            tips={labelsService.titles}
+            tips={labels.titles}
         />
     {/each}
     <button class='button-add' on:click|preventDefault={onAdd}>➕</button>
