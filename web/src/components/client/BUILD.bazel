@@ -9,6 +9,7 @@ svelte(
     deps = [
         "//web/src/components/client/api:Api",
         "//web/src/components/client/authorizations:Authorizations",
+        "//web/src/components/client/articles:Articles",
         "//web/src/components/client/users:Users",
     ],
 )

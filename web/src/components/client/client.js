@@ -1,5 +1,6 @@
 import Api from './api/api'
 import Authorizations from './authorizations/authorizations'
+import Articles from './articles/articles'
 import Users from './users/users'
 
 export default function client() {
@@ -7,6 +8,7 @@ export default function client() {
 
     $.api = new Api()
     $.authorizations = new Authorizations($.api)
+    $.articles = new Articles($.api)
     $.users = new Users($.api)
 
     return $

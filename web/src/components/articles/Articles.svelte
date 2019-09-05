@@ -1,31 +1,27 @@
 <script>
     import Article from '../article/Article.svelte'
-    import { ArticlesService } from './articles-service.js'
     import { LabelsService } from './labels-service.js'
-    import { onMount } from 'svelte';
 
     export let api
+    export let articles
 
     let pageSize = 5
-    let articlesService = new ArticlesService(api)
     let labelsService = new LabelsService(api)
 
     let articlesList = []
 
-    function loadMore() {
-        return articlesService.next(pageSize*2)
-            .then(list => { articlesList = articlesList.concat(list) })
+    async function loadMore() {
+        let list = await articles.next(pageSize * 2)
+        articlesList = articlesList.concat(list)
+	    pageSize = getPageSize()
     }
+
     loadMore()
-		.then(() => { pageSize = getPageSize() })
 
     let pageStart = 0
 
     let url = ''
-    let error = ''
-    function onAdd() {
-        error = ''
-
+    async function onAdd() {
         let rnd = Math.random()
         articlesList = [{
           'url': url,
@@ -34,22 +30,20 @@
           'random': rnd
         }].concat(articlesList)
 
-        articlesService.add(url)
-            .catch(err => { error = err })
-            .then(article => {
-                articlesList = [article].concat(articlesList.filter(article => article.random != rnd ))
-            })
+        let article = await articles.add(url)
+
+        articlesList = [article].concat(articlesList.filter(article => article.random != rnd ))
 
         url = ''
     }
 
-    function onDeleted(name) {
-        articlesService.delete(name)
-            .then(() => { articlesList = articlesList.filter(article => article.name != name )})
+    async function onDeleted(name) {
+        await articles.delete(name)
+        articlesList = articlesList.filter(article => article.name != name )
     }
 
-    function onUpdated(article) {
-        articlesService.updateLabels(article)
+    async function onUpdated(article) {
+        await articles.updateLabels(article)
     }
 
     function previousPage() {
@@ -78,9 +72,6 @@
 <div>
     <form>
         <input type="text" bind:value={url} placeholder="https://..." required="" />
-        {#if (error != "")}
-            <div class="alert">{error}</div>
-        {/if}
         <button class="button-add" on:click|preventDefault={onAdd} />
     </form>
     <div class='pagination'>

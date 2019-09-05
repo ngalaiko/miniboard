@@ -1,0 +1,33 @@
+export default function articles(api) {
+    let $ = {}
+
+    let from = ''
+
+    $.add = async (url) => {
+        return await api.post(`/api/v1/${api.subject()}/articles`, {
+            url: url
+        })
+    }
+
+    $.delete = async (name) => {
+        return await api.delete(`/api/v1/${name}`)
+    }
+
+    $.updateLabels = async (article) => {
+        return api.patch(`/api/v1/${article.name}?update_mask=label_ids`, {
+            label_ids: article.label_ids,
+        })
+    }
+
+    $.next = async (pageSize) => {
+        // if there are no more articles, return en empty list. 
+        if (from === undefined) {
+            return []
+        }
+        let resp = await api.get(`/api/v1/${api.subject()}/articles?page_size=${pageSize}&page_token=${from}`)
+        from = resp.next_page_token // undefined when no more items
+        return resp.articles
+    }
+
+    return $
+}

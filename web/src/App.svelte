@@ -17,6 +17,7 @@
         component = Articles
         props = {
             api: api,
+            articles: client.articles,
         }
     })
     router.on('/login', () => {
