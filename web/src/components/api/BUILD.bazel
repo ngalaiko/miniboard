@@ -4,7 +4,7 @@ package(default_visibility = ["//visibility:public"])
 
 svelte(
     name = "Api",
-    entry_point = "Api.svelte",
     srcs = ["api.js"],
+    entry_point = "Api.svelte",
     deps = ["//web/src/components/localstorage:LocalStorage"],
 )

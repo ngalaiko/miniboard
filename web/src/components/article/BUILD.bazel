@@ -6,7 +6,7 @@ svelte(
     name = "Article",
     entry_point = "Article.svelte",
     deps = [
-        "//web/src/components/timeago:TimeAgo",
         "//web/src/components/labels:Labels",
+        "//web/src/components/timeago:TimeAgo",
     ],
 )

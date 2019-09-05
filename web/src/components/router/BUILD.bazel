@@ -4,7 +4,7 @@ package(default_visibility = ["//visibility:public"])
 
 svelte(
     name = "Router",
-    entry_point = "Router.svelte",
     srcs = ["router.js"],
+    entry_point = "Router.svelte",
     deps = ["//web/src/components/navaid:Navaid"],
 )

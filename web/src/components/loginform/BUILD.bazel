@@ -4,7 +4,7 @@ package(default_visibility = ["//visibility:public"])
 
 svelte(
     name = "LoginForm",
-    entry_point = "LoginForm.svelte",
     srcs = ["login-service.js"],
+    entry_point = "LoginForm.svelte",
     deps = ["//web/src/components/api:Api"],
 )

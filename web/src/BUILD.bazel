@@ -1,17 +1,17 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@build_bazel_rules_svelte//:defs.bzl", "svelte", "bundle_dev", "bundle_prod")
+load("@build_bazel_rules_svelte//:defs.bzl", "bundle_dev", "bundle_prod", "svelte")
 
 svelte(
     name = "App",
-    entry_point = "App.svelte",
     srcs = ["main.js"],
+    entry_point = "App.svelte",
     deps = [
+        "//web/src/components/articles:Articles",
         "//web/src/components/header:Header",
         "//web/src/components/loginform:LoginForm",
-        "//web/src/components/router:Router",
-        "//web/src/components/articles:Articles",
         "//web/src/components/notfound:NotFound",
+        "//web/src/components/router:Router",
     ],
 )
 
