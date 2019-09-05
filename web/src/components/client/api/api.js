@@ -1,67 +1,42 @@
 import LocalStorage from './localstorage/localstorage'
 
-export default class Api {
-    constructor() {
-        this.localStorage = new LocalStorage()
+export default function api() {
+    let $ = {}
+
+    let localStorage = new LocalStorage()
+
+    $.get = (url) => {
+        return send(url, 'GET')
     }
 
-    get(url) {
-        return this.send(url, 'GET')
+    $.post = (url, data) => {
+        return send(url, 'POST', data)
     }
 
-    post(url, data) {
-        return this.send(url, 'POST', data)
+    $.patch = (url, data) => {
+        return send(url, 'PATCH', data)
     }
 
-    patch(url, data) {
-        return this.send(url, 'PATCH', data)
+    $.delete = (url) => {
+        return send(url, 'DELETE')
     }
 
-    delete(url) {
-        return this.send(url, 'DELETE')
+    $.authenticate = (auth) => {
+        localStorage.set('authentication.access_token', auth.access_token)
+        localStorage.set('authentication.token_type', auth.token_type)
     }
 
-    send(url, method, body) {
-        let options = {
-            method: method,
-            headers: {
-                'Content-Type':  'application/json',
-                'Authorization': this.authorization()
-            },
-        }
-        if (body !== undefined ) {
-            options.body = JSON.stringify(body)
-        }
-        return fetch(url, options)
-            .then(response => response.json())
-        // todo: handle errors
+    $.authorized = () => {
+        return authorization() != ''
     }
 
-    authenticate(auth) {
-        this.localStorage.set('authentication.access_token', auth.access_token)
-        this.localStorage.set('authentication.token_type', auth.token_type)
+    $.logout = () => {
+        localStorage.remove('authentication.access_token')
+        localStorage.remove('authentication.token_type')
     }
 
-    authorization() {
-        let access_token = this.localStorage.get('authentication.access_token')
-        let token_type = this.localStorage.get('authentication.token_type')
-        if (access_token !== null && token_type !== null) {
-            return `${token_type} ${access_token} `
-        }
-        return ''
-    }
-
-    authorized() {
-        return this.authorization() != ''
-    }
-
-    logout() {
-        this.localStorage.remove('authentication.access_token')
-        this.localStorage.remove('authentication.token_type')
-    }
-
-    subject() {
-        let token = this.localStorage.get('authentication.access_token')
+    $.subject = () => {
+        let token = localStorage.get('authentication.access_token')
         if (token == null) {
             return ''
         }
@@ -72,4 +47,32 @@ export default class Api {
         }).join(''));
         return JSON.parse(jsonPayload).sub
     }
+
+    let send = async (url, method, body) => {
+        let options = {
+            method: method,
+            headers: {
+                'Content-Type':  'application/json',
+                'Authorization': authorization()
+            },
+        }
+        if (body !== undefined ) {
+            options.body = JSON.stringify(body)
+        }
+        let resp = await fetch(url, options)
+
+        // todo: handle errors
+        return resp.json()
+    }
+
+    let authorization = () => {
+        let access_token = localStorage.get('authentication.access_token')
+        let token_type = localStorage.get('authentication.token_type')
+        if (access_token !== null && token_type !== null) {
+            return `${token_type} ${access_token} `
+        }
+        return ''
+    }
+
+    return $
 }
