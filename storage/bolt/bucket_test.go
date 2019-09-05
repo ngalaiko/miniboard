@@ -124,10 +124,46 @@ func Test_DB(t *testing.T) {
 	})
 }
 
+func Benchmark_DB(b *testing.B) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	storage, err := newStorage(ctx)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	names := []*resource.Name{
+		resource.NewName("parent", "id"),
+		resource.NewName("parent", "id").Child("child", "id2"),
+		resource.NewName("parent", "id").Child("child", "id2").Child("grandchild", "id3"),
+	}
+
+	for _, name := range names {
+		b.Run(name.String(), func(b *testing.B) {
+			b.ResetTimer()
+
+			for i := 0; i < b.N; i++ {
+				storage.Store(name, []byte(`data`))
+				storage.Load(name)
+			}
+		})
+	}
+
+}
+
 func testBucket(ctx context.Context, t *testing.T) storage.Storage {
-	tmpfile, err := ioutil.TempFile("", "bolt")
+	s, err := newStorage(ctx)
 	if err != nil {
 		t.Fatalf("failed to create database: %s", err)
+	}
+	return s
+}
+
+func newStorage(ctx context.Context) (storage.Storage, error) {
+	tmpfile, err := ioutil.TempFile("", "bolt")
+	if err != nil {
+		return nil, err
 	}
 	go func() {
 		<-ctx.Done()
@@ -136,8 +172,8 @@ func testBucket(ctx context.Context, t *testing.T) storage.Storage {
 
 	db, err := New(ctx, tmpfile.Name())
 	if err != nil {
-		t.Fatalf("failed to create database: %s", err)
+		return nil, err
 	}
 
-	return db
+	return db, nil
 }
