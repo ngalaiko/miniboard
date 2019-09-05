@@ -6,54 +6,35 @@ export default class Api {
     }
 
     get(url) {
-        let options = {
-            method: 'GET',
-            headers: {
-                'Authorization': this.authorization()
-            }
-        }
-        return fetch(url, options)
-        .then(response => response.json())
-        // todo: handle errors
+        return this.send(url, 'GET')
     }
 
     post(url, data) {
-        let options = {
-            method: 'POST',
-            body: JSON.stringify(data),
-            headers: {
-                'Content-Type':  'application/json',
-                'Authorization': this.authorization()
-            },
-        }
-        return fetch(url, options)
-        .then(response => response.json())
-        // todo: handle errors
+        return this.send(url, 'POST', data)
     }
 
     patch(url, data) {
+        return this.send(url, 'PATCH', data)
+    }
+
+    delete(url) {
+        return this.send(url, 'DELETE')
+    }
+
+    send(url, method, body) {
         let options = {
-            method: 'PATCH',
-            body: JSON.stringify(data),
+            method: method,
+            
             headers: {
                 'Content-Type':  'application/json',
                 'Authorization': this.authorization()
             },
         }
-        return fetch(url, options)
-        .then(response => response.json())
-        // todo: handle errors
-    }
-
-    delete(url) {
-        let options = {
-            method: 'DELETE',
-            headers: {
-                'Authorization': this.authorization()
-            }
+        if (body !== undefined ) {
+            options.body = JSON.stringify(body)
         }
         return fetch(url, options)
-        .then(response => response.json())
+            .then(response => response.json())
         // todo: handle errors
     }
 
