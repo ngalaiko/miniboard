@@ -4,6 +4,6 @@ package(default_visibility = ["//visibility:public"])
 
 svelte(
     name = "Navaid",
-    entry_point = "Navaid.svelte",
     srcs = ["navaid.js"],
+    entry_point = "Navaid.svelte",
 )

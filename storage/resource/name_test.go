@@ -3,13 +3,13 @@ package resource
 import (
 	"testing"
 
-	"github.com/google/uuid"
+	"github.com/segmentio/ksuid"
 	"github.com/stretchr/testify/assert"
 )
 
 func Test_name(t *testing.T) {
 	t.Run("When creating a new name", func(t *testing.T) {
-		resourceName := NewName("resource", uuid.New().String())
+		resourceName := NewName("resource", ksuid.New().String())
 
 		assert.Equal(t, resourceName.Type(), "resource")
 		assert.NotEmpty(t, resourceName.ID())

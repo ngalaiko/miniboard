@@ -4,6 +4,6 @@ package(default_visibility = ["//visibility:public"])
 
 svelte(
     name = "LocalStorage",
+    srcs = ["localstorage.js"],
     entry_point = "LocalStorage.svelte",
-    srcs = ["local-storage.js"],
 )

@@ -10,7 +10,8 @@ svelte(
         "//web/src/components/header:Header",
         "//web/src/components/loginform:LoginForm",
         "//web/src/components/router:Router",
-        "//web/src/pages/user:User",
+        "//web/src/components/articles:Articles",
+        "//web/src/components/notfound:NotFound",
     ],
 )
 

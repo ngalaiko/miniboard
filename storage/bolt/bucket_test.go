@@ -7,8 +7,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/segmentio/ksuid"
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
@@ -23,7 +23,7 @@ func Test_DB(t *testing.T) {
 
 		t.Run("When data doesn't exist", func(t *testing.T) {
 			t.Run("it should not be found", func(t *testing.T) {
-				loaded, err := db.Load(resource.NewName("test", uuid.New().String()))
+				loaded, err := db.Load(resource.NewName("test", ksuid.New().String()))
 				assert.Empty(t, loaded)
 				assert.Equal(t, errors.Cause(err), storage.ErrNotFound)
 			})
@@ -78,7 +78,7 @@ func Test_DB(t *testing.T) {
 		})
 
 		t.Run("When root exists", func(t *testing.T) {
-			name := resource.NewName("test", uuid.New().String())
+			name := resource.NewName("test", ksuid.New().String())
 			data := []byte("data")
 			assert.NoError(t, db.Store(name, data))
 

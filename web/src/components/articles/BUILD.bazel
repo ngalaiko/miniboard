@@ -9,5 +9,5 @@ svelte(
         "labels-service.js",
         "articles-service.js",
     ],
-    deps = ["//web/src/pages/article:Article"],
+    deps = ["//web/src/components/article:Article"],
 )

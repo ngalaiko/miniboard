@@ -1,10 +1,10 @@
 <svelte:window on:pushstate={x => pathname = x.target.location.pathname} on:popstate={x => pathname = x.target.location.pathname}/>
 
 <script>
-    import User from './pages/user/User.svelte';
-    import { Api } from './components/api/api';
-    import { Router } from "./components/router/router";
-    import NotFound from './pages/notfound/NotFound.svelte'
+    import Articles from './components/articles/Articles.svelte';
+    import NotFound from './components/notfound/NotFound.svelte';
+    import Api from './components/api/api';
+    import Router from "./components/router/router";
     import LoginForm from './components/loginform/LoginForm.svelte'
     import Header from './components/header/Header.svelte'
 
@@ -16,7 +16,7 @@
     }
 
     let router = new Router()
-    router.register('/', User, {
+    router.register('/', Articles, {
         api: api,
     })
     router.register('*', NotFound)

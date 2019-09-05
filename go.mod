@@ -7,7 +7,6 @@ require (
 	github.com/coreos/bbolt v1.3.3
 	github.com/gogo/protobuf v1.2.1
 	github.com/golang/protobuf v1.3.2
-	github.com/google/uuid v1.1.1
 	github.com/grpc-ecosystem/grpc-gateway v1.9.6
 	github.com/pkg/errors v0.8.1
 	github.com/raja/argon2pw v1.0.1

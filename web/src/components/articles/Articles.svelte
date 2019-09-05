@@ -90,7 +90,11 @@
     </div>
     <div class='articles list'>
         {#each articlesList.slice(pageStart, pageStart+pageSize) as article, i (article.name) }
-            <Article on:deleted={(e) => onDeleted(e.detail)} api={api} labelsService={labelsService} {...article} } />
+            <Article
+                on:deleted={(e) => onDeleted(e.detail)}
+                labelsService={labelsService}
+                {...article}
+            />
         {/each}
     </div>
 </div>
