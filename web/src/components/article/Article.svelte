@@ -19,11 +19,6 @@
 
     const dispatch = createEventDispatcher()
     
-    function onDelete() {
-        api.delete(`/api/v1/${name}`)
-            .then(() => dispatch('deleted', name))
-    }
-
     function onLabelAdded(e) {
         label_ids = [e.detail].concat(label_ids)
         api.patch(`/api/v1/${name}?update_mask=label_ids`, {
@@ -53,7 +48,7 @@
   <ul class='article-info'>
     <li><a class='link padding' href={url}>original</a></li>
     <li class='separator flex'><TimeAgo date={create_time}/></li>
-    <li class='separator'><button on:click|preventDefault={onDelete}>delete</button></li>
+    <li class='separator'><button on:click|preventDefault={() => dispatch('deleted', name)}>delete</button></li>
   </ul>
 </div>
 

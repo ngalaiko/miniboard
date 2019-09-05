@@ -26,6 +26,11 @@ export class ArticlesService {
     .then(this.ifError)
   }
 
+  delete(name) {
+    return this.api.delete(`/api/v1/${name}`)
+      .then(this.ifError)
+  }
+
   ifError(resp) {
     if (resp.error === undefined) {
       return resp

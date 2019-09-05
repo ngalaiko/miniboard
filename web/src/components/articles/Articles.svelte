@@ -45,7 +45,8 @@
     }
 
     function onDeleted(name) {
-        articlesList = articlesList.filter(article => article.name != name)
+        articlesService.delete(name)
+            .then(() => { articlesList = articlesList.filter(article => article.name != name )})
     }
 
     function previousPage() {
