@@ -4,49 +4,53 @@
     import Articles from './components/articles/Articles.svelte';
     import NotFound from './components/notfound/NotFound.svelte';
     import Api from './components/api/api';
-    import Router from "./components/router/router";
+    import Router from "./components/router/navaid";
     import LoginForm from './components/loginform/LoginForm.svelte'
     import Header from './components/header/Header.svelte'
 
     let api = new Api()
     let user = null
 
+    let component
+    let props
+
     if (api.authorized()) {
         setUser(api.subject())
     }
 
     let router = new Router()
-    router.register('/', Articles, {
-        api: api,
+    router.on('/', () => {
+        component = Articles
+        props = {
+            api: api,
+        }
     })
-    router.register('*', NotFound)
-    router.listen()
-
-    let pathname = location.pathname
+    .on('*', () => {
+        component = NotFound
+    })
+    .listen()
 
     function setUser(username) {
-      user = api.get(`/api/v1/${username}`)
+        user = api.get(`/api/v1/${username}`)
     }
 
     function set(obj, key, value) {
-      obj[key] = value
-      return obj
+        obj[key] = value
+        return obj
     }
 </script>
 
 <div class="app">
-  {#each router.current() as { component, props } }
     {#if user == null }
-      <LoginForm api={api} on:login={event => setUser(`users/${event.detail}`)} />
+        <LoginForm api={api} on:login={event => setUser(`users/${event.detail}`)} />
     {:else}
-      {#await user}
-        logging in...
-      {:then user}
-        <Header api={api} on:logout={() => { user = null } }/>
-        <svelte:component this={component} {...set(props, 'user', user)} />
-      {/await}
+        {#await user}
+            logging in...
+        {:then user}
+            <Header api={api} on:logout={() => { user = null } }/>
+            <svelte:component this={component} {...set(props, 'user', user)} />
+        {/await}
     {/if}
-  {/each}
 </div>
 
 <style>
