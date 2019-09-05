@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     
-    - name: build
+    - name: Run Tests
       uses: ngalaiko/bazel-action@0.29.0
       with:
-        args: run :miniboard
+        args: test //...
