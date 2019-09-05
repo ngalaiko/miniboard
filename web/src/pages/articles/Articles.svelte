@@ -2,7 +2,6 @@
     import Article from '../article/Article.svelte'
     import { ArticlesService } from './articles-service.js'
     import { LabelsService } from './labels-service.js'
-    import ArticlesForm from '../../components/articlesform/ArticlesForm.svelte'
     import { onMount } from 'svelte';
 
     export let api
