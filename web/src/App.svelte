@@ -43,7 +43,12 @@
 
 <div class="app">
     {#if user == null }
-        <LoginForm api={api} on:login={event => setUser(`users/${event.detail}`)} />
+        <LoginForm
+            api={client.api}
+            authorizations={client.authorizations}
+            users={client.users}
+            on:login={event => setUser(`users/${event.detail}`)}
+        />
     {:else}
         {#await user}
             logging in...

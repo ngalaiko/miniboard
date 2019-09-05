@@ -1,35 +1,38 @@
 <script>
-    import { LoginService } from './login-service'
+    import LoginService from './login-service'
     import { createEventDispatcher } from 'svelte'
 
     export let api
+    export let authorizations
+    export let users
 
-    let username = ""
-    let password = ""
+    let username = ''
+    let password = ''
 
-    let loginService = new LoginService(api)
+    let loginService = new LoginService(authorizations, users)
 
-    let error = ""
+    let error = ''
 
     const dispatch = createEventDispatcher()
 
-    function handleClick() {
-        error = ""
-        if (username == "" || password === "") {
+    async function handleClick() {
+        error = ''
+        if (username == '' || password === '') {
             return
         }
-        loginService.login(username, password)
-            .then(auth => api.authenticate(auth) )
-            .catch(e => { error = e })
-            .then(() => dispatch('login', username))
+        let auth = await loginService.login(username, password)
+
+        api.authenticate(auth)
+
+        dispatch('login', username)
     }
 </script>
 
-<form class="form">
-    <input type="text" bind:value={username} placeholder="name" required="" />
-    <input type="password" bind:value={password} placeholder="password" required="" />
-    {#if error != ""}
-    <div class="alert">{error}</div>
+<form class='form'>
+    <input type='text' bind:value={username} placeholder='name' required='' />
+    <input type='password' bind:value={password} placeholder='password' required='' />
+    {#if error != ''}
+    <div class='alert'>{error}</div>
     {/if}
     <button on:click|preventDefault={handleClick} />
 </form>

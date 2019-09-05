@@ -6,5 +6,9 @@ svelte(
     name = "Client",
     srcs = ["client.js"],
     entry_point = "Client.svelte",
-    deps = ["//web/src/components/client/api:Api"],
+    deps = [
+        "//web/src/components/client/api:Api",
+        "//web/src/components/client/authorizations:Authorizations",
+        "//web/src/components/client/users:Users",
+    ],
 )
