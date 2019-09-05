@@ -3,7 +3,6 @@
     import TimeAgo from '../../components/timeago/TimeAgo.svelte'
     import Labels from '../../components/labels/Labels.svelte'
 
-    export let api
     export let labelsService
 
     export let name
@@ -21,14 +20,16 @@
     
     function onLabelAdded(e) {
         label_ids = [e.detail].concat(label_ids)
-        api.patch(`/api/v1/${name}?update_mask=label_ids`, {
+        dispatch('labelsupdated', {
+            name: name,
             label_ids: label_ids,
         })
     }
 
     function onLabelDeleted(e) {
         label_ids = label_ids.filter(labelId => labelId != e.detail)
-        api.patch(`/api/v1/${name}?update_mask=label_ids`, {
+        dispatch('labelsupdated', {
+            name: name,
             label_ids: label_ids,
         })
     }
@@ -38,7 +39,6 @@
   <span>
     <span class='title'>{title}</span>
     <Labels
-        api={api} 
         labelsService={labelsService} 
         labelIds={label_ids} 
         on:labeladded={onLabelAdded} 

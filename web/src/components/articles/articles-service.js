@@ -31,6 +31,12 @@ export class ArticlesService {
       .then(this.ifError)
   }
 
+  updateLabels(article) {
+    return this.api.patch(`/api/v1/${article.name}?update_mask=label_ids`, {
+      label_ids: article.label_ids,
+    }).then(this.ifError)
+  }
+
   ifError(resp) {
     if (resp.error === undefined) {
       return resp

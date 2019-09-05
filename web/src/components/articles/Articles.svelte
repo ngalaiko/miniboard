@@ -49,6 +49,10 @@
             .then(() => { articlesList = articlesList.filter(article => article.name != name )})
     }
 
+    function onUpdated(article) {
+        articlesService.updateLabels(article)
+    }
+
     function previousPage() {
         pageStart -= pageSize
     }
@@ -93,6 +97,7 @@
         {#each articlesList.slice(pageStart, pageStart+pageSize) as article, i (article.name) }
             <Article
                 on:deleted={(e) => onDeleted(e.detail)}
+                on:labelsupdated={(e) => onUpdated(e.detail)}
                 labelsService={labelsService}
                 {...article}
             />
