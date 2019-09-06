@@ -40,10 +40,6 @@
         articlesList = articlesList.filter(article => article.name != name )
     }
 
-    async function onUpdated(article) {
-        await articles.updateLabels(article)
-    }
-
     function previousPage() {
         pageStart -= pageSize
     }
@@ -85,7 +81,7 @@
         {#each articlesList.slice(pageStart, pageStart+pageSize) as article, i (article.name) }
             <Article
                 on:deleted={(e) => onDeleted(e.detail)}
-                on:labelsupdated={(e) => onUpdated(e.detail)}
+                articles={articles}
                 labels={labels}
                 {...article}
             />
