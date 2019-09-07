@@ -96,6 +96,10 @@ message UpdateArticleRequest {
 message GetArticleRequest {
     // Name of the resource.
     string name = 1;
+
+    // Specifies which parts of the article resource should be returned
+    // in the response.
+    ArticleView view = 2;
 }
 
 message DeleteArticleRequest {
@@ -124,4 +128,16 @@ message Article {
 
     // Readable content of the article.
     bytes content = 7;
+}
+
+enum ArticleView {
+    // Not specified, equivalent to BASIC.
+    ARTICLE_VIEW_UNSPECIFIED = 0;
+
+    // Server response does not include content field.
+    // Default value.
+    ARTICLE_VIEW_BASIC = 1;
+
+    // Service response includes article's content.
+    ARTICLE_VIEW_FULL = 2;
 }

@@ -89,14 +89,22 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 		return nil, status.New(codes.InvalidArgument, "url is invalid").Err()
 	}
 
+	name := resource.ParseName(request.Parent).Child("articles", ksuid.New().String())
+
 	r, err := s.newReader(articleURL)
-	if err == nil {
+	switch err {
+	case nil:
 		request.Article.Title = r.Title()
 		request.Article.IconUrl = r.IconURL()
-		request.Article.Content = r.Content()
-	}
 
-	name := resource.ParseName(request.Parent).Child("articles", ksuid.New().String())
+		// looks ugly, do something
+		content := r.Content()
+		if content != nil {
+			if err := s.storage.Store(resource.NewName("content", name.ID()), content); err != nil {
+				return nil, status.New(codes.Internal, "failed to store the article content").Err()
+			}
+		}
+	}
 
 	request.Article.Name = name.String()
 	request.Article.CreateTime = &timestamp.Timestamp{
@@ -153,7 +161,24 @@ func (s *Service) UpdateArticle(ctx context.Context, request *articles.UpdateArt
 // GetArticle returns an article.
 func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRequest) (*articles.Article, error) {
 	name := resource.ParseName(request.Name)
-	return s.getArticle(ctx, name)
+	article, err := s.getArticle(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+	if request.View != articles.ArticleView_ARTICLE_VIEW_FULL {
+		return article, nil
+	}
+
+	article.Content, err = s.storage.Load(resource.NewName("content", name.ID()))
+	switch errors.Cause(err) {
+	case nil:
+	case storage.ErrNotFound:
+		return nil, status.New(codes.NotFound, "content not found").Err()
+	default:
+		return nil, status.New(codes.Internal, "failed to load the article's content").Err()
+	}
+
+	return article, nil
 }
 
 func (s *Service) getArticle(ctx context.Context, name *resource.Name) (*articles.Article, error) {

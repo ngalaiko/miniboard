@@ -54,7 +54,22 @@ func Test_articles(t *testing.T) {
 				assert.NotEmpty(t, resp.Name)
 				assert.Equal(t, resp.Url, "http://localhost")
 			})
-			t.Run("When getting the article", func(t *testing.T) {
+			t.Run("When getting the article with full view", func(t *testing.T) {
+				resp, err := service.GetArticle(ctx, &articles.GetArticleRequest{
+					Name: resp.Name,
+					View: articles.ArticleView_ARTICLE_VIEW_FULL,
+				})
+				t.Run("It should be returned", func(t *testing.T) {
+					assert.NoError(t, err)
+					assert.NotEmpty(t, resp.Name)
+					assert.Equal(t, resp.Url, "http://localhost")
+					assert.NotEmpty(t, resp.Title)
+					assert.NotEmpty(t, resp.IconUrl)
+					assert.NotEmpty(t, resp.CreateTime)
+					assert.NotEmpty(t, resp.Content)
+				})
+			})
+			t.Run("When getting the article with basic view", func(t *testing.T) {
 				resp, err := service.GetArticle(ctx, &articles.GetArticleRequest{
 					Name: resp.Name,
 				})
@@ -65,7 +80,7 @@ func Test_articles(t *testing.T) {
 					assert.NotEmpty(t, resp.Title)
 					assert.NotEmpty(t, resp.IconUrl)
 					assert.NotEmpty(t, resp.CreateTime)
-					assert.NotEmpty(t, resp.Content)
+					assert.Empty(t, resp.Content)
 				})
 			})
 			t.Run("When updating labels", func(t *testing.T) {
