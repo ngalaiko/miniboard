@@ -1,0 +1,16 @@
+load("@build_bazel_rules_svelte//:defs.bzl", "svelte")
+
+package(default_visibility = ["//visibility:public"])
+
+svelte(
+    name = "Client",
+    srcs = ["client.js"],
+    entry_point = "Client.svelte",
+    deps = [
+        "//web/src/client/api:Api",
+        "//web/src/client/authorizations:Authorizations",
+        "//web/src/client/articles:Articles",
+        "//web/src/client/labels:Labels",
+        "//web/src/client/users:Users",
+    ],
+)

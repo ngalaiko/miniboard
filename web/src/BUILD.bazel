@@ -7,7 +7,7 @@ svelte(
     srcs = ["main.js"],
     entry_point = "App.svelte",
     deps = [
-        "//web/src/components/client:Client",
+        "//web/src/client:Client",
         "//web/src/components/articles:Articles",
         "//web/src/components/header:Header",
         "//web/src/components/loginform:LoginForm",

@@ -1,7 +1,7 @@
 <script>
     import Articles from './components/articles/Articles.svelte';
     import NotFound from './components/notfound/NotFound.svelte';
-    import Client from './components/client/client';
+    import Client from './client/client';
     import Router from "./components/router/navaid";
     import LoginForm from './components/loginform/LoginForm.svelte'
     import Header from './components/header/Header.svelte'
