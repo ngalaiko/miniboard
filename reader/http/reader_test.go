@@ -16,12 +16,7 @@ func Test(t *testing.T) {
 
 	title := r.Title()
 	assert.Equal(t, "Building a peer to peer messenger", title)
-
-	iconURL := r.IconURL()
-	assert.Contains(t, iconURL, "http://example.com/favicon-16x16.png")
-	assert.Contains(t, iconURL, "http://example.com/favicon-32x32.png")
-	assert.Contains(t, iconURL, "http://example.com/apple-touch-icon.png")
-	assert.Contains(t, iconURL, "http://example.com/favicon.ico")
+	assert.Equal(t, "http://example.com/apple-touch-icon.png", r.IconURL())
 
 	content := r.Content()
 	assert.NotEmpty(t, content)

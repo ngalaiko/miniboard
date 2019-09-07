@@ -19,8 +19,8 @@ func (m *mock) Title() string {
 }
 
 // IconURL returns icon urls.
-func (m *mock) IconURL() []string {
-	return []string{"http://example.com/icon.png"}
+func (m *mock) IconURL() string {
+	return "http://example.com/icon.png"
 }
 
 // Content returns page content.

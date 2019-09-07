@@ -2,26 +2,19 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "go_default_library",
-    srcs = [
-        "readability.go",
-        "reader.go",
-    ],
+    srcs = ["reader.go"],
     importpath = "miniboard.app/reader/http",
     visibility = ["//visibility:public"],
     deps = [
         "//reader:go_default_library",
+        "@com_github_go_shiori_go_readability//:go_default_library",
         "@com_github_pkg_errors//:go_default_library",
-        "@com_github_puerkitobio_goquery//:go_default_library",
-        "@org_golang_x_net//html:go_default_library",
     ],
 )
 
 go_test(
     name = "go_default_test",
-    srcs = [
-        "readability_test.go",
-        "reader_test.go",
-    ],
+    srcs = ["reader_test.go"],
     data = glob(["testdata/**"]),
     embed = [":go_default_library"],
     deps = ["@com_github_stretchr_testify//assert:go_default_library"],

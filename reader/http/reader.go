@@ -2,18 +2,18 @@ package http
 
 import (
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 
+	"github.com/go-shiori/go-readability"
 	"github.com/pkg/errors"
 	"miniboard.app/reader"
 )
 
 // Reader returns simplified HTML content.
 type Reader struct {
-	doc *Document
-	url *url.URL
+	article *readability.Article
+	url     *url.URL
 }
 
 // New erturns new reader from a url.
@@ -31,31 +31,27 @@ func New(url *url.URL) (reader.Reader, error) {
 // NewFromReader returns new reader from io.Reader.
 // URL is needed to form complete links to images.
 func NewFromReader(raw io.Reader, url *url.URL) (*Reader, error) {
-	content, err := ioutil.ReadAll(raw)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to read body")
-	}
-	doc, err := NewDocument(content, url)
+	article, err := readability.FromReader(raw, url.String())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse document")
 	}
 	return &Reader{
-		doc: doc,
-		url: url,
+		article: &article,
+		url:     url,
 	}, nil
 }
 
 // Title returns the page title.
 func (r *Reader) Title() (title string) {
-	return r.doc.Title()
+	return r.article.Title
 }
 
 // Content returns page content.
 func (r *Reader) Content() []byte {
-	return r.doc.Content()
+	return []byte(r.article.Content)
 }
 
 // IconURL returns a link to the first page favicon.
-func (r *Reader) IconURL() (iconURLs []string) {
-	return r.doc.IconURL()
+func (r *Reader) IconURL() string {
+	return r.article.Favicon
 }
