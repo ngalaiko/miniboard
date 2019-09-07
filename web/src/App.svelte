@@ -22,10 +22,10 @@
             labels: client.labels,
         }
     })
-    router.on('/article/:name', (params) => {
+    router.on('/article/:id', (params) => {
         component = Reader
         props = {
-            name: params.name,
+            name: `article/${params.id}`,
         }
     })
     router.on('/login', () => {
