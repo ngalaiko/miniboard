@@ -490,7 +490,7 @@ func (d *Document) sanitize(article []byte) []byte {
 	})
 
 	if len(text) == 0 {
-		str, _ := doc.Html()
+		str, _ := doc.Find("body").Children().Html()
 		text = []byte(str)
 	}
 

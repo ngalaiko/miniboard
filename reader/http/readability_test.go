@@ -29,6 +29,12 @@ func TestGeneralFunctionality(t *testing.T) {
 	if !bytes.Contains(content, []byte("Some content")) {
 		t.Errorf("Expected content %q to match %q", content, "Some content")
 	}
+	if bytes.Contains(content, []byte("head>")) {
+		t.Errorf("No expected head tag")
+	}
+	if bytes.Contains(content, []byte("body>")) {
+		t.Errorf("No expected body tag")
+	}
 }
 
 func TestIgnoringSidebars(t *testing.T) {
