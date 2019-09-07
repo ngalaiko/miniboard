@@ -91,7 +91,9 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 
 	r, err := s.newReader(articleURL)
 	if err == nil {
-		enrich(request.Article, r)
+		request.Article.Title = r.Title()
+		request.Article.IconUrl = r.IconURL()
+		request.Article.Content = r.Content()
 	}
 
 	name := resource.ParseName(request.Parent).Child("articles", ksuid.New().String())
@@ -111,12 +113,6 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 	}
 
 	return request.Article, nil
-}
-
-func enrich(article *articles.Article, r reader.Reader) {
-	article.Title = r.Title()
-	article.IconUrl = r.IconURL()
-	article.Content = r.Content()
 }
 
 // UpdateArticle updates the article.
