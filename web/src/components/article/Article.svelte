@@ -1,6 +1,9 @@
 <script>
+    import { createEventDispatcher } from 'svelte'
     import TimeAgo from '../../components/timeago/TimeAgo.svelte'
     import Labels from '../../components/labels/Labels.svelte'
+
+    const dispatch = createEventDispatcher()
 
     export let labels
     export let articles
