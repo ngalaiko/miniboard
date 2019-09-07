@@ -4,7 +4,7 @@
 
     function onLogout() {
         api.logout()
-        router.route('/login')
+        router.route('/')
     }
 </script>
 

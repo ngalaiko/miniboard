@@ -9,6 +9,10 @@
         })
     }
 
+    $.get = async (name) => {
+        return await api.get(`/api/v1/${name}`)
+    }
+
     $.delete = async (name) => {
         return await api.delete(`/api/v1/${name}`)
     }

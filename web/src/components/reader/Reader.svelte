@@ -1,7 +1,13 @@
 <script>
+    export let articles
+
     export let name
 </script>
 
 <div>
-    {name}
+    {#await articles.get(name)}
+        loading...
+    {:then article}
+        {article}
+    {/await}
 </div>

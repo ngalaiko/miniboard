@@ -9,6 +9,11 @@
     let username = ''
     let password = ''
 
+    let subject = api.subject()
+    if (subject != '') {
+        router.route(`/${subject}`)
+    }
+
     let loginService = new LoginService(authorizations, users)
 
     let error = ''
@@ -22,7 +27,7 @@
 
         api.authenticate(auth)
 
-        router.route("/")
+        router.route(`/users/${username}`)
     }
 </script>
 

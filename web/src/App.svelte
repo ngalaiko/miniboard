@@ -14,36 +14,38 @@
     let props
 
     let router = new Router()
-    router.on('/', () => {
-        component = Articles
-        props = {
-            api: api,
-            articles: client.articles,
-            labels: client.labels,
-        }
-    })
-    router.on('/article/:id', (params) => {
-        component = Reader
-        props = {
-            name: `article/${params.id}`,
-        }
-    })
-    router.on('/login', () => {
-        component = LoginForm
-        props = {
-            api: api,
-            authorizations: client.authorizations,
-            users: client.users,
-            router: router,
-        }
-    })
-    .on('*', () => {
-        component = NotFound
-    })
-    .listen()
+    router
+        .on('/', () => {
+            component = LoginForm
+            props = {
+                api: api,
+                authorizations: client.authorizations,
+                users: client.users,
+                router: router,
+            }
+        })
+        .on('/users/:username', () => {
+            component = Articles
+            props = {
+                api: api,
+                articles: client.articles,
+                labels: client.labels,
+            }
+        })
+        .on('/users/:username/articles/:articleid', (params) => {
+            component = Reader
+            props = {
+                articles: client.articles,
+                name: `/users/${params.username}/articles/${params.articleid}`,
+            }
+        })
+        .on('*', () => {
+            component = NotFound
+        })
+        .listen()
 
     if (!api.authorized()) {
-        router.route("/login")
+        router.route('/')
     }
 </script>
 
