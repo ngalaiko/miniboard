@@ -5,6 +5,7 @@
     import Router from "./components/router/navaid";
     import LoginForm from './components/loginform/LoginForm.svelte'
     import Header from './components/header/Header.svelte'
+    import Reader from './components/reader/Reader.svelte'
 
     let client = new Client()
     let api = client.api
@@ -19,6 +20,12 @@
             api: api,
             articles: client.articles,
             labels: client.labels,
+        }
+    })
+    router.on('/article/:name', (params) => {
+        component = Reader
+        props = {
+            name: params.name,
         }
     })
     router.on('/login', () => {

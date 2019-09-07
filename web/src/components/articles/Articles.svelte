@@ -1,22 +1,24 @@
+<script context="module">
+    let articlesList = []
+    let pageStart = 0
+</script>
+
 <script>
     import Article from '../article/Article.svelte'
+    import { onMount } from 'svelte'
 
     export let api
     export let articles
     export let labels
 
     let pageSize = 5
-    let articlesList = []
 
     async function loadMore() {
         let list = await articles.next(pageSize * 2)
         articlesList = articlesList.concat(list)
 	    pageSize = getPageSize()
     }
-
     loadMore()
-
-    let pageStart = 0
 
     let url = ''
     async function onAdd() {

@@ -12,6 +12,9 @@
     export let icon_url
     export let label_ids
 
+    let parts = name.split('/')
+    let id = parts[parts.length-1]
+
     if (label_ids === undefined) {
         label_ids = []
     }
@@ -35,7 +38,7 @@
 
 <div class='article'>
   <span>
-    <span class='title'>{title}</span>
+    <a href='/article/{id}' class='title'>{title}</a>
     <Labels
         labels={labels} 
         labelIds={label_ids} 
@@ -63,6 +66,12 @@
     .title {
         font-size: 1.2em;
         font-weight: 500;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .title:hover {
+        text-decoration: underline;
     }
 
     .article-info {

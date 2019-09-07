@@ -13,6 +13,7 @@ svelte(
         "//web/src/components/loginform:LoginForm",
         "//web/src/components/notfound:NotFound",
         "//web/src/components/router:Router",
+        "//web/src/components/reader:Reader",
     ],
 )
 
