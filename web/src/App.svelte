@@ -36,7 +36,7 @@
             component = Reader
             props = {
                 articles: client.articles,
-                name: `/users/${params.username}/articles/${params.articleid}`,
+                name: `users/${params.username}/articles/${params.articleid}`,
             }
         })
         .on('*', () => {

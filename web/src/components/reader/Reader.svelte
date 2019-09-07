@@ -8,6 +8,6 @@
     {#await articles.get(name)}
         loading...
     {:then article}
-        {article}
+        {@html atob(article.content)}
     {/await}
 </div>
