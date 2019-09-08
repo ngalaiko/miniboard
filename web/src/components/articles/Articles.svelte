@@ -134,7 +134,7 @@
         display: flex;
         flex-direction: row;
         margin: 0px;
-        margin-bottom: 20px;
+        margin-bottom: 5px;
     }
 
     .button-add {

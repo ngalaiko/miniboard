@@ -55,7 +55,7 @@
     .article {
         border: 1px solid;
         border-radius: unset;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         padding: 5px;
         padding-left: 7px;
         padding-right: 7px;
