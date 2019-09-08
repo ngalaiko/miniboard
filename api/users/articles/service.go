@@ -173,7 +173,7 @@ func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRe
 	switch errors.Cause(err) {
 	case nil:
 	case storage.ErrNotFound:
-		return nil, status.New(codes.NotFound, "content not found").Err()
+		return article, nil
 	default:
 		return nil, status.New(codes.Internal, "failed to load the article's content").Err()
 	}

@@ -8,7 +8,14 @@
     {#await articles.get(name)}
         loading...
     {:then article}
-        {@html atob(article.content)}
+        {#if article.content === undefined}
+            no saved content, redirecting to <a href={article.url}>{article.url}</a>
+            <div hidden>
+                {location.replace(article.url)}
+            </div>
+        {:else}
+            {@html atob(article.content)}
+        {/if}
     {/await}
 </div>
 
