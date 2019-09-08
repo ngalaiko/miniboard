@@ -5,6 +5,7 @@ go_library(
     srcs = [
         "authorization.go",
         "formdata.go",
+        "gzip.go",
         "logging.go",
         "server.go",
     ],

@@ -1,4 +1,4 @@
-package api // import "miniboard.app/api"
+package api
 
 import (
 	"context"
@@ -68,7 +68,7 @@ func NewServer(ctx context.Context, db storage.Storage) *Server {
 
 	return &Server{
 		httpServer: &http.Server{
-			Handler: withAccessLogs(mux),
+			Handler: withGzip(withAccessLogs(mux)),
 		},
 	}
 }

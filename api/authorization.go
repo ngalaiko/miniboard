@@ -1,4 +1,4 @@
-package api // import "miniboard.app/api"
+package api
 
 import (
 	"fmt"
