@@ -34,8 +34,8 @@
 </script>
 
 <form class='form'>
-    <input type='text' bind:value={username} placeholder='name' required='' />
-    <input type='password' bind:value={password} placeholder='password' required='' />
+    <input type='text' bind:value={username} placeholder='name' required='' tabindex='1' />
+    <input type='password' bind:value={password} placeholder='password' required='' tabindex='2' />
     {#if error != ''}
         <div class='alert'>{error}</div>
     {/if}
