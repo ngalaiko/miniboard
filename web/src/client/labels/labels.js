@@ -35,7 +35,6 @@ export default function labels(api) {
             saveLabel(label)
         })
     }
-    list()
 
     let saveLabel = (label) => {
         if (titleToLabel[label.title] !== undefined) {
