@@ -36,9 +36,8 @@
     async function loadMore() {
         let list = await articles.next(pageSize * 2)
         articlesListStore.set(articlesList.concat(list))
-	    pageSizeStore.set(getPageSize())
     }
-    loadMore()
+    loadMore().then(updatePageSize)
 
     let url = ''
     async function onAdd() {
@@ -64,19 +63,21 @@
 
     function previousPage() {
         pageStartStore.set(pageStart - pageSize)
+        updatePageSize()
     }
 
     function nextPage() {
         loadMore().then(() => pageStartStore.set(pageStart + pageSize))
+        updatePageSize()
     }
 
-	// change pageSize on window resize
-	window.onresize = function(event) {
+    function updatePageSize() {
 		let newSize = getPageSize()
 		if (newSize != pageSize) {
 			pageSizeStore.set(newSize)
 		}
-	}
+    }
+	window.onresize = updatePageSize
 
 	function getPageSize() {
 		let list = document.getElementsByClassName('articles list')[0]
