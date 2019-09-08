@@ -1,60 +1,80 @@
 <script context="module">
-    let articlesList = []
+    import { writable } from 'svelte/store'
+    const articlesListStore = writable([])
+    const pageSizeStore = writable(5)
+    const pageStartStore = writable(0) 
 </script>
 
 <script>
+    import { onDestroy } from 'svelte';
     import Article from '../article/Article.svelte'
 
     export let api
     export let articles
     export let labels
 
-    // todo: import svetlte/store and move it to the store
-    let pageSize = 5
-    let pageStart = 0
+    let articlesList
+    let pageSize
+    let pageStart
+
+    const unsubscribeArticlesList = articlesListStore.subscribe(value => {
+        articlesList = value
+    })
+    const unsubscribePageSize = pageSizeStore.subscribe(value => {
+        pageSize = value
+    })
+    const unsubscribePageStart = pageStartStore.subscribe(value => {
+        pageStart = value
+    })
+
+    onDestroy(() => {
+        unsubscribeArticlesList()
+        unsubscribePageSize()
+        unsubscribePageStart()
+    })
 
     async function loadMore() {
         let list = await articles.next(pageSize * 2)
-        articlesList = articlesList.concat(list)
-	    pageSize = getPageSize()
+        articlesListStore.set(articlesList.concat(list))
+	    pageSizeStore.set(getPageSize())
     }
     loadMore()
 
     let url = ''
     async function onAdd() {
         let rnd = Math.random()
-        articlesList = [{
+        articlesListStore.set([{
           'url': url,
           'title': url,
           'create_time': Date.now(),
           'random': rnd
-        }].concat(articlesList)
+        }].concat(articlesList))
 
         let article = await articles.add(url)
 
-        articlesList = [article].concat(articlesList.filter(article => article.random != rnd ))
+        articlesListStore.set([article].concat(articlesList.filter(article => article.random != rnd )))
 
         url = ''
     }
 
     async function onDeleted(name) {
         await articles.delete(name)
-        articlesList = articlesList.filter(article => article.name != name )
+        articlesListStore.set(articlesList.filter(article => article.name != name ))
     }
 
     function previousPage() {
-        pageStart -= pageSize
+        pageStartStore.set(pageStart - pageSize)
     }
 
     function nextPage() {
-        loadMore().then(() => { pageStart += pageSize })
+        loadMore().then(() => pageStartStore.set(pageStart + pageSize))
     }
 
 	// change pageSize on window resize
 	window.onresize = function(event) {
 		let newSize = getPageSize()
 		if (newSize != pageSize) {
-			pageSize = newSize
+			pageSizeStore.set(newSize)
 		}
 	}
 
