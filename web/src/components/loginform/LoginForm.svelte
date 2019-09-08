@@ -23,11 +23,13 @@
         if (username == '' || password === '') {
             return
         }
-        let auth = await loginService.login(username, password)
-
-        api.authenticate(auth)
-
-        router.route(`/users/${username}`)
+        try {
+            let auth = await loginService.login(username, password)
+            api.authenticate(auth)
+            router.route(`/users/${username}`)
+        } catch (err) {
+            error = err
+        }
     }
 </script>
 
@@ -41,7 +43,7 @@
 </form>
 
 <style>
-    form {
+    .form {
         margin: 25% auto 0;
         max-width: 250px
     }
