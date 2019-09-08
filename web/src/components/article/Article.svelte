@@ -37,7 +37,6 @@
 </script>
 
 <div class='article'>
-  <span>
     <a href='/{name}' class='title'>{title}</a>
     <Labels
         labels={labels} 
@@ -45,12 +44,11 @@
         on:labeladded={onLabelAdded} 
         on:labeldeleted={onLabelDeleted} 
     />
-  </span>
-  <ul class='article-info'>
-    <li><a class='link padding' href={url}>original</a></li>
-    <li class='separator flex'><TimeAgo date={create_time}/></li>
-    <li class='separator'><button on:click|preventDefault={() => dispatch('deleted', name)}>delete</button></li>
-  </ul>
+    <ul class='article-info'>
+        <li><a class='link padding' href={url}>original</a></li>
+        <li class='separator flex'><TimeAgo date={create_time}/></li>
+        <li class='separator'><button on:click|preventDefault={() => dispatch('deleted', name)}>delete</button></li>
+    </ul>
 </div>
 
 <style>
@@ -64,7 +62,7 @@
     }
     
     .title {
-        font-size: 1.2em;
+        font-size: 1.1em;
         font-weight: 500;
         color: inherit;
         text-decoration: none;

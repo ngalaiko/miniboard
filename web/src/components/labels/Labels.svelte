@@ -1,8 +1,6 @@
 <script>
-    import Label from '../label/Label.svelte'
     import { createEventDispatcher } from 'svelte'
-
-    export let tips
+    import Label from '../label/Label.svelte'
 
     export let labels
     const dispatch = createEventDispatcher()
@@ -10,16 +8,17 @@
     export let labelIds
     let labelsList = []
 
+    let randId = Math.floor(Math.random() * 10000)
+
     labelIds.forEach(async (labelName) => {
         let label = await labels.get(labelName)
         labelsList = labelsList.concat([label])
     })
 
     function onAdd() {
-        labelsList = labelsList.concat([{
-            title: 'enter name',
-            editable: true,
-        }])
+        let input = document.querySelector(`.input-${randId}`)
+        input.hidden = false
+        input.focus()
     }
 
     function onDeleted(e) {
@@ -29,11 +28,23 @@
         this.$destroy();
     }
 
-    async function onCreated(e) {
+    async function onKeyDown(e) {
+        let keyCode = e.which || e.keyCode,
+            target = e.target || e.srcElement;
+
+        if (keyCode != 13) { // enter
+            return
+        }
+
+        let labelTitle = target.value 
+
+        target.hidden = true
+        target.value = ''
+
 		let create = true
 		// if the label already exists, don't add it again
 		labelsList.forEach(label => {
-			if (label.title == e.detail) {
+			if (label.title == labelTitle) {
 				this.$destroy()
 				create = false
 			}
@@ -43,9 +54,15 @@
 			return
 		}
 
-        let label = await labels.create(e.detail)
+        let label = await labels.create(labelTitle)
+        labelsList = labelsList.concat([label])
 
         dispatch('labeladded', label.name)
+    }
+
+    function onKeyPress() {
+        this.style.width = 0 
+		this.style.width = 2 + this.value.length + 'ch'
     }
 </script>
 
@@ -54,10 +71,14 @@
         <Label
             {...label}
             on:deleted={onDeleted}
-            on:created={onCreated}
-            tips={labels.titles}
         />
     {/each}
+    <input
+        class='input-new-label input-{randId}'
+        hidden=true
+ 		on:input={onKeyPress}
+		on:keydown={onKeyDown}
+    />
     <button class='button-add' on:click|preventDefault={onAdd}>➕</button>
 </span>
 
@@ -65,6 +86,7 @@
     .container {
         display: inline-flex;
         align-items: center;
+        flex-wrap: wrap;
     }
 
     .button-add {
@@ -78,6 +100,17 @@
     }
 
     button-add:hover, .button-add:focus {
+        outline-width: 0;
+    }
+
+    .input-new-label {
+        margin-left: 5px;
+        width: 1ch;
+        border: 0;
+    }
+
+    .input-new-label:focus {
+        outline: none;
         outline-width: 0;
     }
 </style>

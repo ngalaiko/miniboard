@@ -1,64 +1,20 @@
 <script>
     import { createEventDispatcher } from 'svelte'
-    import { onMount } from 'svelte';
-
-    export let editable = false
-    export let name
-    export let title
-
-    export let tips = []
 
     const dispatch = createEventDispatcher()
 
-    function onKeyDown(e) {
-        if (!e) {
-            e = window.event;
-        }
-        var keyCode = e.which || e.keyCode,
-            target = e.target || e.srcElement;
-
-        if (keyCode !== 13) { // Enter
-            return
-        }
-
-        dispatch('created', this.value)
-        editable = false
-    }
-
-    function onKeyPress() {
-        this.style.width = 0 
-		this.style.width = 2 + this.value.length + 'ch'
-    }
+    export let name
+    export let title
 
     function onDelete() {
         dispatch('deleted', name)
     }
-
-	onMount(() => {
-		let labels = document.getElementsByClassName(name)
-		Array.prototype.forEach.call(labels, (label) => {
-			label.style.width = 0
-			label.style.width = 2 + label.value.length + 'ch'
-		})
-	})
-
-	let randId = 'label-' + Math.random()
 </script>
 
 <span class='container'>
-    <input
-		class='label {name}'
-		disabled={!editable}
-		value={title}
- 		on:input={onKeyPress}
-		on:keydown={onKeyDown}
-		list={randId}
-	/>
-	<datalist id={randId}>
-		{#each tips as tip}
-			<option value={tip}></option>
-		{/each}
-    </datalist>
+    <span class='label'>
+		{title}
+	</span>
     <button class='button-delete' on:click|preventDefault={onDelete}>X</button>
 </span>
 
@@ -72,6 +28,7 @@
         border: 1px solid;
         margin: 0px;
         margin-left: 3px;
+        margin-bottom: 3px;
     }
 
     .label {
