@@ -2,20 +2,24 @@
   export let date
 
   function timeAgo() {
-    let seconds = Math.floor((Date.now() - new Date(date)) / 1000)
-    let minutes = Math.floor(seconds / 60)
+    let seconds = ~~((Date.now() - new Date(date)) / 1000)
+    let minutes = ~~(seconds / 60)
     if (minutes == 0) {
       return `${seconds}s ago`
     }
-    let hours = Math.floor(minutes / 60)
+    let hours = ~~(minutes / 60)
     if (hours == 0) {
       return `${minutes}m ago`
     }
-    let days = Math.floor(hours / 24)
+    let days = ~~(hours / 24)
     if (days == 0) {
       return `${hours}h ago`
     }
-    return `${days}d ago`
+    let weeks = ~~(days / 7)
+    if (weeks == 0) {
+      return `${days}d ago`
+    }
+    return `${weeks}w ago`
   }
 
   let ago = timeAgo()
