@@ -5,5 +5,8 @@ package(default_visibility = ["//visibility:public"])
 svelte(
     name = "Articles",
     entry_point = "Articles.svelte",
-    deps = ["//web/src/components/article:Article"],
+    deps = [
+        "//web/src/components/article:Article",
+        "//web/src/components/header:Header",
+    ],
 )

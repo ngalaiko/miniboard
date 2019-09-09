@@ -8,6 +8,7 @@
 <script>
     import { onDestroy } from 'svelte';
     import Article from '../article/Article.svelte'
+    import Header from '../header/Header.svelte'
 
     export let api
     export let articles
@@ -39,8 +40,8 @@
     }
     loadMore().then(updatePageSize)
 
-    let url = ''
-    async function onAdd() {
+    async function onAdd(e) {
+        let url = e.detail
         let rnd = Math.random()
         articlesListStore.set([{
           'url': url,
@@ -52,8 +53,6 @@
         let article = await articles.add(url)
 
         articlesListStore.set([article].concat(articlesList.filter(article => article.random != rnd )))
-
-        url = ''
     }
 
     async function onDeleted(name) {
@@ -87,10 +86,9 @@
 </script>
 
 <div>
-    <form>
-        <input type="text" bind:value={url} placeholder="https://..." required="" />
-        <button class="button-add" on:click|preventDefault={onAdd} />
-    </form>
+    <Header
+        on:added={onAdd}
+    />
     <div class='pagination'>
         {#if pageStart != 0}
             <button class="button-pagination button-previous" on:click|preventDefault={previousPage} >previous</button>
@@ -118,7 +116,7 @@
       flex-direction: column;
     }
 
-    input {
+    .add-input {
         border: 1px solid;
         width: 100%;
         font-size: 1.1em;
@@ -126,13 +124,19 @@
         padding-left: 7px;
     }
 
-    input:focus{
-        outline-width: 0
+    .toggle-button {
+        margin-right: 5px;
+        border: 1px solid;
+        font-size: 1.1em;
+        padding: 5px;
+        padding-left: 7px;
+        outline-width: 0;
     }
 
     form {
         display: flex;
         flex-direction: row;
+        justify-content: flex-start;
         margin: 0px;
         margin-bottom: 5px;
     }
@@ -178,7 +182,7 @@
         content: "« ";
     }
 
-    .button-pagination:hover, .button-pagination:focus {
+    button:hover, button:focus, input:hover, input:focus {
         outline-width: 0;
         text-decoration: underline;
     }

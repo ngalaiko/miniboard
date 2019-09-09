@@ -4,7 +4,6 @@
     import Client from './client/client';
     import Router from "./components/router/navaid";
     import LoginForm from './components/loginform/LoginForm.svelte'
-    import Header from './components/header/Header.svelte'
     import Reader from './components/reader/Reader.svelte'
 
     let client = new Client()
@@ -50,9 +49,6 @@
 </script>
 
 <div class="app">
-    {#if api.authorized() }
-        <Header api={api} router={router} />
-    {/if}
     <svelte:component this={component} {...props} />
 </div>
 
