@@ -7,7 +7,7 @@ import (
 	"miniboard.app/storage/resource"
 )
 
-// Service controlls user's passwords.
+// Service controls user's passwords.
 type Service struct {
 	storage storage.Storage
 }

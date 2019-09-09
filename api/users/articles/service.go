@@ -20,7 +20,7 @@ import (
 	"miniboard.app/storage/resource"
 )
 
-// Service controlls articles resource.
+// Service controls articles resource.
 type Service struct {
 	storage storage.Storage
 
