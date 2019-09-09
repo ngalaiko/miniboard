@@ -18,4 +18,8 @@ type Storage interface {
 	// NOTE: name.ID() doesn't matter in this case and treated as a wildcard.
 	// NOTE: IDs of the resource must be sortable to get the right order.
 	LoadChildren(name *resource.Name, from *resource.Name, limit int) ([]*resource.Resource, error)
+	// Iterates over the resource children. Stops, if a function returns false.
+	// NOTE: sorted by DESC.
+	// NOTE: IDs of the resource must be sortable to get the correct order.
+	ForEach(*resource.Name, func(*resource.Resource) bool) error
 }

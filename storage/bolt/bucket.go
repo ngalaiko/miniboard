@@ -81,6 +81,23 @@ func (db *DB) LoadChildren(name *resource.Name, from *resource.Name, limit int) 
 	})
 }
 
+// ForEach implements storage.Storage.
+func (db *DB) ForEach(name *resource.Name, filter func(*resource.Resource) bool) error {
+	return db.view(resource.NewName(name.Type(), "bucket").AddChild(name), func(bucket *bolt.Bucket) error {
+		c := bucket.Cursor()
+
+		for k, v := c.Last(); k != nil; k, v = c.Prev() {
+			if !filter(&resource.Resource{
+				Name: name.Parent().Child(name.Type(), string(k)),
+				Data: v,
+			}) {
+				return nil
+			}
+		}
+		return nil
+	})
+}
+
 func (db *DB) update(name *resource.Name, f func(*bolt.Bucket) error) error {
 	return db.db.Update(func(tx *bolt.Tx) error {
 		b, err := bucket(tx, name)

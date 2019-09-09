@@ -75,6 +75,21 @@ func Test_DB(t *testing.T) {
 					i--
 				}
 			})
+
+			t.Run("When iterating through all elemetns", func(t *testing.T) {
+				name := resource.NewName("test", "*")
+
+				t.Run("Should iterate from end to start", func(t *testing.T) {
+					c := 0
+					err := db.ForEach(name, func(r *resource.Resource) bool {
+						c++
+						assert.Equal(t, fmt.Sprintf("data %d", 10-c), string(r.Data))
+						return true
+					})
+					assert.NoError(t, err)
+					assert.Equal(t, 10, c)
+				})
+			})
 		})
 
 		t.Run("When root exists", func(t *testing.T) {
