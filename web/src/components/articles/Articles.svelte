@@ -1,6 +1,7 @@
 <script context="module">
     import { writable } from 'svelte/store'
     const articlesListStore = writable([])
+    const foundListStore = writable([])
     const pageSizeStore = writable(5)
     const pageStartStore = writable(0) 
 </script>
@@ -15,11 +16,15 @@
     export let labels
 
     let articlesList
+    let foundList
     let pageSize
     let pageStart
 
     const unsubscribeArticlesList = articlesListStore.subscribe(value => {
         articlesList = value
+    })
+    const unsubscribeFoundList = foundListStore.subscribe(value => {
+        foundList = value
     })
     const unsubscribePageSize = pageSizeStore.subscribe(value => {
         pageSize = value
@@ -30,6 +35,7 @@
 
     onDestroy(() => {
         unsubscribeArticlesList()
+        unsubscribeFoundList()
         unsubscribePageSize()
         unsubscribePageStart()
     })
@@ -39,6 +45,15 @@
         articlesListStore.set(articlesList.concat(list))
     }
     loadMore().then(updatePageSize)
+
+    async function onSearch(e) {
+        let query = e.detail
+        showSearch = true
+
+        query == ''
+            ? foundListStore.set([])
+            : foundListStore.set(await articles.search(query, pageSize))
+    }
 
     async function onAdd(e) {
         let url = e.detail
@@ -83,30 +98,47 @@
 		let size = Math.floor((window.innerHeight - list.offsetTop) / 100)
 		return size > 1 ? size : 1
 	}
+
+    let showSearch = false
 </script>
 
 <div>
     <Header
         on:added={onAdd}
+        on:searchstop={() => showSearch = false}
+        on:searchstart={onSearch}
     />
-    <div class='pagination'>
-        {#if pageStart != 0}
-            <button class="button-pagination button-previous" on:click|preventDefault={previousPage} >previous</button>
-        {/if}
-        <div />
-        {#if articlesList.length > pageStart + pageSize }
-            <button class="button-pagination button-next"  on:click|preventDefault={nextPage} >next</button>
-        {/if}
-    </div>
     <div class='articles list'>
-        {#each articlesList.slice(pageStart, pageStart+pageSize) as article, i (article.name) }
-            <Article
-                on:deleted={(e) => onDeleted(e.detail)}
-                articles={articles}
-                labels={labels}
-                {...article}
-            />
-        {/each}
+        {#if showSearch}
+            {#each foundList.slice(pageStart, pageStart+pageSize) as article, i (article.name) }
+                <Article
+                    on:deleted={(e) => onDeleted(e.detail)}
+                    articles={articles}
+                    labels={labels}
+                    {...article}
+                />
+            {:else}
+            <span>noting found</span>
+            {/each}
+        {:else}
+            <div class='pagination'>
+                {#if pageStart != 0}
+                    <button class="button-pagination button-previous" on:click|preventDefault={previousPage} >previous</button>
+                {/if}
+                <div />
+                {#if articlesList.length > pageStart + pageSize }
+                    <button class="button-pagination button-next"  on:click|preventDefault={nextPage} >next</button>
+                {/if}
+            </div>
+            {#each articlesList.slice(pageStart, pageStart+pageSize) as article, i (article.name) }
+                <Article
+                    on:deleted={(e) => onDeleted(e.detail)}
+                    articles={articles}
+                    labels={labels}
+                    {...article}
+                />
+            {/each}
+        {/if}
     </div>
 </div>
 
@@ -154,7 +186,6 @@
       display: flex;
       flex-direction: row;
       justify-content: space-between;
-	  margin-bottom: 5px;
     }
 
     .button-pagination {

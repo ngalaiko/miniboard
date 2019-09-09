@@ -16,6 +16,8 @@
     let showAdd = false
     let showSearch = false
     let url = ''
+
+    let typingTimerID
 </script>
 
 <div class='header'>
@@ -24,9 +26,13 @@
         <button on:click|preventDefault={() => {
             showAdd = !showAdd
             showSearch = false
+            dispatch('searchstop')
         }}>add</button>
         <button on:click|preventDefault={() => {
             showSearch = !showSearch
+            if (!showSearch) {
+                dispatch('searchstop')
+            }
             showAdd = false
         }} class='offset-left'>search</button>
         </span>
@@ -59,7 +65,12 @@
                 bind:value={url}
                 placeholder="search..."
                 required=""
-            />
+                on:input={() => {
+                    clearTimeout(typingTimerID)
+                    typingTimerID = setTimeout(() => {
+                        dispatch('searchstart', this.value)
+                    }, 300)
+                }}/>
         </form>
     {/if}
 </div>
