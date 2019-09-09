@@ -10,6 +10,15 @@ import "google/protobuf/field_mask.proto";
 option go_package = "articles";
 
 service ArticlesService {
+    // Search articles
+    //
+    // An endpoint to search the user's articles.
+    rpc SearchArticles(SearchArticlesRequest) returns (SearchArticlesResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/{parent=users/*}/articles:search"
+        };
+    }
+
     // List articles
     //
     // An endpoint to list the user's articles.
@@ -56,6 +65,23 @@ service ArticlesService {
             delete: "/api/v1/{name=users/*/articles/*}"
         };
     }
+}
+
+message SearchArticlesRequest {
+    // Name of a user who owns articles.
+    string parent = 1;
+
+    // Query to search for.
+    // Matches substrings in the title or url.
+    string query = 2;
+
+    // Max size of the result array.
+    int64 page_size = 3;
+}
+
+message SearchArticlesResponse {
+    // There will be a maximum number of articles returned based on the page_size field int the request.
+    repeated Article articles = 1;
 }
 
 message ListArticlesRequest {

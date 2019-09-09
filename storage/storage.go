@@ -21,5 +21,5 @@ type Storage interface {
 	// Iterates over the resource children. Stops, if a function returns false.
 	// NOTE: sorted by DESC.
 	// NOTE: IDs of the resource must be sortable to get the correct order.
-	ForEach(*resource.Name, func(*resource.Resource) bool) error
+	ForEach(*resource.Name, func(*resource.Resource) (bool, error)) error
 }

@@ -153,6 +153,26 @@ func Test_articles(t *testing.T) {
 					pageToken = resp.NextPageToken
 				}
 			})
+
+			t.Run("It should be possible search for article by title", func(t *testing.T) {
+				resp, err := service.SearchArticles(ctx, &articles.SearchArticlesRequest{
+					Parent:   parent.String(),
+					Query:    "title",
+					PageSize: 10,
+				})
+				assert.NoError(t, err)
+				assert.Len(t, resp.Articles, 10)
+			})
+
+			t.Run("It should be possible search for article by url", func(t *testing.T) {
+				resp, err := service.SearchArticles(ctx, &articles.SearchArticlesRequest{
+					Parent:   parent.String(),
+					Query:    "localhost",
+					PageSize: 5,
+				})
+				assert.NoError(t, err)
+				assert.Len(t, resp.Articles, 5)
+			})
 		})
 	})
 }

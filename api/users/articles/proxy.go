@@ -22,6 +22,11 @@ func NewProxyClient(service *Service) *Proxy {
 	}
 }
 
+// SearchArticles calls method SearchArticles on the service instance.
+func (p *Proxy) SearchArticles(ctx context.Context, in *articles.SearchArticlesRequest, opts ...grpc.CallOption) (*articles.SearchArticlesResponse, error) {
+	return p.service.SearchArticles(ctx, in)
+}
+
 // ListArticles calls method ListArticles on the service instance.
 func (p *Proxy) ListArticles(ctx context.Context, in *articles.ListArticlesRequest, opts ...grpc.CallOption) (*articles.ListArticlesResponse, error) {
 	return p.service.ListArticles(ctx, in)

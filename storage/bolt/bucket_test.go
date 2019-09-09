@@ -81,10 +81,10 @@ func Test_DB(t *testing.T) {
 
 				t.Run("Should iterate from end to start", func(t *testing.T) {
 					c := 0
-					err := db.ForEach(name, func(r *resource.Resource) bool {
+					err := db.ForEach(name, func(r *resource.Resource) (bool, error) {
 						c++
 						assert.Equal(t, fmt.Sprintf("data %d", 10-c), string(r.Data))
-						return true
+						return true, nil
 					})
 					assert.NoError(t, err)
 					assert.Equal(t, 10, c)

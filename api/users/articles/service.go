@@ -1,9 +1,11 @@
 package articles
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/gogo/protobuf/proto"
@@ -32,6 +34,51 @@ func New(storage storage.Storage) *Service {
 	return &Service{
 		storage:   storage,
 		newReader: http.New,
+	}
+}
+
+// SearchArticles searches through the articles.
+func (s *Service) SearchArticles(ctx context.Context, request *articles.SearchArticlesRequest) (*articles.SearchArticlesResponse, error) {
+	lookFor := resource.ParseName(request.Parent).Child("articles", "*")
+
+	if len(request.Query) == 0 {
+		return &articles.SearchArticlesResponse{}, nil
+	}
+
+	aa := make([]*articles.Article, 0, request.PageSize)
+	err := s.storage.ForEach(lookFor, func(r *resource.Resource) (bool, error) {
+		if int64(len(aa)) == request.PageSize {
+			return false, nil
+		}
+
+		a := &articles.Article{}
+		if err := proto.Unmarshal(r.Data, a); err != nil {
+			return false, status.New(codes.Internal, "failed to unmarshal article").Err()
+		}
+
+		if bytes.Contains(
+			bytes.ToLower([]byte(a.Title)),
+			bytes.ToLower([]byte(request.Query)),
+		) {
+			aa = append(aa, a)
+			return true, nil
+		}
+
+		if strings.Contains(a.Url, request.Query) {
+			aa = append(aa, a)
+			return true, nil
+		}
+
+		return true, nil
+	})
+
+	switch err {
+	case nil, storage.ErrNotFound:
+		return &articles.SearchArticlesResponse{
+			Articles: aa,
+		}, nil
+	default:
+		return nil, status.New(codes.Internal, "failed to search articles").Err()
 	}
 }
 
