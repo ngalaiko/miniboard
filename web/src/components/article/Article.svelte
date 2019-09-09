@@ -45,8 +45,7 @@
         on:labeldeleted={onLabelDeleted} 
     />
     <ul class='article-info'>
-        <li><a class='link padding' href={url}>original</a></li>
-        <li class='separator flex'><TimeAgo date={create_time}/></li>
+        <li class='flex'><TimeAgo date={create_time}/></li>
         <li class='separator'><button on:click|preventDefault={() => dispatch('deleted', name)}>delete</button></li>
     </ul>
 </div>
@@ -98,10 +97,6 @@
 
     .flex {
         display: flex;
-    }
-
-    .link {
-        color: inherit;
     }
 
     button {
