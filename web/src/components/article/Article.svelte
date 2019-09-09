@@ -37,7 +37,7 @@
 </script>
 
 <div class='article'>
-    <a href='/{name}' class='title'>{title}</a>
+    <a href='/{name}' target='_blank' class='title'>{title}</a>
     <Labels
         labels={labels} 
         labelIds={label_ids} 
