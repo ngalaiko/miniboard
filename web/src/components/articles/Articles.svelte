@@ -73,6 +73,7 @@
         on:searchstop={() => showSearch = false}
         on:searchstart={onSearch}
     />
+    // todo: connect search to pagination
     <Pagination
         items={articlesList}
         loadItems={loadMore}
