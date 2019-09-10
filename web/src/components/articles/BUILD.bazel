@@ -8,5 +8,6 @@ svelte(
     deps = [
         "//web/src/components/article:Article",
         "//web/src/components/header:Header",
+        "//web/src/components/pagination:Pagination",
     ],
 )

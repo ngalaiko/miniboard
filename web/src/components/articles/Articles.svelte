@@ -2,14 +2,13 @@
     import { writable } from 'svelte/store'
     const articlesListStore = writable([])
     const foundListStore = writable([])
-    const pageSizeStore = writable(5)
-    const pageStartStore = writable(0) 
 </script>
 
 <script>
     import { onDestroy } from 'svelte';
     import Article from '../article/Article.svelte'
     import Header from '../header/Header.svelte'
+    import Pagination, { addItem, deleteItem } from '../pagination/Pagination.svelte'
 
     export let api
     export let articles
@@ -17,8 +16,6 @@
 
     let articlesList
     let foundList
-    let pageSize
-    let pageStart
 
     const unsubscribeArticlesList = articlesListStore.subscribe(value => {
         articlesList = value
@@ -26,25 +23,15 @@
     const unsubscribeFoundList = foundListStore.subscribe(value => {
         foundList = value
     })
-    const unsubscribePageSize = pageSizeStore.subscribe(value => {
-        pageSize = value
-    })
-    const unsubscribePageStart = pageStartStore.subscribe(value => {
-        pageStart = value
-    })
 
     onDestroy(() => {
         unsubscribeArticlesList()
         unsubscribeFoundList()
-        unsubscribePageSize()
-        unsubscribePageStart()
     })
 
-    async function loadMore() {
-        let list = await articles.next(pageSize * 2)
-        articlesListStore.set(articlesList.concat(list))
+    async function loadMore(pageSize) {
+        return await articles.next(pageSize * 2)
     }
-    loadMore().then(updatePageSize)
 
     async function onSearch(e) {
         let query = e.detail
@@ -58,46 +45,24 @@
     async function onAdd(e) {
         let url = e.detail
         let rnd = Math.random()
-        articlesListStore.set([{
+
+        addItem({
           'url': url,
           'title': url,
           'create_time': Date.now(),
           'random': rnd
-        }].concat(articlesList))
+        })
 
         let article = await articles.add(url)
 
-        articlesListStore.set([article].concat(articlesList.filter(article => article.random != rnd )))
+        deleteItem(article => article.random != rnd)
+        addItem(article)
     }
 
     async function onDeleted(name) {
         await articles.delete(name)
-        articlesListStore.set(articlesList.filter(article => article.name != name ))
+        deleteItem(article => article.name != name)
     }
-
-    function previousPage() {
-        pageStartStore.set(pageStart - pageSize)
-        updatePageSize()
-    }
-
-    function nextPage() {
-        loadMore().then(() => pageStartStore.set(pageStart + pageSize))
-        updatePageSize()
-    }
-
-    function updatePageSize() {
-		let newSize = getPageSize()
-		if (newSize != pageSize) {
-			pageSizeStore.set(newSize)
-		}
-    }
-	window.onresize = updatePageSize
-
-	function getPageSize() {
-		let list = document.getElementsByClassName('articles list')[0]
-		let size = Math.floor((window.innerHeight - list.offsetTop) / 100)
-		return size > 1 ? size : 1
-	}
 
     let showSearch = false
 </script>
@@ -108,61 +73,27 @@
         on:searchstop={() => showSearch = false}
         on:searchstart={onSearch}
     />
-    <div class='articles list'>
-        {#if showSearch}
-            {#each foundList.slice(pageStart, pageStart+pageSize) as article, i (article.name) }
-                <Article
-                    on:deleted={(e) => onDeleted(e.detail)}
-                    articles={articles}
-                    labels={labels}
-                    {...article}
-                />
-            {:else}
-            <span>noting found</span>
-            {/each}
-        {:else}
-            <div class='pagination'>
-                {#if pageStart != 0}
-                    <button class="button-pagination button-previous" on:click|preventDefault={previousPage} >previous</button>
-                {/if}
-                <div />
-                {#if articlesList.length > pageStart + pageSize }
-                    <button class="button-pagination button-next"  on:click|preventDefault={nextPage} >next</button>
-                {/if}
-            </div>
-            {#each articlesList.slice(pageStart, pageStart+pageSize) as article, i (article.name) }
-                <Article
-                    on:deleted={(e) => onDeleted(e.detail)}
-                    articles={articles}
-                    labels={labels}
-                    {...article}
-                />
-            {/each}
-        {/if}
-    </div>
+    <Pagination
+        items={articlesList}
+        loadItems={loadMore}
+        let:item={article}
+    >
+        <Article
+            on:deleted={(e) => onDeleted(e.detail)}
+            articles={articles}
+            labels={labels}
+            {...article}
+        />
+    </Pagination>
 </div>
 
 <style>
-    .list {
-      display: flex;
-      flex-direction: column;
-    }
-
     .add-input {
         border: 1px solid;
         width: 100%;
         font-size: 1.1em;
         padding: 5px;
         padding-left: 7px;
-    }
-
-    .toggle-button {
-        margin-right: 5px;
-        border: 1px solid;
-        font-size: 1.1em;
-        padding: 5px;
-        padding-left: 7px;
-        outline-width: 0;
     }
 
     form {
@@ -180,37 +111,6 @@
         border-left-width: 0; border-right-width: 0;
         white-space: nowrap;
         overflow: hidden;
-    }
-
-    .pagination {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-    }
-
-    .button-pagination {
-        background: inherit;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        font-size: 1.1em;
-        cursor: pointer;
-        border: 0px;
-    }
-
-    .button-next::after {
-        content: " »";
-    }
-
-    .button-next {
-        align-self: flex-end;
-    }
-
-    .button-previous {
-        align-self: flex-start;
-    }
-
-    .button-previous::before {
-        content: "« ";
     }
 
     button:hover, button:focus, input:hover, input:focus {
