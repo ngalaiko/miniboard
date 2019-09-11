@@ -26,9 +26,11 @@
         <button on:click|preventDefault={() => {
             showAdd = !showAdd
             showSearch = false
+            dispatch('showsearch', false)
         }}>add</button>
         <button on:click|preventDefault={() => {
             showSearch = !showSearch
+            dispatch('showsearch', showSearch)
             showAdd = false
         }} class='offset-left'>search</button>
         </span>
@@ -64,7 +66,7 @@
                 on:input={() => {
                     clearTimeout(typingTimerID)
                     typingTimerID = setTimeout(() => {
-                        console.log('search', this.value)
+                        dispatch('search', this.value)
                     }, 300)
                 }}/>
         </form>

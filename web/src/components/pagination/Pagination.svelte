@@ -14,7 +14,7 @@
     let pageStart = 0
 
     const unsubscribeItems = itemsStore.subscribe(value => {
-        items = value
+        Array.isArray(items) ? items = value : []
     })
 
     function loadMore() {

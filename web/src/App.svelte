@@ -1,5 +1,5 @@
 <script>
-    import Articles, { add } from './components/articles/Articles.svelte'
+    import Articles, { add, search, showSearch } from './components/articles/Articles.svelte'
     import NotFound from './components/notfound/NotFound.svelte'
     import Client from './client/client'
     import Router from './components/router/navaid'
@@ -55,6 +55,8 @@
             api={api}
             router={router}
             on:added={(e) => add(e.detail, client.articles.add)}
+            on:showsearch={(e) => showSearch(e.detail)}
+            on:search={(e) => search(e.detail, client.articles.search)}
         />
     {/if}
     <svelte:component this={component} {...props} />
