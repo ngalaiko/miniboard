@@ -1,6 +1,6 @@
 <script>
     import { slide } from 'svelte/transition'
-	import { quintOut } from 'svelte/easing'
+    import { quintOut } from 'svelte/easing'
     import { createEventDispatcher } from 'svelte'
 
     const dispatch = createEventDispatcher()
@@ -26,13 +26,9 @@
         <button on:click|preventDefault={() => {
             showAdd = !showAdd
             showSearch = false
-            dispatch('searchstop')
         }}>add</button>
         <button on:click|preventDefault={() => {
             showSearch = !showSearch
-            if (!showSearch) {
-                dispatch('searchstop')
-            }
             showAdd = false
         }} class='offset-left'>search</button>
         </span>
@@ -68,7 +64,7 @@
                 on:input={() => {
                     clearTimeout(typingTimerID)
                     typingTimerID = setTimeout(() => {
-                        dispatch('searchstart', this.value)
+                        console.log('search', this.value)
                     }, 300)
                 }}/>
         </form>
