@@ -65,6 +65,7 @@
 
 <div>
     {#if displaySearch}
+        // todo: search pagination
         <Pagination
             itemsStore={searchListStore}
             let:item={article}
