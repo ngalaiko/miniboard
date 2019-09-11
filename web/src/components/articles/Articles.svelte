@@ -1,6 +1,5 @@
 <script context="module">
     import { writable } from 'svelte/store'
-    const articlesListStore = writable([])
     const foundListStore = writable([])
 </script>
 
@@ -14,22 +13,17 @@
     export let articles
     export let labels
 
-    let articlesList
     let foundList
 
-    const unsubscribeArticlesList = articlesListStore.subscribe(value => {
-        articlesList = value
-    })
     const unsubscribeFoundList = foundListStore.subscribe(value => {
         foundList = value
     })
 
     onDestroy(() => {
-        unsubscribeArticlesList()
         unsubscribeFoundList()
     })
 
-    async function loadMore(pageSize) {
+    async function loadMoreArticles(pageSize) {
         return await articles.next(pageSize * 2)
     }
 
@@ -75,8 +69,7 @@
     />
     // todo: connect search to pagination
     <Pagination
-        items={articlesList}
-        loadItems={loadMore}
+        loadItems={loadMoreArticles}
         let:item={article}
     >
         <Article
