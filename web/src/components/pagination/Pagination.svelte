@@ -1,57 +1,42 @@
-<script context="module">
-    import { writable } from 'svelte/store'
-
-    const itemsStore = writable([])
-    const pageSizeStore = writable(5)
-    const pageStartStore = writable(0) 
-
-    export const addItem = (item) => {
-        itemsStore.update(items => [item].concat(items))
-    }
-
-    export const deleteItem = (filterFunc) => {
-        itemsStore.update(items => items.filter(filterFunc))
-    }
-</script>
-
 <script>
+    import { createEventDispatcher } from 'svelte'
     import { onDestroy } from 'svelte'
+    import { onMount } from 'svelte'
 
-    let items
-    let pageSize
-    let pageStart
+    const dispatch = createEventDispatcher()
 
-    // (pageSize) => Promise([items])
-    export let loadItems
+    // writable store with list items
+    // https://svelte.dev/docs#writable
+    export let itemsStore
+
+    let items = []
+    let pageSize = 5
+    let pageStart = 0
 
     const unsubscribeItems = itemsStore.subscribe(value => {
         items = value
     })
-    const unsubscribePageSize = pageSizeStore.subscribe(value => {
-        pageSize = value
-    })
-    const unsubscribePageStart = pageStartStore.subscribe(value => {
-        pageStart = value
-    })
 
-    async function loadMore() {
-        itemsStore.set(items.concat(await loadItems(pageSize)))
+    function loadMore() {
+        dispatch('loadmore', pageSize * 2)
     }
-    loadMore().then(updatePageSize)
 
     onDestroy(() => {
         unsubscribeItems()
-        unsubscribePageSize()
-        unsubscribePageStart()
+    })
+
+    onMount(() => {
+        loadMore()
     })
 
     function previousPage() {
-        pageStartStore.set(pageStart - pageSize)
+        pageStart -= pageSize
         updatePageSize()
     }
 
     function nextPage() {
-        loadMore().then(() => pageStartStore.set(pageStart + pageSize))
+        loadMore()
+        pageStart += pageSize
         updatePageSize()
     }
 
@@ -64,7 +49,7 @@
     function updatePageSize() {
 		let newSize = getPageSize()
 		if (newSize != pageSize) {
-			pageSizeStore.set(newSize)
+			pageSize = newSize
 		}
     }
 	window.onresize = updatePageSize

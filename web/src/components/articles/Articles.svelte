@@ -1,76 +1,63 @@
 <script context="module">
     import { writable } from 'svelte/store'
-    const foundListStore = writable([])
+
+    const articlesListStore = writable([])
 </script>
 
 <script>
     import { onDestroy } from 'svelte';
     import Article from '../article/Article.svelte'
     import Header from '../header/Header.svelte'
-    import Pagination, { addItem, deleteItem } from '../pagination/Pagination.svelte'
+    import Pagination  from '../pagination/Pagination.svelte'
 
     export let api
     export let articles
     export let labels
 
-    let foundList
-
-    const unsubscribeFoundList = foundListStore.subscribe(value => {
-        foundList = value
-    })
-
     onDestroy(() => {
-        unsubscribeFoundList()
+        unsubscribeArticlesList()
     })
 
     async function loadMoreArticles(pageSize) {
-        return await articles.next(pageSize * 2)
-    }
-
-    async function onSearch(e) {
-        let query = e.detail
-        showSearch = true
-
-        query == ''
-            ? foundListStore.set([])
-            : foundListStore.set(await articles.search(query, pageSize))
+        let nextPage = await articles.next(pageSize)
+        if (nextPage.length == 0) {
+            return 
+        }
+        articlesListStore.update(list => list.concat(nextPage))
     }
 
     async function onAdd(e) {
         let url = e.detail
         let rnd = Math.random()
 
-        addItem({
+        articlesListStore.update(list => [{
           'url': url,
           'title': url,
           'create_time': Date.now(),
           'random': rnd
-        })
+        }].concat(list))
 
         let article = await articles.add(url)
 
-        deleteItem(article => article.random != rnd)
-        addItem(article)
+        articlesListStore.update(list => list.filter(article => article.random != rnd))
+        articlesListStore.update(list => [article].concat(list))
     }
 
     async function onDeleted(name) {
         await articles.delete(name)
-        deleteItem(article => article.name != name)
+        articlesListStore.update(list => list.filter(article => article.name != name))
     }
-
-    let showSearch = false
 </script>
 
 <div>
     <Header
         on:added={onAdd}
-        on:searchstop={() => showSearch = false}
-        on:searchstart={onSearch}
     />
     // todo: connect search to pagination
     <Pagination
-        loadItems={loadMoreArticles}
+        itemsStore={articlesListStore}
         let:item={article}
+        on:loadmore={(e) => loadMoreArticles(e.detail) }
     >
         <Article
             on:deleted={(e) => onDeleted(e.detail)}
