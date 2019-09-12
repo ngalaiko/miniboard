@@ -10,7 +10,7 @@
     export let itemsStore
 
     let items = []
-    let pageSize = 5
+    let pageSize = 8
     export let pageStart = 0
 
     const unsubscribeItems = itemsStore.subscribe(value => {
@@ -32,34 +32,18 @@
     function previousPage() {
         pageStart -= pageSize
         dispatch('pagestart', pageStart)
-        updatePageSize()
     }
 
     function nextPage() {
         loadMore()
         pageStart += pageSize
         dispatch('pagestart', pageStart)
-        updatePageSize()
     }
-
-	function getPageSize() {
-		let list = document.getElementsByClassName('list')[0]
-		let size = Math.floor((window.innerHeight - list.offsetTop) / 100)
-		return size > 1 ? size : 1
-	}
-
-    function updatePageSize() {
-		let newSize = getPageSize()
-		if (newSize != pageSize) {
-			pageSize = newSize
-		}
-    }
-	window.onresize = updatePageSize
 </script>
 
-<div>
+<div class='page'>
     <div class='pagination'>
-        {#if pageStart != 0}
+        {#if pageStart > 0}
             <button class="button-pagination button-previous" on:click|preventDefault={previousPage} >previous</button>
         {/if}
         <div />
@@ -69,14 +53,18 @@
     </div>
     <div class='list'>
         {#each items.slice(pageStart, pageStart + pageSize) as item }
-            <slot
-                item={item} 
-            />
+			<slot
+				item={item} 
+			/>
         {/each}
     </div>
 </div>
 
 <style>
+    .page {
+        margin-bottom: 80px;
+    }
+
     .list {
         display: flex;
         flex-direction: column;
