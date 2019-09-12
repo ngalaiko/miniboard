@@ -32,7 +32,9 @@
         <button on:click|preventDefault={() => {
             showSearch = !showSearch
             showAdd = false
-            router.route(`/${api.subject()}/search`)
+            showSearch
+                ? router.route(`/${api.subject()}/search`)
+                : router.route(`/${api.subject()}`)
         }} class='offset-left'>search</button>
         </span>
         <span class='menu-right'>
