@@ -1,12 +1,15 @@
 package http
 
 import (
+	"bytes"
 	"io"
 	"net/http"
 	"net/url"
 
 	"github.com/go-shiori/go-readability"
 	"github.com/pkg/errors"
+	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 	"miniboard.app/reader"
 )
 
@@ -48,10 +51,43 @@ func (r *Reader) Title() (title string) {
 
 // Content returns page content.
 func (r *Reader) Content() []byte {
-	return []byte(r.article.Content)
+	bfs(r.article.Node, func(node *html.Node) bool {
+		if node.DataAtom == atom.Img {
+			node.Attr = append(node.Attr, html.Attribute{
+				Key: "style",
+				Val: "width: 100%; height: auto",
+			})
+		}
+		if node.DataAtom == atom.Pre {
+			node.Attr = append(node.Attr, html.Attribute{
+				Key: "style",
+				Val: "overflow: auto",
+			})
+		}
+		return true
+	})
+	buf := &bytes.Buffer{}
+	_ = html.Render(buf, r.article.Node)
+	return buf.Bytes()
 }
 
 // IconURL returns a link to the first page favicon.
 func (r *Reader) IconURL() string {
 	return r.article.Favicon
+}
+
+// executes forEach function on every node, including the first one in BFS order.
+// if forEach returns true, search continues.
+func bfs(node *html.Node, forEach func(*html.Node) bool) {
+	if node == nil {
+		return
+	}
+	if !forEach(node) {
+		return
+	}
+	n := node.FirstChild
+	for n != nil {
+		bfs(n, forEach)
+		n = n.NextSibling
+	}
 }
