@@ -18,9 +18,13 @@
         articlesListStore.update(list => list.filter(article => article.random != rnd))
         articlesListStore.update(list => [article].concat(list))
     }
+
+    const pageStartStore = writable(0)
 </script>
 
 <script>
+    import { get } from 'svelte/store'
+
     import Article from '../article/Article.svelte'
     import Pagination from '../pagination/Pagination.svelte'
 
@@ -46,7 +50,9 @@
     <Pagination
         itemsStore={articlesListStore}
         let:item={article}
+        pageStart={get(pageStartStore)}
         on:loadmore={(e) => loadMoreArticles(e.detail) }
+        on:pagestart={(e) => pageStartStore.set(e.detail)}
     >
         <Article
             on:deleted={(e) => onDeleted(e.detail)}

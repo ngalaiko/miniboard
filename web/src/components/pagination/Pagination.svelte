@@ -11,7 +11,7 @@
 
     let items = []
     let pageSize = 5
-    let pageStart = 0
+    export let pageStart = 0
 
     const unsubscribeItems = itemsStore.subscribe(value => {
         Array.isArray(items) ? items = value : []
@@ -31,12 +31,14 @@
 
     function previousPage() {
         pageStart -= pageSize
+        dispatch('pagestart', pageStart)
         updatePageSize()
     }
 
     function nextPage() {
         loadMore()
         pageStart += pageSize
+        dispatch('pagestart', pageStart)
         updatePageSize()
     }
 
@@ -56,7 +58,6 @@
 </script>
 
 <div>
-    // todo: save pagination startPage state
     <div class='pagination'>
         {#if pageStart != 0}
             <button class="button-pagination button-previous" on:click|preventDefault={previousPage} >previous</button>
