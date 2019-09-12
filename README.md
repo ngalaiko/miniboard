@@ -5,7 +5,7 @@
 
 Requirements: 
 
-* bazel
+* [bazel](https://bazel.build)
 
 Run: 
 ```
