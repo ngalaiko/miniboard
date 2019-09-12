@@ -16,6 +16,7 @@
     let showAdd = false
     let showSearch = false
     let url = ''
+    let query = ''
 
     let typingTimerID
 </script>
@@ -26,12 +27,12 @@
         <button on:click|preventDefault={() => {
             showAdd = !showAdd
             showSearch = false
-            dispatch('showsearch', false)
+            router.route(`/${api.subject()}`)
         }}>add</button>
         <button on:click|preventDefault={() => {
             showSearch = !showSearch
-            dispatch('showsearch', showSearch)
             showAdd = false
+            router.route(`/${api.subject()}/search`)
         }} class='offset-left'>search</button>
         </span>
         <span class='menu-right'>
@@ -60,13 +61,13 @@
             <input
                 class='search-input'
                 type="text"
-                bind:value={url}
+                bind:value={query}
                 placeholder="search..."
                 required=""
                 on:input={() => {
                     clearTimeout(typingTimerID)
                     typingTimerID = setTimeout(() => {
-                        dispatch('search', this.value)
+                        dispatch('search', query)
                     }, 300)
                 }}/>
         </form>
@@ -134,6 +135,9 @@
 
     button:hover, button:focus {
         outline-width: 0;
+    }
+
+    button:hover{
         text-decoration: underline;
     }
 </style>

@@ -1,5 +1,6 @@
 <script>
-    import Articles, { add, search, showSearch } from './components/articles/Articles.svelte'
+    import Articles, { add } from './components/articles/Articles.svelte'
+    import Search, { search } from './components/search/Search.svelte'
     import NotFound from './components/notfound/NotFound.svelte'
     import Client from './client/client'
     import Router from './components/router/navaid'
@@ -32,6 +33,14 @@
                 labels: client.labels,
             }
         })
+        .on('/users/:username/search', () => {
+            component = Search
+            props = {
+                api: api,
+                articles: client.articles,
+                labels: client.labels,
+            }
+        })
         .on('/users/:username/articles/:articleid', (params) => {
             component = Reader
             props = {
@@ -55,7 +64,6 @@
             api={api}
             router={router}
             on:added={(e) => add(e.detail, client.articles.add)}
-            on:showsearch={(e) => showSearch(e.detail)}
             on:search={(e) => search(e.detail, client.articles.search)}
         />
     {/if}

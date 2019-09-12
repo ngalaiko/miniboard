@@ -56,6 +56,7 @@
 </script>
 
 <div>
+    // todo: save pagination startPage state
     <div class='pagination'>
         {#if pageStart != 0}
             <button class="button-pagination button-previous" on:click|preventDefault={previousPage} >previous</button>
