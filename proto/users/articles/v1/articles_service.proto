@@ -77,11 +77,17 @@ message SearchArticlesRequest {
 
     // Max size of the result array.
     int64 page_size = 3;
+
+    // The next_page_token value returned from a previous List request, if any.
+    string page_token = 4;
 }
 
 message SearchArticlesResponse {
     // There will be a maximum number of articles returned based on the page_size field int the request.
     repeated Article articles = 1;
+
+    // Token to retrieve the next page of results, or empty if there are no more results in the list.
+    string next_page_token = 2;
 }
 
 message ListArticlesRequest {

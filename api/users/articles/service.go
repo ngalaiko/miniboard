@@ -45,8 +45,17 @@ func (s *Service) SearchArticles(ctx context.Context, request *articles.SearchAr
 		return &articles.SearchArticlesResponse{}, nil
 	}
 
-	aa := make([]*articles.Article, 0, request.PageSize)
-	err := s.storage.ForEach(lookFor, nil, func(r *resource.Resource) (bool, error) {
+	var from *resource.Name
+	if request.PageToken != "" {
+		decoded, err := base64.StdEncoding.DecodeString(request.PageToken)
+		if err != nil {
+			return nil, status.New(codes.InvalidArgument, "invalid page token").Err()
+		}
+		from = resource.ParseName(string(decoded))
+	}
+
+	aa := make([]*articles.Article, 0, request.PageSize+1)
+	err := s.storage.ForEach(lookFor, from, func(r *resource.Resource) (bool, error) {
 		if int64(len(aa)) == request.PageSize {
 			return false, nil
 		}
@@ -72,10 +81,17 @@ func (s *Service) SearchArticles(ctx context.Context, request *articles.SearchAr
 		return true, nil
 	})
 
+	var nextPageToken string
+	if len(aa) == int(request.PageSize+1) {
+		nextPageToken = base64.StdEncoding.EncodeToString([]byte(aa[len(aa)-1].Name))
+		aa = aa[:request.PageSize]
+	}
+
 	switch err {
 	case nil, storage.ErrNotFound:
 		return &articles.SearchArticlesResponse{
-			Articles: aa,
+			Articles:      aa,
+			NextPageToken: nextPageToken,
 		}, nil
 	default:
 		return nil, status.New(codes.Internal, "failed to search articles").Err()
