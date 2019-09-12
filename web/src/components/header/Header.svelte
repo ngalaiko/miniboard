@@ -78,6 +78,7 @@
     .header {
         display: flex;
         flex-direction: column;
+        margin-bottom: 5px;
     }
 
     .add-form, .search-form {
