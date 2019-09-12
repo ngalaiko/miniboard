@@ -23,6 +23,7 @@ export default function api() {
 
     $.authenticate = (auth) => {
         localStorage.set('authentication.access_token', auth.access_token)
+        localStorage.set('authentication.refresh_token', auth.refresh_token)
         localStorage.set('authentication.token_type', auth.token_type)
     }
 
@@ -32,6 +33,7 @@ export default function api() {
 
     $.logout = () => {
         localStorage.remove('authentication.access_token')
+        localStorage.remove('authentication.refresh_token')
         localStorage.remove('authentication.token_type')
     }
 
