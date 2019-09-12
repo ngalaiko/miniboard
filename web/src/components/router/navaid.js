@@ -14,6 +14,7 @@ export default function Navaid(base, on404) {
 
     $.route = function (uri, replace) {
         if (uri[0] == '/' && !rgx.test(uri)) uri = base + uri;
+        if (location.pathname == uri) return;
         history[(replace ? 'replace' : 'push') + 'State'](uri, null, uri);
     }
 
