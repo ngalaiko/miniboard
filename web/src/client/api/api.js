@@ -37,17 +37,20 @@ export default function api() {
         localStorage.remove('authentication.token_type')
     }
 
-    $.subject = () => {
+    const payload = () => {
         let token = localStorage.get('authentication.access_token')
         if (token == null) {
             return ''
         }
         let base64Url = token.split('.')[1]
         let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-        var jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+        return JSON.parse(decodeURIComponent(atob(base64).split('').map(c => {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-        }).join(''));
-        return JSON.parse(jsonPayload).sub
+        }).join('')));
+    }
+
+    $.subject = () => {
+        return payload().sub
     }
 
     let send = async (url, method, body) => {
@@ -63,11 +66,26 @@ export default function api() {
         }
         let resp = await fetch(url, options)
 
-        // todo: handle errors
-        return resp.json()
+        if (resp.ok) {
+            return resp.json()
+        }
+
+        // if not expired, return an error
+        if (new Date($.subject().exp * 1000) > new Date()) {
+            return resp.json()
+        }
+
+        let auth = await $.post(`/api/v1/authorizations`, {
+            refresh_token: localStorage.get('authentication.refresh_token'),
+            grant_type: 'refresh_token',
+        })
+
+        $.authenticate(auth)
+
+        return send(url, method, body)
     }
 
-    let authorization = () => {
+    const authorization = () => {
         let access_token = localStorage.get('authentication.access_token')
         let token_type = localStorage.get('authentication.token_type')
         if (access_token !== null && token_type !== null) {

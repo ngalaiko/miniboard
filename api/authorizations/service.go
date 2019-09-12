@@ -42,7 +42,7 @@ func (s *Service) CreateAuthorization(
 	case "password":
 		return s.passwordAuthorization(resource.NewName("users", request.Username), request.Password)
 	case "refresh_token":
-		return s.refreshTokenAuthorization(resource.NewName("users", request.Username), request.RefreshToken)
+		return s.refreshTokenAuthorization(request.RefreshToken)
 	default:
 		return nil, status.New(codes.InvalidArgument, "unknown grant type").Err()
 	}
@@ -65,17 +65,13 @@ func (s *Service) passwordAuthorization(user *resource.Name, password string) (*
 	return s.authorizationFor(user)
 }
 
-func (s *Service) refreshTokenAuthorization(user *resource.Name, token string) (*authorizations.Authorization, error) {
+func (s *Service) refreshTokenAuthorization(token string) (*authorizations.Authorization, error) {
 	subject, err := s.jwt.Validate(token, refreshToken)
 	if err != nil {
 		return nil, status.New(codes.InvalidArgument, "refresh token is not valid").Err()
 	}
 
-	if subject != user.String() {
-		return nil, status.New(codes.InvalidArgument, "refresh token: wrong subject").Err()
-	}
-
-	return s.authorizationFor(user)
+	return s.authorizationFor(resource.ParseName(subject))
 }
 
 func (s *Service) authorizationFor(user *resource.Name) (*authorizations.Authorization, error) {
