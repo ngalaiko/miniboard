@@ -55,8 +55,19 @@ func (db *DB) Delete(name *resource.Name) error {
 
 // LoadChildren implements storage.Storage.
 func (db *DB) LoadChildren(name *resource.Name, from *resource.Name, limit int) ([]*resource.Resource, error) {
-	var data []*resource.Resource
-	return data, db.view(resource.NewName(name.Type(), "bucket").AddChild(name), func(bucket *bolt.Bucket) error {
+	data := make([]*resource.Resource, 0, limit)
+	return data, db.ForEach(name, from, func(r *resource.Resource) (bool, error) {
+		if len(data) == limit {
+			return false, nil
+		}
+		data = append(data, r)
+		return true, nil
+	})
+}
+
+// ForEach implements storage.Storage.
+func (db *DB) ForEach(name *resource.Name, from *resource.Name, filter func(*resource.Resource) (bool, error)) error {
+	return db.view(resource.NewName(name.Type(), "bucket").AddChild(name), func(bucket *bolt.Bucket) error {
 		c := bucket.Cursor()
 
 		var k, v []byte
@@ -70,23 +81,7 @@ func (db *DB) LoadChildren(name *resource.Name, from *resource.Name, limit int) 
 			return nil
 		}
 
-		data = make([]*resource.Resource, 0, limit)
-		for ; k != nil && len(data) < limit; k, v = c.Prev() {
-			data = append(data, &resource.Resource{
-				Name: name.Parent().Child(name.Type(), string(k)),
-				Data: v,
-			})
-		}
-		return nil
-	})
-}
-
-// ForEach implements storage.Storage.
-func (db *DB) ForEach(name *resource.Name, filter func(*resource.Resource) (bool, error)) error {
-	return db.view(resource.NewName(name.Type(), "bucket").AddChild(name), func(bucket *bolt.Bucket) error {
-		c := bucket.Cursor()
-
-		for k, v := c.Last(); k != nil; k, v = c.Prev() {
+		for ; k != nil; k, v = c.Prev() {
 			goon, err := filter(&resource.Resource{
 				Name: name.Parent().Child(name.Type(), string(k)),
 				Data: v,

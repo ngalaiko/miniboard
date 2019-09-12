@@ -46,7 +46,7 @@ func (s *Service) SearchArticles(ctx context.Context, request *articles.SearchAr
 	}
 
 	aa := make([]*articles.Article, 0, request.PageSize)
-	err := s.storage.ForEach(lookFor, func(r *resource.Resource) (bool, error) {
+	err := s.storage.ForEach(lookFor, nil, func(r *resource.Resource) (bool, error) {
 		if int64(len(aa)) == request.PageSize {
 			return false, nil
 		}
