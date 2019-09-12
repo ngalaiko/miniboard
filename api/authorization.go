@@ -55,7 +55,7 @@ func withAuthorization(h http.Handler, jwtService *jwt.Service) http.Handler {
 			return
 		}
 
-		subject, err := jwtService.Validate(parts[1])
+		subject, err := jwtService.Validate(parts[1], "access")
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(fmt.Sprintf(`{"error":"invalid Authorization token","message":"%s"}`, err)))

@@ -29,6 +29,10 @@ type Service struct {
 	signerGuard *sync.RWMutex
 }
 
+type customClaims struct {
+	Type string `json:"type"`
+}
+
 // NewService creates new jwt service instance.
 func NewService(ctx context.Context, db storage.Storage) *Service {
 	keyStorage := newKeyStorage(db)
@@ -37,7 +41,7 @@ func NewService(ctx context.Context, db storage.Storage) *Service {
 		keyStorage:       keyStorage,
 		signerGuard:      &sync.RWMutex{},
 		rotationInterval: 2 * time.Hour,
-		expiryInterval:   3 * time.Hour,
+		expiryInterval:   72 * 3 * time.Hour,
 	}
 
 	if err := s.newSigner(); err != nil {
@@ -77,23 +81,27 @@ func (s *Service) newSigner() error {
 }
 
 // NewToken returns new authorization.
-func (s *Service) NewToken(subject *resource.Name) (string, error) {
+func (s *Service) NewToken(subject *resource.Name, validFor time.Duration, typ string) (string, error) {
 	now := time.Now()
 	claims := &jwt.Claims{
 		ID:       ksuid.New().String(),
 		Issuer:   defaultIssuer,
 		Subject:  subject.String(),
 		IssuedAt: jwt.NewNumericDate(now),
-		Expiry:   jwt.NewNumericDate(now.Add(s.expiryInterval)),
+		Expiry:   jwt.NewNumericDate(now.Add(validFor)),
+	}
+
+	custom := &customClaims{
+		Type: typ,
 	}
 
 	s.signerGuard.RLock()
 	defer s.signerGuard.RUnlock()
-	return jwt.Signed(s.signer).Claims(claims).CompactSerialize()
+	return jwt.Signed(s.signer).Claims(claims).Claims(custom).CompactSerialize()
 }
 
 // Validate returns token subject if a token is valid.
-func (s *Service) Validate(raw string) (string, error) {
+func (s *Service) Validate(raw string, typ string) (string, error) {
 	token, err := jwt.ParseSigned(raw)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to parse token")
@@ -111,12 +119,18 @@ func (s *Service) Validate(raw string) (string, error) {
 	}
 
 	claims := &jwt.Claims{}
-	if err := token.Claims(key.Public, claims); err != nil {
+	custom := &customClaims{}
+	if err := token.Claims(key.Public, claims, custom); err != nil {
 		return "", errors.Wrapf(err, "failed to parse claims")
+	}
+
+	if custom.Type != typ {
+		return "", errors.Wrapf(err, "wrong token type, expected '%s'", typ)
 	}
 
 	if err := claims.Validate(jwt.Expected{
 		Issuer: defaultIssuer,
+		Time:   time.Now(),
 	}); err != nil {
 		return "", errors.Wrap(err, "token is invalid")
 	}

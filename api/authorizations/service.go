@@ -2,6 +2,7 @@ package authorizations
 
 import (
 	"context"
+	"time"
 
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -11,6 +12,11 @@ import (
 	"miniboard.app/proto/authorizations/v1"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
+)
+
+const (
+	accessToken  = "access"
+	refreshToken = "refresh"
 )
 
 // Service creates and validates new authorizations.
@@ -35,6 +41,8 @@ func (s *Service) CreateAuthorization(
 	switch request.GrantType {
 	case "password":
 		return s.passwordAuthorization(resource.NewName("users", request.Username), request.Password)
+	case "refresh_token":
+		return s.refreshTokenAuthorization(resource.NewName("users", request.Username), request.RefreshToken)
 	default:
 		return nil, status.New(codes.InvalidArgument, "unknown grant type").Err()
 	}
@@ -54,13 +62,36 @@ func (s *Service) passwordAuthorization(user *resource.Name, password string) (*
 		return nil, status.New(codes.InvalidArgument, "password is not valid").Err()
 	}
 
-	token, err := s.jwt.NewToken(user)
+	return s.authorizationFor(user)
+}
+
+func (s *Service) refreshTokenAuthorization(user *resource.Name, token string) (*authorizations.Authorization, error) {
+	subject, err := s.jwt.Validate(token, refreshToken)
+	if err != nil {
+		return nil, status.New(codes.InvalidArgument, "refresh token is not valid").Err()
+	}
+
+	if subject != user.String() {
+		return nil, status.New(codes.InvalidArgument, "refresh token: wrong subject").Err()
+	}
+
+	return s.authorizationFor(user)
+}
+
+func (s *Service) authorizationFor(user *resource.Name) (*authorizations.Authorization, error) {
+	accessToken, err := s.jwt.NewToken(user, 3*time.Hour, accessToken)
+	if err != nil {
+		return nil, status.New(codes.Internal, "failed to generage token").Err()
+	}
+
+	refreshToken, err := s.jwt.NewToken(user, 72*time.Hour, refreshToken)
 	if err != nil {
 		return nil, status.New(codes.Internal, "failed to generage token").Err()
 	}
 
 	return &authorizations.Authorization{
-		TokenType:   "Bearer",
-		AccessToken: token,
+		TokenType:    "Bearer",
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	}, nil
 }
