@@ -66,7 +66,7 @@ export default function api() {
         }
         let resp = await fetch(url, options)
 
-        if (resp.ok) {
+        if (resp.status != 401) {
             return resp.json()
         }
 
