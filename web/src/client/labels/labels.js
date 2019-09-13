@@ -27,7 +27,7 @@ export default function labels(api) {
         return label
     }
 
-    let list = async () => {
+    $.fetchTitles = async () => {
         // todo: list all in smaller batches
         let resp = await api.get(`/api/v1/${api.subject()}/labels?page_size=100`)
 

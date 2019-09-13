@@ -57,7 +57,7 @@
         let label = await labels.create(labelTitle)
         labelsList = labelsList.concat([label])
 
-        dispatch('labeladded', label.name)
+        dispatch('labeladded', label)
     }
 
     function onKeyPress() {
@@ -78,6 +78,7 @@
         hidden=true
  		on:input={onKeyPress}
 		on:keydown={onKeyDown}
+        list='labels'
     />
     <button class='button-add' on:click|preventDefault={onAdd}>➕</button>
 </span>

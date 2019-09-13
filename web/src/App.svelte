@@ -53,8 +53,11 @@
         })
         .listen()
 
+    let hints = []
     if (!api.authorized()) {
         router.route('/')
+    } else {
+        client.labels.fetchTitles().then(() => hints = client.labels.titles)
     }
 </script>
 
@@ -66,8 +69,17 @@
             on:added={(e) => add(e.detail, client.articles.add)}
             on:search={(e) => search(e.detail, client.articles.search)}
         />
+        <datalist id="labels">
+            {#each hints as hint}
+                <option value={hint}/>
+            {/each}
+        </datalist>
     {/if}
-    <svelte:component this={component} {...props} />
+    <svelte:component
+        on:labeladded={(e) => hints = client.labels.titles}
+        this={component}
+        {...props}
+    />
 </div>
 
 <style>

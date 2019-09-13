@@ -20,11 +20,12 @@
     }
     
     async function onLabelAdded(e) {
-        label_ids = [e.detail].concat(label_ids)
+        label_ids = [e.detail.name].concat(label_ids)
         await articles.updateLabels({
             name: name,
             label_ids: label_ids,
         })
+        dispatch('labeladded', e.detail)
     }
 
     async function onLabelDeleted(e) {

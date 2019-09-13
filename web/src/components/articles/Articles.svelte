@@ -58,6 +58,7 @@
             on:deleted={(e) => onDeleted(e.detail)}
             articles={articles}
             labels={labels}
+            on:labeladded
             {...article}
         />
     </Pagination>
