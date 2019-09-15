@@ -1,11 +1,11 @@
 <script context='module'>
     import { IndexedDB } from '../indexeddb/IndexedDB.svelte'
 
-    export const Articles = (api) => {
+    export const Articles = async (api) => {
         let $ = {}
 
         let from = ''
-        let db = new IndexedDB()
+        let db = await IndexedDB()
 
         $.add = async (url) => {
             let article = await api.post(`/api/v1/${api.subject()}/articles`, {
@@ -37,8 +37,18 @@
             if (from === undefined) {
                 return []
             }
+
+            let articles = []
+            await db.forEach('articles', article => {
+                articles = [article].concat(articles)
+                return articles.length !== pageSize
+            })
+
+            return articles
+
             let resp = await api.get(`/api/v1/${api.subject()}/articles?page_size=${pageSize}&page_token=${from}`)
             from = resp.next_page_token // undefined when no more items
+
             return resp.articles
         }
 

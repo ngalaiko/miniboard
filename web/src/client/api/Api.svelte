@@ -4,7 +4,7 @@
     export const Api = () => {
         let $ = {}
 
-        let localStorage = new LocalStorage()
+        let localStorage = LocalStorage()
 
         $.get = (url) => {
             return send(url, 'GET')

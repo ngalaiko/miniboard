@@ -1,32 +1,25 @@
 <script context='module'>
     const disabled = () => {
         let $ = {}
-        $.add = () => Promise.resolve(undefined)
-        $.update = () => Promise.resolve(undefined)
-        $.get = () => Promise.resolve(undefined)
-        $.delete = () => Promise.resolve(undefined)
-        $.forEach = () => Promise.resolve(undefined)
+        $.add = () => Promise.reject('not supported')
+        $.update = () => Promise.reject('not supported')
+        $.get = () => Promise.reject('not supported')
+        $.delete = () => Promise.reject('not supported')
+        $.forEach = () => Promise.reject('not supported')
         return $
     }
 
-    export const IndexedDB = () => {
-        let $ = {}
-
+    let database = () => new Promise((resolve, reject) => {
         const indexedDB = window.indexedDB || window.mozIndexedDB
             || window.webkitIndexedDB || window.msIndexedDB
 
-        let db
-
         if (!indexedDB) {
-            return disabled()
+            reject('indexed db not supported')
         }
 
         const request = indexedDB.open('miniboard', 3)
-        request.onerror = (event) => {
-            console.error(event.target.errorCode)
-        }
-        request.onsuccess = (event) => db = event.target.result
-
+        request.onerror = (event) => reject(`can't open IndexedDB: ${event.target.errorCode}`)
+        request.onsuccess = (event) => resolve(event.target.result)
         request.onupgradeneeded = (event) => {
             let db = event.target.result
 
@@ -37,8 +30,20 @@
             collectionNames.forEach(collectionName => {
                 db.createObjectStore(collectionName, {
                     keyPath: 'name'
-                }).createIndex('name', 'name', { unique: true });
+                }).createIndex('name', 'name', { unique: true })
             })
+        }
+    })
+
+    export const IndexedDB = async () => {
+        let $ = {}
+
+        let db
+        try {
+            db = await database()
+        } catch (e) {
+            console.log(`can't use IndexedDB because: ${e}`)
+            return disabled()
         }
 
         const collectionName = (name) => {
@@ -95,12 +100,11 @@
             request.onsuccess = (event) => {
                 let cursor = event.target.result
 
-                if (cursor) {
-                    eachFunc(cursor.value)
+                if (cursor && eachFunc(cursor.value)) {
                     cursor.continue()
+                } else {
+                    resolve(undefined)
                 }
-
-                resolve(undefined)
             }
         })
 

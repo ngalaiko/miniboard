@@ -8,78 +8,86 @@
     import Header from './components/header/Header.svelte'
     import Reader from './components/reader/Reader.svelte'
 
-    let client = new Client()
-    let api = client.api
-
+    let hints = []
+    let apiClient
+    let router
     let component
     let props
 
-    let router = new Router()
-    router
-        .on('/', () => {
-            component = LoginForm
-            props = {
-                api: api,
-                authorizations: client.authorizations,
-                users: client.users,
-                router: router,
-            }
-        })
-        .on('/users/:username', () => {
-            component = Articles
-            props = {
-                api: api,
-                articles: client.articles,
-                labels: client.labels,
-            }
-        })
-        .on('/users/:username/search', () => {
-            component = Search
-            props = {
-                api: api,
-                articles: client.articles,
-                labels: client.labels,
-            }
-        })
-        .on('/users/:username/articles/:articleid', (params) => {
-            component = Reader
-            props = {
-                articles: client.articles,
-                name: `users/${params.username}/articles/${params.articleid}`,
-            }
-        })
-        .on('*', () => {
-            component = NotFound
-        })
-        .listen()
+    let clientPromise = Client().then(client => {
+        apiClient = client
+        router = new Router()
 
-    let hints = []
-    if (!api.authorized()) {
-        router.route('/')
-    } else {
-        client.labels.fetchTitles().then(() => hints = client.labels.titles)
-    }
+        router
+            .on('/', () => {
+                component = LoginForm
+                props = {
+                    api: client.api,
+                    authorizations: client.authorizations,
+                    users: client.users,
+                    router: router,
+                }
+            })
+            .on('/users/:username', () => {
+                component = Articles
+                props = {
+                    api: client.api,
+                    articles: client.articles,
+                    labels: client.labels,
+                }
+            })
+            .on('/users/:username/search', () => {
+                component = Search
+                props = {
+                    api: client.api,
+                    articles: client.articles,
+                    labels: client.labels,
+                }
+            })
+            .on('/users/:username/articles/:articleid', (params) => {
+                component = Reader
+                props = {
+                    articles: client.articles,
+                    name: `users/${params.username}/articles/${params.articleid}`,
+                }
+            })
+            .on('*', () => {
+                component = NotFound
+            })
+            .listen()
+
+        if (!client.api.authorized()) {
+            router.route('/')
+        } else {
+            client.labels.fetchTitles().then(() => hints = client.labels.titles)
+        }
+    })
 </script>
 
 <div class="app">
-    {#if api.authorized()}
-        <Header
-            api={api}
-            router={router}
-            on:added={(e) => add(e.detail, client.articles.add)}
-            on:search={(e) => search(e.detail, client.articles.search)}
+    {#await clientPromise}
+    {:then}
+        {#if apiClient.api.authorized()}
+            <Header
+                api={apiClient.api}
+                router={router}
+                on:added={(e) => add(e.detail, apiClient.articles.add)}
+                on:search={(e) => search(e.detail, apiClient.articles.search)}
+            />
+            <datalist id="labels">
+                {#each hints as hint}
+                    <option value={hint}/>
+                {/each}
+            </datalist>
+        {/if}
+        <svelte:component
+            on:labeladded={(e) => hints = apiClient.labels.titles}
+            this={component}
+            {...props}
         />
-        <datalist id="labels">
-            {#each hints as hint}
-                <option value={hint}/>
-            {/each}
-        </datalist>
-    {/if}
-    <svelte:component
-        on:labeladded={(e) => hints = client.labels.titles}
-        this={component}
-        {...props}
-    />
+    {:catch e}
+        {e}
+    {/await}
 </div>
 
 <style>
