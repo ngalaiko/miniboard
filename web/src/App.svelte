@@ -2,7 +2,7 @@
     import Articles, { add } from './components/articles/Articles.svelte'
     import Search, { search } from './components/search/Search.svelte'
     import NotFound from './components/notfound/NotFound.svelte'
-    import Client from './client/client'
+    import { Client } from './client/Client.svelte'
     import Router from './components/router/navaid'
     import LoginForm from './components/loginform/LoginForm.svelte'
     import Header from './components/header/Header.svelte'
