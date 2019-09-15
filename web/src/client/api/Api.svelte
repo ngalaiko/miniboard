@@ -1,5 +1,5 @@
 <script context='module'>
-    import LocalStorage from './localstorage/localstorage'
+    import { LocalStorage } from './localstorage/LocalStorage.svelte'
 
     export const Api = () => {
         let $ = {}
