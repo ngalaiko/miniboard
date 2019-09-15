@@ -42,10 +42,14 @@
                 return articles.length !== pageSize
             })
 
-            return articles
+            if (articles.length !== 0) return articles
 
             let resp = await api.get(`/api/v1/${api.subject()}/articles?page_size=${pageSize}&page_token=${from}`)
             from = resp.next_page_token // undefined when no more items
+
+            resp.articles.forEach(article => {
+                db.add(article)
+            })
 
             return resp.articles
         }
