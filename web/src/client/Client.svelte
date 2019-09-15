@@ -1,7 +1,7 @@
 <script context='module'>
     import { Api } from './api/Api.svelte'
     import { Authorizations } from './authorizations/Authorizations.svelte'
-    import Articles from './articles/articles'
+    import { Articles } from './articles/Articles.svelte'
     import Labels from './labels/labels'
     import { Users } from './users/Users.svelte'
 
