@@ -3,7 +3,7 @@
     import Authorizations from './authorizations/authorizations'
     import Articles from './articles/articles'
     import Labels from './labels/labels'
-    import Users from './users/users'
+    import { Users } from './users/Users.svelte'
 
     export const Client = () => {
         let $ = {}

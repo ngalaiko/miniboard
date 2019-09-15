@@ -38,20 +38,18 @@
             localStorage.remove('authentication.token_type')
         }
 
-        const payload = () => {
+        $.subject = () => {
             let token = localStorage.get('authentication.access_token')
             if (token == null) {
                 return ''
             }
             let base64Url = token.split('.')[1]
             let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-            return JSON.parse(decodeURIComponent(atob(base64).split('').map(c => {
+            let payload = JSON.parse(decodeURIComponent(atob(base64).split('').map(c => {
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
             }).join('')));
-        }
 
-        $.subject = () => {
-            return payload().sub
+            return payload.sub
         }
 
         const send = async (url, method, body) => {
