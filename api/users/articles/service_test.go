@@ -52,6 +52,7 @@ func Test_articles(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotEmpty(t, resp.Name)
 				assert.Equal(t, resp.Url, "http://localhost")
+				assert.NotEmpty(t, resp.Content)
 			})
 			t.Run("When getting the article with full view", func(t *testing.T) {
 				resp, err := service.GetArticle(ctx, &articles.GetArticleRequest{
@@ -82,7 +83,6 @@ func Test_articles(t *testing.T) {
 					assert.Empty(t, resp.Content)
 				})
 			})
-
 			t.Run("When deleting the article", func(t *testing.T) {
 				_, err = service.DeleteArticle(ctx, &articles.DeleteArticleRequest{
 					Name: resp.Name,

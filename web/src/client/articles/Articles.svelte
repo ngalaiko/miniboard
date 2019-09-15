@@ -18,7 +18,11 @@
         }
 
         $.get = async (name) => {
-            return await api.get(`/api/v1/${name}?view=ARTICLE_VIEW_FULL`)
+            try {
+                return await db.get(name)
+            } catch (e) {
+                return await api.get(`/api/v1/${name}?view=ARTICLE_VIEW_FULL`)
+            }
         }
 
         $.delete = async (name) => {

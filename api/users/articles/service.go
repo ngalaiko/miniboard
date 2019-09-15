@@ -155,13 +155,13 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 	name := resource.ParseName(request.Parent).Child("articles", ksuid.New().String())
 
 	r, err := s.newReader(articleURL)
+	var content []byte
 	switch err {
 	case nil:
 		request.Article.Title = r.Title()
 		request.Article.IconUrl = r.IconURL()
 
-		// looks ugly, do something
-		content := r.Content()
+		content = r.Content()
 		if content != nil {
 			if err := s.storage.Store(resource.NewName("content", name.ID()), content); err != nil {
 				return nil, status.New(codes.Internal, "failed to store the article content").Err()
@@ -183,6 +183,7 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 		return nil, status.New(codes.Internal, "failed to store the article").Err()
 	}
 
+	request.Article.Content = content
 	return request.Article, nil
 }
 
