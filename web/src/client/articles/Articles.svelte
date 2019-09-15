@@ -1,13 +1,20 @@
 <script context='module'>
+    import { IndexedDB } from '../indexeddb/IndexedDB.svelte'
+
     export const Articles = (api) => {
         let $ = {}
 
         let from = ''
+        let db = new IndexedDB()
 
         $.add = async (url) => {
-            return await api.post(`/api/v1/${api.subject()}/articles`, {
+            let article = await api.post(`/api/v1/${api.subject()}/articles`, {
                 url: url
             })
+
+            db.add(article)
+
+            return article
         }
 
         $.get = async (name) => {
@@ -15,6 +22,7 @@
         }
 
         $.delete = async (name) => {
+            db.delete(name)
             return await api.delete(`/api/v1/${name}`)
         }
 
