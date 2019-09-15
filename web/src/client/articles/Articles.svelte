@@ -12,22 +12,34 @@
                 url: url
             })
 
-            db.add(article)
-
-            return article
+            try {
+                db.add(article)
+            } finally {
+                return article
+            }
         }
 
         $.get = async (name) => {
             try {
-                return await db.get(name)
+                let article = await db.get(name)
+                if (article.content == undefined) {
+                    let article = await api.get(`/api/v1/${name}?view=ARTICLE_VIEW_FULL`)
+                    db.add(article)
+                    return article
+                }
+                return article
             } catch (e) {
+                console.error(e)
                 return await api.get(`/api/v1/${name}?view=ARTICLE_VIEW_FULL`)
             }
         }
 
         $.delete = async (name) => {
-            db.delete(name)
-            return await api.delete(`/api/v1/${name}`)
+            try {
+                db.delete(name)
+            } finally {
+                return await api.delete(`/api/v1/${name}`)
+            }
         }
 
         $.next = async (pageSize) => {
@@ -48,7 +60,12 @@
             from = resp.next_page_token // undefined when no more items
 
             resp.articles.forEach(article => {
-                db.add(article)
+                try {
+                    db.add(article)
+                } catch (e) {
+                    return false
+                }
+                return true
             })
 
             return resp.articles

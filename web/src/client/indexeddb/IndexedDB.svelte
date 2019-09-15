@@ -2,7 +2,6 @@
     const disabled = () => {
         let $ = {}
         $.add = () => Promise.reject('not supported')
-        $.update = () => Promise.reject('not supported')
         $.get = () => Promise.reject('not supported')
         $.delete = () => Promise.reject('not supported')
         $.forEach = () => Promise.reject('not supported')
@@ -52,16 +51,6 @@
         }
 
         $.add = (value) => new Promise((resolve, reject) => {
-            let name = collectionName(value.name)
-            let tx = db.transaction(name, 'readwrite')
-            tx.onerror = (event) => reject(event.target.errorCode)
-
-            let request = tx.objectStore(name).add(value)
-            request.onerror = (event) => reject(event.target.errorCode)
-            request.onsuccess = (event) => resolve(event.target.result)
-        })
-
-        $.update = (value) => new Promise((resolve, reject) => {
             let name = collectionName(value.name)
             let tx = db.transaction(name, 'readwrite')
             tx.onerror = (event) => reject(event.target.errorCode)
