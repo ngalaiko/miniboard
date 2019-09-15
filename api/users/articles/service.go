@@ -199,9 +199,7 @@ func (s *Service) UpdateArticle(ctx context.Context, request *articles.UpdateArt
 
 	for _, path := range request.UpdateMask.GetPaths() {
 		switch path {
-		case "label_ids":
-			article.LabelIds = request.Article.LabelIds
-			updated = true
+		default:
 		}
 	}
 

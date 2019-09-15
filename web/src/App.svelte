@@ -8,7 +8,6 @@
     import Header from './components/header/Header.svelte'
     import Reader from './components/reader/Reader.svelte'
 
-    let hints = []
     let apiClient
     let router
     let component
@@ -33,7 +32,6 @@
                 props = {
                     api: client.api,
                     articles: client.articles,
-                    labels: client.labels,
                 }
             })
             .on('/users/:username/search', () => {
@@ -41,7 +39,6 @@
                 props = {
                     api: client.api,
                     articles: client.articles,
-                    labels: client.labels,
                 }
             })
             .on('/users/:username/articles/:articleid', (params) => {
@@ -58,9 +55,7 @@
 
         if (!client.api.authorized()) {
             router.route('/')
-        } else {
-            client.labels.fetchTitles().then(() => hints = client.labels.titles)
-        }
+        } 
     })
 </script>
 
@@ -74,14 +69,8 @@
                 on:added={(e) => add(e.detail, apiClient.articles.add)}
                 on:search={(e) => search(e.detail, apiClient.articles.search)}
             />
-            <datalist id="labels">
-                {#each hints as hint}
-                    <option value={hint}/>
-                {/each}
-            </datalist>
         {/if}
         <svelte:component
-            on:labeladded={(e) => hints = apiClient.labels.titles}
             this={component}
             {...props}
         />

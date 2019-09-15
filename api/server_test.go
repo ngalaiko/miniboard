@@ -129,24 +129,6 @@ func Test_server(t *testing.T) {
 									assert.Equal(t, a.Url, "http://localhost")
 								})
 							})
-							t.Run("When udpating article with label", func(t *testing.T) {
-								resp, err := http.DefaultClient.Do(patchJSON(t,
-									fmt.Sprintf("%s/api/v1/%s?update_mask=label_ids", server.URL, article.Name),
-									map[string]interface{}{
-										"label_ids": []string{"labels/new"},
-									},
-									authorization,
-								))
-								t.Run("It should update the article", func(t *testing.T) {
-									assert.NoError(t, err)
-									assert.Equal(t, http.StatusOK, resp.StatusCode)
-
-									article := &articles.Article{}
-									assert.NoError(t, jsonpb.Unmarshal(resp.Body, article))
-
-									assert.Equal(t, []string{"labels/new"}, article.LabelIds)
-								})
-							})
 						})
 						t.Run("When listing articles", func(t *testing.T) {
 							resp, err = http.DefaultClient.Do(getAuth(t,

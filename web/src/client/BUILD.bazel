@@ -9,7 +9,6 @@ svelte(
         "//web/src/client/api:Api",
         "//web/src/client/authorizations:Authorizations",
         "//web/src/client/articles:Articles",
-        "//web/src/client/labels:Labels",
         "//web/src/client/users:Users",
     ],
 )

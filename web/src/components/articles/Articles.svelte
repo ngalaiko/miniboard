@@ -30,7 +30,6 @@
 
     export let api
     export let articles
-    export let labels
 
     async function loadMoreArticles(pageSize) {
         let nextPage = await articles.next(pageSize)
@@ -57,7 +56,6 @@
         <Article
             on:deleted={(e) => onDeleted(e.detail)}
             articles={articles}
-            labels={labels}
             on:labeladded
             {...article}
         />

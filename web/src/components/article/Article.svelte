@@ -1,11 +1,9 @@
 <script>
     import { createEventDispatcher } from 'svelte'
     import TimeAgo from '../../components/timeago/TimeAgo.svelte'
-    import Labels from '../../components/labels/Labels.svelte'
 
     const dispatch = createEventDispatcher()
 
-    export let labels
     export let articles
 
     export let name
@@ -18,33 +16,10 @@
     if (label_ids === undefined) {
         label_ids = []
     }
-    
-    async function onLabelAdded(e) {
-        label_ids = [e.detail.name].concat(label_ids)
-        await articles.updateLabels({
-            name: name,
-            label_ids: label_ids,
-        })
-        dispatch('labeladded', e.detail)
-    }
-
-    async function onLabelDeleted(e) {
-        label_ids = label_ids.filter(labelId => labelId != e.detail)
-        await articles.updateLabels({
-            name: name,
-            label_ids: label_ids,
-        })
-    }
 </script>
 
 <div class='article'>
     <a href='/{name}' target='_blank' class='title'>{title}</a>
-    <Labels
-        labels={labels} 
-        labelIds={label_ids} 
-        on:labeladded={onLabelAdded} 
-        on:labeldeleted={onLabelDeleted} 
-    />
     <ul class='article-info'>
         <li><a class='link padding' href={url}>original</a></li>
         <li class='separator flex'><TimeAgo date={create_time}/></li>

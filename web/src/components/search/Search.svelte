@@ -19,7 +19,6 @@
 
     export let api
     export let articles
-    export let labels
 
     async function onDeleted(name) {
         await articles.delete(name)
@@ -37,7 +36,6 @@
         <Article
             on:deleted={(e) => onDeleted(e.detail)}
             articles={articles}
-            labels={labels}
             on:labeladded
             {...article}
         />

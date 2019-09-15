@@ -26,12 +26,6 @@
             return await api.delete(`/api/v1/${name}`)
         }
 
-        $.updateLabels = async (article) => {
-            return api.patch(`/api/v1/${article.name}?update_mask=label_ids`, {
-                label_ids: article.label_ids,
-            })
-        }
-
         $.next = async (pageSize) => {
             // if there are no more articles, return en empty list.
             if (from === undefined) {

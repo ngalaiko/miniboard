@@ -155,11 +155,8 @@ message Article {
     // Time when article was added.&articles.List
     google.protobuf.Timestamp create_time = 5;
 
-	// List of article's labels ids.
-	repeated string label_ids = 6;
-
     // Readable content of the article.
-    bytes content = 7;
+    bytes content = 6;
 }
 
 enum ArticleView {
