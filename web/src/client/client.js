@@ -1,4 +1,4 @@
-import Api from './api/api'
+import { Api } from './api/Api.svelte'
 import Authorizations from './authorizations/authorizations'
 import Articles from './articles/articles'
 import Labels from './labels/labels'
