@@ -9,9 +9,9 @@
         loading...
     {:then article}
         {#if article.content === undefined}
-            no saved content, redirecting to <a href={article.url}>{article.url}</a>
+            no saved content, redirecting to <a href={article.url} target='_blank'>{article.url}</a>
             <div hidden>
-                {location.replace(article.url)}
+                {window.open(article.url, '_blank')}
             </div>
         {:else}
             {@html atob(article.content)}

@@ -19,7 +19,7 @@
 </script>
 
 <div class='article'>
-    <a href='/{name}' target='_blank' class='title'>{title}</a>
+    <a href='/{name}' class='title'>{title}</a>
     <ul class='article-info'>
         <li><a class='link padding' href={url}>original</a></li>
         <li class='separator flex'><TimeAgo date={create_time}/></li>
