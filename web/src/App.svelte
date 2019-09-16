@@ -3,7 +3,7 @@
     import Search, { search } from './components/search/Search.svelte'
     import NotFound from './components/notfound/NotFound.svelte'
     import { Client } from './client/Client.svelte'
-    import Router from './components/router/navaid'
+    import { Router } from './components/router/Router.svelte'
     import LoginForm from './components/loginform/LoginForm.svelte'
     import Header from './components/header/Header.svelte'
     import Reader from './components/reader/Reader.svelte'
