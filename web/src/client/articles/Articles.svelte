@@ -41,7 +41,7 @@
         }
 
         let from = ''
-        const fromApi = async (pageSize) => {
+        const listApi = async (pageSize) => {
             // if there are no more articles, return en empty list.
             if (from === undefined) {
                 return []
@@ -62,7 +62,7 @@
         }
 
         let fromLocal = ''
-        const fromLocalStorage = async (pageSize) => {
+        const listLocal = async (pageSize) => {
             // if there are no more articles, return en empty list.
             if (fromLocal === undefined) {
                 return []
@@ -86,16 +86,37 @@
 
         $.next = async (pageSize) => {
             try {
-                return await fromApi(pageSize)
+                return await listApi(pageSize)
             } catch (e) {
-                return fromLocalStorage(pageSize)
+                return await listLocal(pageSize)
             }
         }
 
-        $.search = async (query, limit) => {
-            // TODO: use client side
+        const searchLocal = async (query, limit) => {
+            let articles = []
+            query = query.toLowerCase()
+            await db.forEach('articles', article => {
+                if (article.title.toLowerCase().includes(query)) {
+                    articles = [article].concat(articles)
+                } else if (article.url.toLowerCase().includes(query)) {
+                    articles = [article].concat(articles)
+                }
+                return articles.length !== limit
+            })
+            return articles
+        }
+
+        const searchApi = async (query, limit) => {
             let resp = await api.get(`/api/v1/${api.subject()}/articles:search?query=${query}&page_size=${limit}`)
             return resp.articles
+        }
+
+        $.search = async (query, limit) => {
+            try {
+                return await searchLocal(query, limit)
+            } catch (e) {
+                return await searchApi(query, limit)
+            }
         }
 
         return $
