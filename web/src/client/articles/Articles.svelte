@@ -4,7 +4,6 @@
     export const Articles = async (api) => {
         let $ = {}
 
-        let from = ''
         let db = await IndexedDB()
 
         $.add = async (url) => {
@@ -21,16 +20,15 @@
 
         $.get = async (name) => {
             try {
-                let article = await db.get(name)
-                if (article.content == undefined) {
-                    let article = await api.get(`/api/v1/${name}?view=ARTICLE_VIEW_FULL`)
+                let article =  await api.get(`/api/v1/${name}?view=ARTICLE_VIEW_FULL`)
+                try {
                     db.add(article)
+                } finally {
                     return article
                 }
-                return article
             } catch (e) {
                 console.error(e)
-                return await api.get(`/api/v1/${name}?view=ARTICLE_VIEW_FULL`)
+                return await db.get(name)
             }
         }
 
@@ -42,19 +40,12 @@
             }
         }
 
-        $.next = async (pageSize) => {
+        let from = ''
+        const fromApi = async (pageSize) => {
             // if there are no more articles, return en empty list.
             if (from === undefined) {
                 return []
             }
-
-            let articles = []
-            await db.forEach('articles', article => {
-                articles = [article].concat(articles)
-                return articles.length !== pageSize
-            })
-
-            if (articles.length !== 0) return articles
 
             let resp = await api.get(`/api/v1/${api.subject()}/articles?page_size=${pageSize}&page_token=${from}`)
             from = resp.next_page_token // undefined when no more items
@@ -62,16 +53,47 @@
             resp.articles.forEach(article => {
                 try {
                     db.add(article)
-                } catch (e) {
-                    return false
+                } finally {
+                    return true
                 }
-                return true
             })
 
             return resp.articles
         }
 
+        let fromLocal = ''
+        const fromLocalStorage = async (pageSize) => {
+            // if there are no more articles, return en empty list.
+            if (fromLocal === undefined) {
+                return []
+            }
+
+            let articles = []
+            let add = fromLocal === ''
+            await db.forEach('articles', article => {
+                if (article.name == fromLocal) add = true
+                if (add) articles = [article].concat(articles)
+                return articles.length !== pageSize
+            })
+
+            // if we got requested number of articles, need to continue next time
+            if (articles.length == pageSize) fromLocal = articles[articles.length-1].name
+            // if we got less than requested, there are no more articles.
+            if (articles.length < pageSize) fromLocal = undefined
+
+            return articles
+        }
+
+        $.next = async (pageSize) => {
+            try {
+                return await fromApi(pageSize)
+            } catch (e) {
+                return fromLocalStorage(pageSize)
+            }
+        }
+
         $.search = async (query, limit) => {
+            // TODO: use client side
             let resp = await api.get(`/api/v1/${api.subject()}/articles:search?query=${query}&page_size=${limit}`)
             return resp.articles
         }
