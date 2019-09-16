@@ -20,6 +20,10 @@
 
         router
             .on('/', () => {
+                if (client.api.authorized()) {
+                    router.route(`/${client.api.subject()}`)
+                    return
+                }
                 component = LoginForm
                 props = {
                     api: client.api,
