@@ -16,6 +16,8 @@
         {:else}
             {@html atob(article.content)}
         {/if}
+    {:catch e}
+        failed to fetch, are you online?
     {/await}
 </div>
 

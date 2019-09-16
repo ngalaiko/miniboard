@@ -26,7 +26,7 @@
             } catch (e) {
                 console.error(e)
 
-                let article =  await api.get(`/api/v1/${name}?view=ARTICLE_VIEW_FULL`)
+                let article = await api.get(`/api/v1/${name}?view=ARTICLE_VIEW_FULL`)
                 try {
                     db.add(article)
                 } finally {
