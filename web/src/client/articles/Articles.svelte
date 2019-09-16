@@ -20,15 +20,18 @@
 
         $.get = async (name) => {
             try {
+                let article = await db.get(name)
+                if (!article.content) throw Error('no content')
+                return article
+            } catch (e) {
+                console.error(e)
+
                 let article =  await api.get(`/api/v1/${name}?view=ARTICLE_VIEW_FULL`)
                 try {
                     db.add(article)
                 } finally {
                     return article
                 }
-            } catch (e) {
-                console.error(e)
-                return await db.get(name)
             }
         }
 
