@@ -12,6 +12,7 @@
     let router
     let component
     let props
+    let showSearch = false
 
     let clientPromise = Client().then(client => {
         apiClient = client
@@ -36,6 +37,7 @@
             })
             .on('/users/:username/search', () => {
                 component = Search
+                showSearch = true
                 props = {
                     api: client.api,
                     articles: client.articles,
@@ -66,6 +68,7 @@
             <Header
                 api={apiClient.api}
                 router={router}
+                showSearch={showSearch}
                 on:added={(e) => add(e.detail, apiClient.articles.add)}
                 on:search={(e) => search(e.detail, apiClient.articles.search)}
             />

@@ -14,7 +14,7 @@
     }
 
     let showAdd = false
-    let showSearch = false
+    export let showSearch = false
     let url = ''
     let query = ''
 
