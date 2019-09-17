@@ -13,3 +13,22 @@ jobs:
       uses: ngalaiko/bazel-action@0.29.0
       with:
         args: test //...
+
+    - name: Login to registry
+      env:
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_HOME: /home/runner/work/_temp/_github_home
+      run: |
+        # this will create /home/runner/.docker/config.json with credentials
+        docker login \
+            docker.pkg.github.com \
+            -u ngalaiko \
+            -p ${DOCKER_PASSWORD}
+        # copy credentials to mount them to the bazel container.
+        mkdir -p ${DOCKER_HOME}/.docker
+        cp /home/runner/.docker/config.json ${DOCKER_HOME}/.docker/config.json
+
+    - name: Push image
+      uses: ngalaiko/bazel-action@0.29.0
+      with:
+        args: run :docker_push

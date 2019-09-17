@@ -68,6 +68,9 @@ load(
     _go_image_repos = "repositories",
 )
 _go_image_repos()
+load("@io_bazel_rules_docker//toolchains/docker:toolchain.bzl",
+    docker_toolchain_configure="toolchain_configure"
+)
 
 # Svetle.
 http_archive(
