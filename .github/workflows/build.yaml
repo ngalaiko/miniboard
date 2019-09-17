@@ -1,10 +1,15 @@
-name: CI
+name: Build
 
-on: [push]
+on:
+  push:
+    branches: 
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    matrix:
+      platform: [linux_amd64, linux_arm, linux_arm64]
     
     steps:
     - uses: actions/checkout@v1
@@ -30,5 +35,7 @@ jobs:
 
     - name: Push image
       uses: ngalaiko/bazel-action@0.29.0
+      env:
+        VERSION=${GITHUB_REF}_{{ matrix.platform }}
       with:
-        args: run --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 :docker_push
+        args: run --platforms=@io_bazel_rules_go//go/toolchain:{{ matrix.platform }} :docker_push
