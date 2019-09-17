@@ -6,9 +6,6 @@ build \
     --workspace_status_command $PWD/stamp.sh \
     --host_force_python=PY2
 
-run \
-    --host_force_python=PY2
-
 query \
     --incompatible_disable_deprecated_attr_params=false \
     --incompatible_depset_union=false \

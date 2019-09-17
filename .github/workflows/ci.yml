@@ -31,4 +31,4 @@ jobs:
     - name: Push image
       uses: ngalaiko/bazel-action@0.29.0
       with:
-        args: run :docker_push
+        args: run --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 :docker_push
