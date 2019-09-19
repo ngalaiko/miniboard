@@ -1,20 +1,15 @@
-load("@bazel_gazelle//:def.bzl", "gazelle")
-
-# gazelle:prefix miniboard.app
-gazelle(name = "gazelle")
-
 alias(
     name = "miniboard",
-    actual = "//cmd/miniboard:miniboard",
+    actual = "//server/cmd/miniboard:miniboard",
 )
 
 load("@io_bazel_rules_docker//container:container.bzl", "container_push")
 
 container_push(
-   name = "docker_push",
-   image = "//cmd/miniboard:image",
-   format = "Docker",
-   registry = "docker.pkg.github.com",
-   repository = "ngalaiko/miniboard/app",
-   tag = "{MINIBOARD_VERSION}",
+    name = "docker_push",
+    image = "//server/cmd/miniboard:image",
+    format = "Docker",
+    registry = "docker.pkg.github.com",
+    repository = "ngalaiko/miniboard/app",
+    tag = "{MINIBOARD_VERSION}",
 )

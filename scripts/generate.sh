@@ -3,8 +3,8 @@
 set -euo pipefail
 
 go mod tidy
-bazel run //:gazelle -- \
+bazel run //server:gazelle -- \
     update-repos \
-        -from_file=go.mod \
+        -from_file=./server/go.mod \
         -to_macro=repositories.bzl%go_repositories
-bazel run //:gazelle
+bazel run //server:gazelle

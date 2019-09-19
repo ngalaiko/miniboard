@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["web.go"],
+    data = [
+        "//web:app",
+        "//web:index.html",
+    ],
+    importpath = "miniboard.app/web",
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,12 @@
+load("@build_bazel_rules_svelte//:defs.bzl", "svelte")
+
+package(default_visibility = ["//visibility:public"])
+
+svelte(
+    name = "Search",
+    entry_point = "Search.svelte",
+    deps = [
+        "//web/components/article:Article",
+        "//web/components/pagination:Pagination",
+    ],
+)

@@ -1,9 +1,0 @@
-load("@build_bazel_rules_svelte//:defs.bzl", "svelte")
-
-package(default_visibility = ["//visibility:public"])
-
-svelte(
-    name = "Api",
-    entry_point = "Api.svelte",
-    deps = ["//web/src/client/api/localstorage:LocalStorage"],
-)

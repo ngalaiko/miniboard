@@ -1,13 +1,27 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
-
 package(default_visibility = ["//visibility:public"])
 
-go_library(
-    name = "go_default_library",
-    srcs = ["web.go"],
-    data = [
-        "//web/src:app",
-        "//web/src:index.html",
+load("@build_bazel_rules_svelte//:defs.bzl", "bundle_dev", "bundle_prod", "svelte")
+
+svelte(
+    name = "App",
+    srcs = ["main.js"],
+    entry_point = "App.svelte",
+    deps = [
+        "//web/client:Client",
+        "//web/components/articles:Articles",
+        "//web/components/search:Search",
+        "//web/components/loginform:LoginForm",
+        "//web/components/notfound:NotFound",
+        "//web/components/header:Header",
+        "//web/components/router:Router",
+        "//web/components/reader:Reader",
     ],
-    importpath = "miniboard.app/web",
 )
+
+bundle_prod(
+    name = "app",
+    entry_point = "main.js",
+    deps = [":App"],
+)
+
+exports_files(["index.html"])
