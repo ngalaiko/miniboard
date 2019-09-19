@@ -18,8 +18,6 @@
         articlesListStore.update(list => list.filter(article => article.random != rnd))
         articlesListStore.update(list => [article].concat(list))
     }
-
-    const pageStartStore = writable(0)
 </script>
 
 <script>
@@ -49,9 +47,7 @@
     <Pagination
         itemsStore={articlesListStore}
         let:item={article}
-        pageStart={get(pageStartStore)}
         on:loadmore={(e) => loadMoreArticles(e.detail) }
-        on:pagestart={(e) => pageStartStore.set(e.detail)}
     >
         <Article
             on:deleted={(e) => onDeleted(e.detail)}

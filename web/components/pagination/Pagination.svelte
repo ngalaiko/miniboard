@@ -11,48 +11,32 @@
 
     let items = []
     let pageSize = 8
-    export let pageStart = 0
 
     const unsubscribeItems = itemsStore.subscribe(value => {
         Array.isArray(items) ? items = value : []
     })
 
-    function loadMore() {
-        dispatch('loadmore', pageSize * 2)
+    const loadMore = () => dispatch('loadmore', pageSize * 2)
+
+    onDestroy(() => unsubscribeItems())
+
+    onMount(() => loadMore())
+
+    const isBottom = () => {
+        return (window.innerHeight + window.scrollY) >= document.body.offsetHeight
     }
 
-    onDestroy(() => {
-        unsubscribeItems()
-    })
-
-    onMount(() => {
+    window.onscroll = () => {
+        if (!isBottom()) {
+            return
+        }
         loadMore()
-    })
-
-    function previousPage() {
-        pageStart -= pageSize
-        dispatch('pagestart', pageStart)
-    }
-
-    function nextPage() {
-        loadMore()
-        pageStart += pageSize
-        dispatch('pagestart', pageStart)
     }
 </script>
 
 <div class='page'>
-    <div class='pagination'>
-        {#if pageStart > 0}
-            <button class="button-pagination button-previous" on:click|preventDefault={previousPage} >previous</button>
-        {/if}
-        <div />
-        {#if items.length > pageStart + pageSize }
-            <button class="button-pagination button-next"  on:click|preventDefault={nextPage} >next</button>
-        {/if}
-    </div>
     <div class='list'>
-        {#each items.slice(pageStart, pageStart + pageSize) as item }
+        {#each items as item, i (item.name) }
 			<slot
 				item={item} 
 			/>

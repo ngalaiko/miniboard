@@ -7,8 +7,6 @@
             ? searchListStore.set([])
             : searchListStore.set(await searchFunc(query, 100))
     }
-
-    const pageStartStore = writable(0)
 </script>
 
 <script>
@@ -30,8 +28,6 @@
     <Pagination
         itemsStore={searchListStore}
         let:item={article}
-        pageStart={get(pageStartStore)}
-        on:pagestart={(e) => pageStartStore.set(e.detail)}
     >
         <Article
             on:deleted={(e) => onDeleted(e.detail)}
