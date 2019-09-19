@@ -88,5 +88,5 @@ load("@build_bazel_rules_svelte//:defs.bzl", "rules_svelte_dependencies")
 rules_svelte_dependencies()
 
 # Golang app's deps.
-load("//:repositories.bzl", "go_repositories")
+load("//server:repositories.bzl", "go_repositories")
 go_repositories()
