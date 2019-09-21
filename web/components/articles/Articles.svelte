@@ -29,7 +29,7 @@
     export let api
     export let articles
 
-    async function loadMoreArticles(pageSize) {
+    const loadMoreArticles = async (pageSize) => {
         let nextPage = await articles.next(pageSize)
         if (nextPage.length == 0) {
             return 
@@ -37,8 +37,7 @@
         articlesListStore.update(list => list.concat(nextPage))
     }
 
-    async function onDeleted(name) {
-        await articles.delete(name)
+    const onDeleted = async (name) => {
         articlesListStore.update(list => list.filter(article => article.name != name))
     }
 </script>
@@ -52,7 +51,6 @@
         <Article
             on:deleted={(e) => onDeleted(e.detail)}
             articles={articles}
-            on:labeladded
             {...article}
         />
     </Pagination>

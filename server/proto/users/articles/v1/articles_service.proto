@@ -157,6 +157,9 @@ message Article {
 
     // Readable content of the article.
     bytes content = 6;
+
+    // Mark the article as read.
+    bool is_read = 7;
 }
 
 enum ArticleView {

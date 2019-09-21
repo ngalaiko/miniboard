@@ -12,9 +12,23 @@
     export let create_time
     export let icon_url
     export let label_ids
+    export let is_read
 
     if (label_ids === undefined) {
         label_ids = []
+    }
+
+    const onDeleted = async () => {
+        await articles.delete(name)
+        dispatch('deleted', name)
+    }
+
+    const onRead = async (isRead) => {
+        await articles.update({
+            name: name,
+            is_read: isRead
+        }, 'is_read')
+        is_read = isRead
     }
 </script>
 
@@ -23,7 +37,18 @@
     <ul class='article-info'>
         <li><a class='link padding' href={url}>original</a></li>
         <li class='separator flex'><TimeAgo date={create_time}/></li>
-        <li class='separator'><button on:click|preventDefault={() => dispatch('deleted', name)}>delete</button></li>
+        {#if is_read}
+            <li class='separator'>
+                <button on:click|preventDefault={() => onRead(false)}>unread</button>
+            </li>
+        {:else}
+            <li class='separator'>
+                <button on:click|preventDefault={() => onRead(true)}>read</button>
+            </li>
+        {/if}
+        <li class='separator'>
+            <button on:click|preventDefault={onDeleted}>delete</button>
+        </li>
     </ul>
 </div>
 
@@ -90,7 +115,11 @@
         background: inherit;
     }
     
-    button:hover, button:focus {
+    button:focus {
+        outline-width: 0;
+    }
+
+    button:hover {
         outline-width: 0;
         text-decoration: underline;
     }

@@ -32,7 +32,6 @@
         <Article
             on:deleted={(e) => onDeleted(e.detail)}
             articles={articles}
-            on:labeladded
             {...article}
         />
     </Pagination>

@@ -43,6 +43,15 @@
             }
         }
 
+
+        $.update = async (article, mask) => {
+            try {
+                db.add(article)
+            } finally {
+                return await api.patch(`/api/v1/${article.name}?update_mask=${mask}`, article)
+            }
+        }
+
         let from = ''
         const listApi = async (pageSize) => {
             // if there are no more articles, return en empty list.

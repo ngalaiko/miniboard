@@ -200,6 +200,12 @@ func (s *Service) UpdateArticle(ctx context.Context, request *articles.UpdateArt
 
 	for _, path := range request.UpdateMask.GetPaths() {
 		switch path {
+		case "is_read":
+			if article.IsRead == request.Article.IsRead {
+				continue
+			}
+			article.IsRead = request.Article.IsRead
+			updated = true
 		default:
 		}
 	}
