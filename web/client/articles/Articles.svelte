@@ -46,9 +46,14 @@
 
         $.update = async (article, mask) => {
             try {
-                db.update(article)
+                let fromDB = await db.get(article.name)
+                Object.keys(article).forEach(key => {
+                    fromDB[key] = article[key]
+                })
+                db.update(fromDB)
             } finally {
-                return await api.patch(`/api/v1/${article.name}?update_mask=${mask}`, article)
+                let updated = await api.patch(`/api/v1/${article.name}?update_mask=${mask}`, article)
+                db.update(updated)
             }
         }
 
