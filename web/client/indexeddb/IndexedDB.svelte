@@ -17,7 +17,7 @@
         }
 
         const request = indexedDB.open('miniboard', 3)
-        request.onerror = (event) => reject(`can't open IndexedDB: ${event.target.errorCode}`)
+        request.onerror = (event) => reject(`can't open IndexedDB: ${event.target.error.message}`)
         request.onsuccess = (event) => resolve(event.target.result)
         request.onupgradeneeded = (event) => {
             let db = event.target.result
@@ -53,39 +53,49 @@
         $.add = (value) => new Promise((resolve, reject) => {
             let name = collectionName(value.name)
             let tx = db.transaction(name, 'readwrite')
-            tx.onerror = (event) => reject(event.target.errorCode)
+            tx.onerror = (event) => reject(event.target.error.message)
+
+            let request = tx.objectStore(name).add(value)
+            request.onsuccess = (event) => resolve(event.target.result)
+            request.onerror = (event) => reject(event.target.error.message)
+        })
+
+        $.update = (value) => new Promise((resolve, reject) => {
+            let name = collectionName(value.name)
+            let tx = db.transaction(name, 'readwrite')
+            tx.onerror = (event) => reject(event.target.error.message)
 
             let request = tx.objectStore(name).put(value)
             request.onsuccess = (event) => resolve(event.target.result)
-            request.onerror = (event) => reject(event.target.errorCode)
+            request.onerror = (event) => reject(event.target.error.message)
         })
 
         $.get = (key) => new Promise((resolve, reject) => {
             let name = collectionName(key)
             let tx = db.transaction(name, 'readonly')
-            tx.onerror = (event) => { reject(event.target.errorCode) }
+            tx.onerror = (event) => { reject(event.target.error.message) }
 
             let request = tx.objectStore(name).get(key)
-            request.onerror = (event) => reject(event.target.errorCode)
+            request.onerror = (event) => reject(event.target.error.message)
             request.onsuccess = (event) => resolve(event.target.result)
         })
 
         $.delete = (key) => new Promise((resolve, reject) => {
             let name = collectionName(key)
             let tx = db.transaction(name, 'readwrite')
-            tx.onerror = (event) => reject(event.target.errorCode)
+            tx.onerror = (event) => reject(event.target.error.message)
 
             let request = tx.objectStore(name).delete(key)
-            request.onerror = (event) => reject(event.target.errorCode)
+            request.onerror = (event) => reject(event.target.error.message)
             request.onsuccess = (event) => resolve(event.target.result)
         })
 
         $.forEach = (name, eachFunc) => new Promise((resolve, reject) => {
             let tx = db.transaction(name, 'readonly')
-            tx.onerror = (event) => reject(event.target.errorCode)
+            tx.onerror = (event) => reject(event.target.error.message)
 
             let request = tx.objectStore(name).index('name').openCursor()
-            request.onerror = (event) => reject(event.target.errorCode)
+            request.onerror = (event) => reject(event.target.error.message)
             request.onsuccess = (event) => {
                 let cursor = event.target.result
 

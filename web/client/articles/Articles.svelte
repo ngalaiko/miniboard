@@ -28,7 +28,7 @@
 
                 let article = await api.get(`/api/v1/${name}?view=ARTICLE_VIEW_FULL`)
                 try {
-                    db.add(article)
+                    db.update(article)
                 } finally {
                     return article
                 }
@@ -46,7 +46,7 @@
 
         $.update = async (article, mask) => {
             try {
-                db.add(article)
+                db.update(article)
             } finally {
                 return await api.patch(`/api/v1/${article.name}?update_mask=${mask}`, article)
             }
