@@ -113,9 +113,9 @@
             let articles = []
             query = query.toLowerCase()
             await db.forEach('articles', article => {
-                if (article.title.toLowerCase().includes(query)) {
+                if (article.title && article.title.toLowerCase().includes(query)) {
                     articles = [article].concat(articles)
-                } else if (article.url.toLowerCase().includes(query)) {
+                } else if (article.url && article.url.toLowerCase().includes(query)) {
                     articles = [article].concat(articles)
                 }
                 return articles.length !== limit

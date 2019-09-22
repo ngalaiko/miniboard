@@ -140,7 +140,7 @@
         outline-width: 0;
     }
 
-    button:hover{
+    button:hover {
         text-decoration: underline;
     }
 </style>

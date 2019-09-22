@@ -19,7 +19,6 @@
     export let articles
 
     async function onDeleted(name) {
-        await articles.delete(name)
         searchListStore.update(list => list.filter(article => article.name != name))
     }
 </script>
