@@ -32,7 +32,7 @@
     }
 </script>
 
-<div class='article'>
+<div class='article' class:opacity={is_read}>
     <a href='/{name}' class='title'>{title}</a>
     <ul class='article-info'>
         <li><a class='link padding' href={url}>original</a></li>
@@ -53,6 +53,10 @@
 </div>
 
 <style>
+    .opacity {
+        opacity: 0.5;
+    }
+
     .article {
         border: 1px solid;
         border-radius: unset;
