@@ -8,6 +8,7 @@ go_library(
         "gzip.go",
         "logging.go",
         "server.go",
+        "ssl.go",
     ],
     importpath = "miniboard.app/api",
     visibility = ["//visibility:public"],
@@ -25,6 +26,7 @@ go_library(
         "@com_github_grpc_ecosystem_grpc_gateway//runtime:go_default_library",
         "@com_github_pkg_errors//:go_default_library",
         "@com_github_sirupsen_logrus//:go_default_library",
+        "@org_golang_x_net//http2:go_default_library",
     ],
 )
 

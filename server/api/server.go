@@ -8,6 +8,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/net/http2"
 	authenticatationsservice "miniboard.app/api/authorizations"
 	usersservice "miniboard.app/api/users"
 	articlesservice "miniboard.app/api/users/articles"
@@ -58,15 +59,19 @@ func NewServer(ctx context.Context, db storage.Storage) *Server {
 	)
 	mux.Handle("/", web.Handler())
 
-	return &Server{
+	srv := &Server{
 		httpServer: &http.Server{
 			Handler: withGzip(withAccessLogs(mux)),
 		},
 	}
+	if err := http2.ConfigureServer(srv.httpServer, nil); err != nil {
+		log("http2").Errorf("can't configure http2: %s", err)
+	}
+	return srv
 }
 
 // Serve starts the server.
-func (s *Server) Serve(ctx context.Context, lis net.Listener) error {
+func (s *Server) Serve(ctx context.Context, lis net.Listener, tlsConfig *TLSConfig) error {
 	log("http").Infof("starting server on %s", lis.Addr())
 
 	idleConnsClosed := make(chan struct{})
@@ -79,8 +84,17 @@ func (s *Server) Serve(ctx context.Context, lis net.Listener) error {
 		close(idleConnsClosed)
 	}()
 
-	if err := s.httpServer.Serve(lis); err != nil {
-		return errors.Wrap(err, "failed to start http server")
+	switch tlsConfig != nil && tlsConfig.valid() {
+	case true:
+		log("http").Infof("tls cert: %s", tlsConfig.CertPath)
+		log("http").Infof("tls key: %s", tlsConfig.KeyPath)
+		if err := s.httpServer.ServeTLS(lis, tlsConfig.CertPath, tlsConfig.KeyPath); err != nil {
+			return errors.Wrap(err, "failed to start tls http server")
+		}
+	case false:
+		if err := s.httpServer.Serve(lis); err != nil {
+			return errors.Wrap(err, "failed to start http server")
+		}
 	}
 
 	<-idleConnsClosed
