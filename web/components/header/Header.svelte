@@ -3,6 +3,10 @@
     import { quintOut } from 'svelte/easing'
     import { createEventDispatcher } from 'svelte'
 
+    import Add from '../../icons/Add.svelte'
+    import Logout from '../../icons/Logout.svelte'
+    import Search from '../../icons/Search.svelte'
+
     const dispatch = createEventDispatcher()
 
     export let api
@@ -28,17 +32,23 @@
             showAdd = !showAdd
             showSearch = false
             router.route(`/${api.subject()}`)
-        }}>add</button>
+            }}>
+            <Add />
+        </button>
         <button on:click|preventDefault={() => {
             showSearch = !showSearch
             showAdd = false
             showSearch
                 ? router.route(`/${api.subject()}/search`)
                 : router.route(`/${api.subject()}`)
-        }} class='offset-left'>search</button>
+            }} class='offset-left'>
+            <Search />
+        </button>
         </span>
         <span class='menu-right'>
-            <button on:click|preventDefault={onLogout}>logout</button>
+            <button on:click|preventDefault={onLogout}>
+                <Logout />
+            </button>
         </span>
     </span>
     {#if showAdd}
@@ -51,7 +61,7 @@
                 required=""
             />
             <button
-                class='offset-left'
+                class='button offset-left'
                 on:click|preventDefault={() => {
                     dispatch('added', url)
                     url = ''
@@ -114,7 +124,7 @@
     }
 
     .add-input, .search-input {
-        border: 1px solid;
+        border: 0px;
         width: 100%;
         font-size: 1.1em;
         padding: 5px;
@@ -122,21 +132,18 @@
     }
 
     button {
+        border: 0px;
         background: inherit;
         -webkit-appearance: none;
         -moz-appearance: none;
-        font-size: 1.1em;
         cursor: pointer;
-        padding: 3px 10px;
-        border: 1px solid;
-        border-radius: unset;
     }
 
     input:focus {
         outline-width: 0;
     }
 
-    button:hover, button:focus {
+    button:hover, .button:focus {
         outline-width: 0;
     }
 

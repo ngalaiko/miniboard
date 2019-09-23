@@ -5,4 +5,9 @@ package(default_visibility = ["//visibility:public"])
 svelte(
     name = "Header",
     entry_point = "Header.svelte",
+    deps = [
+        "//web/icons:Add",
+        "//web/icons:Logout",
+        "//web/icons:Search",
+    ]
 )
