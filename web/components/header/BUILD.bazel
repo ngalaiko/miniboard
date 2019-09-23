@@ -7,7 +7,10 @@ svelte(
     entry_point = "Header.svelte",
     deps = [
         "//web/icons:Add",
+        "//web/icons:BookOpen",
+        "//web/icons:List",
         "//web/icons:Logout",
         "//web/icons:Search",
+        "//web/icons:Star",
     ]
 )

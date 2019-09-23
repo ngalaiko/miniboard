@@ -8,6 +8,16 @@ svelte(
 )
 
 svelte(
+    name = "BookOpen",
+    entry_point = "BookOpen.svelte",
+)
+
+svelte(
+    name = "List",
+    entry_point = "List.svelte",
+)
+
+svelte(
     name = "Logout",
     entry_point = "Logout.svelte",
 )
@@ -15,4 +25,9 @@ svelte(
 svelte(
     name = "Search",
     entry_point = "Search.svelte",
+)
+
+svelte(
+    name = "Star",
+    entry_point = "Star.svelte",
 )

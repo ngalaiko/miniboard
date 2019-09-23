@@ -4,8 +4,11 @@
     import { createEventDispatcher } from 'svelte'
 
     import Add from '../../icons/Add.svelte'
+    import BookOpen from '../../icons/BookOpen.svelte'
+    import List from '../../icons/List.svelte'
     import Logout from '../../icons/Logout.svelte'
     import Search from '../../icons/Search.svelte'
+    import Star from '../../icons/Star.svelte'
 
     const dispatch = createEventDispatcher()
 
@@ -28,22 +31,33 @@
 <div class='header'>
     <span class='menu'>
         <span class='menu-left'>
-        <button on:click|preventDefault={() => {
-            showAdd = !showAdd
-            showSearch = false
-            router.route(`/${api.subject()}`)
-            }}>
-            <Add />
-        </button>
-        <button on:click|preventDefault={() => {
-            showSearch = !showSearch
-            showAdd = false
-            showSearch
-                ? router.route(`/${api.subject()}/search`)
-                : router.route(`/${api.subject()}`)
-            }} class='offset-left'>
-            <Search />
-        </button>
+            <button on:click|preventDefault={() => {
+                showAdd = !showAdd
+                showSearch = false
+                router.route(`/${api.subject()}`)
+                }}>
+                <Add />
+            </button>
+            <button on:click|preventDefault={() => {
+                showSearch = !showSearch
+                showAdd = false
+                showSearch
+                    ? router.route(`/${api.subject()}/search`)
+                    : router.route(`/${api.subject()}`)
+                }} class='offset-left'>
+                <Search />
+            </button>
+        </span>
+        <span class='menu-middle'>
+            <span class='border border-left'>
+                <button><Star size=20 /></button>
+            </span>
+            <span class='border border-middle'>
+                <button><BookOpen size=20 /></button>
+            </span>
+            <span class='border border-right'>
+                <button><List size=20 /></button>
+            </span>
         </span>
         <span class='menu-right'>
             <button on:click|preventDefault={onLogout}>
@@ -99,6 +113,29 @@
         flex-direction: row;
     }
 
+    .border {
+        padding-top: 0.2em;
+        padding-bottom: 0.2em;
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+    }
+
+    .border-left {
+        border-top: 1px solid;
+        border-bottom: 1px solid;
+        border-left: 1px solid;
+    }
+
+    .border-middle {
+        border: 1px solid;
+    }
+
+    .border-right {
+        border-top: 1px solid;
+        border-bottom: 1px solid;
+        border-right: 1px solid;
+    }
+
     .menu {
         display: flex;
         flex-direction: row;
@@ -117,6 +154,12 @@
         justify-content: flex-start;
     }
 
+    .menu-middle {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+
     .menu-rignt {
         display: flex;
         flex-direction: row;
@@ -131,7 +174,14 @@
         padding-left: 7px;
     }
 
+    span {
+        align-content: center;
+        display: flex;
+    }
+
     button {
+        margin: 0px;
+        padding: 0px;
         border: 0px;
         background: inherit;
         -webkit-appearance: none;
@@ -147,7 +197,7 @@
         outline-width: 0;
     }
 
-    button:hover {
-        text-decoration: underline;
+    button:hover, button:focus {
+        outline-width: 0;
     }
 </style>
