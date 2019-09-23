@@ -29,12 +29,16 @@
             is_read: isRead
         }, 'is_read')
         is_read = isRead
+    }
+
+    const onClick = async () => {
+        onRead(true)
         location = `/${name}`
     }
 </script>
 
 <div class='article' class:opacity={is_read}>
-    <a class='title' on:click|preventDefault={() => onRead(true)}>{title}</a>
+    <a class='title' on:click|preventDefault={onClick}>{title}</a>
     <ul class='article-info'>
         <li><a class='link padding' href={url}>original</a></li>
         <li class='separator flex'><TimeAgo date={create_time}/></li>
