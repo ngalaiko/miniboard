@@ -25,11 +25,12 @@
     }
 
     const onRead = async (isRead) => {
-        articles.update({
+        let updated = await articles.update({
             name: name,
             is_read: isRead
         }, 'is_read')
         is_read = isRead
+        dispatch('updated', updated)
     }
 
     const onClick = async () => {

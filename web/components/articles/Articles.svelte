@@ -41,6 +41,18 @@
     const onDeleted = async (name) => {
         articlesListStore.update(list => list.filter(article => article.name != name))
     }
+
+    const onUpdated = async (updated) => {
+        unreadListStore.update(list => {
+            for (let i in list) {
+                if (list[i].name == updated.name) {
+                    list[i] = updated
+                    break
+                }
+            }
+            return list
+        })
+    }
 </script>
 
 <div>
@@ -51,6 +63,7 @@
     >
         <Article
             on:deleted={(e) => onDeleted(e.detail)}
+            on:updated={(e) => onUpdated(e.detail)}
             router={router}
             articles={articles}
             {...article}
