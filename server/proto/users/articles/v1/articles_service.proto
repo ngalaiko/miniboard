@@ -6,6 +6,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/field_mask.proto";
+import "google/protobuf/wrappers.proto";
 
 option go_package = "articles";
 
@@ -99,6 +100,9 @@ message ListArticlesRequest {
 
     // The next_page_token value returned from a previous List request, if any.
     string page_token = 3;
+
+    // Filter by is_read field.
+    google.protobuf.BoolValue is_read = 5;
 }
 
 message ListArticlesResponse {

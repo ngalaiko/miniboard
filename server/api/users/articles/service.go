@@ -119,13 +119,24 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 	}
 
 	aa := make([]*articles.Article, 0, len(dd))
-	for _, d := range dd {
-		a := &articles.Article{}
-		if err := proto.Unmarshal(d.Data, a); err != nil {
-			return nil, status.New(codes.Internal, "failed to unmarshal article").Err()
+	err = s.storage.ForEach(lookFor, from, func(r *resource.Resource) (bool, error) {
+		if int64(len(aa)) == request.PageSize+1 {
+			return false, nil
 		}
+
+		a := &articles.Article{}
+		if err := proto.Unmarshal(r.Data, a); err != nil {
+			return false, status.New(codes.Internal, "failed to unmarshal article").Err()
+		}
+
+		if request.IsRead != nil && a.IsRead != request.IsRead.GetValue() {
+			return true, nil
+		}
+
 		aa = append(aa, a)
-	}
+
+		return true, nil
+	})
 
 	var nextPageToken string
 	if len(aa) == int(request.PageSize+1) {
@@ -133,10 +144,15 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 		aa = aa[:request.PageSize]
 	}
 
-	return &articles.ListArticlesResponse{
-		Articles:      aa,
-		NextPageToken: nextPageToken,
-	}, nil
+	switch err {
+	case nil, storage.ErrNotFound:
+		return &articles.ListArticlesResponse{
+			Articles:      aa,
+			NextPageToken: nextPageToken,
+		}, nil
+	default:
+		return nil, status.New(codes.Internal, "failed to list articles").Err()
+	}
 }
 
 // CreateArticle creates a new article.
