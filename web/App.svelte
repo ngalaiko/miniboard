@@ -37,6 +37,7 @@
                 props = {
                     api: client.api,
                     articles: client.articles,
+                    router: router,
                 }
             })
             .on('/users/:username/search', () => {
@@ -45,6 +46,7 @@
                 props = {
                     api: client.api,
                     articles: client.articles,
+                    router: router,
                 }
             })
             .on('/users/:username/articles/:articleid', (params) => {

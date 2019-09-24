@@ -5,6 +5,7 @@
     const dispatch = createEventDispatcher()
 
     export let articles
+    export let router
 
     export let name
     export let url
@@ -33,7 +34,7 @@
 
     const onClick = async () => {
         onRead(true)
-        location = `/${name}`
+        router.route(`/${name}`)
     }
 </script>
 

@@ -3,12 +3,14 @@ load("@build_bazel_rules_svelte//:defs.bzl", "svelte")
 package(default_visibility = ["//visibility:public"])
 
 svelte(
-    name = "Header",
-    entry_point = "Header.svelte",
+    name = "Navigation",
+    entry_point = "Navigation.svelte",
     deps = [
-        "//web/components/header/navigation:Navigation",
         "//web/icons:Add",
+        "//web/icons:BookOpen",
+        "//web/icons:List",
         "//web/icons:Logout",
         "//web/icons:Search",
-    ],
+        "//web/icons:Star",
+    ]
 )

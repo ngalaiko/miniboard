@@ -28,6 +28,7 @@
 
     export let api
     export let articles
+    export let router
 
     const loadMoreArticles = async (pageSize) => {
         let nextPage = await articles.next(pageSize)
@@ -50,6 +51,7 @@
     >
         <Article
             on:deleted={(e) => onDeleted(e.detail)}
+            router={router}
             articles={articles}
             {...article}
         />

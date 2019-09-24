@@ -17,6 +17,7 @@
 
     export let api
     export let articles
+    export let router
 
     async function onDeleted(name) {
         searchListStore.update(list => list.filter(article => article.name != name))
@@ -31,6 +32,7 @@
         <Article
             on:deleted={(e) => onDeleted(e.detail)}
             articles={articles}
+            router={router}
             {...article}
         />
     </Pagination>
