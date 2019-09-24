@@ -3,8 +3,8 @@ load("@build_bazel_rules_svelte//:defs.bzl", "svelte")
 package(default_visibility = ["//visibility:public"])
 
 svelte(
-    name = "Articles",
-    entry_point = "Articles.svelte",
+    name = "AllArticles",
+    entry_point = "AllArticles.svelte",
     deps = [
         "//web/components/article:Article",
         "//web/components/pagination:Pagination",

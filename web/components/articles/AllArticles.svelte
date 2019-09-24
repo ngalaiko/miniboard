@@ -43,7 +43,7 @@
     }
 
     const onUpdated = async (updated) => {
-        unreadListStore.update(list => {
+        articlesListStore.update(list => {
             for (let i in list) {
                 if (list[i].name == updated.name) {
                     list[i] = updated

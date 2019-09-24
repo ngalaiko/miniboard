@@ -8,7 +8,7 @@ svelte(
     entry_point = "App.svelte",
     deps = [
         "//web/client:Client",
-        "//web/components/articles:Articles",
+        "//web/components/articles:AllArticles",
         "//web/components/search:Search",
         "//web/components/loginform:LoginForm",
         "//web/components/notfound:NotFound",
