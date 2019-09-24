@@ -77,6 +77,7 @@
                 showSearch={showSearch}
                 on:added={(e) => add(e.detail, apiClient.articles.add)}
                 on:search={(e) => search(e.detail, apiClient.articles.search)}
+                on:selected={(e) => console.log(e.detail)}
             />
         {/if}
         <svelte:component

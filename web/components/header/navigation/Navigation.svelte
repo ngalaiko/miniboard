@@ -6,6 +6,9 @@
 <script>
     import { quintOut } from 'svelte/easing'
     import { onDestroy } from 'svelte'
+    import { createEventDispatcher } from 'svelte'
+
+    const dispatch = createEventDispatcher()
 
     import BookOpen from '../../../icons/BookOpen.svelte'
     import List from '../../../icons/List.svelte'
@@ -20,19 +23,28 @@
     {#if selectedPane == 1}
         <button class='selected border border-left'><Star size=20 /></button>
     {:else}
-        <button class='border border-left' on:click={() => selectedPaneStore.set(1)}><Star size=20 /></button>
+        <button class='border border-left' on:click={() => {
+            selectedPaneStore.set(1)
+            dispatch('selected', 'star')
+        }}><Star size=20 /></button>
     {/if}
 
     {#if selectedPane == 2}
         <button class='selected border border-middle'><BookOpen size=20 /></button>
     {:else}
-        <button class='border border-middle' on:click={() => selectedPaneStore.set(2)}><BookOpen size=20 /></button>
+        <button class='border border-middle' on:click={() => {
+            selectedPaneStore.set(2)
+            dispatch('selected', 'unread')
+        }}><BookOpen size=20 /></button>
     {/if}
 
     {#if selectedPane == 3}
         <button class='selected border border-right'><List size=20 /></button>
     {:else}
-        <button class='border border-right' on:click={() => selectedPaneStore.set(3)}><List size=20 /></button>
+        <button class='border border-right' on:click={() => {
+            selectedPaneStore.set(3)
+            dispatch('selected', 'all')
+        }}><List size=20 /></button>
     {/if}
 </span>
 

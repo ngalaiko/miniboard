@@ -48,7 +48,7 @@
             </button>
         </span>
         <span class='menu-middle'>
-            <Navigation />
+            <Navigation on:selected />
         </span>
         <span class='menu-right'>
             <button on:click|preventDefault={onLogout}>
