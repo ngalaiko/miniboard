@@ -18,10 +18,12 @@
         articlesListStore.update(list => list.filter(article => article.random != rnd))
         articlesListStore.update(list => [article].concat(list))
     }
+
+    const fromStore = writable('')
 </script>
 
 <script>
-    import { get } from 'svelte/store'
+    import { onDestroy } from 'svelte'
 
     import Article from '../article/Article.svelte'
     import Pagination from '../pagination/Pagination.svelte'
@@ -30,12 +32,17 @@
     export let articles
     export let router
 
+    let from
+    const unsubscribe = fromStore.subscribe(updated => from = updated)
+    onDestroy(unsubscribe)
+
     const loadMoreArticles = async (pageSize) => {
-        let nextPage = await articles.next(pageSize)
-        if (nextPage.length == 0) {
+        let resp = await articles.next(pageSize, from)
+        if (resp.articles.length == 0) {
             return 
         }
-        articlesListStore.update(list => list.concat(nextPage))
+        fromStore.set(resp.next_page_token)
+        articlesListStore.update(list => list.concat(resp.articles))
     }
 
     const onDeleted = async (name) => {

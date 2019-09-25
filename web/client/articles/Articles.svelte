@@ -21,17 +21,12 @@
             return await api.patch(`/api/v1/${article.name}?update_mask=${mask}`, article)
         }
 
-        let from = ''
-        $.next = async (pageSize) => {
-            // if there are no more articles, return en empty list.
-            if (from === undefined) {
-                return []
-            }
-
-            let resp = await api.get(`/api/v1/${api.subject()}/articles?page_size=${pageSize}&page_token=${from}`)
-            from = resp.next_page_token // undefined when no more items
-            
-            return resp.articles
+        $.next = async (pageSize, from, isRead) => {
+            let url = `/api/v1/${api.subject()}/articles?page_size=${pageSize}`
+            if (from) url += `&page_token=${from}`
+            if (isRead !== undefined) url += `&is_read=${isRead}`
+            let resp = await api.get(url)
+            return resp
 
         }
 
