@@ -1,5 +1,5 @@
 <script>
-    import AllArticles, { add as addAll } from './components/articles/AllArticles.svelte'
+    import Articles, { add, show } from './components/articles/Articles.svelte'
     import Search, { search } from './components/search/Search.svelte'
     import NotFound from './components/notfound/NotFound.svelte'
     import { Client } from './client/Client.svelte'
@@ -33,7 +33,7 @@
                 }
             })
             .on('/users/:username', () => {
-                component = AllArticles
+                component = Articles
                 props = {
                     api: client.api,
                     articles: client.articles,
@@ -75,9 +75,9 @@
                 api={apiClient.api}
                 router={router}
                 showSearch={showSearch}
-                on:added={(e) => addAll(e.detail, apiClient.articles.add)}
+                on:added={(e) => add(e.detail, apiClient.articles.add)}
                 on:search={(e) => search(e.detail, apiClient.articles.search)}
-                on:selected={(e) => console.log(e.detail)}
+                on:selected={(e) => show(e.detail)}
             />
         {/if}
         <svelte:component
