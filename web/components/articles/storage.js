@@ -6,9 +6,14 @@ export const storage = () => {
     const articlesListStore = writable([])
 
     $.add = async (article) => {
-        articlesListStore.update(list => [article].concat(list).sort((a, b) => {
-            return new Date(a.create_time) < new Date(b.create_time) ? 1 : -1
-        }))
+        articlesListStore.update(list => {
+            for (let i in list) {
+                if (list[i].name == article.name) return list
+            }
+            return [article].concat(list).sort((a, b) => {
+                return new Date(a.create_time) < new Date(b.create_time) ? 1 : -1
+            })
+        })
     }
     $.delete = async (name) => {
         articlesListStore.update(list => list.filter(a => a.name != name))

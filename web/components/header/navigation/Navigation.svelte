@@ -25,7 +25,7 @@
     {:else}
         <button class='border border-left' on:click={() => {
             selectedPaneStore.set(1)
-            dispatch('selected', 'star')
+            dispatch('selected', 'starred')
         }}><Star size=20 /></button>
     {/if}
 

@@ -14,6 +14,7 @@
     export let icon_url
     export let label_ids
     export let is_read
+    export let is_favorite
 
     if (label_ids === undefined) {
         label_ids = []
@@ -33,6 +34,15 @@
         dispatch('updated', updated)
     }
 
+    const onStarred = async (isStarred) => {
+        let updated = await articles.update({
+            name: name,
+            is_favorite: isStarred
+        }, 'is_favorite')
+        is_favorite = isStarred
+        dispatch('updated', updated)
+    }
+
     const onClick = async () => {
         onRead(true)
         router.route(`/${name}`)
@@ -44,6 +54,15 @@
     <ul class='article-info'>
         <li><a class='link padding' href={url}>original</a></li>
         <li class='separator flex'><TimeAgo date={create_time}/></li>
+        {#if is_favorite}
+            <li class='separator'>
+                <button on:click|preventDefault={() => onStarred(false)}><b>star</b></button>
+            </li>
+        {:else}
+            <li class='separator'>
+                <button on:click|preventDefault={() => onStarred(true)}>star</button>
+            </li>
+        {/if}
         {#if is_read}
             <li class='separator'>
                 <button on:click|preventDefault={() => onRead(false)}>unread</button>

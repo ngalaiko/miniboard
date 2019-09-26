@@ -21,10 +21,13 @@
             return await api.patch(`/api/v1/${article.name}?update_mask=${mask}`, article)
         }
 
-        $.next = async (pageSize, from, isRead) => {
+        $.next = async (pageSize, from, params) => {
             let url = `/api/v1/${api.subject()}/articles?page_size=${pageSize}`
             if (from) url += `&page_token=${from}`
-            if (isRead !== undefined) url += `&is_read=${isRead}`
+            if (params) {
+                if (params.isRead !== undefined) url += `&is_read=${params.isRead}`
+                if (params.isStarred !== undefined) url += `&is_favorite=${params.isStarred}`
+            }
             let resp = await api.get(url)
             return resp
 

@@ -4,6 +4,7 @@
 
     let allStorage = storage()
     let unreadStorage = storage()
+    let starredStorage = storage()
 
     export const add = async (url, addFunc) => {
         let mock = {
@@ -45,6 +46,7 @@
     const onDeleted = async (name) => {
         allStorage.delete(name)
         unreadStorage.delete(name)
+        starredStorage.delete(name)
     }
     const onUpdated = async (updated) => {
         allStorage.update(updated)
@@ -55,15 +57,36 @@
         } else {
             unreadStorage.delete(updated.name)
         }
+
+        if (updated.is_favorite) {
+            starredStorage.add(updated)
+        } else {
+            starredStorage.delete(updated.name)
+        }
     }
 </script>
 
 <div>
+    {#if pane === 'starred'}
+        <Pagination
+            itemsStore={starredStorage.store}
+            let:item={article}
+            on:loadmore={(e) => starredStorage.loadMoreArticles(articles, e.detail, {'isStarred': true}) }
+        >
+            <Article
+                on:deleted={(e) => onDeleted(e.detail)}
+                on:updated={(e) => onUpdated(e.detail)}
+                router={router}
+                articles={articles}
+                {...article}
+            />
+        </Pagination>
+    {/if}
     {#if pane === 'unread'}
         <Pagination
             itemsStore={unreadStorage.store}
             let:item={article}
-            on:loadmore={(e) => unreadStorage.loadMoreArticles(articles, e.detail, false) }
+            on:loadmore={(e) => unreadStorage.loadMoreArticles(articles, e.detail, {'isRead': false}) }
         >
             <Article
                 on:deleted={(e) => onDeleted(e.detail)}
