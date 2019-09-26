@@ -49,6 +49,12 @@
     const onUpdated = async (updated) => {
         allStorage.update(updated)
         unreadStorage.update(updated)
+
+        if (!updated.is_read) {
+            unreadStorage.add(updated)
+        } else {
+            unreadStorage.delete(updated.name)
+        }
     }
 </script>
 
