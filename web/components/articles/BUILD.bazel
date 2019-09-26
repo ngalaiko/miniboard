@@ -5,10 +5,9 @@ package(default_visibility = ["//visibility:public"])
 svelte(
     name = "Articles",
     entry_point = "Articles.svelte",
+    srcs = ["storage.js"],
     deps = [
         "//web/components/article:Article",
-        "//web/components/articles/all:All",
-        "//web/components/articles/unread:Unread",
         "//web/components/pagination:Pagination",
     ],
 )

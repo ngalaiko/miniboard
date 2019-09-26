@@ -1,17 +1,9 @@
 <script context="module">
     import { writable } from 'svelte/store'
+    import { storage } from './storage'
 
-    import { 
-        add as addAll,
-        remove as deleteAll,
-        update as updateAll,
-    } from './all/All.svelte'
-
-    import { 
-        add as addUnread,
-        remove as deleteUnread,
-        update as updateUnread,
-    } from './unread/Unread.svelte'
+    let allStorage = storage()
+    let unreadStorage = storage()
 
     export const add = async (url, addFunc) => {
         let mock = {
@@ -21,16 +13,16 @@
           'name': Math.random()
         }
 
-        addAll(mock)
-        addUnread(mock)
+        allStorage.add(mock)
+        unreadStorage.add(mock)
 
         let article = await addFunc(url)
 
-        deleteAll(mock.name)
-        deleteUnread(mock.name)
+        allStorage.delete(mock.name)
+        unreadStorage.delete(mock.name)
 
-        addAll(article)
-        addUnread(article)
+        allStorage.add(article)
+        unreadStorage.delete(article)
     }
 
     let paneStore = writable('unread')
@@ -40,8 +32,8 @@
 <script>
     import { onDestroy } from 'svelte'
 
-    import All from './all/All.svelte'
-    import Unread from './Unread/Unread.svelte'
+    import Article from '../article/Article.svelte'
+    import Pagination from '../pagination/Pagination.svelte'
 
     export let api
     export let articles
@@ -51,30 +43,44 @@
     onDestroy(paneStore.subscribe(updated => pane = updated))
 
     const onDeleted = async (name) => {
-        deleteAll(name)
-        deleteUnread(name)
+        allStorage.delete(name)
+        unreadStorage.delete(name)
     }
     const onUpdated = async (updated) => {
-        updateAll(updated)
-        updateUnread(updated)
+        allStorage.update(updated)
+        unreadStorage.update(updated)
     }
 </script>
 
 <div>
     {#if pane === 'unread'}
-        <Unread
-            articles={articles}
-            router={router}
-            on:updated={(e) => onUpdated(e.detail)}
-            on:deleted={(e) => onDeleted(e.detail)}
-        />
+        <Pagination
+            itemsStore={unreadStorage.store}
+            let:item={article}
+            on:loadmore={(e) => unreadStorage.loadMoreArticles(articles, e.detail, false) }
+        >
+            <Article
+                on:deleted={(e) => onDeleted(e.detail)}
+                on:updated={(e) => onUpdated(e.detail)}
+                router={router}
+                articles={articles}
+                {...article}
+            />
+        </Pagination>
     {/if}
     {#if pane === 'all'}
-        <All
-            articles={articles}
-            router={router}
-            on:updated={(e) => onUpdated(e.detail)}
-            on:deleted={(e) => onDeleted(e.detail)}
-        />
+        <Pagination
+            itemsStore={allStorage.store}
+            let:item={article}
+            on:loadmore={(e) => allStorage.loadMoreArticles(articles, e.detail) }
+        >
+            <Article
+                on:deleted={(e) => onDeleted(e.detail)}
+                on:updated={(e) => onUpdated(e.detail)}
+                router={router}
+                articles={articles}
+                {...article}
+            />
+        </Pagination>
     {/if}
 </div>
