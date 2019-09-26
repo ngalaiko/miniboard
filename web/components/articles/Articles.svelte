@@ -8,10 +8,12 @@
 
     export const add = async (url, addFunc) => {
         let mock = {
-          'url': url,
-          'title': url,
-          'create_time': Date.now(),
-          'name': Math.random()
+            'url': url,
+            'title': url,
+            'is_read': false,
+            'is_favorite': false,
+            'create_time': Date.now(),
+            'name': Math.random()
         }
 
         allStorage.add(mock)
@@ -23,7 +25,7 @@
         unreadStorage.delete(mock.name)
 
         allStorage.add(article)
-        unreadStorage.delete(article)
+        unreadStorage.add(article)
     }
 
     let paneStore = writable('unread')
