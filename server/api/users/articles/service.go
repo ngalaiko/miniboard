@@ -133,6 +133,10 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 			return true, nil
 		}
 
+		if request.IsFavorite != nil && a.IsFavorite != request.IsFavorite.GetValue() {
+			return true, nil
+		}
+
 		aa = append(aa, a)
 
 		return true, nil
@@ -221,6 +225,12 @@ func (s *Service) UpdateArticle(ctx context.Context, request *articles.UpdateArt
 				continue
 			}
 			article.IsRead = request.Article.IsRead
+			updated = true
+		case "is_favorite":
+			if article.IsFavorite == request.Article.IsFavorite {
+				continue
+			}
+			article.IsFavorite = request.Article.IsFavorite
 			updated = true
 		default:
 		}

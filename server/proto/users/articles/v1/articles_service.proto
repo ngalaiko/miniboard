@@ -103,6 +103,9 @@ message ListArticlesRequest {
 
     // Filter by is_read field.
     google.protobuf.BoolValue is_read = 5;
+
+    // Filter by is_favorite field.
+    google.protobuf.BoolValue is_favorite = 6;
 }
 
 message ListArticlesResponse {
@@ -164,6 +167,9 @@ message Article {
 
     // Mark the article as read.
     bool is_read = 7;
+
+    // Mark the article as favorite.
+    bool is_favorite = 8;
 }
 
 enum ArticleView {
