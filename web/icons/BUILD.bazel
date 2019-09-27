@@ -23,11 +23,6 @@ svelte(
 )
 
 svelte(
-    name = "Search",
-    entry_point = "Search.svelte",
-)
-
-svelte(
     name = "Star",
     entry_point = "Star.svelte",
 )

@@ -97,6 +97,7 @@
         font-weight: 500;
         color: inherit;
         text-decoration: none;
+        cursor: pointer;
     }
 
     .title:hover {

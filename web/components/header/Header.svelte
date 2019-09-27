@@ -4,7 +4,6 @@
     import { createEventDispatcher } from 'svelte'
 
     import Add from '../../icons/Add.svelte'
-    import Search from '../../icons/Search.svelte'
     import Logout from '../../icons/Logout.svelte'
 
     import Navigation from './navigation/Navigation.svelte'
@@ -20,7 +19,6 @@
     }
 
     let showAdd = false
-    export let showSearch = false
     let url = ''
     let query = ''
 
@@ -32,15 +30,8 @@
         <span class='menu-left'>
             <button on:click|preventDefault={() => {
                 showAdd = !showAdd
-                showSearch = false
             }}>
                 <Add />
-            </button>
-            <button on:click|preventDefault={() => {
-                showSearch = !showSearch
-                showAdd = false
-            }} class='offset-left'>
-                <Search />
             </button>
         </span>
         <span class='menu-middle'>
@@ -66,23 +57,7 @@
                 on:click|preventDefault={() => {
                     dispatch('added', url)
                     url = ''
-                }}>+</button>
-        </form>
-    {/if}
-    {#if showSearch}
-        <form transition:slide='{{ duration: 300, easing: quintOut }}' class='search-form'>
-            <input
-                class='search-input'
-                type="text"
-                bind:value={query}
-                placeholder="search..."
-                required=""
-                on:input={() => {
-                    clearTimeout(typingTimerID)
-                    typingTimerID = setTimeout(() => {
-                        dispatch('search', query)
-                    }, 300)
-                }}/>
+                }} />
         </form>
     {/if}
 </div>
@@ -94,7 +69,7 @@
         margin-bottom: 5px;
     }
 
-    .add-form, .search-form {
+    .add-form {
         margin: 0;
         display: flex;
         flex-direction: row;
@@ -130,7 +105,7 @@
         justify-content: flex-end;
     }
 
-    .add-input, .search-input {
+    .add-input {
         border: 0px;
         width: 100%;
         font-size: 1.1em;

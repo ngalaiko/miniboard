@@ -9,6 +9,5 @@ svelte(
         "//web/components/header/navigation:Navigation",
         "//web/icons:Add",
         "//web/icons:Logout",
-        "//web/icons:Search",
     ],
 )
