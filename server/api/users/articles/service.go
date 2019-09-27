@@ -1,7 +1,6 @@
 package articles
 
 import (
-	"bytes"
 	"context"
 	"encoding/base64"
 	"net/url"
@@ -34,67 +33,6 @@ func New(storage storage.Storage) *Service {
 	return &Service{
 		storage:   storage,
 		newReader: http.New,
-	}
-}
-
-// SearchArticles searches through the articles.
-func (s *Service) SearchArticles(ctx context.Context, request *articles.SearchArticlesRequest) (*articles.SearchArticlesResponse, error) {
-	lookFor := resource.ParseName(request.Parent).Child("articles", "*")
-
-	if len(request.Query) == 0 {
-		return &articles.SearchArticlesResponse{}, nil
-	}
-
-	var from *resource.Name
-	if request.PageToken != "" {
-		decoded, err := base64.StdEncoding.DecodeString(request.PageToken)
-		if err != nil {
-			return nil, status.New(codes.InvalidArgument, "invalid page token").Err()
-		}
-		from = resource.ParseName(string(decoded))
-	}
-
-	aa := make([]*articles.Article, 0, request.PageSize+1)
-	err := s.storage.ForEach(lookFor, from, func(r *resource.Resource) (bool, error) {
-		if int64(len(aa)) == request.PageSize {
-			return false, nil
-		}
-
-		a := &articles.Article{}
-		if err := proto.Unmarshal(r.Data, a); err != nil {
-			return false, status.New(codes.Internal, "failed to unmarshal article").Err()
-		}
-
-		if bytes.Contains(
-			bytes.ToLower([]byte(a.Title)),
-			bytes.ToLower([]byte(request.Query)),
-		) {
-			aa = append(aa, a)
-			return true, nil
-		}
-
-		if strings.Contains(a.Url, request.Query) {
-			aa = append(aa, a)
-			return true, nil
-		}
-
-		return true, nil
-	})
-
-	var nextPageToken string
-	if len(aa) == int(request.PageSize+1) {
-		nextPageToken = base64.StdEncoding.EncodeToString([]byte(aa[len(aa)-1].Name))
-		aa = aa[:request.PageSize]
-	}
-
-	switch err {
-	case nil, storage.ErrNotFound:
-		return &articles.SearchArticlesResponse{
-			Articles:      aa,
-			NextPageToken: nextPageToken,
-		}, nil
-	default:
-		return nil, status.New(codes.Internal, "failed to search articles").Err()
 	}
 }
 
@@ -134,6 +72,20 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 		}
 
 		if request.IsFavorite != nil && a.IsFavorite != request.IsFavorite.GetValue() {
+			return true, nil
+		}
+
+		if request.Title != nil && !strings.Contains(
+			strings.ToLower(a.Title),
+			strings.ToLower(request.Title.GetValue()),
+		) {
+			return true, nil
+		}
+
+		if request.Url != nil && !strings.Contains(
+			strings.ToLower(a.Url),
+			strings.ToLower(request.Url.GetValue()),
+		) {
 			return true, nil
 		}
 

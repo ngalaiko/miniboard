@@ -7,6 +7,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -136,20 +137,20 @@ func Test_articles(t *testing.T) {
 				}
 			})
 
-			t.Run("It should be possible search for article by title", func(t *testing.T) {
-				resp, err := service.SearchArticles(ctx, &articles.SearchArticlesRequest{
+			t.Run("It should be possible filter for article by title", func(t *testing.T) {
+				resp, err := service.ListArticles(ctx, &articles.ListArticlesRequest{
 					Parent:   parent.String(),
-					Query:    "title",
+					Title:    &wrappers.StringValue{Value: "title"},
 					PageSize: 10,
 				})
 				assert.NoError(t, err)
 				assert.Len(t, resp.Articles, 10)
 			})
 
-			t.Run("It should be possible search for article by url", func(t *testing.T) {
-				resp, err := service.SearchArticles(ctx, &articles.SearchArticlesRequest{
+			t.Run("It should be possible filter for article by url", func(t *testing.T) {
+				resp, err := service.ListArticles(ctx, &articles.ListArticlesRequest{
 					Parent:   parent.String(),
-					Query:    "localhost",
+					Url:      &wrappers.StringValue{Value: "localhost"},
 					PageSize: 5,
 				})
 				assert.NoError(t, err)

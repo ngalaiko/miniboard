@@ -33,17 +33,13 @@
             <button on:click|preventDefault={() => {
                 showAdd = !showAdd
                 showSearch = false
-                router.route(`/${api.subject()}`)
-                }}>
+            }}>
                 <Add />
             </button>
             <button on:click|preventDefault={() => {
                 showSearch = !showSearch
                 showAdd = false
-                showSearch
-                    ? router.route(`/${api.subject()}/search`)
-                    : router.route(`/${api.subject()}`)
-                }} class='offset-left'>
+            }} class='offset-left'>
                 <Search />
             </button>
         </span>

@@ -11,15 +11,6 @@ import "google/protobuf/wrappers.proto";
 option go_package = "articles";
 
 service ArticlesService {
-    // Search articles
-    //
-    // An endpoint to search the user's articles.
-    rpc SearchArticles(SearchArticlesRequest) returns (SearchArticlesResponse) {
-        option (google.api.http) = {
-            get: "/api/v1/{parent=users/*}/articles:search"
-        };
-    }
-
     // List articles
     //
     // An endpoint to list the user's articles.
@@ -68,29 +59,6 @@ service ArticlesService {
     }
 }
 
-message SearchArticlesRequest {
-    // Name of a user who owns articles.
-    string parent = 1;
-
-    // Query to search for.
-    // Matches substrings in the title or url.
-    string query = 2;
-
-    // Max size of the result array.
-    int64 page_size = 3;
-
-    // The next_page_token value returned from a previous List request, if any.
-    string page_token = 4;
-}
-
-message SearchArticlesResponse {
-    // There will be a maximum number of articles returned based on the page_size field int the request.
-    repeated Article articles = 1;
-
-    // Token to retrieve the next page of results, or empty if there are no more results in the list.
-    string next_page_token = 2;
-}
-
 message ListArticlesRequest {
     // Name of a user who owns articles.
     string parent = 1;
@@ -106,6 +74,12 @@ message ListArticlesRequest {
 
     // Filter by is_favorite field.
     google.protobuf.BoolValue is_favorite = 6;
+
+    // Filter by title field.
+    google.protobuf.StringValue title = 7;
+
+    // Filter by url field.
+    google.protobuf.StringValue url = 8;
 }
 
 message ListArticlesResponse {

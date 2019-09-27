@@ -1,6 +1,5 @@
 <script>
     import Articles, { add, show } from './components/articles/Articles.svelte'
-    import Search, { search } from './components/search/Search.svelte'
     import NotFound from './components/notfound/NotFound.svelte'
     import { Client } from './client/Client.svelte'
     import { Router } from './components/router/Router.svelte'
@@ -12,7 +11,6 @@
     let router
     let component
     let props
-    let showSearch = false
 
     let clientPromise = Client().then(client => {
         apiClient = client
@@ -34,15 +32,6 @@
             })
             .on('/users/:username', () => {
                 component = Articles
-                props = {
-                    api: client.api,
-                    articles: client.articles,
-                    router: router,
-                }
-            })
-            .on('/users/:username/search', () => {
-                component = Search
-                showSearch = true
                 props = {
                     api: client.api,
                     articles: client.articles,
@@ -74,9 +63,8 @@
             <Header
                 api={apiClient.api}
                 router={router}
-                showSearch={showSearch}
                 on:added={(e) => add(e.detail, apiClient.articles.add)}
-                on:search={(e) => search(e.detail, apiClient.articles.search)}
+                on:search={(e) => console.log('search')}
                 on:selected={(e) => show(e.detail)}
             />
         {/if}

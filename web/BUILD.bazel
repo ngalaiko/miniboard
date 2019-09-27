@@ -9,7 +9,6 @@ svelte(
     deps = [
         "//web/client:Client",
         "//web/components/articles:Articles",
-        "//web/components/search:Search",
         "//web/components/loginform:LoginForm",
         "//web/components/notfound:NotFound",
         "//web/components/header:Header",

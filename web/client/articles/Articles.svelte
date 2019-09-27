@@ -33,11 +33,6 @@
 
         }
 
-        $.search = async (query, limit) => {
-            let resp = await api.get(`/api/v1/${api.subject()}/articles:search?query=${query}&page_size=${limit}`)
-            return resp.articles
-        }
-
         return $
     }
 </script>
