@@ -13,6 +13,7 @@ import (
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/stretchr/testify/assert"
+	"miniboard.app/email/mock"
 	"miniboard.app/proto/authorizations/v1"
 	"miniboard.app/proto/users/articles/v1"
 	"miniboard.app/proto/users/v1"
@@ -25,9 +26,10 @@ func Test_server(t *testing.T) {
 	defer cancel()
 
 	db := testDB(ctx, t)
+	emailClient := mock.New()
 
 	t.Run("Given a server", func(t *testing.T) {
-		server := httptest.NewServer(NewServer(ctx, db).httpServer.Handler)
+		server := httptest.NewServer(NewServer(ctx, db, emailClient, "localhost").httpServer.Handler)
 		defer server.Close()
 
 		t.Run("When getting a non existing user without a header", func(t *testing.T) {

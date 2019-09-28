@@ -10,10 +10,13 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
 	authenticatationsservice "miniboard.app/api/authorizations"
+	codesservice "miniboard.app/api/authorizations/codes"
 	usersservice "miniboard.app/api/users"
 	articlesservice "miniboard.app/api/users/articles"
+	"miniboard.app/email"
 	"miniboard.app/jwt"
 	"miniboard.app/passwords"
+	"miniboard.app/proto/authorizations/codes/v1"
 	"miniboard.app/proto/authorizations/v1"
 	"miniboard.app/proto/users/articles/v1"
 	"miniboard.app/proto/users/v1"
@@ -27,11 +30,17 @@ type Server struct {
 }
 
 // NewServer creates new api server.
-func NewServer(ctx context.Context, db storage.Storage) *Server {
+func NewServer(
+	ctx context.Context,
+	db storage.Storage,
+	emailClient email.Client,
+	domain string,
+) *Server {
 	passwordsService := passwords.NewService(db)
 	usersService := usersservice.New(db, passwordsService)
 	jwtService := jwt.NewService(ctx, db)
 	authorizationsService := authenticatationsservice.New(jwtService, passwordsService)
+	codesService := codesservice.New(domain, emailClient, jwtService)
 	articlesService := articlesservice.New(db)
 
 	gwMux := runtime.NewServeMux()
@@ -45,6 +54,11 @@ func NewServer(ctx context.Context, db storage.Storage) *Server {
 		ctx,
 		gwMux,
 		authenticatationsservice.NewProxyClient(authorizationsService),
+	)
+	codes.RegisterCodesServiceHandlerClient(
+		ctx,
+		gwMux,
+		codesservice.NewProxyClient(codesService),
 	)
 	articles.RegisterArticlesServiceHandlerClient(
 		ctx,

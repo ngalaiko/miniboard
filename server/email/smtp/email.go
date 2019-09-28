@@ -5,6 +5,7 @@ import (
 	"net/smtp"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 // Client is an email client.
@@ -16,6 +17,7 @@ type Client struct {
 
 // New returns new smtp client.
 func New(host, port, from, username, password string) *Client {
+	log("email").Infof("using %s:%s smtp client", host, port)
 	return &Client{
 		auth: smtp.PlainAuth(
 			"",
@@ -46,4 +48,10 @@ func (c *Client) Send(to string, subject string, payload string) error {
 		return errors.Wrap(err, "failed to send email")
 	}
 	return nil
+}
+
+func log(src string) *logrus.Entry {
+	return logrus.WithFields(logrus.Fields{
+		"source": src,
+	})
 }

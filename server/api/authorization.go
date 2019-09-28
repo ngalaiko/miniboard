@@ -19,6 +19,7 @@ var (
 func withAuthorization(h http.Handler, jwtService *jwt.Service) http.Handler {
 	whitelist := map[string][]*regexp.Regexp{
 		http.MethodPost: {
+			regexp.MustCompile(`^\/api\/v1\/authorizations\/codes$`),
 			regexp.MustCompile(`^\/api\/v1\/authorizations$`),
 			regexp.MustCompile(`^\/api\/v1\/users$`),
 		},

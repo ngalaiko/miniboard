@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package app.miniboard.authorizations.codes.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "codes";
+
+service CodesService {
+    // Create authorization code.
+    //
+    // Returns an authorization code.
+    rpc CreateCode(CreateCodeRequest) returns (Code) {
+        option (google.api.http) = {
+            post: "/api/v1/authorizations/codes"
+            body: "*"
+        };
+    }
+}
+
+message CreateCodeRequest {
+    // Email address.
+    string email = 1;
+    // Response type.
+    string response_type = 2;
+}
+
+message Code {
+}

@@ -14,10 +14,13 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//server/api/authorizations:go_default_library",
+        "//server/api/authorizations/codes:go_default_library",
         "//server/api/users:go_default_library",
         "//server/api/users/articles:go_default_library",
+        "//server/email:go_default_library",
         "//server/jwt:go_default_library",
         "//server/passwords:go_default_library",
+        "//server/proto/authorizations/codes/v1:go_default_library",
         "//server/proto/authorizations/v1:go_default_library",
         "//server/proto/users/articles/v1:go_default_library",
         "//server/proto/users/v1:go_default_library",
@@ -35,6 +38,7 @@ go_test(
     srcs = ["server_test.go"],
     embed = [":go_default_library"],
     deps = [
+        "//server/email/mock:go_default_library",
         "//server/proto/authorizations/v1:go_default_library",
         "//server/proto/users/articles/v1:go_default_library",
         "//server/proto/users/v1:go_default_library",
