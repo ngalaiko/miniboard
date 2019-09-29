@@ -1,26 +1,24 @@
-export default function LoginService(authorizations, users) {
+export default function LoginService(authorizations, codes, users) {
     let $ = {}
 
-    $.login = async (username, password) => {
-        let resp = await authorizations.getAuthorization(username, password)
+    $.sendCode = async (email) => {
+        let resp = codes.sendCode(email)
+    }
+
+    $.login = async (code) => {
+        let resp = await authorizations.getAuthorization(code)
 
         if (resp.error == undefined) {
-            // no error, user exists
             return resp
         }
 
-        if (resp.code === 3) { // 3 - bad request, show the error message
+        if (resp.code === 3) {
             throw resp.message
-        } else if (resp.code != 5) { // 5 means that user is not found, create one
-            // unknown error
-            console.error(resp)
-            throw 'something went wrong, try again?'
         }
 
-        // user doesn't exist
-        await users.create(username, password)
-
-        return await $.login(username, password)
+        // unknown error
+        console.error(resp)
+        throw 'something went wrong, try again?'
     }
 
     return $

@@ -25,8 +25,3 @@ func NewProxyClient(service *Service) *Proxy {
 func (p *Proxy) GetUser(ctx context.Context, in *users.GetUserRequest, opts ...grpc.CallOption) (*users.User, error) {
 	return p.service.GetUser(ctx, in)
 }
-
-// CreateUser calls CreateUser method on the service instance.
-func (p *Proxy) CreateUser(ctx context.Context, in *users.CreateUserRequest, opts ...grpc.CallOption) (*users.User, error) {
-	return p.service.CreateUser(ctx, in)
-}

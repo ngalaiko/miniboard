@@ -19,7 +19,6 @@ go_library(
         "//server/api/users/articles:go_default_library",
         "//server/email:go_default_library",
         "//server/jwt:go_default_library",
-        "//server/passwords:go_default_library",
         "//server/proto/authorizations/codes/v1:go_default_library",
         "//server/proto/authorizations/v1:go_default_library",
         "//server/proto/users/articles/v1:go_default_library",
@@ -46,5 +45,6 @@ go_test(
         "//server/storage/bolt:go_default_library",
         "@com_github_golang_protobuf//jsonpb:go_default_library_gen",
         "@com_github_stretchr_testify//assert:go_default_library",
+        "@in_gopkg_square_go_jose_v2//jwt:go_default_library",
     ],
 )

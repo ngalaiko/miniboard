@@ -4,37 +4,47 @@
     export let api
     export let authorizations
     export let users
+    export let codes
     export let router
 
-    let username = ''
-    let password = ''
-
-    let loginService = new LoginService(authorizations, users)
-
+    let email = ''
+    let message = ''
     let error = ''
 
-    async function handleClick() {
-        error = ''
-        if (username == '' || password === '') {
+    let loginService = new LoginService(authorizations, codes, users)
+
+    const login = async (code) => {
+        try {
+            let auth = await loginService.login(code)
+            api.authenticate(auth)
+            router.route(`/${api.subject()}`)
+        } catch (e) {
+            error = 'something went wrong. try again?'
+        }
+    }
+
+    let code = new URL(window.location.href).searchParams.get('authorization_code')
+    if (code) login(code)
+
+    const handleClick = async () => {
+        if (email == '' ) {
             return
         }
-        try {
-            let auth = await loginService.login(username, password)
-            api.authenticate(auth)
-            router.route(`/users/${username}`)
-        } catch (err) {
-            error = err
-        }
+        loginService.sendCode(email)
+        message = 'check your email'
+        error = ''
     }
 </script>
 
 <form class='form'>
-    <input type='text' bind:value={username} placeholder='username' required autofocus tabindex='1' />
-    <input type='password' bind:value={password} placeholder='password' required tabindex='2' />
+    <input name='email' type='email' bind:value={email} placeholder='email' required tabindex='1' />
+    <button on:click|preventDefault={handleClick} />
     {#if error != ''}
         <div class='alert'>{error}</div>
     {/if}
-    <button on:click|preventDefault={handleClick} />
+    {#if message != ''}
+        <div class='info'>{message}</div>
+    {/if}
 </form>
 
 <style>
@@ -56,12 +66,15 @@
         font-size: 1.1em;
         padding: 5px;
         padding-left: 7px;
-        margin-bottom: 10px;
     }
 
     input:focus{
         outline: none;
         outline-width: 0;
+    }
+
+    .info {
+        text-align: center;
     }
 
     .alert{

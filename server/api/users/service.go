@@ -7,7 +7,6 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"miniboard.app/passwords"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
@@ -15,15 +14,13 @@ import (
 
 // Service controls users resource.
 type Service struct {
-	usersStorage     storage.Storage
-	passwordsService *passwords.Service
+	usersStorage storage.Storage
 }
 
 // New returns new users storage instance.
-func New(db storage.Storage, passwordsService *passwords.Service) *Service {
+func New(db storage.Storage) *Service {
 	return &Service{
-		usersStorage:     db,
-		passwordsService: passwordsService,
+		usersStorage: db,
 	}
 }
 
@@ -44,45 +41,6 @@ func (s *Service) GetUser(
 	user := &users.User{}
 	if err := proto.Unmarshal(rawUser, user); err != nil {
 		return nil, status.New(codes.Internal, "failed to unmarshal user").Err()
-	}
-
-	return user, nil
-}
-
-// CreateUser creates a new user.
-func (s *Service) CreateUser(
-	ctx context.Context,
-	request *users.CreateUserRequest,
-) (*users.User, error) {
-	if request.Username == "" {
-		return nil, status.New(codes.InvalidArgument, "name is empty").Err()
-	}
-
-	if request.Password == "" {
-		return nil, status.New(codes.InvalidArgument, "password is empty").Err()
-	}
-
-	name := resource.NewName("users", request.Username)
-
-	user := &users.User{
-		Name: name.String(),
-	}
-
-	rawUser, err := proto.Marshal(user)
-	if err != nil {
-		return nil, status.New(codes.Internal, "failed to marshal user").Err()
-	}
-
-	switch errors.Cause(s.usersStorage.Store(name, rawUser)) {
-	case nil:
-	case storage.ErrAlreadyExists:
-		return nil, status.New(codes.AlreadyExists, "user already exists").Err()
-	default:
-		return nil, status.New(codes.Internal, "failed to store user").Err()
-	}
-
-	if err := s.passwordsService.Set(name, request.Password); err != nil {
-		return nil, status.New(codes.Internal, "failed to store password hash").Err()
 	}
 
 	return user, nil

@@ -10,11 +10,8 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//server/jwt:go_default_library",
-        "//server/passwords:go_default_library",
         "//server/proto/authorizations/v1:go_default_library",
-        "//server/storage:go_default_library",
         "//server/storage/resource:go_default_library",
-        "@com_github_pkg_errors//:go_default_library",
         "@org_golang_google_grpc//:go_default_library",
         "@org_golang_google_grpc//codes:go_default_library",
         "@org_golang_google_grpc//status:go_default_library",
@@ -27,7 +24,6 @@ go_test(
     embed = [":go_default_library"],
     deps = [
         "//server/jwt:go_default_library",
-        "//server/passwords:go_default_library",
         "//server/proto/authorizations/v1:go_default_library",
         "//server/storage:go_default_library",
         "//server/storage/bolt:go_default_library",

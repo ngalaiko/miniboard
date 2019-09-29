@@ -15,7 +15,6 @@ import (
 	articlesservice "miniboard.app/api/users/articles"
 	"miniboard.app/email"
 	"miniboard.app/jwt"
-	"miniboard.app/passwords"
 	"miniboard.app/proto/authorizations/codes/v1"
 	"miniboard.app/proto/authorizations/v1"
 	"miniboard.app/proto/users/articles/v1"
@@ -36,10 +35,9 @@ func NewServer(
 	emailClient email.Client,
 	domain string,
 ) *Server {
-	passwordsService := passwords.NewService(db)
-	usersService := usersservice.New(db, passwordsService)
+	usersService := usersservice.New(db)
 	jwtService := jwt.NewService(ctx, db)
-	authorizationsService := authenticatationsservice.New(jwtService, passwordsService)
+	authorizationsService := authenticatationsservice.New(jwtService)
 	codesService := codesservice.New(domain, emailClient, jwtService)
 	articlesService := articlesservice.New(db)
 

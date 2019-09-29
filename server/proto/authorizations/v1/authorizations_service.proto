@@ -19,14 +19,12 @@ service AuthorizationsService {
 }
 
 message CreateAuthorizationRequest {
-    // User name.
-    string username = 1;
-    // Password for 'password' grant type.
-    string password = 2;
+    // Authorization code for.
+    string authorization_code = 1;
     // Grant type.
-    string grant_type = 3;
+    string grant_type = 2;
     // Refresh token for 'refresh_token' grant type.
-    string refresh_token = 4;
+    string refresh_token = 3;
 }
 
 message Authorization {

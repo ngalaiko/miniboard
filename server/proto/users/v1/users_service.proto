@@ -15,29 +15,11 @@ service UsersService {
             get: "/api/v1/{name=users/*}"
         };
     }
-
-    // Create user
-    //
-    // An endpoint to create a new existing user.
-    rpc CreateUser(CreateUserRequest) returns (User) {
-        option (google.api.http) = {
-            post: "/api/v1/users"
-            body: "*"
-        };
-    }
-
 }
 
 message GetUserRequest {
     // Name of the user resource to return.
     string name = 1;
-}
-
-message CreateUserRequest {
-    // User's name.
-    string username = 1;
-    // User's password.
-    string password = 2;
 }
 
 message User {

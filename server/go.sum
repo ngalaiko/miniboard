@@ -43,6 +43,7 @@ github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh
 github.com/ngalaiko/miniboard v0.0.0-20190921174026-efeb5f970b3a h1:AvJTsisgVCn11UyEBraV4hvmCdBzDo4GurSFiszvRUw=
 github.com/ngalaiko/miniboard v0.0.0-20190926182254-f6a8c02001a6 h1:HL5gJgLpVy5uD5D4O9+Yi76VSZbkU+bPHGbeNVKQJLw=
 github.com/ngalaiko/miniboard v0.0.0-20190927171115-06b2c78ff2d1 h1:S/zzIEmCD3WM1+x6GoFJd/hAoMiBiqe0wxNp3rf13Uo=
+github.com/ngalaiko/miniboard v0.0.0-20190928140454-41fb960adf1c h1:eJk+awpNQVK5+bnbtRxPzdt6Y57f69YcmZy3pkP0iwI=
 github.com/ngalaiko/miniboard/server v0.0.0-20190927171115-06b2c78ff2d1 h1:+RPscmYnAqQkJfypXMA437lLExKblfvNvmsop/++7xc=
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=

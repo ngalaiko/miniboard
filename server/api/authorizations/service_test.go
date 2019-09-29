@@ -10,7 +10,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/jwt"
-	"miniboard.app/passwords"
 	"miniboard.app/proto/authorizations/v1"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
@@ -22,33 +21,18 @@ func Test_AuthorizationsService(t *testing.T) {
 
 	db := testDB(ctx, t)
 	jwt := jwt.NewService(ctx, db)
-	passwords := passwords.NewService(db)
 
 	t.Run("With new service", func(t *testing.T) {
-		service := New(jwt, passwords)
+		service := New(jwt)
 		t.Run("When creating authorization for with unknown type", func(t *testing.T) {
 			auth, err := service.CreateAuthorization(ctx, &authorizations.CreateAuthorizationRequest{
-				Username: "users/name",
-				Password: "a passsword",
+				AuthorizationCode: "code",
 			})
 			t.Run("Then error should be InavlidArgument", func(t *testing.T) {
 				status, ok := status.FromError(err)
 				assert.True(t, ok)
 				assert.Nil(t, auth)
 				assert.Equal(t, status.Code(), codes.InvalidArgument)
-			})
-		})
-		t.Run("When creating authorization for non existing user", func(t *testing.T) {
-			auth, err := service.CreateAuthorization(ctx, &authorizations.CreateAuthorizationRequest{
-				Username:  "users/name",
-				Password:  "a passsword",
-				GrantType: "password",
-			})
-			t.Run("Then error should be NotFound", func(t *testing.T) {
-				status, ok := status.FromError(err)
-				assert.True(t, ok)
-				assert.Nil(t, auth)
-				assert.Equal(t, status.Code(), codes.NotFound)
 			})
 		})
 	})

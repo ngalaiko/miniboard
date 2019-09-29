@@ -8,11 +8,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"testing"
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/square/go-jose.v2/jwt"
 	"miniboard.app/email/mock"
 	"miniboard.app/proto/authorizations/v1"
 	"miniboard.app/proto/users/articles/v1"
@@ -40,36 +42,37 @@ func Test_server(t *testing.T) {
 			})
 		})
 
-		t.Run("When creating a user", func(t *testing.T) {
-			username := "user"
-			password := "password"
+		t.Run("When asking for auth code", func(t *testing.T) {
+			email := "user@example.com"
 
 			resp, err := http.DefaultClient.Do(postJSON(
 				t,
-				server.URL+"/api/v1/users",
+				server.URL+"/api/v1/authorizations/codes",
 				map[string]interface{}{
-					"username": username,
-					"password": password,
+					"email": email,
 				},
 				nil,
 			))
 
-			t.Run("It should return new user", func(t *testing.T) {
+			t.Run("It should send auth code", func(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, resp.StatusCode, http.StatusOK)
 
-				user := &users.User{}
-				assert.NoError(t, jsonpb.Unmarshal(resp.Body, user))
+				msg := emailClient.LastMessage()
+				assert.NotEmpty(t, msg)
 
-				assert.Equal(t, user.Name, "users/"+username)
+				url, err := url.Parse(msg)
+				assert.NoError(t, err)
+
+				code := url.Query().Get("authorization_code")
+				assert.NotEmpty(t, code)
 
 				t.Run("When creating an authorization", func(t *testing.T) {
 					resp, err = http.DefaultClient.Do(postJSON(t,
 						fmt.Sprintf("%s/api/v1/authorizations", server.URL),
 						map[string]interface{}{
-							"username":   username,
-							"password":   "password",
-							"grant_type": "password",
+							"authorization_code": code,
+							"grant_type":         "authorization_code",
 						},
 						nil,
 					))
@@ -83,9 +86,16 @@ func Test_server(t *testing.T) {
 					assert.NotEmpty(t, authorization.AccessToken)
 					assert.Equal(t, authorization.TokenType, "Bearer")
 
+					token, err := jwt.ParseSigned(authorization.AccessToken)
+					assert.NoError(t, err)
+					claims := &jwt.Claims{}
+					assert.NoError(t, token.UnsafeClaimsWithoutVerification(claims))
+
+					username := claims.Subject
+
 					t.Run("When getting the user with the token", func(t *testing.T) {
 						resp, err := http.DefaultClient.Do(getAuth(t,
-							fmt.Sprintf("%s/api/v1/%s", server.URL, user.Name),
+							fmt.Sprintf("%s/api/v1/%s", server.URL, username),
 							authorization,
 						))
 						t.Run("It should return the user", func(t *testing.T) {
@@ -101,7 +111,7 @@ func Test_server(t *testing.T) {
 
 					t.Run("When crating an article with the token", func(t *testing.T) {
 						resp, err := http.DefaultClient.Do(postJSON(t,
-							fmt.Sprintf("%s/api/v1/%s/articles", server.URL, user.Name),
+							fmt.Sprintf("%s/api/v1/%s/articles", server.URL, username),
 							map[string]interface{}{
 								"url": "http://localhost",
 							},
@@ -134,7 +144,7 @@ func Test_server(t *testing.T) {
 						})
 						t.Run("When listing articles", func(t *testing.T) {
 							resp, err = http.DefaultClient.Do(getAuth(t,
-								fmt.Sprintf("%s/api/v1/%s/articles?page_size=1", server.URL, user.Name),
+								fmt.Sprintf("%s/api/v1/%s/articles?page_size=1", server.URL, username),
 								authorization,
 							))
 							t.Run("It should be in the list", func(t *testing.T) {

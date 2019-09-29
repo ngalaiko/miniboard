@@ -26,6 +26,7 @@
                 props = {
                     api: client.api,
                     authorizations: client.authorizations,
+                    codes: client.codes,
                     users: client.users,
                     router: router,
                 }
