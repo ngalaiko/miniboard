@@ -105,7 +105,7 @@ func Test_server(t *testing.T) {
 							got := &users.User{}
 							assert.NoError(t, jsonpb.Unmarshal(resp.Body, got))
 
-							assert.Equal(t, got.Name, "users/"+username)
+							assert.Equal(t, got.Name, username)
 						})
 					})
 

@@ -7,8 +7,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
@@ -22,16 +20,13 @@ func Test_UsersService(t *testing.T) {
 
 	t.Run("With new service", func(t *testing.T) {
 		service := New(db)
-		t.Run("When getting non existing user", func(t *testing.T) {
+		t.Run("When getting user", func(t *testing.T) {
 			user, err := service.GetUser(ctx, &users.GetUserRequest{
 				Name: "users/name",
 			})
-			t.Run("Then an error should be returned", func(t *testing.T) {
-				assert.Nil(t, user)
-				assert.Error(t, err)
-
-				status, _ := status.FromError(err)
-				assert.Equal(t, status.Code(), codes.NotFound)
+			t.Run("Should response with the user struct", func(t *testing.T) {
+				assert.NoError(t, err)
+				user.Name = "users/name"
 			})
 		})
 	})
