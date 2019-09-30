@@ -433,3 +433,15 @@ def go_repositories():
         sum = "h1:Sq1fR+0c58RME5EoqKdjkiQAmPjmfHlZOoRI6fTUOcs=",
         version = "v1.1.1",
     )
+    go_repository(
+        name = "com_github_mediocregopher_radix_v3",
+        importpath = "github.com/mediocregopher/radix/v3",
+        sum = "h1:1/QCirAL+blzNcmygeOJag7fZ18jlBPq5p4Lzjv/xa4=",
+        version = "v3.4.0",
+    )
+    go_repository(
+        name = "org_golang_x_xerrors",
+        importpath = "golang.org/x/xerrors",
+        sum = "h1:9zdDQZ7Thm29KFXgAX/+yaf3eVbP7djjWp/dXAppNCc=",
+        version = "v0.0.0-20190717185122-a985d3407aa7",
+    )

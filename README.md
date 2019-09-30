@@ -7,7 +7,7 @@
 | ----------------------- | ------------------------ | ------------------------------------------------ |
 | addr                    | :8080                    | Address to listen for connections.               |
 | bolt-path               | ./bolt.db                | Path to the bolt storage.                        |
-| mongo-uri               |                          | Mongo URI to connect to.                         |
+| redis-uri               |                          | Redis URI to connect to.                         |
 | domain                  | http://localhost:8080    | Service domain.                                  |
 | smtp-host               |                          | SMTP server host.                                |
 | smtp-port               |                          | SMTP server port.                                |

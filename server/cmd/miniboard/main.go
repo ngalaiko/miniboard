@@ -14,7 +14,7 @@ import (
 	"miniboard.app/email/smtp"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
-	"miniboard.app/storage/mongo"
+	"miniboard.app/storage/redis"
 )
 
 var (
@@ -23,7 +23,7 @@ var (
 
 	boltPath = flag.String("bolt-path", "./bolt.db", "Path to the bolt storage.")
 
-	mongoURI = flag.String("mongo-uri", "", "Mongo URI to connect to.")
+	redisURI = flag.String("redis-uri", "", "Redis URI to connect to.")
 
 	sslCert = flag.String("ssl-cert", "", "Path to ssl certificate.")
 	sslKey  = flag.String("ssl-key", "", "Path to ssl key.")
@@ -60,12 +60,12 @@ func main() {
 
 func initStorage(ctx context.Context) (storage.Storage, error) {
 	switch {
-	case *mongoURI != "":
-		return mongo.New(ctx, *mongoURI)
+	case *redisURI != "":
+		return redis.New(ctx, *redisURI)
 	case *boltPath != "":
 		return bolt.New(ctx, *boltPath)
 	default:
-		return nil, errors.New("one of mongo-uri or bolt-path must be provided")
+		return nil, errors.New("one of redis-uri or bolt-path must be provided")
 	}
 }
 
