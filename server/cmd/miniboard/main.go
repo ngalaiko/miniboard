@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"net"
 	"os"
@@ -11,7 +12,9 @@ import (
 	"miniboard.app/email"
 	"miniboard.app/email/disabled"
 	"miniboard.app/email/smtp"
+	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
+	"miniboard.app/storage/mongo"
 )
 
 var (
@@ -19,6 +22,8 @@ var (
 	addr   = flag.String("addr", ":8080", "Address to listen for connections.")
 
 	boltPath = flag.String("bolt-path", "./bolt.db", "Path to the bolt storage.")
+
+	mongoURI = flag.String("mongo-uri", "", "Mongo URI to connect to.")
 
 	sslCert = flag.String("ssl-cert", "", "Path to ssl certificate.")
 	sslKey  = flag.String("ssl-key", "", "Path to ssl key.")
@@ -34,9 +39,9 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	db, err := bolt.New(ctx, *boltPath)
+	db, err := initStorage(ctx)
 	if err != nil {
-		logrus.Fatalf("failed to create bolt database: %s", err)
+		logrus.Fatalf("failed to connect to database: %s", err)
 	}
 
 	lis, err := net.Listen("tcp", *addr)
@@ -50,6 +55,17 @@ func main() {
 		KeyPath:  *sslKey,
 	}); err != nil {
 		logrus.Fatalf("failed to start the server: %s", err)
+	}
+}
+
+func initStorage(ctx context.Context) (storage.Storage, error) {
+	switch {
+	case *mongoURI != "":
+		return mongo.New(ctx, *mongoURI)
+	case *boltPath != "":
+		return bolt.New(ctx, *boltPath)
+	default:
+		return nil, errors.New("one of mongo-uri or bolt-path must be provided")
 	}
 }
 
