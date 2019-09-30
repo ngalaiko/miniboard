@@ -36,16 +36,16 @@ func (s *Service) CreateAuthorization(
 ) (*authorizations.Authorization, error) {
 	switch request.GrantType {
 	case "refresh_token":
-		return s.refreshTokenAuthorization(request.RefreshToken)
+		return s.refreshTokenAuthorization(ctx, request.RefreshToken)
 	case "authorization_code":
-		return s.authentictionCode(request.AuthorizationCode)
+		return s.authentictionCode(ctx, request.AuthorizationCode)
 	default:
 		return nil, status.New(codes.InvalidArgument, "unknown grant type").Err()
 	}
 }
 
-func (s *Service) refreshTokenAuthorization(token string) (*authorizations.Authorization, error) {
-	subject, err := s.jwt.Validate(token, refreshToken)
+func (s *Service) refreshTokenAuthorization(ctx context.Context, token string) (*authorizations.Authorization, error) {
+	subject, err := s.jwt.Validate(ctx, token, refreshToken)
 	if err != nil {
 		return nil, status.New(codes.InvalidArgument, "refresh token is not valid").Err()
 	}
@@ -53,8 +53,8 @@ func (s *Service) refreshTokenAuthorization(token string) (*authorizations.Autho
 	return s.authorizationFor(resource.ParseName(subject))
 }
 
-func (s *Service) authentictionCode(token string) (*authorizations.Authorization, error) {
-	subject, err := s.jwt.Validate(token, authorizationCode)
+func (s *Service) authentictionCode(ctx context.Context, token string) (*authorizations.Authorization, error) {
+	subject, err := s.jwt.Validate(ctx, token, authorizationCode)
 	if err != nil {
 		return nil, status.New(codes.InvalidArgument, "refresh token is not valid").Err()
 	}

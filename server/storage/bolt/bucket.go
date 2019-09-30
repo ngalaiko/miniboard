@@ -1,6 +1,7 @@
 package bolt
 
 import (
+	"context"
 	"strings"
 
 	bolt "github.com/coreos/bbolt"
@@ -14,7 +15,7 @@ import (
 
 // Store stores _data_ by _in_ in the bucket.
 // Returns ErrAlreadyExists if the key _in_ already exists.
-func (db *DB) Store(name *resource.Name, data []byte) error {
+func (db *DB) Store(ctx context.Context, name *resource.Name, data []byte) error {
 	name = resource.NewName(name.Type(), "bucket").AddChild(name)
 	return db.update(name, func(bucket *bolt.Bucket) error {
 		if bucket.Get([]byte(name.ID())) != nil {
@@ -25,7 +26,7 @@ func (db *DB) Store(name *resource.Name, data []byte) error {
 }
 
 // Update stores _data_ by _in_ in the bucket.
-func (db *DB) Update(name *resource.Name, data []byte) error {
+func (db *DB) Update(ctx context.Context, name *resource.Name, data []byte) error {
 	name = resource.NewName(name.Type(), "bucket").AddChild(name)
 	return db.update(name, func(bucket *bolt.Bucket) error {
 		return bucket.Put([]byte(name.ID()), data)
@@ -33,7 +34,7 @@ func (db *DB) Update(name *resource.Name, data []byte) error {
 }
 
 // Load returns returns data from bucket by _id_.
-func (db *DB) Load(name *resource.Name) ([]byte, error) {
+func (db *DB) Load(ctx context.Context, name *resource.Name) ([]byte, error) {
 	var data []byte
 	name = resource.NewName(name.Type(), "bucket").AddChild(name)
 	return data, db.view(name, func(bucket *bolt.Bucket) error {
@@ -46,7 +47,7 @@ func (db *DB) Load(name *resource.Name) ([]byte, error) {
 }
 
 // Delete deletes data by _name_.
-func (db *DB) Delete(name *resource.Name) error {
+func (db *DB) Delete(ctx context.Context, name *resource.Name) error {
 	name = resource.NewName(name.Type(), "bucket").AddChild(name)
 	return db.update(name, func(bucket *bolt.Bucket) error {
 		return bucket.Delete([]byte(name.ID()))
@@ -54,9 +55,9 @@ func (db *DB) Delete(name *resource.Name) error {
 }
 
 // LoadChildren implements storage.Storage.
-func (db *DB) LoadChildren(name *resource.Name, from *resource.Name, limit int) ([]*resource.Resource, error) {
+func (db *DB) LoadChildren(ctx context.Context, name *resource.Name, from *resource.Name, limit int) ([]*resource.Resource, error) {
 	data := make([]*resource.Resource, 0, limit)
-	return data, db.ForEach(name, from, func(r *resource.Resource) (bool, error) {
+	return data, db.ForEach(ctx, name, from, func(r *resource.Resource) (bool, error) {
 		if len(data) == limit {
 			return false, nil
 		}
@@ -66,7 +67,7 @@ func (db *DB) LoadChildren(name *resource.Name, from *resource.Name, limit int) 
 }
 
 // ForEach implements storage.Storage.
-func (db *DB) ForEach(name *resource.Name, from *resource.Name, filter func(*resource.Resource) (bool, error)) error {
+func (db *DB) ForEach(ctx context.Context, name *resource.Name, from *resource.Name, filter func(*resource.Resource) (bool, error)) error {
 	return db.view(resource.NewName(name.Type(), "bucket").AddChild(name), func(bucket *bolt.Bucket) error {
 		c := bucket.Cursor()
 

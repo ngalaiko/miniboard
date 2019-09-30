@@ -26,7 +26,7 @@ func Test_Service(t *testing.T) {
 			})
 
 			t.Run("When parsing the token", func(t *testing.T) {
-				parsedSubject, err := service.Validate(token, "token")
+				parsedSubject, err := service.Validate(ctx, token, "token")
 
 				t.Run("It should no error", func(t *testing.T) {
 					assert.NoError(t, err)
@@ -35,7 +35,7 @@ func Test_Service(t *testing.T) {
 			})
 
 			t.Run("When the token is rotated", func(t *testing.T) {
-				assert.NoError(t, service.newSigner())
+				assert.NoError(t, service.newSigner(ctx))
 			})
 		})
 	})

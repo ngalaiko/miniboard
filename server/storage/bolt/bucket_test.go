@@ -23,7 +23,7 @@ func Test_DB(t *testing.T) {
 
 		t.Run("When data doesn't exist", func(t *testing.T) {
 			t.Run("it should not be found", func(t *testing.T) {
-				loaded, err := db.Load(resource.NewName("test", ksuid.New().String()))
+				loaded, err := db.Load(ctx, resource.NewName("test", ksuid.New().String()))
 				assert.Empty(t, loaded)
 				assert.Equal(t, errors.Cause(err), storage.ErrNotFound)
 			})
@@ -33,13 +33,13 @@ func Test_DB(t *testing.T) {
 			for i := 0; i < 10; i++ {
 				name := resource.NewName("test", fmt.Sprint(i))
 				data := []byte(fmt.Sprintf("data %d", i))
-				assert.NoError(t, db.Store(name, data))
+				assert.NoError(t, db.Store(ctx, name, data))
 			}
 
 			t.Run("When loading all elements", func(t *testing.T) {
 				name := resource.NewName("test", "*")
 
-				dd, err := db.LoadChildren(name, nil, 10)
+				dd, err := db.LoadChildren(ctx, name, nil, 10)
 				assert.NoError(t, err)
 
 				assert.Len(t, dd, 10)
@@ -51,7 +51,7 @@ func Test_DB(t *testing.T) {
 			t.Run("When loading with limit", func(t *testing.T) {
 				name := resource.NewName("test", "*")
 
-				dd, err := db.LoadChildren(name, nil, 5)
+				dd, err := db.LoadChildren(ctx, name, nil, 5)
 				assert.NoError(t, err)
 
 				assert.Len(t, dd, 5)
@@ -64,7 +64,7 @@ func Test_DB(t *testing.T) {
 				name := resource.NewName("test", "*")
 				from := resource.NewName("test", "6")
 
-				dd, err := db.LoadChildren(name, from, 10)
+				dd, err := db.LoadChildren(ctx, name, from, 10)
 				assert.NoError(t, err)
 
 				assert.Len(t, dd, 7)
@@ -81,7 +81,7 @@ func Test_DB(t *testing.T) {
 
 				t.Run("Should iterate from end to start", func(t *testing.T) {
 					c := 0
-					err := db.ForEach(name, nil, func(r *resource.Resource) (bool, error) {
+					err := db.ForEach(ctx, name, nil, func(r *resource.Resource) (bool, error) {
 						c++
 						assert.Equal(t, fmt.Sprintf("data %d", 10-c), string(r.Data))
 						return true, nil
@@ -95,10 +95,10 @@ func Test_DB(t *testing.T) {
 		t.Run("When root exists", func(t *testing.T) {
 			name := resource.NewName("test", ksuid.New().String())
 			data := []byte("data")
-			assert.NoError(t, db.Store(name, data))
+			assert.NoError(t, db.Store(ctx, name, data))
 
 			t.Run("It should be found", func(t *testing.T) {
-				loaded, err := db.Load(name)
+				loaded, err := db.Load(ctx, name)
 				if assert.NoError(t, err) {
 					assert.Equal(t, loaded, data)
 				}
@@ -107,10 +107,10 @@ func Test_DB(t *testing.T) {
 			t.Run("When child exists", func(t *testing.T) {
 				name := name.Child("child", "id")
 				data := []byte("data")
-				assert.NoError(t, db.Store(name, data))
+				assert.NoError(t, db.Store(ctx, name, data))
 
 				t.Run("It should be found", func(t *testing.T) {
-					loaded, err := db.Load(name)
+					loaded, err := db.Load(ctx, name)
 					if assert.NoError(t, err) {
 						assert.Equal(t, loaded, data)
 					}
@@ -118,19 +118,19 @@ func Test_DB(t *testing.T) {
 			})
 
 			t.Run("When it's deleted", func(t *testing.T) {
-				assert.NoError(t, db.Delete(name))
+				assert.NoError(t, db.Delete(ctx, name))
 
 				t.Run("Data should not ne found", func(t *testing.T) {
-					_, err := db.Load(name)
+					_, err := db.Load(ctx, name)
 					assert.Equal(t, storage.ErrNotFound, err)
 				})
 			})
 
 			t.Run("When it's updated", func(t *testing.T) {
-				assert.NoError(t, db.Update(name, []byte("updated")))
+				assert.NoError(t, db.Update(ctx, name, []byte("updated")))
 
 				t.Run("Data should not ne found", func(t *testing.T) {
-					d, err := db.Load(name)
+					d, err := db.Load(ctx, name)
 					assert.NoError(t, err)
 					assert.Equal(t, []byte("updated"), d)
 				})
@@ -159,8 +159,8 @@ func Benchmark_DB(b *testing.B) {
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {
-				storage.Store(name, []byte(`data`))
-				storage.Load(name)
+				storage.Store(ctx, name, []byte(`data`))
+				storage.Load(ctx, name)
 			}
 		})
 	}

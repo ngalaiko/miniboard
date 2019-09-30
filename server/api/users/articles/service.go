@@ -49,15 +49,8 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 		from = resource.ParseName(string(decoded))
 	}
 
-	dd, err := s.storage.LoadChildren(lookFor, from, int(request.PageSize+1))
-	switch errors.Cause(err) {
-	case storage.ErrNotFound, nil:
-	default:
-		return nil, status.New(codes.Internal, "failed to load articles").Err()
-	}
-
-	aa := make([]*articles.Article, 0, len(dd))
-	err = s.storage.ForEach(lookFor, from, func(r *resource.Resource) (bool, error) {
+	aa := []*articles.Article{}
+	err := s.storage.ForEach(ctx, lookFor, from, func(r *resource.Resource) (bool, error) {
 		if int64(len(aa)) == request.PageSize+1 {
 			return false, nil
 		}
@@ -135,7 +128,7 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 
 		content = r.Content()
 		if content != nil {
-			if err := s.storage.Store(resource.NewName("content", name.ID()), content); err != nil {
+			if err := s.storage.Store(ctx, resource.NewName("content", name.ID()), content); err != nil {
 				return nil, status.New(codes.Internal, "failed to store the article content").Err()
 			}
 		}
@@ -151,7 +144,7 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 		return nil, status.New(codes.Internal, "failed to marshal the article").Err()
 	}
 
-	if err := s.storage.Store(name, rawArticle); err != nil {
+	if err := s.storage.Store(ctx, name, rawArticle); err != nil {
 		return nil, status.New(codes.Internal, "failed to store the article").Err()
 	}
 
@@ -197,7 +190,7 @@ func (s *Service) UpdateArticle(ctx context.Context, request *articles.UpdateArt
 		return nil, status.New(codes.Internal, "failed to marshal the article").Err()
 	}
 
-	if err := s.storage.Update(name, rawArticle); err != nil {
+	if err := s.storage.Update(ctx, name, rawArticle); err != nil {
 		return nil, status.New(codes.Internal, "failed to store the article").Err()
 	}
 
@@ -215,7 +208,7 @@ func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRe
 		return article, nil
 	}
 
-	article.Content, err = s.storage.Load(resource.NewName("content", name.ID()))
+	article.Content, err = s.storage.Load(ctx, resource.NewName("content", name.ID()))
 	switch errors.Cause(err) {
 	case nil:
 	case storage.ErrNotFound:
@@ -228,7 +221,7 @@ func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRe
 }
 
 func (s *Service) getArticle(ctx context.Context, name *resource.Name) (*articles.Article, error) {
-	raw, err := s.storage.Load(name)
+	raw, err := s.storage.Load(ctx, name)
 	switch errors.Cause(err) {
 	case nil:
 	case storage.ErrNotFound:
@@ -249,7 +242,7 @@ func (s *Service) getArticle(ctx context.Context, name *resource.Name) (*article
 func (s *Service) DeleteArticle(ctx context.Context, request *articles.DeleteArticleRequest) (*empty.Empty, error) {
 	name := resource.ParseName(request.Name)
 
-	if err := s.storage.Delete(name); err != nil {
+	if err := s.storage.Delete(ctx, name); err != nil {
 		return nil, status.New(codes.Internal, "failed to delete the article").Err()
 	}
 

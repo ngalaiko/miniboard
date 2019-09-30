@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"context"
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"
@@ -33,13 +34,13 @@ func newKeyStorage(db storage.Storage) *keyStorage {
 }
 
 // Get returns a key by id.
-func (s *keyStorage) Get(id string) (*key, error) {
+func (s *keyStorage) Get(ctx context.Context, id string) (*key, error) {
 	fromCache, cached := s.cache.Get(id)
 	if cached {
 		return fromCache, nil
 	}
 
-	data, err := s.storage.Load(resource.NewName("jwt-key", id))
+	data, err := s.storage.Load(ctx, resource.NewName("jwt-key", id))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to load key")
 	}
@@ -60,8 +61,8 @@ func (s *keyStorage) Get(id string) (*key, error) {
 }
 
 // Delete deletes a key by id.
-func (s *keyStorage) Delete(id string) error {
-	if err := s.storage.Delete(resource.NewName("jwt-key", id)); err != nil {
+func (s *keyStorage) Delete(ctx context.Context, id string) error {
+	if err := s.storage.Delete(ctx, resource.NewName("jwt-key", id)); err != nil {
 		return errors.Wrap(err, "failed to delete key")
 	}
 	s.cache.Delete(id)
@@ -69,7 +70,7 @@ func (s *keyStorage) Delete(id string) error {
 }
 
 // Create returns a new key.
-func (s *keyStorage) Create() (*key, error) {
+func (s *keyStorage) Create(ctx context.Context) (*key, error) {
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to generate encryption key")
@@ -82,7 +83,7 @@ func (s *keyStorage) Create() (*key, error) {
 
 	id := ksuid.New().String()
 
-	if err := s.storage.Store(resource.NewName("jwt-key", id), data); err != nil {
+	if err := s.storage.Store(ctx, resource.NewName("jwt-key", id), data); err != nil {
 		return nil, errors.Wrap(err, "failed to store encryption key")
 	}
 
@@ -97,8 +98,8 @@ func (s *keyStorage) Create() (*key, error) {
 }
 
 // List returns all keys from the storage.
-func (s *keyStorage) List() ([]*key, error) {
-	dd, err := s.storage.LoadChildren(resource.NewName("jwt-key", "*"), nil, 50)
+func (s *keyStorage) List(ctx context.Context) ([]*key, error) {
+	dd, err := s.storage.LoadChildren(ctx, resource.NewName("jwt-key", "*"), nil, 50)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to load keys")
 	}

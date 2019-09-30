@@ -18,7 +18,7 @@ func Test_keyStorage_Create__should_create_new_key(t *testing.T) {
 
 	service := newKeyStorage(testDB(ctx, t))
 
-	key, err := service.Create()
+	key, err := service.Create(ctx)
 	assert.NoError(t, err)
 	assert.NotNil(t, key)
 	assert.NotNil(t, key.Private)
@@ -33,14 +33,14 @@ func Test_keyStorage_Get(t *testing.T) {
 
 	t.Run("When a key doesn't exist", func(t *testing.T) {
 		t.Run("Then error should be not found", func(t *testing.T) {
-			key, err := service.Get("random id")
+			key, err := service.Get(ctx, "random id")
 			assert.Nil(t, key)
 			assert.Equal(t, errors.Cause(err), storage.ErrNotFound)
 		})
 	})
 
 	t.Run("When a creating a key", func(t *testing.T) {
-		key, err := service.Create()
+		key, err := service.Create(ctx)
 		assert.NoError(t, err)
 		assert.NotNil(t, key)
 		assert.NotNil(t, key.Private)
@@ -56,7 +56,7 @@ func Test_keyStorage_Get(t *testing.T) {
 			service.cache.store.Delete(key.ID)
 
 			t.Run("Then it should be returned", func(t *testing.T) {
-				fromStorage, err := service.Get(key.ID)
+				fromStorage, err := service.Get(ctx, key.ID)
 				assert.NoError(t, err)
 				assert.Equal(t, fromStorage, key)
 			})
@@ -68,10 +68,10 @@ func Test_keyStorage_Get(t *testing.T) {
 			})
 		})
 		t.Run("When creating another key", func(t *testing.T) {
-			_, err := service.Create()
+			_, err := service.Create(ctx)
 			assert.NoError(t, err)
 			t.Run("Both should be listed", func(t *testing.T) {
-				keys, err := service.List()
+				keys, err := service.List(ctx)
 				assert.NoError(t, err)
 				assert.Len(t, keys, 2)
 

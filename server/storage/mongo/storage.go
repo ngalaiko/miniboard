@@ -44,33 +44,33 @@ func New(ctx context.Context, uri string) (*Storage, error) {
 }
 
 // Store implements storage.Storage.
-func (s *Storage) Store(*resource.Name, []byte) error {
-	return nil
+func (s *Storage) Store(ctx context.Context, name *resource.Name, data []byte) error {
+	return errors.New("not implemented")
 }
 
 // Update implements storage.Storage.
-func (s *Storage) Update(*resource.Name, []byte) error {
-	return nil
+func (s *Storage) Update(ctx context.Context, name *resource.Name, data []byte) error {
+	return errors.New("not implemented")
 }
 
 // Load implements storage.Storage.
-func (s *Storage) Load(*resource.Name) ([]byte, error) {
-	return nil, nil
+func (s *Storage) Load(ctx context.Context, name *resource.Name) ([]byte, error) {
+	return nil, errors.New("not implemented")
 }
 
 // Delete implements storage.Storage.
-func (s *Storage) Delete(*resource.Name) error {
-	return nil
+func (s *Storage) Delete(ctx context.Context, name *resource.Name) error {
+	return errors.New("not implemented")
 }
 
 // LoadChildren implements storage.Storage.
-func (s *Storage) LoadChildren(name *resource.Name, from *resource.Name, limit int) ([]*resource.Resource, error) {
-	return nil, nil
+func (s *Storage) LoadChildren(ctx context.Context, name *resource.Name, from *resource.Name, limit int) ([]*resource.Resource, error) {
+	return nil, errors.New("not implemented")
 }
 
 // ForEach implements storage.Storage.
-func (s *Storage) ForEach(name *resource.Name, from *resource.Name, okFunc func(*resource.Resource) (bool, error)) error {
-	return nil
+func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resource.Name, okFunc func(*resource.Resource) (bool, error)) error {
+	return errors.New("not implemented")
 }
 
 func log(src string) *logrus.Entry {

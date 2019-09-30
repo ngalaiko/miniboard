@@ -44,7 +44,7 @@ func NewService(ctx context.Context, db storage.Storage) *Service {
 		expiryInterval:   72 * 3 * time.Hour,
 	}
 
-	if err := s.newSigner(); err != nil {
+	if err := s.newSigner(ctx); err != nil {
 		log("jwt").Panicf("failed to generate encryption key: %s", err)
 	}
 
@@ -54,8 +54,8 @@ func NewService(ctx context.Context, db storage.Storage) *Service {
 	return s
 }
 
-func (s *Service) newSigner() error {
-	key, err := s.keyStorage.Create()
+func (s *Service) newSigner(ctx context.Context) error {
+	key, err := s.keyStorage.Create(ctx)
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ func (s *Service) NewToken(subject *resource.Name, validFor time.Duration, typ s
 }
 
 // Validate returns token subject if a token is valid.
-func (s *Service) Validate(raw string, typ string) (string, error) {
+func (s *Service) Validate(ctx context.Context, raw string, typ string) (string, error) {
 	token, err := jwt.ParseSigned(raw)
 	if err != nil {
 		return "", errors.Wrap(err, "failed to parse token")
@@ -113,7 +113,7 @@ func (s *Service) Validate(raw string, typ string) (string, error) {
 
 	id := token.Headers[0].KeyID
 
-	key, err := s.keyStorage.Get(id)
+	key, err := s.keyStorage.Get(ctx, id)
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to find key '%s'", id)
 	}
@@ -145,7 +145,7 @@ func (s *Service) rotateKeys(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-timer.C:
-			if err := s.newSigner(); err != nil {
+			if err := s.newSigner(ctx); err != nil {
 				log("jwt").Errorf("failed to rotate keys: %s", err)
 			}
 		}
@@ -159,15 +159,15 @@ func (s *Service) cleanupOldKeys(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-timer.C:
-			if err := s.deleteOldKeys(); err != nil {
+			if err := s.deleteOldKeys(ctx); err != nil {
 				log("jwt").Errorf("failed to delete keys: %s", err)
 			}
 		}
 	}
 }
 
-func (s *Service) deleteOldKeys() error {
-	kk, err := s.keyStorage.List()
+func (s *Service) deleteOldKeys(ctx context.Context) error {
+	kk, err := s.keyStorage.List(ctx)
 	if err != nil {
 		return errors.Wrap(err, "can't list keys from the storage")
 	}
@@ -183,7 +183,7 @@ func (s *Service) deleteOldKeys() error {
 		if ksID.Time().After(deleteBefore) {
 			continue
 		}
-		if err := s.keyStorage.Delete(k.ID); err != nil {
+		if err := s.keyStorage.Delete(ctx, k.ID); err != nil {
 			log("jwt").Errorf("%s: can't delete key: %s", k.ID, err)
 			continue
 		}
