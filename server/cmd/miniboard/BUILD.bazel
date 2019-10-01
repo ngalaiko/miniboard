@@ -28,8 +28,8 @@ go_binary(
     embed = [":go_default_library"],
     visibility = ["//visibility:public"],
     data = [
-        "//certs:local.miniboard.app.cert",
-        "//certs:local.miniboard.app.key",
+        "//server/certs:local.miniboard.app.cert",
+        "//server/certs:local.miniboard.app.key",
     ],
 )
 
