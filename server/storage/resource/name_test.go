@@ -61,3 +61,30 @@ func Test_parseName(t *testing.T) {
 		})
 	}
 }
+
+func Test_split(t *testing.T) {
+	testCases := []struct {
+		in    *Name
+		first string
+		last  string
+	}{
+		{
+			in:    NewName("users", "1"),
+			first: "users",
+			last:  "1",
+		},
+
+		{
+			in:    NewName("clients", "2").Child("users", "1"),
+			first: "clients/2/users",
+			last:  "1",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.in.String(), func(t *testing.T) {
+			first, last := tc.in.Split()
+			assert.Equal(t, first, tc.first)
+			assert.Equal(t, last, tc.last)
+		})
+	}
+}

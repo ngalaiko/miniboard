@@ -2,9 +2,9 @@ package redis
 
 import (
 	"context"
-	"sort"
+	"fmt"
 
-	"github.com/mediocregopher/radix/v3"
+	"github.com/gomodule/redigo/redis"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"miniboard.app/storage"
@@ -15,58 +15,71 @@ const poolSize = 10
 
 // Storage used to store key value data.
 type Storage struct {
-	db *radix.Pool
+	db redis.Conn
 }
 
 // New returns new mongo client instance.
-func New(ctx context.Context, uri string) (*Storage, error) {
-	pool, err := radix.NewPool("tcp", uri, poolSize)
+func New(ctx context.Context, addr string) (*Storage, error) {
+	conn, err := redis.Dial("tcp", addr)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to connect to redis")
 	}
+	go func() {
+		<-ctx.Done()
+		_ = conn.Close()
+	}()
 
-	if err := pool.Do(radix.Cmd(nil, "PING")); err != nil {
+	if _, err := conn.Do("PING"); err != nil {
 		return nil, errors.Wrap(err, "failed to ping redis client")
 	}
 
-	log("redis").Infof("connected to %s", uri)
+	log("redis").Infof("connected to %s", addr)
 	return &Storage{
-		db: pool,
+		db: conn,
 	}, nil
 }
 
 // Store implements storage.Storage.
 func (s *Storage) Store(ctx context.Context, name *resource.Name, data []byte) error {
-	if err := s.db.Do(radix.FlatCmd(nil, "SET", name.String(), data)); err != nil {
-		return errors.Wrap(err, "failed to SET")
+	if _, err := s.db.Do("SET", name.String(), data); err != nil {
+		return errors.Wrapf(err, "failed to SET %s", name)
+	}
+	first, last := name.Split()
+	if _, err := s.db.Do("LPUSH", first, last); err != nil {
+		return errors.Wrapf(err, "failed to LPUSH %s %s", first, last)
 	}
 	return nil
 }
 
 // Update implements storage.Storage.
 func (s *Storage) Update(ctx context.Context, name *resource.Name, data []byte) error {
-	if err := s.db.Do(radix.FlatCmd(nil, "SET", name.String(), data)); err != nil {
-		return errors.Wrap(err, "failed to SET")
+	if _, err := s.db.Do("SET", name.String(), data); err != nil {
+		return errors.Wrapf(err, "failed to SET %s", name)
 	}
 	return nil
 }
 
 // Load implements storage.Storage.
 func (s *Storage) Load(ctx context.Context, name *resource.Name) ([]byte, error) {
-	var data []byte
-	if err := s.db.Do(radix.FlatCmd(&data, "GET", name.String())); err != nil {
-		return nil, errors.Wrap(err, "failed to GET")
-	}
-	if data == nil {
+	data, err := redis.Bytes(s.db.Do("GET", name.String()))
+	switch err {
+	case nil:
+		return data, nil
+	case redis.ErrNil:
 		return nil, storage.ErrNotFound
+	default:
+		return nil, errors.Wrapf(err, "failed to GET %s", name)
 	}
-	return data, nil
 }
 
 // Delete implements storage.Storage.
 func (s *Storage) Delete(ctx context.Context, name *resource.Name) error {
-	if err := s.db.Do(radix.FlatCmd(nil, "DEL", name.String())); err != nil {
-		return errors.Wrap(err, "failed to DEL")
+	if _, err := s.db.Do("DEL", name.String()); err != nil {
+		return errors.Wrapf(err, "failed to DEL %s", name)
+	}
+	first, last := name.Split()
+	if _, err := s.db.Do("LREM", first, 0, last); err != nil {
+		return errors.Wrapf(err, "failed to LREM %s 0 %s", first, last)
 	}
 	return nil
 }
@@ -85,45 +98,27 @@ func (s *Storage) LoadChildren(ctx context.Context, name *resource.Name, from *r
 
 // ForEach implements storage.Storage.
 func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resource.Name, okFunc func(*resource.Resource) (bool, error)) error {
-	scanner := radix.NewScanner(s.db, radix.ScanOpts{
-		Command: "SCAN",
-		Pattern: name.String(),
-	})
-	defer func() {
-		if err := scanner.Close(); err != nil {
-			log("redis").Errorf("failed to close scanner: %s", err)
-		}
-	}()
+	first, _ := name.Split()
 
-	var key string
-	var err error
-	keys := []string{}
-	for scanner.Next(&key) {
-		keys = append(keys, key)
+	var fromIndex int64
+	if from != nil {
+		_, id := from.Split()
+
+		var err error
+		fromIndex, err = redis.Int64(s.db.Do("LINDEX", first, id))
+		if err != nil {
+			return errors.Wrapf(err, "invalid from value %s", from.String())
+		}
 	}
 
-	sort.Slice(keys, func(i, j int) bool {
-		return keys[i] > keys[j]
-	})
-
-	start := false
-	var fromString string
-	if from == nil {
-		start = true
-	} else {
-		fromString = from.String()
+	keys, err := redis.Strings(s.db.Do("LRANGE", first, fromIndex, -1))
+	if err != nil {
+		return errors.Wrapf(err, "failed: LRANGE %s %d -1", first, fromIndex)
 	}
 
 	for _, key := range keys {
-		if fromString == key {
-			start = true
-		}
-		if !start {
-			continue
-		}
-
 		res := &resource.Resource{
-			Name: resource.ParseName(key),
+			Name: resource.ParseName(fmt.Sprintf("%s/%s", first, key)),
 		}
 
 		res.Data, err = s.Load(ctx, res.Name)

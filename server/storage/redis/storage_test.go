@@ -25,6 +25,9 @@ func Test_DB(t *testing.T) {
 
 		db := testBucket(ctx, t, host)
 
+		_, err := db.(*Storage).db.Do("FLUSHALL")
+		assert.NoError(t, err)
+
 		t.Run("When data doesn't exist", func(t *testing.T) {
 			t.Run("it should not be found", func(t *testing.T) {
 				loaded, err := db.Load(ctx, resource.NewName("undefined", ksuid.New().String()))
@@ -97,7 +100,7 @@ func Test_DB(t *testing.T) {
 		})
 
 		t.Run("When root exists", func(t *testing.T) {
-			name := resource.NewName("test", ksuid.New().String())
+			name := resource.NewName("noroot", ksuid.New().String())
 			data := []byte("data")
 			assert.NoError(t, db.Store(ctx, name, data))
 

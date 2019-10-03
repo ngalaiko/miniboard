@@ -9,8 +9,8 @@ require (
 	github.com/gogo/protobuf v1.2.1
 	github.com/golang/protobuf v1.3.2
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/grpc-ecosystem/grpc-gateway v1.9.6
-	github.com/mediocregopher/radix/v3 v3.4.0
 	github.com/pkg/errors v0.8.1
 	github.com/raja/argon2pw v1.0.1
 	github.com/segmentio/ksuid v1.0.2

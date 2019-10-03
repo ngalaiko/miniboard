@@ -62,6 +62,22 @@ func (n *Name) Path() []*Name {
 	return names
 }
 
+// Split returns name splitted into id and everything else.
+func (n *Name) Split() (string, string) {
+	first := &strings.Builder{}
+	for i, p := range n.parts {
+		if i == len(n.parts)-1 {
+			first.WriteString(p.Type)
+			return first.String(), p.ID
+		}
+		first.WriteString(p.Type)
+		first.WriteRune('/')
+		first.WriteString(p.ID)
+		first.WriteRune('/')
+	}
+	return "", ""
+}
+
 // Type returns resource's type.
 func (n *Name) Type() string {
 	return n.parts[len(n.parts)-1].Type
