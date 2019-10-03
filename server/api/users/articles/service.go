@@ -12,6 +12,7 @@ import (
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/proto/users/articles/v1"
@@ -100,6 +101,7 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 			NextPageToken: nextPageToken,
 		}, nil
 	default:
+		log("articles.list").Error(err)
 		return nil, status.New(codes.Internal, "failed to list articles").Err()
 	}
 }
@@ -247,4 +249,10 @@ func (s *Service) DeleteArticle(ctx context.Context, request *articles.DeleteArt
 	}
 
 	return &empty.Empty{}, nil
+}
+
+func log(src string) *logrus.Entry {
+	return logrus.WithFields(logrus.Fields{
+		"source": src,
+	})
 }
