@@ -25,7 +25,10 @@ func Test_DB(t *testing.T) {
 
 		db := testBucket(ctx, t, host)
 
-		_, err := db.(*Storage).db.Do("FLUSHALL")
+		conn := db.(*Storage).db.Get()
+		_, err := conn.Do("FLUSHALL")
+		_ = conn.Close()
+
 		assert.NoError(t, err)
 
 		t.Run("When data doesn't exist", func(t *testing.T) {
