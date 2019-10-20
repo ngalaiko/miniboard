@@ -1,7 +1,4 @@
 <script>
-    import LoginService from './login-service'
-
-    export let api
     export let authorizations
     export let users
     export let codes
@@ -11,26 +8,11 @@
     let message = ''
     let error = ''
 
-    let loginService = new LoginService(authorizations, codes, users)
-
-    const login = async (code) => {
-        try {
-            let auth = await loginService.login(code)
-            api.authenticate(auth)
-            router.route(`/${api.subject()}`)
-        } catch (e) {
-            error = 'something went wrong. try again?'
-        }
-    }
-
-    let code = new URL(window.location.href).searchParams.get('authorization_code')
-    if (code) login(code)
-
     const handleClick = async () => {
         if (email == '' ) {
             return
         }
-        loginService.sendCode(email)
+        let resp = codes.sendCode(email)
         message = 'check your email'
         error = ''
     }

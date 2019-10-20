@@ -8,6 +8,7 @@ svelte(
     srcs = ["storage.js"],
     deps = [
         "//web/components/article:Article",
+        "//web/components/header:Header",
         "//web/components/pagination:Pagination",
     ],
 )

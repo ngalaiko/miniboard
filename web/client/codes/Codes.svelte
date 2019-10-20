@@ -3,7 +3,7 @@
         let $ = {}
 
         $.sendCode = async (email) => {
-            return await api.post(`/api/v1/authorizations/codes`, {
+            return await api.post(`/api/v1/codes`, {
                 email: email,
             })
         }

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"google.golang.org/grpc"
-	"miniboard.app/proto/authorizations/codes/v1"
+	"miniboard.app/proto/codes/v1"
 )
 
 var _ codes.CodesServiceClient = &Proxy{}

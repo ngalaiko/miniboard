@@ -37,6 +37,7 @@
 
     import Article from '../article/Article.svelte'
     import Pagination from '../pagination/Pagination.svelte'
+    import Header from '../header/Header.svelte'
 
     export let api
     export let articles
@@ -69,6 +70,13 @@
 </script>
 
 <div>
+    <Header
+        api={api}
+        router={router}
+        on:added={(e) => add(e.detail, articles.add)}
+        on:search={(e) => console.log('search')}
+        on:selected={(e) => show(e.detail)}
+    />
     {#if pane === 'starred'}
         <Pagination
             itemsStore={starredStorage.store}

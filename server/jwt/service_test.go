@@ -30,7 +30,7 @@ func Test_Service(t *testing.T) {
 
 				t.Run("It should no error", func(t *testing.T) {
 					assert.NoError(t, err)
-					assert.Equal(t, testSubject.String(), parsedSubject)
+					assert.Equal(t, testSubject, parsedSubject)
 				})
 			})
 

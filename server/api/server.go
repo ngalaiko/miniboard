@@ -9,14 +9,12 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
-	authenticatationsservice "miniboard.app/api/authorizations"
-	codesservice "miniboard.app/api/authorizations/codes"
+	articlesservice "miniboard.app/api/articles"
+	codesservice "miniboard.app/api/codes"
 	usersservice "miniboard.app/api/users"
-	articlesservice "miniboard.app/api/users/articles"
 	"miniboard.app/email"
 	"miniboard.app/jwt"
-	"miniboard.app/proto/authorizations/codes/v1"
-	"miniboard.app/proto/authorizations/v1"
+	"miniboard.app/proto/codes/v1"
 	"miniboard.app/proto/users/articles/v1"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
@@ -35,9 +33,8 @@ func NewServer(
 	emailClient email.Client,
 	domain string,
 ) *Server {
-	usersService := usersservice.New(db)
 	jwtService := jwt.NewService(ctx, db)
-	authorizationsService := authenticatationsservice.New(jwtService)
+	usersService := usersservice.New(db)
 	codesService := codesservice.New(domain, emailClient, jwtService)
 	articlesService := articlesservice.New(db)
 
@@ -47,11 +44,6 @@ func NewServer(
 		ctx,
 		gwMux,
 		usersservice.NewProxyClient(usersService),
-	)
-	authorizations.RegisterAuthorizationsServiceHandlerClient(
-		ctx,
-		gwMux,
-		authenticatationsservice.NewProxyClient(authorizationsService),
 	)
 	codes.RegisterCodesServiceHandlerClient(
 		ctx,
@@ -65,10 +57,7 @@ func NewServer(
 	)
 
 	mux := http.NewServeMux()
-	mux.Handle("/api/", withAuthorization(
-		convertFormData(gwMux),
-		jwtService),
-	)
+	mux.Handle("/api/", withAuthorization(gwMux, jwtService))
 	mux.Handle("/", web.Handler())
 
 	srv := &Server{

@@ -5,7 +5,6 @@ import (
 
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
-	"miniboard.app/storage/resource"
 )
 
 // Service controls users resource.
@@ -25,8 +24,7 @@ func (s *Service) GetUser(
 	ctx context.Context,
 	request *users.GetUserRequest,
 ) (*users.User, error) {
-	name := resource.ParseName(request.Name)
 	return &users.User{
-		Name: name.String(),
+		Name: request.Name,
 	}, nil
 }

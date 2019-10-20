@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/status"
 	"miniboard.app/email"
 	"miniboard.app/jwt"
-	"miniboard.app/proto/authorizations/codes/v1"
+	"miniboard.app/proto/codes/v1"
 	"miniboard.app/storage/resource"
 )
 
@@ -47,7 +47,7 @@ func (s *Service) CreateCode(ctx context.Context, request *codes.CreateCodeReque
 		return nil, status.New(responsecodes.Internal, "failed to generate token").Err()
 	}
 
-	link := fmt.Sprintf("%s?authorization_code=%s", s.domain, token)
+	link := fmt.Sprintf("%s/api/v1/users/%s?authorization_code=%s", s.domain, hashedEmail, token)
 	go func(msg string) {
 		if err := s.emailClient.Send(request.Email, "Authentication link", msg); err != nil {
 			log("codes").Error(err)

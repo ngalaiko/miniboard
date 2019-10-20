@@ -1,10 +1,9 @@
 <script>
-    import Articles, { add, show } from './components/articles/Articles.svelte'
+    import Articles  from './components/articles/Articles.svelte'
     import NotFound from './components/notfound/NotFound.svelte'
     import { Client } from './client/Client.svelte'
     import { Router } from './components/router/Router.svelte'
     import LoginForm from './components/loginform/LoginForm.svelte'
-    import Header from './components/header/Header.svelte'
     import Reader from './components/reader/Reader.svelte'
 
     let apiClient
@@ -18,14 +17,8 @@
 
         router
             .on('/', () => {
-                if (client.api.authorized()) {
-                    router.route(`/${client.api.subject()}`)
-                    return
-                }
                 component = LoginForm
                 props = {
-                    api: client.api,
-                    authorizations: client.authorizations,
                     codes: client.codes,
                     users: client.users,
                     router: router,
@@ -50,25 +43,12 @@
                 component = NotFound
             })
             .listen()
-
-        if (!client.api.authorized()) {
-            router.route('/')
-        } 
     })
 </script>
 
 <div class="app">
     {#await clientPromise}
     {:then}
-        {#if apiClient.api.authorized()}
-            <Header
-                api={apiClient.api}
-                router={router}
-                on:added={(e) => add(e.detail, apiClient.articles.add)}
-                on:search={(e) => console.log('search')}
-                on:selected={(e) => show(e.detail)}
-            />
-        {/if}
         <svelte:component
             this={component}
             {...props}

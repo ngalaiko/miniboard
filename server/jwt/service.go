@@ -101,41 +101,41 @@ func (s *Service) NewToken(subject *resource.Name, validFor time.Duration, typ s
 }
 
 // Validate returns token subject if a token is valid.
-func (s *Service) Validate(ctx context.Context, raw string, typ string) (string, error) {
+func (s *Service) Validate(ctx context.Context, raw string, typ string) (*resource.Name, error) {
 	token, err := jwt.ParseSigned(raw)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to parse token")
+		return nil, errors.Wrap(err, "failed to parse token")
 	}
 
 	if len(token.Headers) == 0 {
-		return "", errors.Wrap(err, "headers missing from the token")
+		return nil, errors.Wrap(err, "headers missing from the token")
 	}
 
 	id := token.Headers[0].KeyID
 
 	key, err := s.keyStorage.Get(ctx, id)
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to find key '%s'", id)
+		return nil, errors.Wrapf(err, "failed to find key '%s'", id)
 	}
 
 	claims := &jwt.Claims{}
 	custom := &customClaims{}
 	if err := token.Claims(key.Public, claims, custom); err != nil {
-		return "", errors.Wrapf(err, "failed to parse claims")
+		return nil, errors.Wrapf(err, "failed to parse claims")
 	}
 
 	if custom.Type != typ {
-		return "", errors.Wrapf(err, "wrong token type, expected '%s'", typ)
+		return nil, errors.Wrapf(err, "wrong token type, expected '%s'", typ)
 	}
 
 	if err := claims.Validate(jwt.Expected{
 		Issuer: defaultIssuer,
 		Time:   time.Now(),
 	}); err != nil {
-		return "", errors.Wrap(err, "token is invalid")
+		return nil, errors.Wrap(err, "token is invalid")
 	}
 
-	return claims.Subject, nil
+	return resource.ParseName(claims.Subject), nil
 }
 
 func (s *Service) rotateKeys(ctx context.Context) {

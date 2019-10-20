@@ -5,5 +5,4 @@ package(default_visibility = ["//visibility:public"])
 svelte(
     name = "Api",
     entry_point = "Api.svelte",
-    deps = ["//web/client/api/localstorage:LocalStorage"],
 )

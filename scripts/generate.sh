@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-go mod tidy
+(cd server && go mod tidy)
 bazel run //server:gazelle -- \
     update-repos \
         -from_file=./server/go.mod \

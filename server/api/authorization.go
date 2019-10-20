@@ -1,27 +1,25 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"miniboard.app/jwt"
 )
 
-var (
-	errInvalidType   = []byte(`{"code":"16",error":"invalid Authorization type","message":"invalid Authorization type"}`)
-	errMissingHeader = []byte(`{"code":"16","error":"authorization header missing","message":"authorization header missing"}`)
-	errInvalidHeder  = []byte(`{"code":"16","error":"invalid Authorization header","message":"invalid Authorization header"}`)
-	errForbidden     = []byte(`{"code":"7","error":"you don't have access to the resource","message":"you don't have access to the resource"}`)
+const (
+	authCookie   = "auth"
+	authDuration = 3 * time.Hour
 )
 
 func withAuthorization(h http.Handler, jwtService *jwt.Service) http.Handler {
 	whitelist := map[string][]*regexp.Regexp{
 		http.MethodPost: {
-			regexp.MustCompile(`^\/api\/v1\/authorizations\/codes$`),
-			regexp.MustCompile(`^\/api\/v1\/authorizations$`),
-			regexp.MustCompile(`^\/api\/v1\/users$`),
+			regexp.MustCompile(`^\/api\/v1\/codes$`),
 		},
 	}
 
@@ -36,27 +34,23 @@ func withAuthorization(h http.Handler, jwtService *jwt.Service) http.Handler {
 			}
 		}
 
-		auth := r.Header.Get("Authorization")
-		if auth == "" {
+		authCookie, err := r.Cookie(authCookie)
+		switch err {
+		case nil:
+		case http.ErrNoCookie:
+			if err := setCookie(w, r, jwtService); err != nil {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte(`{"code":"16","error":"authorization cookie missing","message":"authorization cookie missing"}`))
+				return
+			}
+			return
+		default:
 			w.WriteHeader(http.StatusUnauthorized)
-			w.Write(errMissingHeader)
+			w.Write([]byte(`{"code":"16","error":"authorization cookie missing","message":"authorization cookie missing"}`))
 			return
 		}
 
-		parts := strings.Split(auth, " ")
-		if len(parts) != 2 {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write(errInvalidHeder)
-			return
-		}
-
-		if strings.ToLower(parts[0]) != "bearer" {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write(errInvalidType)
-			return
-		}
-
-		subject, err := jwtService.Validate(r.Context(), parts[1], "access")
+		subject, err := jwtService.Validate(r.Context(), authCookie.Value, "access_token")
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(fmt.Sprintf(`{"error":"invalid Authorization token","message":"%s"}`, err)))
@@ -65,10 +59,40 @@ func withAuthorization(h http.Handler, jwtService *jwt.Service) http.Handler {
 
 		if !strings.HasPrefix(r.URL.Path, fmt.Sprintf("/api/v1/%s", subject)) {
 			w.WriteHeader(http.StatusForbidden)
-			w.Write(errForbidden)
+			w.Write([]byte(`{"code":"7","error":"you don't have access to the resource","message":"you don't have access to the resource"}`))
 			return
 		}
 
 		h.ServeHTTP(w, r)
 	})
+}
+
+func setCookie(w http.ResponseWriter, r *http.Request, jwtService *jwt.Service) error {
+	authorizationCodes := r.URL.Query()["authorization_code"]
+	if authorizationCodes == nil {
+		return errors.New("authorization code is empty")
+	}
+
+	authorizationCode := authorizationCodes[0]
+
+	subject, err := jwtService.Validate(r.Context(), authorizationCode, "authorization_code")
+	if err != nil {
+		return errors.New("authorization code is not valid")
+	}
+
+	accessToken, err := jwtService.NewToken(subject, authDuration, "access_token")
+	if err != nil {
+		return errors.New("faield to generate access code")
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:    authCookie,
+		Value:   accessToken,
+		Path:    "/",
+		Expires: time.Now().Add(authDuration),
+	})
+
+	http.Redirect(w, r, fmt.Sprintf("%s/%s", r.URL.Host, subject), http.StatusTemporaryRedirect)
+
+	return nil
 }
