@@ -86,10 +86,11 @@ func setCookie(w http.ResponseWriter, r *http.Request, jwtService *jwt.Service) 
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    authCookie,
-		Value:   accessToken,
-		Path:    "/",
-		Expires: time.Now().Add(authDuration),
+		Name:     authCookie,
+		Value:    accessToken,
+		Path:     "/",
+		Expires:  time.Now().Add(authDuration),
+		HttpOnly: true,
 	})
 
 	http.Redirect(w, r, fmt.Sprintf("%s/%s", r.URL.Host, subject), http.StatusTemporaryRedirect)
