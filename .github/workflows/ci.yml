@@ -10,7 +10,7 @@ jobs:
     - uses: actions/checkout@v1
     
     - name: Run Tests
-      uses: ngalaiko/bazel-action/1.0.0@master
+      uses: ngalaiko/bazel-action/1.1.0@github
       with:
         args: test //...
 
@@ -29,6 +29,6 @@ jobs:
         cp /home/runner/.docker/config.json ${DOCKER_HOME}/.docker/config.json
 
     - name: Push image
-      uses: ngalaiko/bazel-action/1.0.0@master
+      uses: ngalaiko/bazel-action/1.1.0@github
       with:
         args: run --platforms=@io_bazel_rules_go//go/toolchain:linux_arm :docker_push
