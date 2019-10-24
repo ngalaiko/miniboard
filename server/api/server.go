@@ -9,7 +9,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
-	usersservice "miniboard.app/api/users"
 	articlesservice "miniboard.app/articles"
 	codesservice "miniboard.app/codes"
 	"miniboard.app/email"
@@ -18,6 +17,7 @@ import (
 	"miniboard.app/proto/users/articles/v1"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
+	usersservice "miniboard.app/users"
 	"miniboard.app/web"
 )
 

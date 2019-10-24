@@ -12,7 +12,6 @@ go_library(
     importpath = "miniboard.app/api",
     visibility = ["//visibility:public"],
     deps = [
-        "//server/api/users:go_default_library",
         "//server/articles:go_default_library",
         "//server/codes:go_default_library",
         "//server/email:go_default_library",
@@ -21,6 +20,7 @@ go_library(
         "//server/proto/users/articles/v1:go_default_library",
         "//server/proto/users/v1:go_default_library",
         "//server/storage:go_default_library",
+        "//server/users:go_default_library",
         "//server/web:go_default_library",
         "@com_github_grpc_ecosystem_grpc_gateway//runtime:go_default_library",
         "@com_github_pkg_errors//:go_default_library",
