@@ -12,9 +12,9 @@ go_library(
     importpath = "miniboard.app/api",
     visibility = ["//visibility:public"],
     deps = [
-        "//server/api/articles:go_default_library",
         "//server/api/codes:go_default_library",
         "//server/api/users:go_default_library",
+        "//server/articles:go_default_library",
         "//server/email:go_default_library",
         "//server/jwt:go_default_library",
         "//server/proto/codes/v1:go_default_library",
@@ -35,6 +35,7 @@ go_test(
     embed = [":go_default_library"],
     deps = [
         "//server/email/mock:go_default_library",
+        "//server/proto/users/articles/v1:go_default_library",
         "//server/proto/users/v1:go_default_library",
         "//server/storage:go_default_library",
         "//server/storage/bolt:go_default_library",
