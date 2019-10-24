@@ -57,7 +57,12 @@ func NewServer(
 	)
 
 	mux := http.NewServeMux()
-	mux.Handle("/api/", withAuthorization(gwMux, jwtService))
+	mux.Handle("/api/",
+		exchangeAuthCode(
+			authorize(gwMux, jwtService),
+			jwtService,
+		),
+	)
 	mux.Handle("/", web.Handler())
 
 	srv := &Server{
