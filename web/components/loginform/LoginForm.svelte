@@ -4,6 +4,8 @@
     export let codes
     export let router
 
+    document.title = "Miniboard"
+
     let email = ''
     let message = ''
     let error = ''

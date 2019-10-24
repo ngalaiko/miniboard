@@ -15,7 +15,17 @@
     import Star from '../../../icons/Star.svelte'
 
     let selectedPane
-    const unsubscribe = selectedPaneStore.subscribe(value => selectedPane = value)  
+    const unsubscribe = selectedPaneStore.subscribe(value => {
+        if (value == 1) {
+            document.title = "Miniboard - Starred"
+        } else if (value == 2) {
+            document.title = "Miniboard - Unread"
+        } else if (value = 3) {
+            document.title = "Miniboard - All"
+        }
+
+        selectedPane = value
+    })
     onDestroy(() => unsubscribe())
 </script>
 
