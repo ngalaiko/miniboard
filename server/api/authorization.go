@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -34,16 +33,11 @@ func withAuthorization(h http.Handler, jwtService *jwt.Service) http.Handler {
 			}
 		}
 
+		setCookie(w, r, jwtService)
+
 		authCookie, err := r.Cookie(authCookie)
 		switch err {
 		case nil:
-		case http.ErrNoCookie:
-			if err := setCookie(w, r, jwtService); err != nil {
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte(`{"code":"16","error":"authorization cookie missing","message":"authorization cookie missing"}`))
-				return
-			}
-			return
 		default:
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(`{"code":"16","error":"authorization cookie missing","message":"authorization cookie missing"}`))
@@ -67,22 +61,22 @@ func withAuthorization(h http.Handler, jwtService *jwt.Service) http.Handler {
 	})
 }
 
-func setCookie(w http.ResponseWriter, r *http.Request, jwtService *jwt.Service) error {
+func setCookie(w http.ResponseWriter, r *http.Request, jwtService *jwt.Service) {
 	authorizationCodes := r.URL.Query()["authorization_code"]
 	if authorizationCodes == nil {
-		return errors.New("authorization code is empty")
+		return
 	}
 
 	authorizationCode := authorizationCodes[0]
 
 	subject, err := jwtService.Validate(r.Context(), authorizationCode, "authorization_code")
 	if err != nil {
-		return errors.New("authorization code is not valid")
+		return
 	}
 
 	accessToken, err := jwtService.NewToken(subject, authDuration, "access_token")
 	if err != nil {
-		return errors.New("faield to generate access code")
+		return
 	}
 
 	http.SetCookie(w, &http.Cookie{
@@ -95,6 +89,4 @@ func setCookie(w http.ResponseWriter, r *http.Request, jwtService *jwt.Service) 
 	})
 
 	http.Redirect(w, r, fmt.Sprintf("%s/%s", r.URL.Host, subject), http.StatusTemporaryRedirect)
-
-	return nil
 }
