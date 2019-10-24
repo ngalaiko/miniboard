@@ -6,7 +6,7 @@ go_library(
         "proxy.go",
         "service.go",
     ],
-    importpath = "miniboard.app/api/codes",
+    importpath = "miniboard.app/codes",
     visibility = ["//visibility:public"],
     deps = [
         "//server/email:go_default_library",
