@@ -31,3 +31,19 @@ jobs:
       uses: ngalaiko/bazel-action/1.1.0@master
       with:
         args: run --platforms=@io_bazel_rules_go//go/toolchain:linux_arm :docker_push
+
+    - name: Install Helm
+      uses: azure/setup-helm@v1
+
+    - name: Generate Chart
+      run: |
+        cd .charts
+        helm template miniboard \
+          --set "Version=$(git rev-parse HEAD)" > chart.yaml
+
+    - name: Apply Chart
+      uses: exelban/kubectl@master
+      env:
+        KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_DATA }}
+      with:
+        args: apply -f /github/workspace/.charts/chart.yaml
