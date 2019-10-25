@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"miniboard.app/jwt"
+	"miniboard.app/storage/resource"
 )
 
 const (
@@ -80,41 +81,53 @@ func authorize(h http.Handler, jwtService *jwt.Service) http.Handler {
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		list, ok := whitelist[r.Method]
-		if ok {
-			for _, whitelisted := range list {
-				if whitelisted.MatchString(r.URL.Path) {
-					h.ServeHTTP(w, r)
-					return
+		subject, errMessage := getSubject(r, jwtService)
+
+		errorCode := http.StatusForbidden
+
+		switch errMessage {
+		case nil:
+			if r.URL.Path == "/" {
+				http.Redirect(w, r, fmt.Sprintf("%s/%s", r.URL.Host, subject), http.StatusTemporaryRedirect)
+			}
+
+			path := strings.TrimPrefix(r.URL.Path, "/api/v1")
+
+			if strings.HasPrefix(path, fmt.Sprintf("/%s", subject)) {
+				h.ServeHTTP(w, r)
+				return
+			}
+
+			errorCode = http.StatusUnauthorized
+			fallthrough
+		default:
+			list, ok := whitelist[r.Method]
+			if ok {
+				for _, whitelisted := range list {
+					if whitelisted.MatchString(r.URL.Path) {
+						h.ServeHTTP(w, r)
+						return
+					}
 				}
 			}
-		}
 
-		authCookie, err := r.Cookie(authCookie)
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte(`{"code":"16","error":"authorization cookie missing","message":"authorization cookie missing"}`))
+			w.WriteHeader(errorCode)
+			w.Write([]byte(errMessage))
 			return
 		}
-
-		subject, err := jwtService.Validate(r.Context(), authCookie.Value, "access_token")
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte(fmt.Sprintf(`{"error":"invalid Authorization token","message":"%s"}`, err)))
-			return
-		}
-
-		if r.URL.Path == "/" {
-			http.Redirect(w, r, fmt.Sprintf("%s/%s", r.URL.Host, subject), http.StatusTemporaryRedirect)
-		}
-
-		path := strings.TrimPrefix(r.URL.Path, "/api/v1")
-		if !strings.HasPrefix(path, fmt.Sprintf("/%s", subject)) {
-			w.WriteHeader(http.StatusForbidden)
-			w.Write([]byte(`{"code":"7","error":"you don't have access to the resource","message":"you don't have access to the resource"}`))
-			return
-		}
-
-		h.ServeHTTP(w, r)
 	})
+}
+
+func getSubject(r *http.Request, jwtService *jwt.Service) (*resource.Name, []byte) {
+	authCookie, err := r.Cookie(authCookie)
+	if err != nil {
+		return nil, []byte(`{"code":"16","error":"authorization cookie missing","message":"authorization cookie missing"}`)
+	}
+
+	subject, err := jwtService.Validate(r.Context(), authCookie.Value, "access_token")
+	if err != nil {
+		return nil, []byte(fmt.Sprintf(`{"error":"invalid Authorization token","message":"%s"}`, err))
+	}
+
+	return subject, nil
 }

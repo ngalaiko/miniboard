@@ -62,10 +62,10 @@ func NewServer(
 	mux.Handle("/", web.Handler())
 
 	handler := http.Handler(mux)
-	handler = withGzip(handler)
-	handler = withAccessLogs(handler)
 	handler = authorize(handler, jwtService)
 	handler = exchangeAuthCode(handler, jwtService)
+	handler = withGzip(handler)
+	handler = withAccessLogs(handler)
 
 	srv := &Server{
 		httpServer: &http.Server{

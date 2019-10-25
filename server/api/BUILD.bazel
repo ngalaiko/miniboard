@@ -20,6 +20,7 @@ go_library(
         "//server/proto/users/articles/v1:go_default_library",
         "//server/proto/users/v1:go_default_library",
         "//server/storage:go_default_library",
+        "//server/storage/resource:go_default_library",
         "//server/users:go_default_library",
         "//server/web:go_default_library",
         "@com_github_grpc_ecosystem_grpc_gateway//runtime:go_default_library",
