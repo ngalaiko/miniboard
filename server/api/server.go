@@ -58,6 +58,7 @@ func NewServer(
 
 	mux := http.NewServeMux()
 	mux.Handle("/api/", gwMux)
+	mux.Handle("/logout", removeCookie())
 	mux.Handle("/", web.Handler())
 
 	handler := http.Handler(mux)

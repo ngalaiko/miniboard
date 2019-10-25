@@ -19,7 +19,7 @@
         }
 
         $.logout = () => {
-            // todo
+            send('/logout', 'GET')
         }
 
         let subject = ''

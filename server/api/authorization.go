@@ -54,11 +54,25 @@ func exchangeAuthCode(h http.Handler, jwtService *jwt.Service) http.Handler {
 	})
 }
 
+func removeCookie() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{
+			Name:     authCookie,
+			Path:     "/",
+			MaxAge:   -1,
+			HttpOnly: true,
+			Secure:   r.TLS != nil,
+		})
+	})
+}
+
 func authorize(h http.Handler, jwtService *jwt.Service) http.Handler {
 	whitelist := map[string][]*regexp.Regexp{
 		http.MethodGet: {
 			regexp.MustCompile(`^\/app.es5.min.js$`),
 			regexp.MustCompile(`^\/favicon.ico$`),
+			regexp.MustCompile(`^\/logout$`),
+			regexp.MustCompile(`^\/$`),
 		},
 		http.MethodPost: {
 			regexp.MustCompile(`^\/api\/v1\/codes$`),
