@@ -56,6 +56,10 @@ func exchangeAuthCode(h http.Handler, jwtService *jwt.Service) http.Handler {
 
 func authorize(h http.Handler, jwtService *jwt.Service) http.Handler {
 	whitelist := map[string][]*regexp.Regexp{
+		http.MethodGet: {
+			regexp.MustCompile(`^\/app.es5.min.js$`),
+			regexp.MustCompile(`^\/favicon.ico$`),
+		},
 		http.MethodPost: {
 			regexp.MustCompile(`^\/api\/v1\/codes$`),
 		},
@@ -86,7 +90,8 @@ func authorize(h http.Handler, jwtService *jwt.Service) http.Handler {
 			return
 		}
 
-		if !strings.HasPrefix(r.URL.Path, fmt.Sprintf("/api/v1/%s", subject)) {
+		path := strings.TrimPrefix(r.URL.Path, "/api/v1")
+		if !strings.HasPrefix(path, fmt.Sprintf("/%s", subject)) {
 			w.WriteHeader(http.StatusForbidden)
 			w.Write([]byte(`{"code":"7","error":"you don't have access to the resource","message":"you don't have access to the resource"}`))
 			return

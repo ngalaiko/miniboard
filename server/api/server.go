@@ -57,17 +57,18 @@ func NewServer(
 	)
 
 	mux := http.NewServeMux()
-	mux.Handle("/api/",
-		exchangeAuthCode(
-			authorize(gwMux, jwtService),
-			jwtService,
-		),
-	)
+	mux.Handle("/api/", gwMux)
 	mux.Handle("/", web.Handler())
+
+	handler := http.Handler(mux)
+	handler = withGzip(handler)
+	handler = withAccessLogs(handler)
+	handler = authorize(handler, jwtService)
+	handler = exchangeAuthCode(handler, jwtService)
 
 	srv := &Server{
 		httpServer: &http.Server{
-			Handler: withGzip(withAccessLogs(mux)),
+			Handler: handler,
 		},
 	}
 	if err := http2.ConfigureServer(srv.httpServer, nil); err != nil {
