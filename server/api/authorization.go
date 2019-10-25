@@ -90,6 +90,10 @@ func authorize(h http.Handler, jwtService *jwt.Service) http.Handler {
 			return
 		}
 
+		if r.URL.Path == "/" {
+			http.Redirect(w, r, fmt.Sprintf("%s/%s", r.URL.Host, subject), http.StatusTemporaryRedirect)
+		}
+
 		path := strings.TrimPrefix(r.URL.Path, "/api/v1")
 		if !strings.HasPrefix(path, fmt.Sprintf("/%s", subject)) {
 			w.WriteHeader(http.StatusForbidden)
