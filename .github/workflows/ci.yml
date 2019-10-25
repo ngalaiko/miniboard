@@ -21,8 +21,7 @@ jobs:
       run: |
         # this will create /home/runner/.docker/config.json with credentials
         docker login \
-            docker.pkg.github.com \
-            -u ngalaiko \
+            -u ngalayko \
             -p ${DOCKER_PASSWORD}
         # copy credentials to mount them to the bazel container.
         mkdir -p ${DOCKER_HOME}/.docker

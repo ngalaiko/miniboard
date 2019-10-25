@@ -9,7 +9,7 @@ container_push(
     name = "docker_push",
     image = "//server/cmd/miniboard:image",
     format = "Docker",
-    registry = "docker.pkg.github.com",
-    repository = "ngalaiko/miniboard/app",
+    registry = "index.docker.io",
+    repository = "ngalayko/miniboard",
     tag = "{MINIBOARD_VERSION}",
 )
