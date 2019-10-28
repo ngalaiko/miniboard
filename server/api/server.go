@@ -59,7 +59,7 @@ func NewServer(
 	mux := http.NewServeMux()
 	mux.Handle("/api/", authorize(gwMux, jwtService))
 	mux.Handle("/logout", removeCookie())
-	mux.Handle("/", web.Handler())
+	mux.Handle("/", homepageRedirect(web.Handler(), jwtService))
 
 	handler := http.Handler(mux)
 	handler = withGzip(handler)

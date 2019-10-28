@@ -16,6 +16,20 @@ const (
 	authDuration = 3 * time.Hour
 )
 
+func homepageRedirect(next http.Handler, jwtService *jwt.Service) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		subject, _ := getSubjectFromCookie(r, jwtService)
+		if subject == nil || r.URL.Path != "/" {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		http.Redirect(w, r, fmt.Sprintf("%s%s%s",
+			r.URL.Scheme, r.URL.Host, subject,
+		), http.StatusTemporaryRedirect)
+	})
+}
+
 func removeCookie() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, &http.Cookie{
