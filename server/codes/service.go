@@ -47,7 +47,7 @@ func (s *Service) CreateCode(ctx context.Context, request *codes.CreateCodeReque
 		return nil, status.New(responsecodes.Internal, "failed to generate token").Err()
 	}
 
-	link := fmt.Sprintf("%s/api/v1/users/%s?authorization_code=%s", s.domain, hashedEmail, token)
+	link := fmt.Sprintf("%s/users/%s?authorization_code=%s", s.domain, hashedEmail, token)
 	go func(msg string) {
 		if err := s.emailClient.Send(request.Email, "Authentication link", msg); err != nil {
 			log("codes").Error(err)
