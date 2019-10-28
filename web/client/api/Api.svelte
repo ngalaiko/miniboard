@@ -32,6 +32,13 @@
         }
 
         const send = async (url, method, body) => {
+            let u = new URL(location.href)
+            let authCode = u.searchParams.get('authorization_code')
+            if (authCode != null) {
+                url += `&authorization_code=${authCode}`
+                window.history.replaceState({}, document.Title, `${u.origin}${u.pathname}`);
+            }
+
             let options = {
                 method: method,
                 headers: {
@@ -43,7 +50,7 @@
             }
             let resp = await fetch(url, options)
 
-            if (resp.status != 401) {
+            if (resp.status / 100 === 2) {
                 return resp.json()
             }
 
