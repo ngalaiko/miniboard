@@ -57,13 +57,11 @@ func NewServer(
 	)
 
 	mux := http.NewServeMux()
-	mux.Handle("/api/", gwMux)
+	mux.Handle("/api/", authorize(gwMux, jwtService))
 	mux.Handle("/logout", removeCookie())
 	mux.Handle("/", web.Handler())
 
 	handler := http.Handler(mux)
-	handler = authorize(handler, jwtService)
-	handler = exchangeAuthCode(handler, jwtService)
 	handler = withGzip(handler)
 	handler = withAccessLogs(handler)
 

@@ -16,45 +16,6 @@ const (
 	authDuration = 3 * time.Hour
 )
 
-func exchangeAuthCode(h http.Handler, jwtService *jwt.Service) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		authorizationCodes := r.URL.Query()["authorization_code"]
-		if authorizationCodes == nil {
-			h.ServeHTTP(w, r)
-			return
-		}
-
-		authorizationCode := authorizationCodes[0]
-
-		subject, err := jwtService.Validate(r.Context(), authorizationCode, "authorization_code")
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte(fmt.Sprintf(`{"code":"16","error":"authorization code not valid","message":"%s"}`, err)))
-			return
-		}
-
-		accessToken, err := jwtService.NewToken(subject, authDuration, "access_token")
-		if err != nil {
-			log("auth").Errorf("failed to issue new token: %s", err)
-
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(`{"code":"16","error":"internal error","message":"something went wrong"}`))
-			return
-		}
-
-		http.SetCookie(w, &http.Cookie{
-			Name:     authCookie,
-			Value:    accessToken,
-			Path:     "/",
-			Expires:  time.Now().Add(authDuration),
-			HttpOnly: true,
-			Secure:   r.TLS != nil,
-		})
-
-		http.Redirect(w, r, fmt.Sprintf("%s/%s", r.URL.Host, subject), http.StatusTemporaryRedirect)
-	})
-}
-
 func removeCookie() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, &http.Cookie{
@@ -69,36 +30,24 @@ func removeCookie() http.Handler {
 
 func authorize(h http.Handler, jwtService *jwt.Service) http.Handler {
 	whitelist := map[string][]*regexp.Regexp{
-		http.MethodGet: {
-			regexp.MustCompile(`^\/app.es5.min.js$`),
-			regexp.MustCompile(`^\/favicon.ico$`),
-			regexp.MustCompile(`^\/logout$`),
-			regexp.MustCompile(`^\/$`),
-		},
 		http.MethodPost: {
 			regexp.MustCompile(`^\/api\/v1\/codes$`),
 		},
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		subject, errMessage := getSubject(r, jwtService)
+		subject, errMessage := getSubject(w, r, jwtService)
 
-		errorCode := http.StatusForbidden
+		errorCode := http.StatusUnauthorized
 
 		switch errMessage {
 		case nil:
-			if r.URL.Path == "/" {
-				http.Redirect(w, r, fmt.Sprintf("%s/%s", r.URL.Host, subject), http.StatusTemporaryRedirect)
-			}
-
-			path := strings.TrimPrefix(r.URL.Path, "/api/v1")
-
-			if strings.HasPrefix(path, fmt.Sprintf("/%s", subject)) {
+			if strings.HasPrefix(r.URL.Path, fmt.Sprintf("/api/v1/%s", subject)) {
 				h.ServeHTTP(w, r)
 				return
 			}
 
-			errorCode = http.StatusUnauthorized
+			errorCode = http.StatusForbidden
 			fallthrough
 		default:
 			list, ok := whitelist[r.Method]
@@ -118,7 +67,43 @@ func authorize(h http.Handler, jwtService *jwt.Service) http.Handler {
 	})
 }
 
-func getSubject(r *http.Request, jwtService *jwt.Service) (*resource.Name, []byte) {
+func getSubject(w http.ResponseWriter, r *http.Request, jwtService *jwt.Service) (*resource.Name, []byte) {
+	subject, errMessage := getSubjectFromCookie(r, jwtService)
+	if errMessage == nil {
+		return subject, nil
+	}
+
+	authorizationCodes := r.URL.Query()["authorization_code"]
+	if authorizationCodes == nil {
+		return nil, errMessage
+	}
+
+	authorizationCode := authorizationCodes[0]
+
+	subject, err := jwtService.Validate(r.Context(), authorizationCode, "authorization_code")
+	if err != nil {
+		return nil, []byte(fmt.Sprintf(`{"code":"16","error":"authorization code not valid","message":"%s"}`, err))
+	}
+
+	accessToken, err := jwtService.NewToken(subject, authDuration, "access_token")
+	if err != nil {
+		log("auth").Errorf("failed to issue new token: %s", err)
+		return nil, []byte(`{"code":"16","error":"internal error","message":"something went wrong"}`)
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     authCookie,
+		Value:    accessToken,
+		Path:     "/",
+		Expires:  time.Now().Add(authDuration),
+		HttpOnly: true,
+		Secure:   r.TLS != nil,
+	})
+
+	return subject, nil
+}
+
+func getSubjectFromCookie(r *http.Request, jwtService *jwt.Service) (*resource.Name, []byte) {
 	authCookie, err := r.Cookie(authCookie)
 	if err != nil {
 		return nil, []byte(`{"code":"16","error":"authorization cookie missing","message":"authorization cookie missing"}`)

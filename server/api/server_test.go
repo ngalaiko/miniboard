@@ -45,7 +45,7 @@ func Test_server(t *testing.T) {
 			resp, err := http.Get(server.URL + "/api/v1/users/random-id")
 			t.Run("It should return 401", func(t *testing.T) {
 				assert.NoError(t, err)
-				assert.Equal(t, http.StatusForbidden, resp.StatusCode)
+				assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 			})
 		})
 
@@ -80,15 +80,15 @@ func Test_server(t *testing.T) {
 				})
 
 				parts := strings.Split(loginURL.Path, "/")
-				username := fmt.Sprintf("%s/%s", parts[3], parts[4])
+				username := fmt.Sprintf("%s/%s", parts[1], parts[2])
 
 				t.Run("When getting the user with the token", func(t *testing.T) {
 					resp, err := httpClient.Do(get(t,
-						fmt.Sprintf("%s/api/v1/%s", server.URL, username),
-					))
+						fmt.Sprintf("%s/api/v1/%s?%s", server.URL, username, loginURL.RawQuery)),
+					)
 					t.Run("It should return the user", func(t *testing.T) {
 						assert.NoError(t, err)
-						assert.Equal(t, resp.StatusCode, http.StatusOK)
+						assert.Equal(t, http.StatusOK, resp.StatusCode)
 
 						got := &users.User{}
 						assert.NoError(t, jsonpb.Unmarshal(resp.Body, got))
