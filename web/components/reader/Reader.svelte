@@ -24,6 +24,7 @@
                 {window.open(article.url, '_blank')}
             </div>
         {:else}
+            <h1>{article.title}</h1>
             {@html b64DecodeUnicode(article)}
         {/if}
     {:catch e}
