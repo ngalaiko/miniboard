@@ -13,7 +13,7 @@ import (
 
 const (
 	authCookie   = "auth"
-	authDuration = 3 * time.Hour
+	authDuration = 28 * 24 * time.Hour
 )
 
 func homepageRedirect(next http.Handler, jwtService *jwt.Service) http.Handler {
