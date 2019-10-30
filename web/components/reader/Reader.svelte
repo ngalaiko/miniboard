@@ -36,4 +36,13 @@
     .reader{
         overflow: auto;
     }
+
+    :global(pre) {
+        overflow: auto;
+    }
+
+    :global(img) {
+        width: 100%;
+        height: auto;
+    }
 </style>
