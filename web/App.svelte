@@ -62,7 +62,7 @@
     .app {
         padding-left: 5px;
         padding-right: 5px;
-        font-family: helvetica neue, Helvetica, Arial, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, helvetica neue, Helvetica, Arial, sans-serif;
         text-rendering: optimizeLegibility;
         max-width: 750px;
         margin: auto;

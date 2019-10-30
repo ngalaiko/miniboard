@@ -6,7 +6,7 @@
 
 
     // https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
-    function b64DecodeUnicode(article) {
+    const b64DecodeUnicode = (article) => {
         document.title = `Miniboard - ${article.title}`
         return decodeURIComponent(atob(article.content).split('').map(function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
@@ -35,6 +35,8 @@
 <style>
     .reader{
         overflow: auto;
+        font-size: 18px;
+        line-height: 29px;
     }
 
     :global(pre) {
@@ -44,5 +46,13 @@
     :global(img) {
         width: 100%;
         height: auto;
+    }
+
+    :global(blockquote) {
+        font-style: italic;
+        border-left: 3px solid #ccc;
+        margin-left: 2px;
+        margin-right: 6px;
+        padding-left: 16px;
     }
 </style>
