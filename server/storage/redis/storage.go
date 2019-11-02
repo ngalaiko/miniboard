@@ -143,23 +143,25 @@ func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resour
 
 	first, _ := name.Split()
 
-	var fromIndex int64
-	if from != nil {
-		_, id := from.Split()
-
-		var err error
-		fromIndex, err = redis.Int64(conn.Do("LINDEX", first, id))
-		if err != nil {
-			return errors.Wrapf(err, "invalid from value %s", from.String())
-		}
-	}
-
-	keys, err := redis.Strings(conn.Do("LRANGE", first, fromIndex, -1))
+	// TODO: load in batches
+	keys, err := redis.Strings(conn.Do("LRANGE", first, 0, -1))
 	if err != nil {
-		return errors.Wrapf(err, "failed: LRANGE %s %d -1", first, fromIndex)
+		return errors.Wrapf(err, "failed: LRANGE %s %d -1", first, 0)
 	}
 
+	start := false
+	if from == nil {
+		start = true
+	}
 	for _, key := range keys {
+		if !start && key == from.ID() {
+			start = true
+		}
+
+		if !start {
+			continue
+		}
+
 		res := &resource.Resource{
 			Name: resource.ParseName(fmt.Sprintf("%s/%s", first, key)),
 		}

@@ -100,6 +100,37 @@ func Test_DB(t *testing.T) {
 					assert.Equal(t, 10, c)
 				})
 			})
+
+			t.Run("When iterating in batches", func(t *testing.T) {
+				name := resource.NewName("test", "*")
+
+				t.Run("Should iterate from end to start", func(t *testing.T) {
+					c := 0
+					var from *resource.Name
+					err := db.ForEach(ctx, name, nil, func(r *resource.Resource) (bool, error) {
+						c++
+
+						assert.Equal(t, fmt.Sprintf("data %d", 10-c), string(r.Data))
+						if c == 5 {
+							from = r.Name
+							return false, nil
+						}
+						return true, nil
+					})
+					assert.NoError(t, err)
+					assert.Equal(t, 5, c)
+
+					err = db.ForEach(ctx, name, from, func(r *resource.Resource) (bool, error) {
+						c++
+
+						assert.Equal(t, fmt.Sprintf("data %d", 10-c), string(r.Data))
+						return true, nil
+					})
+
+					assert.NoError(t, err)
+					assert.Equal(t, 10, c)
+				})
+			})
 		})
 
 		t.Run("When root exists", func(t *testing.T) {
