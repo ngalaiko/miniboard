@@ -80,9 +80,9 @@ http_archive(
 )
 http_archive(
     name = "build_bazel_rules_svelte",
-    url = "https://github.com/ngalaiko/rules_svelte/archive/0.6.tar.gz",
+    url = "https://github.com/thelgevold/rules_svelte/archive/0.6.tar.gz",
     strip_prefix = "rules_svelte-0.6",
-    sha256 = "c41b530894ec8c608a268bf38cee5a390134ab0d723847a8609e653f0729718a",
+    sha256 = "d57528f3a9cfd74b4987ec8689164428050530dc951aad4d6ecd4ded9757b235",
 )
 load("@build_bazel_rules_svelte//:defs.bzl", "rules_svelte_dependencies")
 rules_svelte_dependencies()
