@@ -4,10 +4,10 @@
     import { Codes } from './codes/Codes.svelte'
     import { Users } from './users/Users.svelte'
 
-    export const Client = async () => {
+    export const Client = async (router) => {
         let $ = {}
 
-        $.api = Api()
+        $.api = Api(router)
         $.articles = await Articles($.api)
         $.codes = Codes($.api)
         $.users = Users($.api)

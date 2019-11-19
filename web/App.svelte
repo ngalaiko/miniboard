@@ -7,13 +7,12 @@
     import Reader from './components/reader/Reader.svelte'
 
     let apiClient
-    let router
+    let router = new Router()
     let component
     let props
 
-    let clientPromise = Client().then(client => {
+    let clientPromise = Client(router).then(client => {
         apiClient = client
-        router = new Router()
 
         router
             .on('/', () => {

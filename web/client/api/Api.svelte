@@ -1,5 +1,5 @@
 <script context='module'>
-    export const Api = () => {
+    export const Api = (router) => {
         let $ = {}
 
         $.get = (url) => {
@@ -54,7 +54,11 @@
                 return resp.json()
             }
 
-            router.route('/')
+            if (resp.status === 401) {
+                router.route('/')
+            }
+
+            throw `${method} ${url} - status code: ${resp.status}`
         }
 
         return $
