@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -67,7 +68,10 @@ func Test_server(t *testing.T) {
 				msg := emailClient.LastMessage()
 				assert.NotEmpty(t, msg)
 
-				loginURL, err := url.Parse(msg)
+				emailRegexp := regexp.MustCompile(`http.*`)
+				link := emailRegexp.FindString(msg)
+
+				loginURL, err := url.Parse(link)
 				assert.NoError(t, err)
 
 				t.Run("When clicking on link from email", func(t *testing.T) {
