@@ -7,29 +7,64 @@
     document.title = "Miniboard"
 
     let email = ''
-    let message = ''
     let error = ''
+
+    let showCode = ''
+    let code = ''
+
+    const parseJwt = (token) => {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    }
 
     const handleClick = async () => {
         if (email == '' ) {
             return
         }
         let resp = codes.sendCode(email)
-        message = 'check your email'
         error = ''
+        showCode = true
+    }
+
+    const handleCode = async ()  => {
+        const subject = parseJwt(code).sub
+        router.route(`/${subject}/?authorization_code=${code}`)
     }
 </script>
 
-<form class='form'>
-    <input name='email' type='email' bind:value={email} placeholder='email' required tabindex='1' />
-    <button on:click|preventDefault={handleClick} />
-    {#if error != ''}
-        <div class='alert'>{error}</div>
+<div class='form'>
+    <form>
+        <input
+            name='email'
+            type='email'
+            bind:value={email}
+            placeholder='email'
+            required tabindex='1'
+        />
+        <button on:click|preventDefault={handleClick} />
+        {#if error != ''}
+            <div class='alert'>{error}</div>
+        {/if}
+    </form>
+    <form>
+    {#if showCode}
+    <form>
+         <input
+            name='code'
+            type='text'
+            bind:value={code}
+            placeholder='code from the email'
+            required tabindex='2'
+        />
+        <button on:click|preventDefault={handleCode} />
+    </form>
     {/if}
-    {#if message != ''}
-        <div class='info'>{message}</div>
-    {/if}
-</form>
+</div>
 
 <style>
     .form {

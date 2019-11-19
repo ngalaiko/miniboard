@@ -48,11 +48,20 @@ func (s *Service) CreateCode(ctx context.Context, request *codes.CreateCodeReque
 	}
 
 	link := fmt.Sprintf("%s/users/%s?authorization_code=%s", s.domain, hashedEmail, token)
+
+	msg := fmt.Sprintf(`
+Follow the link or copy code to the login form.
+
+Code: %s
+
+Link: %s
+`, token, link)
+
 	go func(msg string) {
 		if err := s.emailClient.Send(request.Email, "Authentication link", msg); err != nil {
 			log("codes").Error(err)
 		}
-	}(link)
+	}(msg)
 
 	return &codes.Code{}, nil
 }
