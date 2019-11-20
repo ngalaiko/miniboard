@@ -22,4 +22,7 @@ bundle_prod(
     deps = [":App"],
 )
 
-exports_files(["index.html"])
+exports_files([
+    "index.html",
+    "manifest.json",
+])

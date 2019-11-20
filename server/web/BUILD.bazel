@@ -6,6 +6,7 @@ go_library(
     data = [
         "//web:app",
         "//web:index.html",
+        "//web:manifest.json",
     ],
     importpath = "miniboard.app/web",
     visibility = ["//visibility:public"],
