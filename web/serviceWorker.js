@@ -1,55 +1,60 @@
+const version = "dev"
+
 const filesToCache = [
-    '.',
     'index.html', 
     'site.webmanifest', 
     './app.es5.min.js'
 ];
 
-const cacheName = 'miniboard'
+const cacheName = `${version}-miniboard`
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(cacheName).then(function addToCache(cache) {
-      return cache.addAll(filesToCache);
-    })
-  );
+    event.waitUntil(
+        caches.open(cacheName).then(function addToCache(cache) {
+            return cache.addAll(filesToCache);
+        })
+    );
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+    if (event.request.method !== 'GET') return;
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      function fetchedFromNetwork(response) {
-        const cacheResponseCopy = response.clone();
+    const url = new URL(event.request.url)
 
-        caches.open(cacheName).then((cache) => {
-          cache.put(event.request, cacheResponseCopy);
-        });
-        return response;
-      }
+    if (url.pathname.startsWith('/api')) return;
 
-      function unableToResolve() {
-        return new Response('Service Unavailable', {
-          status: 503,
-        });
-      }
+    event.respondWith(
+        caches.match(event.request).then((cached) => {
+            const fetchedFromNetwork = (response) => {
+                const cacheResponseCopy = response.clone();
 
-      const networked = fetch(event.request)
-        .then(fetchedFromNetwork, unableToResolve)
-        .catch(unableToResolve);
+                caches.open(cacheName).then((cache) => {
+                    cache.put(event.request, cacheResponseCopy);
+                });
+                return response;
+            }
 
-      return cached || networked;
-    })
-  );
+            const unableToResolve = () => {
+                return new Response('Service Unavailable', {
+                    status: 503,
+                });
+            }
+
+            const networked = fetch(event.request)
+                .then(fetchedFromNetwork, unableToResolve)
+                .catch(unableToResolve);
+
+            return cached || networked;
+        })
+    );
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches
-      .keys()
-      .then((keys) =>
-        Promise.all(keys.filter((key) => !key.startsWith(version)).map((key) => caches.delete(key)))
-      )
-  );
+    event.waitUntil(
+        caches
+            .keys()
+            .then((keys) =>
+                Promise.all(keys.filter((key) => !key.startsWith(version)).map((key) => caches.delete(key)))
+            )
+    );
 });
