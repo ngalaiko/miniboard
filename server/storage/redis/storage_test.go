@@ -17,7 +17,7 @@ func Test_DB(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	t.Run("Given a bucket", func(t *testing.T) {
+	t.Run("With redis", func(t *testing.T) {
 		host := os.Getenv("REDIS_HOST")
 		if host == "" {
 			t.Skip("no redis host provided")
@@ -123,12 +123,12 @@ func Test_DB(t *testing.T) {
 					err = db.ForEach(ctx, name, from, func(r *resource.Resource) (bool, error) {
 						c++
 
-						assert.Equal(t, fmt.Sprintf("data %d", 10-c), string(r.Data))
+						assert.Equal(t, fmt.Sprintf("data %d", 11-c), string(r.Data))
 						return true, nil
 					})
 
 					assert.NoError(t, err)
-					assert.Equal(t, 10, c)
+					assert.Equal(t, 11, c)
 				})
 			})
 		})
