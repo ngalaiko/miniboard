@@ -1,4 +1,6 @@
-const version = "dev"
+const version = Math.random().toString(36).substring(7)
+
+console.log(`cache version: ${version}`)
 
 const filesToCache = [
     'index.html', 
