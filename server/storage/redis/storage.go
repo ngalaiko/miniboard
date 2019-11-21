@@ -61,13 +61,24 @@ func (s *Storage) Store(ctx context.Context, name *resource.Name, data []byte) e
 		_ = conn.Close()
 	}()
 
+	// add element data
 	if _, err := conn.Do("SET", name.String(), data); err != nil {
 		return errors.Wrapf(err, "failed to SET %s", name)
 	}
+
 	first, last := name.Split()
-	if _, err := conn.Do("LPUSH", first, last); err != nil {
+
+	// add element to to the list
+	index, err := redis.Int(conn.Do("LPUSH", first, last))
+	if err != nil {
 		return errors.Wrapf(err, "failed to LPUSH %s %s", first, last)
 	}
+
+	// add save element index
+	if _, err := conn.Do("HSET", first+"/hash", last, index); err != nil {
+		return errors.Wrapf(err, "failed to HSET %s %s %d", first, last, index)
+	}
+
 	return nil
 }
 
@@ -115,10 +126,6 @@ func (s *Storage) Delete(ctx context.Context, name *resource.Name) error {
 	if _, err := conn.Do("DEL", name.String()); err != nil {
 		return errors.Wrapf(err, "failed to DEL %s", name)
 	}
-	first, last := name.Split()
-	if _, err := conn.Do("LREM", first, 0, last); err != nil {
-		return errors.Wrapf(err, "failed to LREM %s 0 %s", first, last)
-	}
 	return nil
 }
 
@@ -141,33 +148,43 @@ func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resour
 		_ = conn.Close()
 	}()
 
+	start := 0
+	// get start position from a list
+	if from != nil {
+		first, last := from.Split()
+
+		len, err := redis.Int(conn.Do("LLEN", first))
+		if err != nil {
+			return errors.Wrapf(err, "failed to LLEN %s", first)
+		}
+
+		index, err := redis.Int(conn.Do("HGET", first+"/hash", last))
+		switch err {
+		case nil:
+			start = len - index
+		case redis.ErrNil:
+		default:
+			return errors.Wrapf(err, "failed to HGET %s %s", first, last)
+		}
+	}
+
 	first, _ := name.Split()
-
-	// TODO: load in batches
-	keys, err := redis.Strings(conn.Do("LRANGE", first, 0, -1))
+	keys, err := redis.Strings(conn.Do("LRANGE", first, start, -1))
 	if err != nil {
-		return errors.Wrapf(err, "failed: LRANGE %s %d -1", first, 0)
+		return errors.Wrapf(err, "failed: LRANGE %s %d -1", first, start)
 	}
 
-	start := false
-	if from == nil {
-		start = true
-	}
 	for _, key := range keys {
-		if !start && key == from.ID() {
-			start = true
-		}
-
-		if !start {
-			continue
-		}
-
 		res := &resource.Resource{
 			Name: resource.ParseName(fmt.Sprintf("%s/%s", first, key)),
 		}
 
 		res.Data, err = s.load(ctx, conn, res.Name)
-		if err != nil {
+		switch err {
+		case nil:
+		case storage.ErrNotFound:
+			continue
+		default:
 			return errors.Wrap(err, "failed to GET")
 		}
 

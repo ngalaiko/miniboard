@@ -131,6 +131,27 @@ func Test_DB(t *testing.T) {
 					assert.Equal(t, 11, c)
 				})
 			})
+
+			t.Run("When removing one element from the middle", func(t *testing.T) {
+				name := resource.NewName("test", "*")
+
+				c := 0
+				err = db.ForEach(ctx, name, nil, func(r *resource.Resource) (bool, error) {
+					c++
+					if c == 5 {
+						assert.NoError(t, db.Delete(ctx, r.Name))
+						return false, nil
+					}
+					return true, nil
+				})
+
+				t.Run("When removing one element from the middle, it should be removed", func(t *testing.T) {
+					dd, err := db.LoadChildren(ctx, name, nil, 10)
+					assert.NoError(t, err)
+
+					assert.Len(t, dd, 9)
+				})
+			})
 		})
 
 		t.Run("When root exists", func(t *testing.T) {
