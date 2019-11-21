@@ -11,5 +11,5 @@ container_push(
     format = "Docker",
     registry = "index.docker.io",
     repository = "ngalayko/miniboard",
-    tag = "{MINIBOARD_VERSION}",
+    tag = "{VERSION}",
 )

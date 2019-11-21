@@ -6,7 +6,7 @@ go_library(
     data = [
         "//web:app",
         "//web:index.html",
-        "//web:serviceWorker.js",
+        "//web:service_worker",
         "//web/static",
     ],
     importpath = "miniboard.app/web",

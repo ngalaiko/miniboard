@@ -24,5 +24,17 @@ bundle_prod(
 
 exports_files([
     "index.html",
-    "serviceWorker.js",
 ])
+
+genrule(
+    name = "service_worker",
+    srcs = [
+        ":sw.js",
+        ":App", # fake dependency to trigger rebuild
+    ],
+    outs = ["serviceWorker.js"],
+    cmd = """
+        sed "s/__VERSION__/$$(cat bazel-out/volatile-status.txt | grep BUILD_TIMESTAMP | cut -d' ' -f2)/g" <$(location :sw.js) > $@
+    """,
+    stamp = True,
+)
