@@ -144,6 +144,9 @@ message Article {
 
     // Mark the article as favorite.
     bool is_favorite = 8;
+
+    // Name of source website.
+    string site_name = 9;
 }
 
 enum ArticleView {

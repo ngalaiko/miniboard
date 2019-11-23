@@ -126,6 +126,7 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 	switch err {
 	case nil:
 		request.Article.Title = r.Title()
+		request.Article.SiteName = r.SiteName()
 		request.Article.IconUrl = r.IconURL()
 
 		content = r.Content()

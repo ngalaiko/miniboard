@@ -46,6 +46,11 @@ func (r *Reader) Title() (title string) {
 	return r.article.Title
 }
 
+// SiteName returns name of source website.
+func (r *Reader) SiteName() string {
+	return r.article.SiteName
+}
+
 // Content returns page content.
 func (r *Reader) Content() []byte {
 	return []byte(r.article.Content)

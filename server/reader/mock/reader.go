@@ -27,3 +27,8 @@ func (m *mock) IconURL() string {
 func (m *mock) Content() []byte {
 	return []byte("page!")
 }
+
+// SiteName returns article's website name.
+func (m *mock) SiteName() string {
+	return "John Doe's blog"
+}
