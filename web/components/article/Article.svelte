@@ -10,15 +10,11 @@
     export let name
     export let url
     export let title
+    export let site_name
     export let create_time
     export let icon_url
-    export let label_ids
     export let is_read
     export let is_favorite
-
-    if (label_ids === undefined) {
-        label_ids = []
-    }
 
     const onDeleted = async () => {
         await articles.delete(name)
@@ -52,7 +48,11 @@
 <div class='article' class:opacity={is_read}>
     <a class='title' on:click|preventDefault={onClick}>{title}</a>
     <ul class='article-info'>
+        {#if site_name !== undefined}
+        <li><a class='link padding' href={url}>{site_name}</a></li>
+        {:else}
         <li><a class='link padding' href={url}>original</a></li>
+        {/if}
         <li class='separator flex'><TimeAgo date={create_time}/></li>
         {#if is_favorite}
             <li class='separator'>
@@ -90,6 +90,8 @@
         padding: 5px;
         padding-left: 7px;
         padding-right: 7px;
+        display: flex;
+        flex-direction: column;
     }
     
     .title {
@@ -98,6 +100,7 @@
         color: inherit;
         text-decoration: none;
         cursor: pointer;
+        margin-bottom: 3px;
     }
 
     .title:hover {
@@ -110,7 +113,6 @@
         align-items: center;
         margin: 0px;
         padding: 0px;
-        margin-top: 5px;
         font-size: 0.9em;
     }
 
@@ -134,6 +136,11 @@
 
     .link {
         color: inherit;
+        text-decoration: none;
+    }
+
+    .link:hover {
+        text-decoration: underline;
     }
 
     button {
