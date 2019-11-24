@@ -46,12 +46,13 @@
 
 <style>
     .page {
-        margin-bottom: 80px;
+        display: flex;
+        flex-direction: column;
+        height: 95%;
     }
 
     .list {
-        display: flex;
-        flex-direction: column;
+        overflow-y: scroll;
     }
 
     .pagination {

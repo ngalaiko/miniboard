@@ -69,6 +69,8 @@
 
 <style>
     .app {
+        display: flex;
+        height: 100%;
         padding-left: 5px;
         padding-right: 5px;
         font-family: -apple-system, BlinkMacSystemFont, helvetica neue, Helvetica, Arial, sans-serif;

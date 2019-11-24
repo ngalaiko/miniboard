@@ -69,7 +69,7 @@
     }
 </script>
 
-<div>
+<div class='articles'>
     <Header
         api={api}
         router={router}
@@ -123,3 +123,12 @@
         </Pagination>
     {/if}
 </div>
+
+<style>
+    .articles {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+    }
+</style>
