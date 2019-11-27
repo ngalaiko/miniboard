@@ -1,3 +1,5 @@
+workspace(name = "miniboard")
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 # Golang rules.
@@ -78,14 +80,12 @@ http_archive(
     sha256 = "5c86b055c57e15bf32d9009a15bcd6d8e190c41b1ff2fb18037b75e0012e4e7c",
     urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.26.0/rules_nodejs-0.26.0.tar.gz"],
 )
-http_archive(
-    name = "build_bazel_rules_svelte",
-    url = "https://github.com/thelgevold/rules_svelte/archive/0.6.tar.gz",
-    strip_prefix = "rules_svelte-0.6",
-    sha256 = "d57528f3a9cfd74b4987ec8689164428050530dc951aad4d6ecd4ded9757b235",
+load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
+yarn_install(
+    name = "build_bazel_rules_svelte_deps",
+    package_json = "//tools/svelte/internal:package.json",
+    yarn_lock = "//tools/svelte/internal:yarn.lock",
 )
-load("@build_bazel_rules_svelte//:defs.bzl", "rules_svelte_dependencies")
-rules_svelte_dependencies()
 
 # Golang app's deps.
 load("//server:repositories.bzl", "go_repositories")
