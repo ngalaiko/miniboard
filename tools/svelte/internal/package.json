@@ -1,6 +1,8 @@
 {
   "devDependencies": {
-    "svelte": "3.4.2",
-    "rollup": "1.21.3"
+    "@bazel/bazel": "^1.2.0",
+    "@bazel/ibazel": "^0.10.3",
+    "rollup": "^1.27.5",
+    "svelte": "3.4.2"
   }
 }

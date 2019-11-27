@@ -2,22 +2,21 @@ load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 
 nodejs_binary(
     name = "rollup",
-    entry_point = "miniboard/tools/svelte/internal/rollup.js",
+    entry_point = ":rollup.js",
     data = [
        ":rollup.js",
        "@svelte_deps//rollup",
        "@svelte_deps//svelte",
-     
     ],
-    visibility = ["//visibility:public"]
+    visibility = ["//visibility:public"],
 )
 
 nodejs_binary(
     name = "svelte",
-    entry_point = "miniboard/tools/svelte/internal/svelte.js",
+    entry_point = ":svelte.js",
     data = [
       ":svelte.js",
-      "@svelte_deps//svelte"
+      "@svelte_deps//svelte",
     ],
-    visibility = ["//visibility:public"]
+    visibility = ["//visibility:public"],
 )

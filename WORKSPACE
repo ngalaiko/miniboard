@@ -1,4 +1,7 @@
-workspace(name = "miniboard")
+workspace(
+    name = "miniboard",
+    managed_directories = {"@svelte_deps": ["tools/svelte/internal/node_modules"]},
+)
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
@@ -77,8 +80,8 @@ load("@io_bazel_rules_docker//toolchains/docker:toolchain.bzl",
 # Svetle.
 http_archive(
     name = "build_bazel_rules_nodejs",
-    sha256 = "5c86b055c57e15bf32d9009a15bcd6d8e190c41b1ff2fb18037b75e0012e4e7c",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.26.0/rules_nodejs-0.26.0.tar.gz"],
+    sha256 = "9901bc17138a79135048fb0c107ee7a56e91815ec6594c08cb9a17b80276d62b",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.40.0/rules_nodejs-0.40.0.tar.gz"],
 )
 load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 yarn_install(

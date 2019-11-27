@@ -7,3 +7,6 @@ bazel-*
 # generated proto files
 *.pb.go
 *.gw.go
+
+# node
+node_modules
