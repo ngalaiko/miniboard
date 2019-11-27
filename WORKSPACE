@@ -82,7 +82,7 @@ http_archive(
 )
 load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 yarn_install(
-    name = "build_bazel_rules_svelte_deps",
+    name = "svelte_deps",
     package_json = "//tools/svelte/internal:package.json",
     yarn_lock = "//tools/svelte/internal:yarn.lock",
 )

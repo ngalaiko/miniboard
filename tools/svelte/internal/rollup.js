@@ -16,7 +16,7 @@ class ResolveInternal {
     return path.join(
       __dirname,
       "../../../..",
-      `build_bazel_rules_svelte_deps/node_modules/svelte/${subpackage}.mjs`
+      `svelte_deps/node_modules/svelte/${subpackage}.mjs`
     );
   }
 }

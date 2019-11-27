@@ -5,8 +5,8 @@ nodejs_binary(
     entry_point = "miniboard/tools/svelte/internal/rollup.js",
     data = [
        ":rollup.js",
-       "@build_bazel_rules_svelte_deps//rollup",
-       "@build_bazel_rules_svelte_deps//svelte",
+       "@svelte_deps//rollup",
+       "@svelte_deps//svelte",
      
     ],
     visibility = ["//visibility:public"]
@@ -17,7 +17,7 @@ nodejs_binary(
     entry_point = "miniboard/tools/svelte/internal/svelte.js",
     data = [
       ":svelte.js",
-      "@build_bazel_rules_svelte_deps//svelte"
+      "@svelte_deps//svelte"
     ],
     visibility = ["//visibility:public"]
 )
