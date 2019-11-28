@@ -1,40 +1,38 @@
-package(default_visibility = ["//visibility:public"])
+load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 
-load("//build_rules/svelte:defs.bzl", "bundle_prod", "svelte")
-
-svelte(
-    name = "App",
-    srcs = ["main.js"],
-    entry_point = "App.svelte",
+rollup_bundle(
+    name = "src",
+    format = "iife",
+    config_file = "rollup.config.bundle.js",
+    srcs = glob(["src/**/*"], exclude = ["src/serviceWorker.js"]),
+    entry_points = {
+        "src/main.js": "bundle",
+    },
     deps = [
-        "//web/client:Client",
-        "//web/components/articles:Articles",
-        "//web/components/loginform:LoginForm",
-        "//web/components/notfound:NotFound",
-        "//web/components/router:Router",
-        "//web/components/reader:Reader",
+        "@npm//svelte",
+        "@npm//rollup-plugin-svelte",
+        "@npm//@rollup/plugin-replace",
+        "@npm//rollup-plugin-node-resolve",
+        "@npm//rollup-plugin-commonjs",
+        "@npm//rollup-plugin-terser",
     ],
+    output_dir = True,
+    visibility = ["//visibility:public"],
 )
 
-bundle_prod(
-    name = "app",
-    entry_point = "main.js",
-    deps = [":App"],
-)
-
-exports_files([
-    "index.html",
-])
-
-genrule(
+rollup_bundle(
     name = "service_worker",
-    srcs = [
-        ":sw.js",
-        ":App", # fake dependency to trigger rebuild
+    format = "iife",
+    config_file = "rollup.config.serviceWorker.js",
+    srcs = ["src/serviceWorker.js"],
+    entry_points = {
+        "src/serviceWorker.js": "serviceWorker",
+    },
+    deps = [
+        "@npm//@rollup/plugin-replace",
+        "@npm//rollup-plugin-terser",
     ],
-    outs = ["serviceWorker.js"],
-    cmd = """
-        sed "s/__VERSION__/$$(cat bazel-out/volatile-status.txt | grep BUILD_TIMESTAMP | cut -d' ' -f2)/g" <$(location :sw.js) > $@
-    """,
-    stamp = True,
+    visibility = ["//visibility:public"],
 )
+
+exports_files(["index.html"])

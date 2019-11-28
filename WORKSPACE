@@ -1,6 +1,8 @@
 workspace(
     name = "miniboard",
-    managed_directories = {"@svelte_deps": ["build_rules/svelte/internal/node_modules"]},
+    managed_directories = {
+        "@npm": ["web/node_modules"],
+    },
 )
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
@@ -77,18 +79,20 @@ load("@io_bazel_rules_docker//toolchains/docker:toolchain.bzl",
     docker_toolchain_configure="toolchain_configure"
 )
 
-# Svetle.
+# web dependencies
 http_archive(
     name = "build_bazel_rules_nodejs",
-    sha256 = "9901bc17138a79135048fb0c107ee7a56e91815ec6594c08cb9a17b80276d62b",
-    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.40.0/rules_nodejs-0.40.0.tar.gz"],
+    sha256 = "c612d6b76eaa17540e8b8c806e02701ed38891460f9ba3303f4424615437887a",
+    urls = ["https://github.com/bazelbuild/rules_nodejs/releases/download/0.42.1/rules_nodejs-0.42.1.tar.gz"],
 )
 load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 yarn_install(
-    name = "svelte_deps",
-    package_json = "//build_rules/svelte/internal:package.json",
-    yarn_lock = "//build_rules/svelte/internal:yarn.lock",
+    name = "npm",
+    package_json = "//web:package.json",
+    yarn_lock = "//web:yarn.lock",
 )
+load("@npm//:install_bazel_dependencies.bzl", "install_bazel_dependencies")
+install_bazel_dependencies()
 
 # Golang app's deps.
 load("//server:repositories.bzl", "go_repositories")

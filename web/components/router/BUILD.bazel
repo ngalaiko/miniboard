@@ -1,8 +1,0 @@
-load("//build_rules/svelte:defs.bzl", "svelte")
-
-package(default_visibility = ["//visibility:public"])
-
-svelte(
-    name = "Router",
-    entry_point = "Router.svelte",
-)
