@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("//tools/svelte:defs.bzl", "bundle_prod", "svelte")
+load("//build_rules/svelte:defs.bzl", "bundle_prod", "svelte")
 
 svelte(
     name = "App",

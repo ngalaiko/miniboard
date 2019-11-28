@@ -35,7 +35,7 @@ svelte = rule(
   "deps": attr.label_list(),
   "srcs": attr.label_list(allow_files = True),
   "_svelte": attr.label(
-        default=Label("//tools/svelte/internal:svelte"),
+        default=Label("//build_rules/svelte/internal:svelte"),
         executable=True,
         cfg="host"),
   },

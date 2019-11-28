@@ -1,4 +1,4 @@
-load("//tools/svelte/internal:get-files.bzl", "get_files")
+load("//build_rules/svelte/internal:get-files.bzl", "get_files")
 
 def _bundle_prod(ctx):
   files = get_files(ctx)
@@ -42,7 +42,7 @@ bundle_prod = rule(
     "deps": attr.label_list(),
     "entry_point": attr.label(allow_single_file = True),
     "_typescript": attr.label(executable = True, cfg="host", default = Label("@build_bazel_rules_nodejs//internal/rollup:tsc")),
-    "_rollup": attr.label(executable = True, cfg="host", default = Label("//tools/svelte/internal:rollup")),
+    "_rollup": attr.label(executable = True, cfg="host", default = Label("//build_rules/svelte/internal:rollup")),
     "_terser": attr.label(executable = True, cfg="host", default = Label("@build_bazel_rules_nodejs//internal/rollup:terser-wrapped")),
     },
     outputs = {"build_es6": "%{name}.es6.js", "build_es5": "%{name}.es5.js", "build_es5_min": "%{name}.es5.min.js"}

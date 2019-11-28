@@ -1,6 +1,6 @@
 workspace(
     name = "miniboard",
-    managed_directories = {"@svelte_deps": ["tools/svelte/internal/node_modules"]},
+    managed_directories = {"@svelte_deps": ["build_rules/svelte/internal/node_modules"]},
 )
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
@@ -86,8 +86,8 @@ http_archive(
 load("@build_bazel_rules_nodejs//:defs.bzl", "yarn_install")
 yarn_install(
     name = "svelte_deps",
-    package_json = "//tools/svelte/internal:package.json",
-    yarn_lock = "//tools/svelte/internal:yarn.lock",
+    package_json = "//build_rules/svelte/internal:package.json",
+    yarn_lock = "//build_rules/svelte/internal:yarn.lock",
 )
 
 # Golang app's deps.
