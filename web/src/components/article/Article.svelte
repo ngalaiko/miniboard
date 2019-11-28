@@ -12,7 +12,6 @@
     export let title
     export let site_name
     export let create_time
-    export let icon_url
     export let is_read
     export let is_favorite
 
@@ -46,7 +45,7 @@
 </script>
 
 <div class='article' class:opacity={is_read}>
-    <a class='title' on:click|preventDefault={onClick}>{title}</a>
+    <span class='title' on:click|preventDefault={onClick}>{title}</span>
     <ul class='article-info'>
         {#if site_name !== undefined}
         <li><a class='link padding' href={url}>{site_name}</a></li>

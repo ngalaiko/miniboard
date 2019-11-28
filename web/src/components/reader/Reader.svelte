@@ -2,8 +2,6 @@
     export let articles
 
     export let name
-    export let title
-
 
     // https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
     const b64DecodeUnicode = (article) => {

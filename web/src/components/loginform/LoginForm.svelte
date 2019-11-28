@@ -1,6 +1,4 @@
 <script>
-    export let authorizations
-    export let users
     export let codes
     export let router
 
@@ -44,7 +42,6 @@
             type='email'
             bind:value={email}
             placeholder='email'
-            required tabindex='1'
         />
         <button on:click|preventDefault={handleClick} />
         {#if error != ''}
@@ -59,7 +56,6 @@
             type='text'
             bind:value={code}
             placeholder='code from the email'
-            required tabindex='2'
         />
         <button on:click|preventDefault={handleCode} />
     </form>
