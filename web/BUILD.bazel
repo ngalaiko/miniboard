@@ -3,6 +3,7 @@ load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 rollup_bundle(
     name = "src",
     format = "iife",
+    sourcemap = "false",
     config_file = "rollup.config.bundle.js",
     srcs = glob(["src/**/*"], exclude = ["src/serviceWorker.js"]),
     entry_points = {
@@ -23,6 +24,7 @@ rollup_bundle(
 rollup_bundle(
     name = "service_worker",
     format = "iife",
+    sourcemap = "false",
     config_file = "rollup.config.serviceWorker.js",
     srcs = ["src/serviceWorker.js"],
     entry_points = {
