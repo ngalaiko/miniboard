@@ -3,6 +3,7 @@ module miniboard.app
 go 1.12
 
 require (
+	github.com/andybalholm/brotli v1.0.0
 	github.com/coreos/bbolt v1.3.3
 	github.com/go-shiori/go-readability v0.0.0-20190829113304-8630e8f6e148
 	github.com/go-stack/stack v1.8.0 // indirect

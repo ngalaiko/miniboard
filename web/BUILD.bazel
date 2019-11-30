@@ -5,7 +5,10 @@ rollup_bundle(
     format = "iife",
     sourcemap = "false",
     config_file = "rollup.config.bundle.js",
-    srcs = glob(["src/**/*"], exclude = ["src/serviceWorker.js"]),
+    srcs = glob(
+        ["src/**/*"],
+        exclude = ["src/serviceWorker.js"],
+    ),
     entry_points = {
         "src/main.js": "bundle",
     },

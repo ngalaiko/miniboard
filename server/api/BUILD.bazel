@@ -4,7 +4,8 @@ go_library(
     name = "go_default_library",
     srcs = [
         "authorization.go",
-        "gzip.go",
+        "broti.go",
+        "compression.go",
         "logging.go",
         "server.go",
         "ssl.go",
@@ -23,6 +24,7 @@ go_library(
         "//server/storage/resource:go_default_library",
         "//server/users:go_default_library",
         "//server/web:go_default_library",
+        "@com_github_andybalholm_brotli//:go_default_library",
         "@com_github_grpc_ecosystem_grpc_gateway//runtime:go_default_library",
         "@com_github_pkg_errors//:go_default_library",
         "@com_github_sirupsen_logrus//:go_default_library",

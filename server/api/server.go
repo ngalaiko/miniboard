@@ -62,7 +62,7 @@ func NewServer(
 	mux.Handle("/", homepageRedirect(web.Handler(), jwtService))
 
 	handler := http.Handler(mux)
-	handler = withGzip(handler)
+	handler = withCompression(handler)
 	handler = withAccessLogs(handler)
 
 	srv := &Server{
