@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
 	"google.golang.org/grpc"
+	_ "google.golang.org/grpc/encoding/gzip"
 	articlesservice "miniboard.app/articles"
 	codesservice "miniboard.app/codes"
 	"miniboard.app/email"

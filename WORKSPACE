@@ -33,6 +33,7 @@ load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
 gazelle_dependencies()
 
 # Protobuf compiler.
+http_archive(
     name = "com_google_protobuf",
     urls = [
         "https://github.com/protocolbuffers/protobuf/archive/v3.9.0.zip",

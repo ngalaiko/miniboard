@@ -1,4 +1,18 @@
 <script context='module'>
+    import proto from './articles_service_grpc_web_pb.js'
+
+        const client = new proto.ArticlesServiceClient('http://localhost:8080')
+        const request = new proto.CreateArticleRequest()
+        const article = new proto.Article()
+        request.setArticle(article)
+
+        const call = client.createArticle(request, {
+            'grpc-encoding': 'gzip',
+        }, (err, response) => {
+            console.log(response);
+            console.log(err);
+        })
+
     export const Articles = async (api) => {
         let $ = {}
 

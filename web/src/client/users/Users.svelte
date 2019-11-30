@@ -1,4 +1,7 @@
 <script context='module'>
+    import proto from './users_service_grpc_web_pb.js'
+
+
     export const Users = (api) => {
         let $ = {}
 
