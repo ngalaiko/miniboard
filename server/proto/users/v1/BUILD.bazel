@@ -14,7 +14,7 @@ go_proto_library(
     name = "users_go_proto",
     compilers = [
         "@io_bazel_rules_go//proto:go_grpc",
-        "@grpc_ecosystem_grpc_gateway//protoc-gen-grpc-gateway:go_gen_grpc_gateway",  # keep
+        "@com_github_grpc_ecosystem_grpc_gateway//protoc-gen-grpc-gateway:go_gen_grpc_gateway",  # keep
     ],
     importpath = "miniboard.app/proto/users/v1",
     proto = ":users_proto",

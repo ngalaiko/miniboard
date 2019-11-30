@@ -32,19 +32,6 @@ http_archive(
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
 gazelle_dependencies()
 
-# gRPC-JSON compiler.
-http_archive(
-    name = "grpc_ecosystem_grpc_gateway",
-    url = "https://github.com/grpc-ecosystem/grpc-gateway/archive/v1.9.6.tar.gz",
-    strip_prefix = "grpc-gateway-1.9.6",
-    sha256 = "566d07c8b682bbc368fa37903b1a499bc695da877761e648b9829d31899ebdb0",
-)
-load(
-    "@grpc_ecosystem_grpc_gateway//:repositories.bzl",
-    grpc_gateway_repositories = "go_repositories",
-)
-grpc_gateway_repositories()
-
 # Protobuf compiler.
 http_archive(
     name = "com_google_protobuf",
