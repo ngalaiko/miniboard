@@ -11,6 +11,7 @@ rollup_bundle(
     },
     deps = [
         "@npm//svelte",
+        "@npm//navaid",
         "@npm//rollup-plugin-svelte",
         "@npm//@rollup/plugin-replace",
         "@npm//rollup-plugin-node-resolve",

@@ -2,12 +2,12 @@
     import Articles  from './components/articles/Articles.svelte'
     import NotFound from './components/notfound/NotFound.svelte'
     import { Client } from './client/Client.svelte'
-    import { Router } from './components/router/Router.svelte'
+    import navaid from 'navaid'
     import LoginForm from './components/loginform/LoginForm.svelte'
     import Reader from './components/reader/Reader.svelte'
 
     let apiClient
-    let router = Router()
+    let router = navaid()
     let component
     let props
 
