@@ -5,10 +5,11 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
+	"google.golang.org/grpc"
 	articlesservice "miniboard.app/articles"
 	codesservice "miniboard.app/codes"
 	"miniboard.app/email"
@@ -34,30 +35,17 @@ func NewServer(
 	domain string,
 ) *Server {
 	jwtService := jwt.NewService(ctx, db)
-	usersService := usersservice.New(db)
-	codesService := codesservice.New(domain, emailClient, jwtService)
-	articlesService := articlesservice.New(db)
 
-	gwMux := runtime.NewServeMux()
+	grpcServer := grpc.NewServer()
 
-	users.RegisterUsersServiceHandlerClient(
-		ctx,
-		gwMux,
-		usersservice.NewProxyClient(usersService),
-	)
-	codes.RegisterCodesServiceHandlerClient(
-		ctx,
-		gwMux,
-		codesservice.NewProxyClient(codesService),
-	)
-	articles.RegisterArticlesServiceHandlerClient(
-		ctx,
-		gwMux,
-		articlesservice.NewProxyClient(articlesService),
-	)
+	articles.RegisterArticlesServiceServer(grpcServer, articlesservice.New(db))
+	users.RegisterUsersServiceServer(grpcServer, usersservice.New(db))
+	codes.RegisterCodesServiceServer(grpcServer, codesservice.New(domain, emailClient, jwtService))
 
 	mux := http.NewServeMux()
-	mux.Handle("/api/", authorize(gwMux, jwtService))
+	mux.Handle("/api/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotImplemented)
+	}))
 	mux.Handle("/logout", removeCookie())
 	mux.Handle("/", homepageRedirect(web.Handler(), jwtService))
 
@@ -65,9 +53,18 @@ func NewServer(
 	handler = withCompression(handler)
 	handler = withAccessLogs(handler)
 
+	grpcWebServer := grpcweb.WrapServer(grpcServer)
+	grpcWebProxyHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if grpcWebServer.IsGrpcWebRequest(r) {
+			grpcWebServer.ServeHTTP(w, r)
+			return
+		}
+		handler.ServeHTTP(w, r)
+	})
+
 	srv := &Server{
 		httpServer: &http.Server{
-			Handler: handler,
+			Handler: grpcWebProxyHandler,
 		},
 	}
 	if err := http2.ConfigureServer(srv.httpServer, nil); err != nil {

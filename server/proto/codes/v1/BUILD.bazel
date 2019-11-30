@@ -5,19 +5,16 @@ proto_library(
     name = "codes_proto",
     srcs = ["codes_service.proto"],
     visibility = ["//visibility:public"],
-    deps = ["@go_googleapis//google/api:annotations_proto"],
 )
 
 go_proto_library(
     name = "codes_go_proto",
     compilers = [
         "@io_bazel_rules_go//proto:go_grpc",
-        "@com_github_grpc_ecosystem_grpc_gateway//protoc-gen-grpc-gateway:go_gen_grpc_gateway",  # keep
     ],
     importpath = "miniboard.app/proto/codes/v1",
     proto = ":codes_proto",
     visibility = ["//visibility:public"],
-    deps = ["@go_googleapis//google/api:annotations_go_proto"],
 )
 
 go_library(

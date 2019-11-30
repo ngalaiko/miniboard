@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package app.miniboard.users.articles.v1;
 
-import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/field_mask.proto";
@@ -14,49 +13,27 @@ service ArticlesService {
     // List articles
     //
     // An endpoint to list the user's articles.
-    rpc ListArticles(ListArticlesRequest) returns (ListArticlesResponse) {
-        option (google.api.http) = {
-            get: "/api/v1/{parent=users/*}/articles"
-        };
-    }
+    rpc ListArticles(ListArticlesRequest) returns (ListArticlesResponse) {}
 
     // Create article
     //
     // An endpoint to add an article for the user.
-    rpc CreateArticle(CreateArticleRequest) returns (Article) {
-        option (google.api.http) = {
-            post: "/api/v1/{parent=users/*}/articles"
-            body: "article"
-        };
-    }
+    rpc CreateArticle(CreateArticleRequest) returns (Article) {}
 
     // Update article
     //
     // An endpoint to update the article.
-    rpc UpdateArticle(UpdateArticleRequest) returns (Article) {
-        option (google.api.http) = {
-            patch: "/api/v1/{article.name=users/*/articles/*}"
-            body: "article"
-        };
-    }
+    rpc UpdateArticle(UpdateArticleRequest) returns (Article) {}
 
     // Get article
     //
     // An endpoint to get an article by id.
-    rpc GetArticle(GetArticleRequest) returns (Article) {
-        option (google.api.http) = {
-            get: "/api/v1/{name=users/*/articles/*}"
-        };
-    }
+    rpc GetArticle(GetArticleRequest) returns (Article) {}
 
     // Delete article
     //
     // An endpoint to delete an article by id.
-    rpc DeleteArticle(DeleteArticleRequest) returns (google.protobuf.Empty) {
-        option (google.api.http) = {
-            delete: "/api/v1/{name=users/*/articles/*}"
-        };
-    }
+    rpc DeleteArticle(DeleteArticleRequest) returns (google.protobuf.Empty) {}
 }
 
 message ListArticlesRequest {
