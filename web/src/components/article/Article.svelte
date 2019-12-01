@@ -7,13 +7,9 @@
     export let articles
     export let router
 
-    export let name
-    export let url
-    export let title
-    export let site_name
-    export let create_time
-    export let is_read
-    export let is_favorite
+    export let article
+
+    console.log('here', article)
 
     const onDeleted = async () => {
         await articles.delete(name)

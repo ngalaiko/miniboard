@@ -18,6 +18,7 @@ export const storage = () => {
     $.delete = async (name) => {
         articlesListStore.update(list => list.filter(a => a.name != name))
     }
+
     $.update = async (updated) => {
         articlesListStore.update(list => {
             for (let i in list) {
@@ -36,7 +37,8 @@ export const storage = () => {
 
         let resp = await articles.next(pageSize, from, isRead)
 
-        console.log(resp)
+        console.log('mda', resp)
+        console.log('mda', resp.articles)
 
         if (resp.articles.length == 0) return 
 

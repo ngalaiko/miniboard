@@ -10,11 +10,11 @@
 
     const dispatch = createEventDispatcher()
 
-    export let api
     export let router
 
     function onLogout() {
-        api.logout()
+        // todo: do something
+        // api.logout()
         router.route('/')
     }
 

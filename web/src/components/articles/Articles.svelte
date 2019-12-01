@@ -39,7 +39,6 @@
     import Pagination from '../pagination/Pagination.svelte'
     import Header from '../header/Header.svelte'
 
-    export let api
     export let articles
     export let router
     export let pane
@@ -71,7 +70,6 @@
 
 <div class='articles'>
     <Header
-        api={api}
         router={router}
         on:added={(e) => add(e.detail, articles.add)}
         on:search={(e) => console.log('search')}
@@ -88,7 +86,7 @@
                 on:updated={(e) => onUpdated(e.detail)}
                 router={router}
                 articles={articles}
-                {...article}
+                {article}
             />
         </Pagination>
     {/if}
@@ -103,7 +101,7 @@
                 on:updated={(e) => onUpdated(e.detail)}
                 router={router}
                 articles={articles}
-                {...article}
+                {article}
             />
         </Pagination>
     {/if}
@@ -118,7 +116,7 @@
                 on:updated={(e) => onUpdated(e.detail)}
                 router={router}
                 articles={articles}
-                {...article}
+                {article}
             />
         </Pagination>
     {/if}
