@@ -9,7 +9,7 @@
 
         $.api = Api(router)
         $.articles = await Articles($.api)
-        $.codes = Codes($.api)
+        $.codes = Codes()
         $.users = Users($.api)
 
         return $
