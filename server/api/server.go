@@ -32,13 +32,17 @@ func NewServer(
 	handler := httpHandler(web.Handler(), jwtService)
 	grpcServer := grpcServer(db, emailClient, jwtService, domain)
 	grpcWebServer := grpcweb.WrapServer(grpcServer)
+
+	grpcWebHandler := http.Handler(grpcWebServer)
+	grpcWebHandler = withCompression(grpcWebHandler)
+
 	grpcWebProxyHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !grpcWebServer.IsGrpcWebRequest(r) {
 			handler.ServeHTTP(w, r)
 			return
 		}
 
-		grpcWebServer.ServeHTTP(w, r)
+		grpcWebHandler.ServeHTTP(w, r)
 	})
 
 	srv := &Server{
