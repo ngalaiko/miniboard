@@ -9,17 +9,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
-	"google.golang.org/grpc"
-	_ "google.golang.org/grpc/encoding/gzip"
-	articlesservice "miniboard.app/articles"
-	codesservice "miniboard.app/codes"
 	"miniboard.app/email"
 	"miniboard.app/jwt"
-	"miniboard.app/proto/codes/v1"
-	"miniboard.app/proto/users/articles/v1"
-	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
-	usersservice "miniboard.app/users"
 	"miniboard.app/web"
 )
 
@@ -37,30 +29,16 @@ func NewServer(
 ) *Server {
 	jwtService := jwt.NewService(ctx, db)
 
-	grpcServer := grpc.NewServer()
-
-	articles.RegisterArticlesServiceServer(grpcServer, articlesservice.New(db))
-	users.RegisterUsersServiceServer(grpcServer, usersservice.New(db))
-	codes.RegisterCodesServiceServer(grpcServer, codesservice.New(domain, emailClient, jwtService))
-
-	mux := http.NewServeMux()
-	mux.Handle("/api/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotImplemented)
-	}))
-	mux.Handle("/logout", removeCookie())
-	mux.Handle("/", homepageRedirect(web.Handler(), jwtService))
-
-	handler := http.Handler(mux)
-	handler = withCompression(handler)
-	handler = withAccessLogs(handler)
-
+	handler := httpHandler(web.Handler(), jwtService)
+	grpcServer := grpcServer(db, emailClient, jwtService, domain)
 	grpcWebServer := grpcweb.WrapServer(grpcServer)
 	grpcWebProxyHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if grpcWebServer.IsGrpcWebRequest(r) {
-			grpcWebServer.ServeHTTP(w, r)
+		if !grpcWebServer.IsGrpcWebRequest(r) {
+			handler.ServeHTTP(w, r)
 			return
 		}
-		handler.ServeHTTP(w, r)
+
+		grpcWebServer.ServeHTTP(w, r)
 	})
 
 	srv := &Server{
