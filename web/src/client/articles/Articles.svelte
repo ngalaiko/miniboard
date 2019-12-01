@@ -1,25 +1,27 @@
 <script context='module'>
     import proto from './articles_service_grpc_web_pb.js'
-
-        const client = new proto.ArticlesServiceClient('http://localhost:8080')
-        const request = new proto.CreateArticleRequest()
-        const article = new proto.Article()
-        request.setArticle(article)
-
-        const call = client.createArticle(request, {
-            'grpc-encoding': 'gzip',
-        }, (err, response) => {
-            console.log(response);
-            console.log(err);
-        })
+    import wrappers from 'google-protobuf/google/protobuf/wrappers_pb.js'
 
     export const Articles = async (api) => {
         let $ = {}
 
+        const client = new proto.ArticlesServiceClient('http://localhost:8080')
+
         $.add = async (url) => {
-            return await api.post(`/api/v1/${api.subject()}/articles`, {
-                url: url
+            const request = new proto.CreateArticleRequest()
+                .setArticle(new proto.Article()
+                    .setUrl(url))
+
+            let error
+            let response
+            await client.createArticle(request, {}, (err, resp) => {
+                response = resp
+                error = err
             })
+
+            if (error) throw error
+
+            return response
         }
 
         $.get = async (name) => {
@@ -36,15 +38,23 @@
         }
 
         $.next = async (pageSize, from, params) => {
-            let url = `/api/v1/${api.subject()}/articles?page_size=${pageSize}`
-            if (from) url += `&page_token=${from}`
+            const request = new proto.ListArticlesRequest()
+            if (from) request.setPageToken(from)
             if (params) {
-                if (params.isRead !== undefined) url += `&is_read=${params.isRead}`
-                if (params.isStarred !== undefined) url += `&is_favorite=${params.isStarred}`
+                if (params.isRead !== undefined) request.setIsRead(new wrappers.BoolValue().setValue(params.isRead))
+                if (params.isStarred !== undefined) request.setIsStarred(new wrappers.BoolValue().setValue(params.isStarred))
             }
-            let resp = await api.get(url)
-            return resp
 
+            let error
+            let response
+            await client.listArticles(request, {}, (err, resp) => {
+                response = resp
+                error = err
+            })
+
+            if (error) throw error
+
+            return response
         }
 
         return $

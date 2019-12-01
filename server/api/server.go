@@ -35,7 +35,7 @@ func NewServer(
 
 	grpcWebHandler := http.Handler(grpcWebServer)
 	grpcWebHandler = withCompression(grpcWebHandler)
-	grpcWebHandler = authorize(grpcWebHandler, jwtService)
+	// grpcWebHandler = authorize(grpcWebHandler, jwtService)
 
 	grpcWebProxyHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !grpcWebServer.IsGrpcWebRequest(r) {

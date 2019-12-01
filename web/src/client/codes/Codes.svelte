@@ -13,7 +13,7 @@
             await client.createCode(request, {}, (err, response) => {
                 error = err
             })
-            if (error != undefined) throw error
+            if (error) throw error
             return
         }
 
