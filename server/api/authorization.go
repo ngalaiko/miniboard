@@ -45,7 +45,7 @@ func removeCookie() http.Handler {
 func authorize(h http.Handler, jwtService *jwt.Service) http.Handler {
 	whitelist := map[string][]*regexp.Regexp{
 		http.MethodPost: {
-			regexp.MustCompile(`^\/api\/v1\/codes$`),
+			regexp.MustCompile(`^\/app.miniboard.codes.v1.CodesService\/CreateCode$`),
 		},
 	}
 
