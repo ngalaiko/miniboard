@@ -2,6 +2,7 @@ package users
 
 import (
 	"context"
+	"fmt"
 
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
@@ -27,4 +28,13 @@ func (s *Service) GetUser(
 	return &users.User{
 		Name: request.Name,
 	}, nil
+}
+
+// GetMe returns a user if it exists.
+func (s *Service) GetMe(
+	ctx context.Context,
+	request *users.GetMeRequest,
+) (*users.User, error) {
+	fmt.Printf("\nnikitag: %+v\n\n", ctx)
+	return &users.User{}, nil
 }

@@ -2,11 +2,13 @@
     import Articles  from './components/articles/Articles.svelte'
     import NotFound from './components/notfound/NotFound.svelte'
     import { Articles as ArticlesClient } from './client/articles/Articles.svelte'
-    import { Codes } from './client/codes/Codes.svelte'
+    import { Codes as CodesClient } from './client/codes/Codes.svelte'
     import { Users } from './client/users/Users.svelte'
+    import { Tokens } from './client/tokens/Tokens.svelte'
     import navaid from 'navaid'
     import LoginForm from './components/loginform/LoginForm.svelte'
     import Reader from './components/reader/Reader.svelte'
+    import Codes from './components/codes/Codes.svelte'
 
     const apiUrl = 'http://localhost:8080'
 
@@ -14,9 +16,10 @@
     let component
     let props
 
-    const articles = ArticlesClient()
-    const codes = Codes()
-    const users = Users()
+    const users = Users(apiUrl)
+    const articles = ArticlesClient(apiUrl)
+    const codes = CodesClient(apiUrl)
+    const tokens = Tokens(apiUrl)
 
     router
         .on('/', () => {
@@ -27,9 +30,18 @@
                 router: router,
             }
         })
-        .on('/users/:username', () => {
+        .on('/codes/:code', (params) => {
+            component = Codes
+            props = {
+                tokens: tokens,
+                code: params.code,
+                router: router,
+            }
+        })
+        .on('/users/:id', (params) => {
             component = Articles
             props = {
+                username: `users/${params.id}`,
                 articles: articles,
                 router: router,
             }

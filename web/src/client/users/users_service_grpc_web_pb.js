@@ -149,5 +149,85 @@ proto.app.miniboard.users.v1.UsersServicePromiseClient.prototype.getUser =
 };
 
 
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.app.miniboard.users.v1.GetMeRequest,
+ *   !proto.app.miniboard.users.v1.User>}
+ */
+const methodDescriptor_UsersService_GetMe = new grpc.web.MethodDescriptor(
+  '/app.miniboard.users.v1.UsersService/GetMe',
+  grpc.web.MethodType.UNARY,
+  proto.app.miniboard.users.v1.GetMeRequest,
+  proto.app.miniboard.users.v1.User,
+  /**
+   * @param {!proto.app.miniboard.users.v1.GetMeRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.app.miniboard.users.v1.User.deserializeBinary
+);
+
+
+/**
+ * @const
+ * @type {!grpc.web.AbstractClientBase.MethodInfo<
+ *   !proto.app.miniboard.users.v1.GetMeRequest,
+ *   !proto.app.miniboard.users.v1.User>}
+ */
+const methodInfo_UsersService_GetMe = new grpc.web.AbstractClientBase.MethodInfo(
+  proto.app.miniboard.users.v1.User,
+  /**
+   * @param {!proto.app.miniboard.users.v1.GetMeRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.app.miniboard.users.v1.User.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.app.miniboard.users.v1.GetMeRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.Error, ?proto.app.miniboard.users.v1.User)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.app.miniboard.users.v1.User>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.app.miniboard.users.v1.UsersServiceClient.prototype.getMe =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/app.miniboard.users.v1.UsersService/GetMe',
+      request,
+      metadata || {},
+      methodDescriptor_UsersService_GetMe,
+      callback);
+};
+
+
+/**
+ * @param {!proto.app.miniboard.users.v1.GetMeRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.app.miniboard.users.v1.User>}
+ *     A native promise that resolves to the response
+ */
+proto.app.miniboard.users.v1.UsersServicePromiseClient.prototype.getMe =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/app.miniboard.users.v1.UsersService/GetMe',
+      request,
+      metadata || {},
+      methodDescriptor_UsersService_GetMe);
+};
+
+
 module.exports = proto.app.miniboard.users.v1;
 

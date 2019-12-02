@@ -11,9 +11,11 @@ import (
 	"miniboard.app/email"
 	"miniboard.app/jwt"
 	"miniboard.app/proto/codes/v1"
+	"miniboard.app/proto/tokens/v1"
 	"miniboard.app/proto/users/articles/v1"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
+	tokensservice "miniboard.app/tokens"
 	usersservice "miniboard.app/users"
 )
 
@@ -31,6 +33,7 @@ func grpcServer(db storage.Storage, emailClient email.Client, jwtService *jwt.Se
 	articles.RegisterArticlesServiceServer(grpcServer, articlesservice.New(db))
 	users.RegisterUsersServiceServer(grpcServer, usersservice.New(db))
 	codes.RegisterCodesServiceServer(grpcServer, codesservice.New(domain, emailClient, jwtService))
+	tokens.RegisterTokensServiceServer(grpcServer, tokensservice.New(jwtService))
 
 	return grpcServer
 }

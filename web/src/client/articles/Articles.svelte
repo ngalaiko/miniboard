@@ -2,10 +2,10 @@
     import proto from './articles_service_grpc_web_pb.js'
     import wrappers from 'google-protobuf/google/protobuf/wrappers_pb.js'
 
-    export const Articles = () => {
+    export const Articles = (apiUrl) => {
         let $ = {}
 
-        const client = new proto.ArticlesServicePromiseClient('http://localhost:8080')
+        const client = new proto.ArticlesServicePromiseClient(apiUrl)
 
         $.add = async (url) => {
             const request = new proto.CreateArticleRequest()

@@ -31,7 +31,7 @@ func NewServer(
 
 	handler := httpHandler(web.Handler(), jwtService)
 	grpcServer := grpcServer(db, emailClient, jwtService, domain)
-	grpcWebServer := grpcweb.WrapServer(grpcServer)
+	grpcWebServer := grpcweb.WrapServer(grpcServer, grpcweb.WithAllowedRequestHeaders([]string{"Set-Cookie"}))
 
 	grpcWebHandler := http.Handler(grpcWebServer)
 	grpcWebHandler = withCompression(grpcWebHandler)

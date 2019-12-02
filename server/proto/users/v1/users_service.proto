@@ -9,12 +9,19 @@ service UsersService {
     //
     // An endpoint to get an existing user.
     rpc GetUser(GetUserRequest) returns (User) {}
+
+    // Get me
+    //
+    // Returns logged in user.
+    rpc GetMe(GetMeRequest) returns (User) {}
 }
 
 message GetUserRequest {
     // Name of the user resource to return.
     string name = 1;
 }
+
+message GetMeRequest {}
 
 message User {
     // Name of the resource, for example "users/user1".
