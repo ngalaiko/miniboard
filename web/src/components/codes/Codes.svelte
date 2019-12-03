@@ -14,7 +14,7 @@
     }
 
     tokens.exchangeCode(code).then((response) => {
-        return response.token
+        return response.getToken()
     }).then((token) => {
         return parseJwt(token).sub
     }).then((subject) => {

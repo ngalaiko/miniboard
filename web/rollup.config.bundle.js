@@ -15,6 +15,6 @@ export default {
         svelte(),
         resolve(),
         commonjs(),
-        terser(),
+        //terser(),
     ]
 }

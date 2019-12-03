@@ -41,16 +41,16 @@
         .on('/users/:id', (params) => {
             component = Articles
             props = {
-                username: `users/${params.id}`,
+                user: `users/${params.id}`,
                 articles: articles,
                 router: router,
             }
         })
-        .on('/users/:username/articles/:articleid', (params) => {
+        .on('/users/:id/articles/:articleid', (params) => {
             component = Reader
             props = {
                 articles: articles,
-                name: `users/${params.username}/articles/${params.articleid}`,
+                name: `users/${params.id}/articles/${params.articleid}`,
             }
         })
         .on('*', () => {

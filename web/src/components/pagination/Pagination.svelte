@@ -36,7 +36,7 @@
 
 <div class='page'>
     <div class='list'>
-        {#each items as item, i (item.name) }
+        {#each items as item, i (item.getName()) }
 			<slot
 				item={item} 
 			/>
