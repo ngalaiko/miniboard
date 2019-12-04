@@ -13,8 +13,15 @@ func httpHandler(webHandler http.Handler, jwtService *jwt.Service) http.Handler 
 	mux.Handle("/api/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotImplemented)
 	}))
-	mux.Handle("/logout", removeCookie())
-	mux.Handle("/", homepageRedirect(webHandler, jwtService))
+	mux.Handle("/logout", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{
+			Name:     authCookie,
+			Path:     "/",
+			MaxAge:   -1,
+			HttpOnly: true,
+		})
+	}))
+	mux.Handle("/", webHandler)
 
 	handler := http.Handler(mux)
 	handler = withAccessLogs(handler)

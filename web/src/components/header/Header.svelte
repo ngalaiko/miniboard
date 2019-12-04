@@ -12,9 +12,8 @@
 
     export let router
 
-    function onLogout() {
-        // todo: do something
-        // api.logout()
+    const onLogout = async () => {
+        await fetch("/logout")
         router.route('/')
     }
 
