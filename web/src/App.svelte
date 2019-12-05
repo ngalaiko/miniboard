@@ -67,6 +67,12 @@
             })
         })
     }
+
+    if (location.pathname == "/") {
+        users.me()
+            .then(user => router.route(`/${user.getName()}`))
+            .catch(e => { /* ignore */ })
+    }
 </script>
 
 <div class="app">
