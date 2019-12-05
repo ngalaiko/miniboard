@@ -2,12 +2,23 @@ package web
 
 import (
 	"net/http"
+
+	"github.com/sirupsen/logrus"
 )
 
 // Handler returns http handler for the UI.
 func Handler() http.Handler {
-	return http.FileServer(&fs{
+	fileHandler := http.FileServer(&fs{
 		rootFS: http.Dir("./web"),
+	})
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if pusher, ok := w.(http.Pusher); ok {
+			if err := pusher.Push("/src/bundle.js", nil); err != nil {
+				log("web").Errorf("failed to push /src/bundle.js: %s", err)
+			}
+		}
+
+		fileHandler.ServeHTTP(w, r)
 	})
 }
 
@@ -22,4 +33,10 @@ func (fs *fs) Open(name string) (http.File, error) {
 		return fs.rootFS.Open("index.html")
 	}
 	return file, err
+}
+
+func log(src string) *logrus.Entry {
+	return logrus.WithFields(logrus.Fields{
+		"source": src,
+	})
 }
