@@ -10,7 +10,7 @@
     import Reader from './components/reader/Reader.svelte'
     import Codes from './components/codes/Codes.svelte'
 
-    const apiUrl = 'http://localhost:8080'
+    const apiUrl = '__API_URL__'
 
     let router = navaid()
     let component

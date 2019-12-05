@@ -14,6 +14,8 @@ jobs:
     
     - name: Run Tests
       uses: ngalaiko/bazel-action/1.1.0@master
+      env:
+        API_URL: https://miniboard.galaiko.rocks
       with:
         args: test //...
 
@@ -32,6 +34,8 @@ jobs:
 
     - name: Push image
       uses: ngalaiko/bazel-action/1.1.0@master
+      env:
+        API_URL: https://miniboard.galaiko.rocks
       with:
         args: run --platforms=@io_bazel_rules_go//go/toolchain:linux_arm :docker_push
 
