@@ -31,7 +31,7 @@
             .setTitle(url)
             .setIsRead(false)
             .setIsFavorite(false)
-            .setCreateTime(new timestamp.Timestamp().setSeconds(new Date().getTime()))
+            .setCreateTime(new timestamp.Timestamp().setSeconds(new Date() / 1000))
             .setName(Math.random())
 
         allStorage.add(mock)
