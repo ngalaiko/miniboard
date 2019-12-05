@@ -5,7 +5,30 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"miniboard.app/jwt"
 )
+
+func httpHandler(webHandler http.Handler, jwtService *jwt.Service) http.Handler {
+	mux := http.NewServeMux()
+	mux.Handle("/api/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotImplemented)
+	}))
+	mux.Handle("/logout", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{
+			Name:     authCookie,
+			Path:     "/",
+			MaxAge:   -1,
+			HttpOnly: true,
+		})
+	}))
+	mux.Handle("/", webHandler)
+
+	handler := http.Handler(mux)
+	handler = withAccessLogs(handler)
+	handler = withCompression(handler)
+
+	return handler
+}
 
 type loggingResponseWriter struct {
 	http.ResponseWriter

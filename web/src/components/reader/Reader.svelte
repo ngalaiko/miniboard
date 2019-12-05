@@ -3,12 +3,12 @@
 
     export let name
 
-    // https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
-    const b64DecodeUnicode = (article) => {
-        document.title = `Miniboard - ${article.title}`
-        return decodeURIComponent(atob(article.content).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
+    const decoder = new TextDecoder()
+
+    const decode = (article) => {
+        console.log(article.getContent())
+        document.title = `Miniboard - ${article.getTitle()}`
+        return decoder.decode(article.getContent())
     }
 </script>
 
@@ -16,15 +16,15 @@
     {#await articles.get(name)}
         loading...
     {:then article}
-        {#if article.content === undefined}
-            no saved content, redirecting to <a href={article.url} target='_blank'>{article.url}</a>
+        {#if article.getContent() === ""}
+            no saved content, redirecting to <a href={article.url} target='_blank'>{article.getUrl()}</a>
             <div hidden>
-                {window.open(article.url, '_blank')}
+                {window.open(article.getUrl(), '_blank')}
             </div>
         {:else}
             <div class='page'>
-                <h1>{article.title}</h1>
-                {@html b64DecodeUnicode(article)}
+                <h1>{article.getTitle()}</h1>
+                {@html decode(article)}
             </div>
         {/if}
     {:catch e}

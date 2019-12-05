@@ -6,28 +6,6 @@
     let unreadStorage = storage()
     let starredStorage = storage()
 
-    export const add = async (url, addFunc) => {
-        let mock = {
-            'url': url,
-            'title': url,
-            'is_read': false,
-            'is_favorite': false,
-            'create_time': Date.now(),
-            'name': Math.random()
-        }
-
-        allStorage.add(mock)
-        unreadStorage.add(mock)
-
-        let article = await addFunc(url)
-
-        allStorage.delete(mock.name)
-        unreadStorage.delete(mock.name)
-
-        allStorage.add(article)
-        unreadStorage.add(article)
-    }
-
     let paneStore = writable('unread')
     export const show = (pane) => paneStore.set(pane)
 </script>
@@ -39,41 +17,68 @@
     import Pagination from '../pagination/Pagination.svelte'
     import Header from '../header/Header.svelte'
 
-    export let api
+    import timestamp from 'google-protobuf/google/protobuf/timestamp_pb.js'
+
+    export let user
+
     export let articles
     export let router
     export let pane
 
+    const onAdded = async (user, url) => {
+        let mock = new articles.proto.Article()
+            .setUrl(url)
+            .setTitle(url)
+            .setIsRead(false)
+            .setIsFavorite(false)
+            .setCreateTime(new timestamp.Timestamp().setSeconds(new Date() / 1000))
+            .setName(Math.random())
+
+        allStorage.add(mock)
+        unreadStorage.add(mock)
+
+        let article = await articles.add(user, url)
+
+        allStorage.delete(mock.getName())
+        unreadStorage.delete(mock.getName())
+
+        allStorage.add(article)
+        unreadStorage.add(article)
+    }
+
     onDestroy(paneStore.subscribe(updated => pane = updated))
 
     const onDeleted = async (name) => {
+        await articles.delete(name)
+
         allStorage.delete(name)
         unreadStorage.delete(name)
         starredStorage.delete(name)
     }
     const onUpdated = async (updated) => {
+        await articles.update(updated)
+
         allStorage.update(updated)
         unreadStorage.update(updated)
 
-        if (!updated.is_read) {
+        if (!updated.getIsRead()) {
             unreadStorage.add(updated)
         } else {
-            unreadStorage.delete(updated.name)
+            unreadStorage.delete(updated.getName())
         }
 
-        if (updated.is_favorite) {
+        if (updated.getIsFavorite()) {
             starredStorage.add(updated)
         } else {
-            starredStorage.delete(updated.name)
+            starredStorage.delete(updated.getName())
         }
     }
 </script>
 
 <div class='articles'>
     <Header
-        api={api}
         router={router}
-        on:added={(e) => add(e.detail, articles.add)}
+        on:added={(e) => onAdded(user, e.detail)}
         on:search={(e) => console.log('search')}
         on:selected={(e) => show(e.detail)}
     />
@@ -81,14 +86,13 @@
         <Pagination
             itemsStore={starredStorage.store}
             let:item={article}
-            on:loadmore={(e) => starredStorage.loadMoreArticles(articles, e.detail, {'isStarred': true}) }
+            on:loadmore={(e) => starredStorage.loadMoreArticles(user, articles, e.detail, {'isStarred': true}) }
         >
             <Article
                 on:deleted={(e) => onDeleted(e.detail)}
                 on:updated={(e) => onUpdated(e.detail)}
                 router={router}
-                articles={articles}
-                {...article}
+                {article}
             />
         </Pagination>
     {/if}
@@ -96,14 +100,14 @@
         <Pagination
             itemsStore={unreadStorage.store}
             let:item={article}
-            on:loadmore={(e) => unreadStorage.loadMoreArticles(articles, e.detail, {'isRead': false}) }
+            on:loadmore={(e) => unreadStorage.loadMoreArticles(user, articles, e.detail, {'isRead': false}) }
         >
             <Article
                 on:deleted={(e) => onDeleted(e.detail)}
                 on:updated={(e) => onUpdated(e.detail)}
                 router={router}
                 articles={articles}
-                {...article}
+                {article}
             />
         </Pagination>
     {/if}
@@ -111,14 +115,14 @@
         <Pagination
             itemsStore={allStorage.store}
             let:item={article}
-            on:loadmore={(e) => allStorage.loadMoreArticles(articles, e.detail) }
+            on:loadmore={(e) => allStorage.loadMoreArticles(user, articles, e.detail) }
         >
             <Article
                 on:deleted={(e) => onDeleted(e.detail)}
                 on:updated={(e) => onUpdated(e.detail)}
                 router={router}
                 articles={articles}
-                {...article}
+                {article}
             />
         </Pagination>
     {/if}

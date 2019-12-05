@@ -1,36 +1,53 @@
 <script context='module'>
-    export const Articles = async (api) => {
+    import proto from './articles_service_grpc_web_pb.js'
+    import wrappers from 'google-protobuf/google/protobuf/wrappers_pb.js'
+    import updateMask from 'google-protobuf/google/protobuf/field_mask_pb.js'
+
+    export const Articles = (apiUrl) => {
         let $ = {}
 
-        $.add = async (url) => {
-            return await api.post(`/api/v1/${api.subject()}/articles`, {
-                url: url
-            })
+        const client = new proto.ArticlesServicePromiseClient(apiUrl)
+
+        $.proto = proto
+
+        $.add = async (user, url) => {
+            const request = new proto.CreateArticleRequest()
+                .setParent(user)
+                .setArticle(new proto.Article()
+                    .setUrl(url))
+            return await client.createArticle(request)
         }
 
         $.get = async (name) => {
-            return await api.get(`/api/v1/${name}?view=ARTICLE_VIEW_FULL`)
+            const request = new proto.GetArticleRequest()
+                .setName(name)
+                .setView(2)
+            return await client.getArticle(request)
         }
 
         $.delete = async (name) => {
-            return await api.delete(`/api/v1/${name}`)
+            const request = new proto.DeleteArticleRequest()
+                .setName(name)
+            return await client.deleteArticle(request)
         }
 
-
-        $.update = async (article, mask) => {
-            return await api.patch(`/api/v1/${article.name}?update_mask=${mask}`, article)
+        $.update = async (article) => {
+            const request = new proto.UpdateArticleRequest()
+                .setArticle(article)
+                .setUpdateMask(new updateMask.FieldMask().addPaths('is_read').addPaths('is_favorite'))
+            return await client.updateArticle(request)
         }
 
-        $.next = async (pageSize, from, params) => {
-            let url = `/api/v1/${api.subject()}/articles?page_size=${pageSize}`
-            if (from) url += `&page_token=${from}`
+        $.next = async (user, pageSize, from, params) => {
+            const request = new proto.ListArticlesRequest()
+                .setParent(user)
+                .setPageSize(pageSize)
+            if (from) request.setPageToken(from)
             if (params) {
-                if (params.isRead !== undefined) url += `&is_read=${params.isRead}`
-                if (params.isStarred !== undefined) url += `&is_favorite=${params.isStarred}`
+                if (params.isRead !== undefined) request.setIsRead(new wrappers.BoolValue().setValue(params.isRead))
+                if (params.isStarred !== undefined) request.setIsFavorite(new wrappers.BoolValue().setValue(params.isStarred))
             }
-            let resp = await api.get(url)
-            return resp
-
+            return await client.listArticles(request)
         }
 
         return $

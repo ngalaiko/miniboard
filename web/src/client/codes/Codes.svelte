@@ -1,11 +1,15 @@
 <script context='module'>
-    export const Codes = (api) => {
+    import proto from './codes_service_grpc_web_pb.js'
+
+    export const Codes = (apiUrl) => {
         let $ = {}
 
+        const client = new proto.CodesServicePromiseClient(apiUrl)
+
         $.sendCode = async (email) => {
-            return await api.post(`/api/v1/codes`, {
-                email: email,
-            })
+            const request = new proto.CreateCodeRequest()
+                .setEmail(email)
+            return await client.createCode(request)
         }
 
         return $

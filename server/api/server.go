@@ -5,19 +5,13 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
-	articlesservice "miniboard.app/articles"
-	codesservice "miniboard.app/codes"
 	"miniboard.app/email"
 	"miniboard.app/jwt"
-	"miniboard.app/proto/codes/v1"
-	"miniboard.app/proto/users/articles/v1"
-	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
-	usersservice "miniboard.app/users"
 	"miniboard.app/web"
 )
 
@@ -34,40 +28,26 @@ func NewServer(
 	domain string,
 ) *Server {
 	jwtService := jwt.NewService(ctx, db)
-	usersService := usersservice.New(db)
-	codesService := codesservice.New(domain, emailClient, jwtService)
-	articlesService := articlesservice.New(db)
 
-	gwMux := runtime.NewServeMux()
+	handler := httpHandler(web.Handler(), jwtService)
+	grpcServer := grpcServer(db, emailClient, jwtService, domain)
+	grpcWebServer := grpcweb.WrapServer(grpcServer, grpcweb.WithAllowedRequestHeaders([]string{"Set-Cookie"}))
 
-	users.RegisterUsersServiceHandlerClient(
-		ctx,
-		gwMux,
-		usersservice.NewProxyClient(usersService),
-	)
-	codes.RegisterCodesServiceHandlerClient(
-		ctx,
-		gwMux,
-		codesservice.NewProxyClient(codesService),
-	)
-	articles.RegisterArticlesServiceHandlerClient(
-		ctx,
-		gwMux,
-		articlesservice.NewProxyClient(articlesService),
-	)
+	grpcWebHandler := http.Handler(grpcWebServer)
+	grpcWebHandler = withCompression(grpcWebHandler)
 
-	mux := http.NewServeMux()
-	mux.Handle("/api/", authorize(gwMux, jwtService))
-	mux.Handle("/logout", removeCookie())
-	mux.Handle("/", homepageRedirect(web.Handler(), jwtService))
+	grpcWebProxyHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !grpcWebServer.IsGrpcWebRequest(r) {
+			handler.ServeHTTP(w, r)
+			return
+		}
 
-	handler := http.Handler(mux)
-	handler = withCompression(handler)
-	handler = withAccessLogs(handler)
+		grpcWebHandler.ServeHTTP(w, r)
+	})
 
 	srv := &Server{
 		httpServer: &http.Server{
-			Handler: handler,
+			Handler: grpcWebProxyHandler,
 		},
 	}
 	if err := http2.ConfigureServer(srv.httpServer, nil); err != nil {

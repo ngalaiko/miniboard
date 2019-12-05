@@ -2,25 +2,16 @@ syntax = "proto3";
 
 package app.miniboard.users.v1;
 
-import "google/api/annotations.proto";
-
 option go_package = "users";
 
 service UsersService {
-    // Get user
+    // Get me
     //
-    // An endpoint to get an existing user.
-    rpc GetUser(GetUserRequest) returns (User) {
-        option (google.api.http) = {
-            get: "/api/v1/{name=users/*}"
-        };
-    }
+    // Returns logged in user.
+    rpc GetMe(GetMeRequest) returns (User) {}
 }
 
-message GetUserRequest {
-    // Name of the user resource to return.
-    string name = 1;
-}
+message GetMeRequest {}
 
 message User {
     // Name of the resource, for example "users/user1".

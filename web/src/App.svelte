@@ -1,48 +1,62 @@
 <script>
     import Articles  from './components/articles/Articles.svelte'
     import NotFound from './components/notfound/NotFound.svelte'
-    import { Client } from './client/Client.svelte'
+    import { Articles as ArticlesClient } from './client/articles/Articles.svelte'
+    import { Codes as CodesClient } from './client/codes/Codes.svelte'
+    import { Users } from './client/users/Users.svelte'
+    import { Tokens } from './client/tokens/Tokens.svelte'
     import navaid from 'navaid'
     import LoginForm from './components/loginform/LoginForm.svelte'
     import Reader from './components/reader/Reader.svelte'
+    import Codes from './components/codes/Codes.svelte'
 
-    let apiClient
+    const apiUrl = 'http://localhost:8080'
+
     let router = navaid()
     let component
     let props
 
-    let clientPromise = Client(router).then(client => {
-        apiClient = client
+    const users = Users(apiUrl)
+    const articles = ArticlesClient(apiUrl)
+    const codes = CodesClient(apiUrl)
+    const tokens = Tokens(apiUrl)
 
-        router
-            .on('/', () => {
-                component = LoginForm
-                props = {
-                    codes: client.codes,
-                    users: client.users,
-                    router: router,
-                }
-            })
-            .on('/users/:username', () => {
-                component = Articles
-                props = {
-                    api: client.api,
-                    articles: client.articles,
-                    router: router,
-                }
-            })
-            .on('/users/:username/articles/:articleid', (params) => {
-                component = Reader
-                props = {
-                    articles: client.articles,
-                    name: `users/${params.username}/articles/${params.articleid}`,
-                }
-            })
-            .on('*', () => {
-                component = NotFound
-            })
-            .listen()
-    })
+    router
+        .on('/', () => {
+            component = LoginForm
+            props = {
+                codes: codes,
+                users: users,
+                router: router,
+            }
+        })
+        .on('/codes/:code', (params) => {
+            component = Codes
+            props = {
+                tokens: tokens,
+                code: params.code,
+                router: router,
+            }
+        })
+        .on('/users/:id', (params) => {
+            component = Articles
+            props = {
+                user: `users/${params.id}`,
+                articles: articles,
+                router: router,
+            }
+        })
+        .on('/users/:id/articles/:articleid', (params) => {
+            component = Reader
+            props = {
+                articles: articles,
+                name: `users/${params.id}/articles/${params.articleid}`,
+            }
+        })
+        .on('*', () => {
+            component = NotFound
+        })
+        .listen()
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -53,19 +67,19 @@
             })
         })
     }
+
+    if (location.pathname == "/") {
+        users.me()
+            .then(user => router.route(`/${user.getName()}`))
+            .catch(e => { /* ignore */ })
+    }
 </script>
 
 <div class="app">
-    {#await clientPromise}
-        loading...
-    {:then}
-        <svelte:component
-            this={component}
-            {...props}
-        />
-    {:catch e}
-        {e}
-    {/await}
+    <svelte:component
+        this={component}
+        {...props}
+    />
 </div>
 
 <style>

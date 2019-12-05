@@ -4,56 +4,37 @@
 
     const dispatch = createEventDispatcher()
 
-    export let articles
     export let router
+    export let article
 
-    export let name
-    export let url
-    export let title
-    export let site_name
-    export let create_time
-    export let is_read
-    export let is_favorite
-
-    const onDeleted = async () => {
-        await articles.delete(name)
-        dispatch('deleted', name)
-    }
+    const onDeleted = async () => dispatch('deleted', article.getName())
 
     const onRead = async (isRead) => {
-        let updated = await articles.update({
-            name: name,
-            is_read: isRead
-        }, 'is_read')
-        is_read = isRead
-        dispatch('updated', updated)
+        article.setIsRead(isRead)
+        dispatch('updated', article)
     }
 
     const onStarred = async (isStarred) => {
-        let updated = await articles.update({
-            name: name,
-            is_favorite: isStarred
-        }, 'is_favorite')
-        is_favorite = isStarred
-        dispatch('updated', updated)
+        article.setIsFavorite(isStarred)
+        dispatch('updated', article)
     }
 
     const onClick = async () => {
         onRead(true)
-        router.route(`/${name}`)
+        router.route(`/${article.getName()}`)
     }
 </script>
 
-<div class='article' class:opacity={is_read}>
-    <span class='title' on:click|preventDefault={onClick}>{title}</span>
+<div class='article' class:opacity={article.getIsRead()}>
+    <span class='title' on:click|preventDefault={onClick}>{article.getTitle()}</span>
     <ul class='article-info'>
-        {#if site_name !== undefined}
-        <li><a class='link padding' href={url}>{site_name}</a></li>
+        {#if article.getSiteName() !== ''}
+        <li><a class='link padding' href={article.getUrl()}>{article.getSiteName()}</a></li>
         {:else}
-        <li><a class='link padding' href={url}>original</a></li>
+        <li><a class='link padding' href={article.getUrl()}>source</a></li>
         {/if}
-        <li class='separator flex'><TimeAgo date={create_time}/></li>
-        {#if is_favorite}
+        <li class='separator flex'><TimeAgo date={article.getCreateTime().getSeconds()}/></li>
+        {#if article.getIsFavorite()}
             <li class='separator'>
                 <button on:click|preventDefault={() => onStarred(false)}><b>star</b></button>
             </li>
@@ -62,7 +43,7 @@
                 <button on:click|preventDefault={() => onStarred(true)}>star</button>
             </li>
         {/if}
-        {#if is_read}
+        {#if article.getIsRead()}
             <li class='separator'>
                 <button on:click|preventDefault={() => onRead(false)}>unread</button>
             </li>

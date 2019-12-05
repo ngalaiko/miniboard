@@ -14,8 +14,14 @@ type compressedResponseWriter struct {
 	http.ResponseWriter
 }
 
-func (w compressedResponseWriter) Write(b []byte) (int, error) {
+func (w *compressedResponseWriter) Write(b []byte) (int, error) {
 	return w.Writer.Write(b)
+}
+
+func (w *compressedResponseWriter) Flush() {
+	if fw, ok := w.Writer.(http.Flusher); ok {
+		fw.Flush()
+	}
 }
 
 func withCompression(h http.Handler) http.Handler {
@@ -25,13 +31,13 @@ func withCompression(h http.Handler) http.Handler {
 			w.Header().Set("Content-Encoding", "br")
 			br := brotli.NewWriter(w)
 			defer br.Close()
-			crw := compressedResponseWriter{Writer: br, ResponseWriter: w}
+			crw := &compressedResponseWriter{Writer: br, ResponseWriter: w}
 			h.ServeHTTP(crw, r)
 		case strings.Contains(r.Header.Get("Accept-Encoding"), "gzip"):
 			w.Header().Set("Content-Encoding", "gzip")
 			gz := gzip.NewWriter(w)
 			defer gz.Close()
-			crw := compressedResponseWriter{Writer: gz, ResponseWriter: w}
+			crw := &compressedResponseWriter{Writer: gz, ResponseWriter: w}
 			h.ServeHTTP(crw, r)
 		default:
 			h.ServeHTTP(w, r)

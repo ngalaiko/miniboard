@@ -1,9 +1,14 @@
 <script context='module'>
-    export const Users = (api) => {
+    import proto from './users_service_grpc_web_pb.js'
+
+    export const Users = (apiUrl) => {
         let $ = {}
 
-        $.get = async (name) => {
-            return await api.get(`/api/v1/${name}`)
+        const client = new proto.UsersServicePromiseClient(apiUrl)
+
+        $.me = async () => {
+            const request = new proto.GetMeRequest()
+            return await client.getMe(request)
         }
 
         return $

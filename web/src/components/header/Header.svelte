@@ -10,11 +10,10 @@
 
     const dispatch = createEventDispatcher()
 
-    export let api
     export let router
 
-    function onLogout() {
-        api.logout()
+    const onLogout = async () => {
+        await fetch("/logout")
         router.route('/')
     }
 

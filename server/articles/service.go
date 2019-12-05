@@ -13,8 +13,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"miniboard.app/api/actor"
 	"miniboard.app/proto/users/articles/v1"
 	"miniboard.app/reader"
 	"miniboard.app/reader/http"
@@ -41,11 +42,15 @@ func New(storage storage.Storage) *Service {
 func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticlesRequest) (*articles.ListArticlesResponse, error) {
 	lookFor := resource.ParseName(request.Parent).Child("articles", "*")
 
+	if !actor.Owns(ctx, lookFor) {
+		return nil, grpc.Errorf(codes.PermissionDenied, "forbidden")
+	}
+
 	var from *resource.Name
 	if request.PageToken != "" {
 		decoded, err := base64.StdEncoding.DecodeString(request.PageToken)
 		if err != nil {
-			return nil, status.New(codes.InvalidArgument, "invalid page token").Err()
+			return nil, grpc.Errorf(codes.InvalidArgument, "invalid page token")
 		}
 		from = resource.ParseName(string(decoded))
 	}
@@ -58,7 +63,7 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 
 		a := &articles.Article{}
 		if err := proto.Unmarshal(r.Data, a); err != nil {
-			return false, status.New(codes.Internal, "failed to unmarshal article").Err()
+			return false, grpc.Errorf(codes.Internal, "failed to unmarshal article")
 		}
 
 		if request.IsRead != nil && a.IsRead != request.IsRead.GetValue() {
@@ -102,7 +107,7 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 		}, nil
 	default:
 		log("articles.list").Error(err)
-		return nil, status.New(codes.Internal, "failed to list articles").Err()
+		return nil, grpc.Errorf(codes.Internal, "failed to list articles")
 	}
 }
 
@@ -111,15 +116,19 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 	now := time.Now()
 
 	if request.Article.Url == "" {
-		return nil, status.New(codes.InvalidArgument, "url is empty").Err()
+		return nil, grpc.Errorf(codes.InvalidArgument, "url is empty")
 	}
 
 	articleURL, err := url.ParseRequestURI(request.Article.Url)
 	if err != nil {
-		return nil, status.New(codes.InvalidArgument, "url is invalid").Err()
+		return nil, grpc.Errorf(codes.InvalidArgument, "url is invalid")
 	}
 
 	name := resource.ParseName(request.Parent).Child("articles", ksuid.New().String())
+
+	if !actor.Owns(ctx, name) {
+		return nil, grpc.Errorf(codes.PermissionDenied, "forbidden")
+	}
 
 	r, err := s.newReader(articleURL)
 	var content []byte
@@ -132,7 +141,7 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 		content = r.Content()
 		if content != nil {
 			if err := s.storage.Store(ctx, resource.NewName("content", name.ID()), content); err != nil {
-				return nil, status.New(codes.Internal, "failed to store the article content").Err()
+				return nil, grpc.Errorf(codes.Internal, "failed to store the article content")
 			}
 		}
 	}
@@ -144,11 +153,11 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 
 	rawArticle, err := proto.Marshal(request.Article)
 	if err != nil {
-		return nil, status.New(codes.Internal, "failed to marshal the article").Err()
+		return nil, grpc.Errorf(codes.Internal, "failed to marshal the article")
 	}
 
 	if err := s.storage.Store(ctx, name, rawArticle); err != nil {
-		return nil, status.New(codes.Internal, "failed to store the article").Err()
+		return nil, grpc.Errorf(codes.Internal, "failed to store the article")
 	}
 
 	request.Article.Content = content
@@ -158,6 +167,10 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 // UpdateArticle updates the article.
 func (s *Service) UpdateArticle(ctx context.Context, request *articles.UpdateArticleRequest) (*articles.Article, error) {
 	name := resource.ParseName(request.Article.Name)
+
+	if !actor.Owns(ctx, name) {
+		return nil, grpc.Errorf(codes.PermissionDenied, "forbidden")
+	}
 
 	article, err := s.getArticle(ctx, name)
 	if err != nil {
@@ -190,11 +203,11 @@ func (s *Service) UpdateArticle(ctx context.Context, request *articles.UpdateArt
 
 	rawArticle, err := proto.Marshal(article)
 	if err != nil {
-		return nil, status.New(codes.Internal, "failed to marshal the article").Err()
+		return nil, grpc.Errorf(codes.Internal, "failed to marshal the article")
 	}
 
 	if err := s.storage.Update(ctx, name, rawArticle); err != nil {
-		return nil, status.New(codes.Internal, "failed to store the article").Err()
+		return nil, grpc.Errorf(codes.Internal, "failed to store the article")
 	}
 
 	return article, nil
@@ -203,6 +216,11 @@ func (s *Service) UpdateArticle(ctx context.Context, request *articles.UpdateArt
 // GetArticle returns an article.
 func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRequest) (*articles.Article, error) {
 	name := resource.ParseName(request.Name)
+
+	if !actor.Owns(ctx, name) {
+		return nil, grpc.Errorf(codes.PermissionDenied, "forbidden")
+	}
+
 	article, err := s.getArticle(ctx, name)
 	if err != nil {
 		return nil, err
@@ -217,7 +235,7 @@ func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRe
 	case storage.ErrNotFound:
 		return article, nil
 	default:
-		return nil, status.New(codes.Internal, "failed to load the article's content").Err()
+		return nil, grpc.Errorf(codes.Internal, "failed to load the article's content")
 	}
 
 	return article, nil
@@ -228,14 +246,14 @@ func (s *Service) getArticle(ctx context.Context, name *resource.Name) (*article
 	switch errors.Cause(err) {
 	case nil:
 	case storage.ErrNotFound:
-		return nil, status.New(codes.NotFound, "not found").Err()
+		return nil, grpc.Errorf(codes.NotFound, "not found")
 	default:
-		return nil, status.New(codes.Internal, "failed to load the article").Err()
+		return nil, grpc.Errorf(codes.Internal, "failed to load the article")
 	}
 
 	article := &articles.Article{}
 	if err := proto.Unmarshal(raw, article); err != nil {
-		return nil, status.New(codes.Internal, "failed to unmarshal the article").Err()
+		return nil, grpc.Errorf(codes.Internal, "failed to unmarshal the article")
 	}
 
 	return article, nil
@@ -245,8 +263,12 @@ func (s *Service) getArticle(ctx context.Context, name *resource.Name) (*article
 func (s *Service) DeleteArticle(ctx context.Context, request *articles.DeleteArticleRequest) (*empty.Empty, error) {
 	name := resource.ParseName(request.Name)
 
+	if !actor.Owns(ctx, name) {
+		return nil, grpc.Errorf(codes.PermissionDenied, "forbidden")
+	}
+
 	if err := s.storage.Delete(ctx, name); err != nil {
-		return nil, status.New(codes.Internal, "failed to delete the article").Err()
+		return nil, grpc.Errorf(codes.Internal, "failed to delete the article")
 	}
 
 	return &empty.Empty{}, nil

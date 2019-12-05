@@ -1,32 +1,32 @@
 <script>
-  export let date
+    export let date
 
-  function timeAgo() {
-    let seconds = ~~((Date.now() - new Date(date)) / 1000)
-    let minutes = ~~(seconds / 60)
-    if (minutes == 0) {
-      return `${seconds}s ago`
+    const timeAgo = () =>  {
+        let seconds = ~~((Date.now() - new Date(0).setUTCSeconds(date)) / 1000)
+        let minutes = ~~(seconds / 60)
+        if (minutes == 0) {
+            return `${seconds}s ago`
+        }
+        let hours = ~~(minutes / 60)
+        if (hours == 0) {
+            return `${minutes}m ago`
+        }
+        let days = ~~(hours / 24)
+        if (days == 0) {
+            return `${hours}h ago`
+        }
+        let weeks = ~~(days / 7)
+        if (weeks == 0) {
+            return `${days}d ago`
+        }
+        return `${weeks}w ago`
     }
-    let hours = ~~(minutes / 60)
-    if (hours == 0) {
-      return `${minutes}m ago`
-    }
-    let days = ~~(hours / 24)
-    if (days == 0) {
-      return `${hours}h ago`
-    }
-    let weeks = ~~(days / 7)
-    if (weeks == 0) {
-      return `${days}d ago`
-    }
-    return `${weeks}w ago`
-  }
 
-  let ago = timeAgo()
+    let ago = timeAgo()
 
-  let intervalID = window.setInterval(() => {
-    ago = timeAgo()
-  }, 1000)
+    let intervalID = window.setInterval(() => {
+        ago = timeAgo()
+    }, 1000)
 </script>
 
 <div>

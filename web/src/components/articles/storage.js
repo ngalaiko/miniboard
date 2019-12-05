@@ -8,20 +8,23 @@ export const storage = () => {
     $.add = async (article) => {
         articlesListStore.update(list => {
             for (let i in list) {
-                if (list[i].name == article.name) return list
+                if (list[i].getName() == article.getName()) return list
             }
             return [article].concat(list).sort((a, b) => {
-                return new Date(a.create_time) < new Date(b.create_time) ? 1 : -1
+                const d1 = new Date(0).setUTCSeconds(a.getCreateTime())
+                const d2 = new Date(0).setUTCSeconds(b.getCreateTime())
+                return d1 < d2 ? 1 : -1
             })
         })
     }
     $.delete = async (name) => {
-        articlesListStore.update(list => list.filter(a => a.name != name))
+        articlesListStore.update(list => list.filter(a => a.getName() != name))
     }
+
     $.update = async (updated) => {
         articlesListStore.update(list => {
             for (let i in list) {
-                if (list[i].name == updated.name) {
+                if (list[i].getName() == updated.getName()) {
                     list[i] = updated
                     break
                 }
@@ -31,15 +34,15 @@ export const storage = () => {
     }
 
     let from = ''
-    $.loadMoreArticles = async (articles, pageSize, isRead) => {
+    $.loadMoreArticles = async (user, articles, pageSize, params) => {
         if (from === undefined) return []
 
-        let resp = await articles.next(pageSize, from, isRead)
+        let resp = await articles.next(user, pageSize, from, params)
 
-        if (resp.articles.length == 0) return 
+        if (resp.getArticlesList().length == 0) return 
 
-        from = resp.next_page_token
-        articlesListStore.update(list => list.concat(resp.articles))
+        from = resp.getNextPageToken()
+        resp.getArticlesList().forEach(article => $.add(article))
     }
 
     $.store = articlesListStore
