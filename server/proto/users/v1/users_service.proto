@@ -5,20 +5,10 @@ package app.miniboard.users.v1;
 option go_package = "users";
 
 service UsersService {
-    // Get user
-    //
-    // An endpoint to get an existing user.
-    rpc GetUser(GetUserRequest) returns (User) {}
-
     // Get me
     //
     // Returns logged in user.
     rpc GetMe(GetMeRequest) returns (User) {}
-}
-
-message GetUserRequest {
-    // Name of the user resource to return.
-    string name = 1;
 }
 
 message GetMeRequest {}

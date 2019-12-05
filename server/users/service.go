@@ -2,8 +2,10 @@ package users
 
 import (
 	"context"
-	"fmt"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"miniboard.app/api/actor"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
 )
@@ -20,21 +22,16 @@ func New(db storage.Storage) *Service {
 	}
 }
 
-// GetUser returns a user if it exists.
-func (s *Service) GetUser(
-	ctx context.Context,
-	request *users.GetUserRequest,
-) (*users.User, error) {
-	return &users.User{
-		Name: request.Name,
-	}, nil
-}
-
-// GetMe returns a user if it exists.
+// GetMe returns authenticated user.
 func (s *Service) GetMe(
 	ctx context.Context,
 	request *users.GetMeRequest,
 ) (*users.User, error) {
-	fmt.Printf("\nnikitag: %+v\n\n", ctx)
-	return &users.User{}, nil
+	actor, ok := actor.FromContext(ctx)
+	if !ok {
+		return nil, grpc.Errorf(codes.NotFound, "not authenticated")
+	}
+	return &users.User{
+		Name: actor.String(),
+	}, nil
 }

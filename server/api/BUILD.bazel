@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 go_library(
     name = "go_default_library",
@@ -12,6 +12,7 @@ go_library(
     importpath = "miniboard.app/api",
     visibility = ["//visibility:public"],
     deps = [
+        "//server/api/actor:go_default_library",
         "//server/articles:go_default_library",
         "//server/codes:go_default_library",
         "//server/email:go_default_library",
@@ -37,20 +38,5 @@ go_library(
         "@org_golang_google_grpc//metadata:go_default_library",
         "@org_golang_google_grpc//status:go_default_library",
         "@org_golang_x_net//http2:go_default_library",
-    ],
-)
-
-go_test(
-    name = "go_default_test",
-    srcs = ["server_test.go"],
-    embed = [":go_default_library"],
-    deps = [
-        "//server/email/mock:go_default_library",
-        "//server/proto/users/articles/v1:go_default_library",
-        "//server/proto/users/v1:go_default_library",
-        "//server/storage:go_default_library",
-        "//server/storage/bolt:go_default_library",
-        "@com_github_golang_protobuf//jsonpb:go_default_library_gen",
-        "@com_github_stretchr_testify//assert:go_default_library",
     ],
 )

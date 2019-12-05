@@ -69,6 +69,7 @@ github.com/ngalaiko/miniboard v0.0.0-20191003183307-9c8007d45a7a h1:OYTu1Mupxa5A
 github.com/ngalaiko/miniboard v0.0.0-20191019154122-1af7d7f9e7f9 h1:92jeHCIBIucQSuOfSfNyehJDtgY08kHTJWTKJUgm9ZA=
 github.com/ngalaiko/miniboard v0.0.0-20191130191301-9d614ddeba95 h1:Bop+NxoZ0KBq3qp28N3TQUEeV+z4L7PIy9fLL5u7gko=
 github.com/ngalaiko/miniboard/server v0.0.0-20190927171115-06b2c78ff2d1 h1:+RPscmYnAqQkJfypXMA437lLExKblfvNvmsop/++7xc=
+github.com/ngalaiko/miniboard/server v0.0.0-20191130191301-9d614ddeba95 h1:FgzNEXO1q9WESq7sguXf4l30/dw7QfjwD50nVQQwZ9E=
 github.com/opentracing/opentracing-go v1.1.0/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=

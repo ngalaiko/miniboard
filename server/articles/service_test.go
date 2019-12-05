@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"miniboard.app/api/actor"
 	"miniboard.app/proto/users/articles/v1"
 	"miniboard.app/reader/mock"
 	"miniboard.app/storage"
@@ -27,6 +28,7 @@ func Test_articles(t *testing.T) {
 		service.newReader = mock.New
 
 		t.Run("When creating an article with invalid url", func(t *testing.T) {
+			ctx = actor.NewContext(ctx, resource.NewName("users", "test"))
 			resp, err := service.CreateArticle(ctx, &articles.CreateArticleRequest{
 				Parent: resource.NewName("users", "test").String(),
 				Article: &articles.Article{
@@ -43,6 +45,7 @@ func Test_articles(t *testing.T) {
 		})
 
 		t.Run("When creating an article", func(t *testing.T) {
+			ctx = actor.NewContext(ctx, resource.NewName("users", "test"))
 			resp, err := service.CreateArticle(ctx, &articles.CreateArticleRequest{
 				Parent: resource.NewName("users", "test1").String(),
 				Article: &articles.Article{
@@ -105,6 +108,7 @@ func Test_articles(t *testing.T) {
 
 		t.Run("When adding a few articles", func(t *testing.T) {
 			parent := resource.NewName("users", "test")
+			ctx = actor.NewContext(ctx, parent)
 			for i := 0; i < 50; i++ {
 				resp, err := service.CreateArticle(ctx, &articles.CreateArticleRequest{
 					Parent: parent.String(),

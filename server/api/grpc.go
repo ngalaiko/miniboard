@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -13,6 +12,7 @@ import (
 	_ "google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"miniboard.app/api/actor"
 	articlesservice "miniboard.app/articles"
 	codesservice "miniboard.app/codes"
 	"miniboard.app/email"
@@ -80,7 +80,7 @@ func authorize(jwtService *jwt.Service) grpc.UnaryServerInterceptor {
 				return nil, status.New(grpcCodes.PermissionDenied, "invalid auth token").Err()
 			}
 
-			fmt.Printf("\nnikitag: %+v\n\n", subject)
+			return handler(actor.NewContext(ctx, subject), req)
 		}
 
 		return nil, status.New(grpcCodes.Unauthenticated, "auth cookie missing").Err()
