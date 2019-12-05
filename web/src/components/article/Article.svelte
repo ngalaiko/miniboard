@@ -21,7 +21,7 @@
 
     const onClick = async () => {
         onRead(true)
-        router.route(`/${name}`)
+        router.route(`/${article.getName()}`)
     }
 </script>
 

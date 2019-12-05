@@ -21,6 +21,7 @@
         $.get = async (name) => {
             const request = new proto.GetArticleRequest()
                 .setName(name)
+                .setView(2)
             return await client.getArticle(request)
         }
 
