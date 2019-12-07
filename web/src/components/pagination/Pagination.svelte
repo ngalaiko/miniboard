@@ -18,7 +18,10 @@
 
     const loadMore = () => dispatch('loadmore', pageSize * 2)
 
-    onDestroy(() => unsubscribeItems())
+    onDestroy(() => {
+        unsubscribeItems()
+        window.onscroll = () => {}
+    })
 
     onMount(() => loadMore())
 
