@@ -5,9 +5,11 @@
     document.title = "Miniboard"
 
     let email = ''
-    let error = ''
 
-    let showCode = ''
+    const urlParams = new URLSearchParams(window.location.search)
+    let error = urlParams.get('error')
+
+    let showCode = false
     let code = ''
 
     const handleClick = async () => {
@@ -23,6 +25,9 @@
 </script>
 
 <div class='form'>
+    {#if error}
+        <div class='alert'>{error}</div>
+    {/if}
     <form>
         <input
             name='email'
@@ -31,9 +36,6 @@
             placeholder='email'
         />
         <button on:click|preventDefault={handleClick} />
-        {#if error != ''}
-            <div class='alert'>{error}</div>
-        {/if}
     </form>
     <form>
     {#if showCode}
@@ -86,5 +88,6 @@
         padding: 8px;
         border: 1px solid #fbeed5;
         overflow: auto;
+        margin: 10px;
     }
 </style>

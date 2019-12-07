@@ -19,5 +19,7 @@
         return parseJwt(token).sub
     }).then((subject) => {
         router.route(`/${subject}`)
+    }).catch(e => {
+        router.route(`/?error=${e.message}`)
     })
 </script>
