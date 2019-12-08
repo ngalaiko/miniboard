@@ -1,6 +1,6 @@
 <script>
     import { createEventDispatcher } from 'svelte'
-    import TimeAgo from '../../components/timeago/TimeAgo.svelte'
+    import TimeAgo from './timeago/TimeAgo.svelte'
 
     const dispatch = createEventDispatcher()
 

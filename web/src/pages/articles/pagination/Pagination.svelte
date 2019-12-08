@@ -1,5 +1,5 @@
 <script>
-    import PullToRefresh from '../pulltorefresh/PullToRefresh.js'
+    import PullToRefresh from './pulltorefresh/PullToRefresh.js'
     import { createEventDispatcher } from 'svelte'
     import {
         onMount,

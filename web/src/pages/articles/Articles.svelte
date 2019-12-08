@@ -13,9 +13,9 @@
 <script>
     import { onDestroy } from 'svelte'
 
-    import Article from '../article/Article.svelte'
-    import Pagination from '../pagination/Pagination.svelte'
-    import Header from '../header/Header.svelte'
+    import Article from './article/Article.svelte'
+    import Pagination from './pagination/Pagination.svelte'
+    import Header from './header/Header.svelte'
 
     import timestamp from 'google-protobuf/google/protobuf/timestamp_pb.js'
 

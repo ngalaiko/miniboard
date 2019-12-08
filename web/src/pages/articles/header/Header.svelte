@@ -3,8 +3,8 @@
     import { quintOut } from 'svelte/easing'
     import { createEventDispatcher } from 'svelte'
 
-    import Add from '../../icons/Add.svelte'
-    import Logout from '../../icons/Logout.svelte'
+    import Add from '../../../icons/Add.svelte'
+    import Logout from '../../../icons/Logout.svelte'
 
     import Navigation from './navigation/Navigation.svelte'
 

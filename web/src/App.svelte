@@ -1,14 +1,16 @@
 <script>
-    import Articles  from './components/articles/Articles.svelte'
-    import NotFound from './components/notfound/NotFound.svelte'
+    import Articles  from './pages/articles/Articles.svelte'
+    import Codes from './pages/codes/Codes.svelte'
+    import Login from './pages/login/Login.svelte'
+    import NotFound from './pages/notfound/NotFound.svelte'
+    import Reader from './pages/reader/Reader.svelte'
+
     import { Articles as ArticlesClient } from './client/articles/Articles.svelte'
     import { Codes as CodesClient } from './client/codes/Codes.svelte'
     import { Users } from './client/users/Users.svelte'
     import { Tokens } from './client/tokens/Tokens.svelte'
+
     import navaid from 'navaid'
-    import LoginForm from './components/loginform/LoginForm.svelte'
-    import Reader from './components/reader/Reader.svelte'
-    import Codes from './components/codes/Codes.svelte'
 
     const apiUrl = '__API_URL__'
 
@@ -23,7 +25,7 @@
 
     router
         .on('/', () => {
-            component = LoginForm
+            component = Login
             props = {
                 codes: codes,
                 users: users,

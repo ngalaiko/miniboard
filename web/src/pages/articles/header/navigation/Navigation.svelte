@@ -10,9 +10,9 @@
 
     const dispatch = createEventDispatcher()
 
-    import BookOpen from '../../../icons/BookOpen.svelte'
-    import List from '../../../icons/List.svelte'
-    import Star from '../../../icons/Star.svelte'
+    import BookOpen from '../../../../icons/BookOpen.svelte'
+    import List from '../../../../icons/List.svelte'
+    import Star from '../../../../icons/Star.svelte'
 
     let selectedPane
     const unsubscribe = selectedPaneStore.subscribe(value => {
@@ -92,7 +92,6 @@
         border-bottom: 1px solid black;
         border-right: 1px solid black;
     }
-
 
     button {
         margin: 0px;
