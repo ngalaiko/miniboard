@@ -1,7 +1,10 @@
 <script>
+    import PullToRefresh from '../pulltorefresh/PullToRefresh.js'
     import { createEventDispatcher } from 'svelte'
-    import { onDestroy } from 'svelte'
-    import { onMount } from 'svelte'
+    import {
+        onMount,
+        onDestroy,
+    } from 'svelte'
 
     const dispatch = createEventDispatcher()
 
@@ -18,12 +21,22 @@
 
     const loadMore = () => dispatch('loadmore', pageSize * 2)
 
+    const ptr = PullToRefresh()
+    ptr.mainElement = '#list'
+    ptr.shouldPullToRefresh = () => {
+        return document.querySelector('#list').scrollTop === 0
+    }
+
     onDestroy(() => {
+        ptr.destroy()
         unsubscribeItems()
         window.onscroll = () => {}
     })
 
-    onMount(() => loadMore())
+    onMount(() => {
+        loadMore()
+        ptr.init()
+    })
 
     const isBottom = () => {
         return (window.innerHeight + window.scrollY) >= document.body.offsetHeight
@@ -37,24 +50,24 @@
     }
 </script>
 
-<div class='page'>
-    <div class='list'>
+<div id='page'>
+    <div id='list'>
         {#each items as item, i (item.getName()) }
-			<slot
-				item={item} 
-			/>
+            <slot
+                item={item}
+            />
         {/each}
     </div>
 </div>
 
 <style>
-    .page {
+    #page {
         display: flex;
         flex-direction: column;
         height: 95%;
     }
 
-    .list {
+    #list {
         overflow-y: scroll;
     }
 

@@ -22,6 +22,7 @@ rollup_bundle(
         "@npm//rollup-plugin-node-resolve",
         "@npm//rollup-plugin-commonjs",
         "@npm//rollup-plugin-terser",
+        "@npm//pulltorefreshjs",
     ],
     output_dir = True,
     visibility = ["//visibility:public"],
