@@ -93,4 +93,8 @@
         max-width: 800px;
         margin: auto;
     }
+
+    :global(body) {
+        margin: 0px;
+    }
 </style>
