@@ -1,9 +1,7 @@
 name: CI
 
 on:
-  push:
-    branches:
-    - master
+  push: {}
 
 jobs:
   build:
@@ -11,13 +9,25 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    
+
+    - name: Mount bazel cache
+      uses: actions/cache@v1
+      with:
+        path: "/home/runner/.cache/bazel"
+        key: bazel
+
+    - name: Install bazelisk
+      run: |
+        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.1.0/bazelisk-linux-amd64"
+        mkdir -p "${GITHUB_WORKSPACE}/bin/"
+        mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazel"
+        chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
+
     - name: Run Tests
-      uses: ngalaiko/bazel-action/1.1.0@master
       env:
         API_URL: https://miniboard.galaiko.rocks
-      with:
-        args: test //...
+      run: |
+        "${GITHUB_WORKSPACE}/bin/bazel" test //...
 
     - name: Login to registry
       env:
@@ -33,11 +43,11 @@ jobs:
         cp /home/runner/.docker/config.json ${DOCKER_HOME}/.docker/config.json
 
     - name: Push image
-      uses: ngalaiko/bazel-action/1.1.0@master
       env:
         API_URL: https://miniboard.galaiko.rocks
-      with:
-        args: run --platforms=@io_bazel_rules_go//go/toolchain:linux_arm :docker_push
+      run: |
+        "${GITHUB_WORKSPACE}/bin/bazel" run \
+          --platforms=@io_bazel_rules_go//go/toolchain:linux_arm :docker_push
 
     - name: Install Helm
       uses: azure/setup-helm@v1
