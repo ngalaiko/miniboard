@@ -1,0 +1,17 @@
+load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
+
+rollup_bundle(
+    name = "service_worker",
+    format = "iife",
+    sourcemap = "false",
+    config_file = "rollup.config.js",
+    srcs = ["src/service_worker.js"],
+    entry_points = {
+        "src/service_worker.js": "service_worker",
+    },
+    deps = [
+        "@npm//@rollup/plugin-replace",
+        "@npm//rollup-plugin-terser",
+    ],
+    visibility = ["//visibility:public"],
+)

@@ -1,0 +1,25 @@
+load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
+
+rollup_bundle(
+    name = "app",
+    format = "iife",
+    sourcemap = "false",
+    config_file = "rollup.config.js",
+    srcs = glob(["src/**/*"]),
+    entry_point = "src/main.js",
+    deps = [
+        "@npm//svelte",
+        "@npm//navaid",
+        "@npm//grpc-web",
+        "@npm//google-protobuf",
+        "@npm//rollup-plugin-svelte",
+        "@npm//@rollup/plugin-replace",
+        "@npm//rollup-plugin-node-resolve",
+        "@npm//rollup-plugin-commonjs",
+        "@npm//rollup-plugin-terser",
+        "@npm//pulltorefreshjs",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+exports_files(["index.html"])
