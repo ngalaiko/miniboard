@@ -2,7 +2,7 @@
 bolt.db
 
 # bazel
-bazel-*
+bazel*
 
 # generated proto files
 *.pb.go

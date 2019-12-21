@@ -1,13 +1,15 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
-load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
-
-# gazelle:exclude users_service.pb.gw.go
+# Protobuf
 
 proto_library(
     name = "users_proto",
     srcs = ["users_service.proto"],
     visibility = ["//visibility:public"],
 )
+
+# Golang
+
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
 
 go_proto_library(
     name = "users_go_proto",
@@ -23,5 +25,23 @@ go_library(
     name = "go_default_library",
     embed = [":users_go_proto"],
     importpath = "miniboard.app/proto/users/v1",
+    visibility = ["//visibility:public"],
+)
+
+# gRPC-Web
+
+load("@rules_proto_grpc//github.com/grpc/grpc-web:defs.bzl", "commonjs_grpc_compile")
+
+commonjs_grpc_compile(
+    name = "users_grpc_web",
+    deps = [":users_proto"],
+    visibility = ["//visibility:public"],
+)
+
+load("@rules_proto_grpc//nodejs:defs.bzl", "nodejs_proto_compile")
+
+nodejs_proto_compile(
+    name = "users_commonjs_proto",
+    deps = [":users_proto"],
     visibility = ["//visibility:public"],
 )

@@ -8,16 +8,29 @@ rollup_bundle(
     srcs = glob(["src/**/*"]),
     entry_point = "src/main.js",
     deps = [
-        "@npm//svelte",
+        # runtime
+        "//server/proto/codes/v1:codes_grpc_web",
+        "//server/proto/codes/v1:codes_commonjs_proto",
+        "//server/proto/tokens/v1:tokens_grpc_web",
+        "//server/proto/tokens/v1:tokens_commonjs_proto",
+        "//server/proto/users/v1:users_grpc_web",
+        "//server/proto/users/v1:users_commonjs_proto",
+        "//server/proto/users/articles/v1:articles_grpc_web",
+        "//server/proto/users/articles/v1:articles_commonjs_proto",
+
         "@npm//navaid",
         "@npm//grpc-web",
         "@npm//google-protobuf",
+        "@npm//pulltorefreshjs",
+
+        # compile
+        "@npm//svelte",
+        "@npm//glob",
         "@npm//rollup-plugin-svelte",
         "@npm//@rollup/plugin-replace",
         "@npm//rollup-plugin-node-resolve",
         "@npm//rollup-plugin-commonjs",
         "@npm//rollup-plugin-terser",
-        "@npm//pulltorefreshjs",
     ],
     visibility = ["//visibility:public"],
 )

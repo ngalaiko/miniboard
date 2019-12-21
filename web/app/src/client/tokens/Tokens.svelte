@@ -8,7 +8,7 @@
 
         $.exchangeCode = async (code) => {
             const request = new proto.CreateTokenRequest()
-                .setCode(code)
+            request.setCode(code)
             return await client.createToken(request)
         }
 

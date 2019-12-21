@@ -8,7 +8,7 @@
 
         $.sendCode = async (email) => {
             const request = new proto.CreateCodeRequest()
-                .setEmail(email)
+            request.setEmail(email)
             return await client.createCode(request)
         }
 

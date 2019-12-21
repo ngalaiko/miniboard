@@ -26,13 +26,16 @@
     export let pane
 
     const onAdded = async (user, url) => {
-        let mock = new articles.proto.Article()
-            .setUrl(url)
-            .setTitle(url)
-            .setIsRead(false)
-            .setIsFavorite(false)
-            .setCreateTime(new timestamp.Timestamp().setSeconds(new Date() / 1000))
-            .setName(Math.random())
+        const ts = new timestamp.Timestamp()
+        ts.setSeconds(new Date() / 1000)
+
+        const mock = new articles.proto.Article()
+        mock.setUrl(url)
+        mock.setTitle(url)
+        mock.setIsRead(false)
+        mock.setIsFavorite(false)
+        mock.setCreateTime(ts)
+        mock.setName(Math.random())
 
         allStorage.add(mock)
         unreadStorage.add(mock)

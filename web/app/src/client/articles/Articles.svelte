@@ -11,37 +11,39 @@
         $.proto = proto
 
         $.add = async (user, url) => {
+            const article = new proto.Article()
+            article.setUrl(url)
+
             const request = new proto.CreateArticleRequest()
-                .setParent(user)
-                .setArticle(new proto.Article()
-                    .setUrl(url))
+            request.setParent(user)
+            request.setArticle(article)
             return await client.createArticle(request)
         }
 
         $.get = async (name) => {
             const request = new proto.GetArticleRequest()
-                .setName(name)
-                .setView(2)
+            request.setName(name)
+            request.setView(2)
             return await client.getArticle(request)
         }
 
         $.delete = async (name) => {
             const request = new proto.DeleteArticleRequest()
-                .setName(name)
+            request.setName(name)
             return await client.deleteArticle(request)
         }
 
         $.update = async (article) => {
             const request = new proto.UpdateArticleRequest()
-                .setArticle(article)
-                .setUpdateMask(new updateMask.FieldMask().addPaths('is_read').addPaths('is_favorite'))
+            request.setArticle(article)
+            request.setUpdateMask(new updateMask.FieldMask().addPaths('is_read').addPaths('is_favorite'))
             return await client.updateArticle(request)
         }
 
         $.next = async (user, pageSize, from, params) => {
             const request = new proto.ListArticlesRequest()
-                .setParent(user)
-                .setPageSize(pageSize)
+            request.setParent(user)
+            request.setPageSize(pageSize)
             if (from) request.setPageToken(from)
             if (params) {
                 if (params.isRead !== undefined) request.setIsRead(new wrappers.BoolValue().setValue(params.isRead))
