@@ -34,14 +34,14 @@ load("@rules_proto_grpc//github.com/grpc/grpc-web:defs.bzl", "commonjs_grpc_comp
 
 commonjs_grpc_compile(
     name = "users_grpc_web",
-    deps = [":users_proto"],
     visibility = ["//visibility:public"],
+    deps = [":users_proto"],
 )
 
 load("@rules_proto_grpc//nodejs:defs.bzl", "nodejs_proto_compile")
 
 nodejs_proto_compile(
     name = "users_commonjs_proto",
-    deps = [":users_proto"],
     visibility = ["//visibility:public"],
+    deps = [":users_proto"],
 )

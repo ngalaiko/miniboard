@@ -2,11 +2,12 @@ load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 
 rollup_bundle(
     name = "app",
+    srcs = glob(["src/**/*"]),
+    config_file = "rollup.config.js",
+    entry_point = "src/main.js",
     format = "iife",
     sourcemap = "false",
-    config_file = "rollup.config.js",
-    srcs = glob(["src/**/*"]),
-    entry_point = "src/main.js",
+    visibility = ["//visibility:public"],
     deps = [
         # runtime
         "//server/proto/codes/v1:codes_grpc_web",
@@ -17,7 +18,6 @@ rollup_bundle(
         "//server/proto/users/v1:users_commonjs_proto",
         "//server/proto/users/articles/v1:articles_grpc_web",
         "//server/proto/users/articles/v1:articles_commonjs_proto",
-
         "@npm//navaid",
         "@npm//grpc-web",
         "@npm//google-protobuf",
@@ -32,7 +32,6 @@ rollup_bundle(
         "@npm//rollup-plugin-commonjs",
         "@npm//rollup-plugin-terser",
     ],
-    visibility = ["//visibility:public"],
 )
 
 exports_files(["index.html"])

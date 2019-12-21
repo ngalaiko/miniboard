@@ -40,8 +40,8 @@ load("@rules_proto_grpc//github.com/grpc/grpc-web:defs.bzl", "commonjs_dts_grpc_
 
 commonjs_dts_grpc_compile(
     name = "articles_grpc_web_dts",
-    deps = [":articles_proto"],
     visibility = ["//visibility:public"],
+    deps = [":articles_proto"],
 )
 
 genrule(
@@ -56,6 +56,6 @@ load("@rules_proto_grpc//nodejs:defs.bzl", "nodejs_proto_compile")
 
 nodejs_proto_compile(
     name = "articles_commonjs_proto",
-    deps = [":articles_proto"],
     visibility = ["//visibility:public"],
+    deps = [":articles_proto"],
 )

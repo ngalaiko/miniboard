@@ -5,9 +5,9 @@ go_library(
     srcs = ["web.go"],
     data = [
         "//web/app",
+        "//web/app:index.html",
         "//web/service_worker",
         "//web/static",
-        "//web/app:index.html",
     ],
     importpath = "miniboard.app/web",
     visibility = ["//visibility:public"],

@@ -6,7 +6,7 @@ proto_library(
     visibility = ["//visibility:public"],
 )
 
-# Golang 
+# Golang
 
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
@@ -32,14 +32,14 @@ load("@rules_proto_grpc//github.com/grpc/grpc-web:defs.bzl", "commonjs_grpc_comp
 
 commonjs_grpc_compile(
     name = "tokens_grpc_web",
-    deps = [":tokens_proto"],
     visibility = ["//visibility:public"],
+    deps = [":tokens_proto"],
 )
 
 load("@rules_proto_grpc//nodejs:defs.bzl", "nodejs_proto_compile")
 
 nodejs_proto_compile(
     name = "tokens_commonjs_proto",
-    deps = [":tokens_proto"],
     visibility = ["//visibility:public"],
+    deps = [":tokens_proto"],
 )
