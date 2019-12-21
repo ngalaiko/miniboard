@@ -1,25 +1,13 @@
 package web
 
 import (
-	"fmt"
 	"net/http"
-	"os"
-	"path/filepath"
 
 	"github.com/sirupsen/logrus"
 )
 
 // Handler returns http handler for the UI.
 func Handler() http.Handler {
-	_ = filepath.Walk("./web",
-		func(path string, info os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			fmt.Println(path, info.IsDir())
-			return nil
-		})
-
 	fileHandler := http.FileServer(&fs{
 		rootFS: http.Dir("./web"),
 	})
