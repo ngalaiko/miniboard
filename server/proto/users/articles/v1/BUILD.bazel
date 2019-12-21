@@ -48,7 +48,7 @@ genrule(
     name = "articles_grpc_web",
     srcs = [":articles_grpc_web_dts"],
     outs = ["articles_service_grpc_web_pb.js"],
-    cmd = "cat bazel-out/darwin-fastbuild/bin/server/proto/users/articles/v1/articles_grpc_web_dts/server/proto/users/articles/v1/articles_service_grpc_web_pb.js > $@",
+    cmd = "cat $(location articles_grpc_web_dts)/server/proto/users/articles/v1/articles_service_grpc_web_pb.js > $@",
     visibility = ["//visibility:public"],
 )
 
