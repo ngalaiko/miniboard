@@ -17,11 +17,11 @@
     let selectedPane
     const unsubscribe = selectedPaneStore.subscribe(value => {
         if (value == 1) {
-            document.title = "Miniboard - Starred"
+            document.title = "Starred - Miniboard"
         } else if (value == 2) {
-            document.title = "Miniboard - Unread"
+            document.title = "Unread - Miniboard"
         } else if (value = 3) {
-            document.title = "Miniboard - All"
+            document.title = "All - Miniboard"
         }
 
         selectedPane = value

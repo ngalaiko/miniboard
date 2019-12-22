@@ -6,7 +6,7 @@
     const decoder = new TextDecoder()
 
     const decode = (article) => {
-        document.title = `Miniboard - ${article.getTitle()}`
+        document.title = `${article.getTitle()} - Miniboard`
         return decoder.decode(article.getContent())
     }
 </script>
