@@ -66,8 +66,6 @@
 
         if (!updated.getIsRead()) {
             unreadStorage.add(updated)
-        } else {
-            unreadStorage.delete(updated.getName())
         }
 
         if (updated.getIsFavorite()) {
