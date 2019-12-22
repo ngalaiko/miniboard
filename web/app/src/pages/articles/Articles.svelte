@@ -25,7 +25,7 @@
     export let router
     export let pane
 
-    const onAdded = async (user, url) => {
+    const onAdded = async (url) => {
         const ts = new timestamp.Timestamp()
         ts.setSeconds(new Date() / 1000)
 
@@ -81,7 +81,7 @@
 <div class='articles'>
     <Header
         router={router}
-        on:added={(e) => onAdded(user, e.detail)}
+        on:added={(e) => onAdded(e.detail)}
         on:search={(e) => console.log('search')}
         on:selected={(e) => show(e.detail)}
     />
