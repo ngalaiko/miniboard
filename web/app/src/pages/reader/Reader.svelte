@@ -112,5 +112,6 @@
 
     #article {
         -webkit-font-smoothing: subpixel-antialiased;
+        padding: 5px;
     }
 </style>
