@@ -5,10 +5,10 @@
     import NotFound from './pages/notfound/NotFound.svelte'
     import Reader from './pages/reader/Reader.svelte'
 
-    import { Articles as ArticlesClient } from './client/articles/Articles.svelte'
-    import { Codes as CodesClient } from './client/codes/Codes.svelte'
-    import { Users } from './client/users/Users.svelte'
-    import { Tokens } from './client/tokens/Tokens.svelte'
+    import { Articles as ArticlesClient } from './clients/articles/Articles.svelte'
+    import { Codes as CodesClient } from './clients/codes/Codes.svelte'
+    import { Users } from './clients/users/Users.svelte'
+    import { Tokens } from './clients/tokens/Tokens.svelte'
 
     import navaid from 'navaid'
 
