@@ -49,8 +49,10 @@ github.com/konsorten/go-windows-terminal-sequences v1.0.1 h1:mweAR1A6xJ3oS2pRaGi
 github.com/konsorten/go-windows-terminal-sequences v1.0.1/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
 github.com/konsorten/go-windows-terminal-sequences v1.0.2 h1:DB17ag19krx9CFsz4o3enTrPXyIXCl+2iCXH/aMAp9s=
 github.com/konsorten/go-windows-terminal-sequences v1.0.2/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=
+github.com/kr/pretty v0.1.0 h1:L/CwN0zerZDmRFUapSPitk6f+Q3+0za1rQkzVuMiMFI=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
+github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/magiconair/properties v1.8.0/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
 github.com/mediocregopher/radix/v3 v3.4.0 h1:1/QCirAL+blzNcmygeOJag7fZ18jlBPq5p4Lzjv/xa4=
@@ -69,6 +71,7 @@ github.com/ngalaiko/miniboard v0.0.0-20191003183307-9c8007d45a7a h1:OYTu1Mupxa5A
 github.com/ngalaiko/miniboard v0.0.0-20191019154122-1af7d7f9e7f9 h1:92jeHCIBIucQSuOfSfNyehJDtgY08kHTJWTKJUgm9ZA=
 github.com/ngalaiko/miniboard v0.0.0-20191130191301-9d614ddeba95 h1:Bop+NxoZ0KBq3qp28N3TQUEeV+z4L7PIy9fLL5u7gko=
 github.com/ngalaiko/miniboard v0.0.0-20191205190412-be85b8aedbde h1:T1XLRm08G18S/0udnmUow72NFW3MT/DcnrPuXDJbnOI=
+github.com/ngalaiko/miniboard v0.0.0-20191223130938-8fdb5517d0f4 h1:Zd7L9dGFHTwj7MWXAKNKbytvIy0zWGJQwIuyruJS94Q=
 github.com/ngalaiko/miniboard/server v0.0.0-20190927171115-06b2c78ff2d1 h1:+RPscmYnAqQkJfypXMA437lLExKblfvNvmsop/++7xc=
 github.com/ngalaiko/miniboard/server v0.0.0-20191130191301-9d614ddeba95 h1:FgzNEXO1q9WESq7sguXf4l30/dw7QfjwD50nVQQwZ9E=
 github.com/opentracing/opentracing-go v1.1.0/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=
@@ -167,6 +170,7 @@ google.golang.org/grpc v1.19.0/go.mod h1:mqu4LbDTu4XGKhr4mRzUsmM4RtVoemTSY81AxZi
 google.golang.org/grpc v1.23.0 h1:AzbTB6ux+okLTzP8Ru1Xs41C303zdcfEht7MQnYJt5A=
 google.golang.org/grpc v1.23.0/go.mod h1:Y5yQAOtifL1yxbo5wqy6BxZv8vAUGQwXBOALyacEbxg=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 h1:qIbj1fsPNlZgppZ+VLlY7N33q108Sa+fhmuc+sWQYwY=
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/resty.v1 v1.12.0/go.mod h1:mDo4pnntr5jdWRML875a/NmxYqAlA73dVijT2AXvQQo=
 gopkg.in/square/go-jose.v2 v2.3.1 h1:SK5KegNXmKmqE342YYN2qPHEnUYeoMiXXl1poUlI+o4=
