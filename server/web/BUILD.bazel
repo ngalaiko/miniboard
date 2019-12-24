@@ -6,8 +6,8 @@ go_library(
     data = [
         "//web/app",
         "//web/app:index.html",
+        "//web/app/static",
         "//web/service_worker",
-        "//web/static",
     ],
     importpath = "miniboard.app/web",
     visibility = ["//visibility:public"],
