@@ -1,6 +1,7 @@
-package http
+package reader
 
 import (
+	"net/http"
 	"net/url"
 	"os"
 	"testing"
@@ -11,7 +12,7 @@ import (
 func Test(t *testing.T) {
 	url, _ := url.Parse("http://example.com")
 
-	r, err := NewFromReader(testData(t), url)
+	r, err := NewFromReader(&http.Client{}, testData(t), url)
 	assert.NoError(t, err)
 
 	title := r.Title()

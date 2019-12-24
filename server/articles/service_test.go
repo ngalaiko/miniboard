@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"testing"
 
@@ -13,11 +14,24 @@ import (
 	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
 	"miniboard.app/proto/users/articles/v1"
-	"miniboard.app/reader/mock"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
 	"miniboard.app/storage/resource"
 )
+
+type testClient struct{}
+
+func (tc *testClient) Get(url string) (*http.Response, error) {
+	file, err := os.Open("./testdata/test.html")
+	if err != nil {
+		return nil, err
+	}
+
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       file,
+	}, nil
+}
 
 func Test_articles(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
@@ -25,7 +39,7 @@ func Test_articles(t *testing.T) {
 
 	t.Run("With articles service", func(t *testing.T) {
 		service := New(testDB(ctx, t))
-		service.newReader = mock.New
+		service.client = &testClient{}
 
 		t.Run("When creating an article with invalid url", func(t *testing.T) {
 			ctx = actor.NewContext(ctx, resource.NewName("users", "test"))
@@ -144,7 +158,7 @@ func Test_articles(t *testing.T) {
 			t.Run("It should be possible filter for article by title", func(t *testing.T) {
 				resp, err := service.ListArticles(ctx, &articles.ListArticlesRequest{
 					Parent:   parent.String(),
-					Title:    &wrappers.StringValue{Value: "title"},
+					Title:    &wrappers.StringValue{Value: "Building"},
 					PageSize: 10,
 				})
 				assert.NoError(t, err)

@@ -9,7 +9,6 @@ go_library(
         "//server/api/actor:go_default_library",
         "//server/proto/users/articles/v1:go_default_library",
         "//server/reader:go_default_library",
-        "//server/reader/http:go_default_library",
         "//server/storage:go_default_library",
         "//server/storage/resource:go_default_library",
         "@com_github_gogo_protobuf//proto:go_default_library",
@@ -26,11 +25,11 @@ go_library(
 go_test(
     name = "go_default_test",
     srcs = ["service_test.go"],
+    data = glob(["testdata/**"]),
     embed = [":go_default_library"],
     deps = [
         "//server/api/actor:go_default_library",
         "//server/proto/users/articles/v1:go_default_library",
-        "//server/reader/mock:go_default_library",
         "//server/storage:go_default_library",
         "//server/storage/bolt:go_default_library",
         "//server/storage/resource:go_default_library",

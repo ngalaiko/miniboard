@@ -3,6 +3,7 @@ package articles
 import (
 	"context"
 	"encoding/base64"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -18,7 +19,6 @@ import (
 	"miniboard.app/api/actor"
 	"miniboard.app/proto/users/articles/v1"
 	"miniboard.app/reader"
-	"miniboard.app/reader/http"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
 )
@@ -27,14 +27,14 @@ import (
 type Service struct {
 	storage storage.Storage
 
-	newReader func(*url.URL) (reader.Reader, error)
+	client reader.GetClient
 }
 
 // New returns a new articles service instance.
 func New(storage storage.Storage) *Service {
 	return &Service{
-		storage:   storage,
-		newReader: http.New,
+		storage: storage,
+		client:  &http.Client{},
 	}
 }
 
@@ -130,7 +130,7 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 		return nil, grpc.Errorf(codes.PermissionDenied, "forbidden")
 	}
 
-	r, err := s.newReader(articleURL)
+	r, err := reader.New(s.client, articleURL)
 	var content []byte
 	switch err {
 	case nil:
