@@ -29,7 +29,7 @@ rollup_bundle(
         "@npm//rollup-plugin-svelte",
         "@npm//@rollup/plugin-replace",
         "@npm//@rollup/plugin-node-resolve",
-        "@npm//rollup-plugin-commonjs",
+        "@npm//@rollup/plugin-commonjs",
         "@npm//rollup-plugin-terser",
     ],
 )
