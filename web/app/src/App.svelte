@@ -1,5 +1,5 @@
 <script>
-    import Articles  from './pages/articles/Articles.svelte'
+    import User  from './pages/user/User.svelte'
     import Codes from './pages/codes/Codes.svelte'
     import Login from './pages/login/Login.svelte'
     import NotFound from './pages/notfound/NotFound.svelte'
@@ -41,7 +41,7 @@
             }
         })
         .on('/users/:id', (params) => {
-            component = Articles
+            component = User
             props = {
                 user: `users/${params.id}`,
                 articles: articles,
