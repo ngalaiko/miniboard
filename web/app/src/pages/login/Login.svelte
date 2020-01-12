@@ -70,6 +70,8 @@
         font-size: 1.1em;
         padding: 5px;
         padding-left: 7px;
+        -webkit-appearance: none;
+        border-radius: 0;
     }
 
     input:focus{
