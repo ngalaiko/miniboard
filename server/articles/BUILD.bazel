@@ -7,6 +7,7 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//server/api/actor:go_default_library",
+        "//server/images:go_default_library",
         "//server/proto/users/articles/v1:go_default_library",
         "//server/reader:go_default_library",
         "//server/storage:go_default_library",
@@ -29,6 +30,7 @@ go_test(
     embed = [":go_default_library"],
     deps = [
         "//server/api/actor:go_default_library",
+        "//server/images:go_default_library",
         "//server/proto/users/articles/v1:go_default_library",
         "//server/storage:go_default_library",
         "//server/storage/bolt:go_default_library",

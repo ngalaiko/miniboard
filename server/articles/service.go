@@ -17,6 +17,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"miniboard.app/api/actor"
+	"miniboard.app/images"
 	"miniboard.app/proto/users/articles/v1"
 	"miniboard.app/reader"
 	"miniboard.app/storage"
@@ -28,13 +29,15 @@ type Service struct {
 	storage storage.Storage
 
 	client reader.GetClient
+	images *images.Service
 }
 
 // New returns a new articles service instance.
-func New(storage storage.Storage) *Service {
+func New(storage storage.Storage, images *images.Service) *Service {
 	return &Service{
 		storage: storage,
 		client:  &http.Client{},
+		images:  images,
 	}
 }
 
@@ -130,7 +133,7 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 		return nil, grpc.Errorf(codes.PermissionDenied, "forbidden")
 	}
 
-	r, err := reader.New(s.client, articleURL)
+	r, err := reader.New(ctx, s.client, name, s.images, articleURL)
 	var content []byte
 	switch err {
 	case nil:

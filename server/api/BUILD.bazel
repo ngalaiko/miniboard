@@ -16,6 +16,7 @@ go_library(
         "//server/articles:go_default_library",
         "//server/codes:go_default_library",
         "//server/email:go_default_library",
+        "//server/images:go_default_library",
         "//server/jwt:go_default_library",
         "//server/proto/codes/v1:go_default_library",
         "//server/proto/tokens/v1:go_default_library",

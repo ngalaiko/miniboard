@@ -16,6 +16,7 @@ import (
 	articlesservice "miniboard.app/articles"
 	codesservice "miniboard.app/codes"
 	"miniboard.app/email"
+	"miniboard.app/images"
 	"miniboard.app/jwt"
 	"miniboard.app/proto/codes/v1"
 	"miniboard.app/proto/tokens/v1"
@@ -28,7 +29,7 @@ import (
 
 const authCookie = "auth"
 
-func grpcServer(db storage.Storage, emailClient email.Client, jwtService *jwt.Service, domain string) *grpc.Server {
+func grpcServer(db storage.Storage, emailClient email.Client, jwtService *jwt.Service, images *images.Service, domain string) *grpc.Server {
 	logrusEntry := log("grpc")
 	grpc_logrus.ReplaceGrpcLogger(logrusEntry)
 
@@ -40,7 +41,7 @@ func grpcServer(db storage.Storage, emailClient email.Client, jwtService *jwt.Se
 		),
 	)
 
-	articles.RegisterArticlesServiceServer(grpcServer, articlesservice.New(db))
+	articles.RegisterArticlesServiceServer(grpcServer, articlesservice.New(db, images))
 	users.RegisterUsersServiceServer(grpcServer, usersservice.New(db))
 	codes.RegisterCodesServiceServer(grpcServer, codesservice.New(domain, emailClient, jwtService))
 	tokens.RegisterTokensServiceServer(grpcServer, tokensservice.New(jwtService))

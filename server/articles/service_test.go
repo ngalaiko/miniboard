@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
+	"miniboard.app/images"
 	"miniboard.app/proto/users/articles/v1"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
@@ -37,8 +38,10 @@ func Test_articles(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	db := testDB(ctx, t)
+
 	t.Run("With articles service", func(t *testing.T) {
-		service := New(testDB(ctx, t))
+		service := New(db, images.New(db))
 		service.client = &testClient{}
 
 		t.Run("When creating an article with invalid url", func(t *testing.T) {

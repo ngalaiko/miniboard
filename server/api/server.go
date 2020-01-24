@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
 	"miniboard.app/email"
+	"miniboard.app/images"
 	"miniboard.app/jwt"
 	"miniboard.app/storage"
 	"miniboard.app/web"
@@ -28,9 +29,10 @@ func NewServer(
 	domain string,
 ) *Server {
 	jwtService := jwt.NewService(ctx, db)
+	images := images.New(db)
 
-	handler := httpHandler(web.Handler(), jwtService)
-	grpcServer := grpcServer(db, emailClient, jwtService, domain)
+	handler := httpHandler(web.Handler(), jwtService, images)
+	grpcServer := grpcServer(db, emailClient, jwtService, images, domain)
 	grpcWebServer := grpcweb.WrapServer(grpcServer, grpcweb.WithAllowedRequestHeaders([]string{"Set-Cookie"}))
 
 	grpcWebHandler := http.Handler(grpcWebServer)

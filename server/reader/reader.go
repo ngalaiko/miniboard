@@ -2,10 +2,9 @@ package reader
 
 import (
 	"bytes"
-	"encoding/base64"
+	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"sync"
@@ -14,6 +13,8 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
+	"miniboard.app/images"
+	"miniboard.app/storage/resource"
 )
 
 // GetClient is used to fetch article's data from the Internet.
@@ -28,7 +29,7 @@ type Reader struct {
 }
 
 // New returns new reader from a url.
-func New(client GetClient, url *url.URL) (*Reader, error) {
+func New(ctx context.Context, client GetClient, articleName *resource.Name, images *images.Service, url *url.URL) (*Reader, error) {
 	resp, err := client.Get(url.String())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fetch url")
@@ -36,12 +37,12 @@ func New(client GetClient, url *url.URL) (*Reader, error) {
 	defer func() {
 		_ = resp.Body.Close()
 	}()
-	return NewFromReader(client, resp.Body, url)
+	return NewFromReader(ctx, client, articleName, images, resp.Body, url)
 }
 
 // NewFromReader returns new reader from io.Reader.
 // URL is needed to form complete links to images.
-func NewFromReader(client GetClient, raw io.Reader, url *url.URL) (*Reader, error) {
+func NewFromReader(ctx context.Context, client GetClient, articleName *resource.Name, images *images.Service, raw io.Reader, url *url.URL) (*Reader, error) {
 	article, err := readability.FromReader(raw, url.String())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse document")
@@ -55,7 +56,7 @@ func NewFromReader(client GetClient, raw io.Reader, url *url.URL) (*Reader, erro
 
 		wg.Add(1)
 		go func(n *html.Node) {
-			inlineImage(client, n)
+			inlineImage(ctx, client, articleName, images, n)
 			wg.Done()
 		}(n)
 		return true
@@ -69,24 +70,13 @@ func NewFromReader(client GetClient, raw io.Reader, url *url.URL) (*Reader, erro
 	}, nil
 }
 
-func inlineImage(client GetClient, n *html.Node) {
+func inlineImage(ctx context.Context, client GetClient, articleName *resource.Name, images *images.Service, n *html.Node) {
 	for _, attr := range n.Attr {
 		if attr.Key != "src" {
 			continue
 		}
 
-		// TODO: mock http client, not reader
-		resp, err := client.Get(attr.Val)
-		if err != nil {
-			return
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			return
-		}
-
-		data, err := ioutil.ReadAll(resp.Body)
+		name, err := images.SaveURL(ctx, articleName, attr.Val)
 		if err != nil {
 			return
 		}
@@ -95,13 +85,10 @@ func inlineImage(client GetClient, n *html.Node) {
 			{
 				Namespace: attr.Namespace,
 				Key:       "src",
-				Val: fmt.Sprintf(
-					"data:%s;base64,%s",
-					resp.Header.Get("Content-Type"),
-					base64.StdEncoding.EncodeToString(data),
-				),
+				Val:       fmt.Sprintf("/%s", name),
 			},
 		}
+
 		break
 	}
 }
