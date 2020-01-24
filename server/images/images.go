@@ -1,10 +1,15 @@
 package images
 
 import (
+	"bytes"
 	"context"
+	"image"
 	"io"
-	"io/ioutil"
 	"net/http"
+
+	"image/jpeg"
+	// supported image formats
+	_ "image/png"
 
 	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
@@ -36,13 +41,18 @@ func (s *Service) SaveURL(ctx context.Context, articleName *resource.Name, url s
 
 // Save saves an image.
 func (s *Service) Save(ctx context.Context, articleName *resource.Name, reader io.Reader) (*resource.Name, error) {
-	data, err := ioutil.ReadAll(reader)
+	imageData, _, err := image.Decode(reader)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to read image")
+		return nil, errors.Wrap(err, "failed to decode image")
+	}
+
+	jpegImage := &bytes.Buffer{}
+	if err := jpeg.Encode(jpegImage, imageData, nil); err != nil {
+		return nil, errors.Wrap(err, "failed to encode jpeg")
 	}
 
 	name := articleName.Child("images", ksuid.New().String())
-	if err := s.storage.Store(ctx, name, data); err != nil {
+	if err := s.storage.Store(ctx, name, jpegImage.Bytes()); err != nil {
 		return nil, errors.Wrap(err, "failed to save image")
 	}
 
