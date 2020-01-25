@@ -76,7 +76,17 @@ func inlineImage(ctx context.Context, client GetClient, articleName *resource.Na
 			continue
 		}
 
-		name, err := images.SaveURL(ctx, articleName, attr.Val)
+		resp, err := client.Get(attr.Val)
+		if err != nil {
+			return
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			return
+		}
+
+		name, err := images.Save(ctx, articleName, resp.Body)
 		if err != nil {
 			return
 		}

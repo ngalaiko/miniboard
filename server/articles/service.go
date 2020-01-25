@@ -126,7 +126,6 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 	if err != nil {
 		return nil, grpc.Errorf(codes.InvalidArgument, "url is invalid")
 	}
-
 	name := resource.ParseName(request.Parent).Child("articles", ksuid.New().String())
 
 	if !actor.Owns(ctx, name) {
@@ -148,7 +147,6 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 			}
 		}
 	}
-
 	request.Article.Name = name.String()
 	request.Article.CreateTime = &timestamp.Timestamp{
 		Seconds: now.In(time.UTC).Unix(),

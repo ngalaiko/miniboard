@@ -30,15 +30,6 @@ func New(storage storage.Storage) *Service {
 	}
 }
 
-// SaveURL downloads and saves an image.
-func (s *Service) SaveURL(ctx context.Context, articleName *resource.Name, url string) (*resource.Name, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to download image")
-	}
-	return s.Save(ctx, articleName, resp.Body)
-}
-
 // Save saves an image.
 func (s *Service) Save(ctx context.Context, articleName *resource.Name, reader io.Reader) (*resource.Name, error) {
 	imageData, _, err := image.Decode(reader)
