@@ -39,9 +39,12 @@ export const storage = () => {
 
         let resp = await articles.next(user, pageSize, from, params)
 
+        from = resp.getNextPageToken()
+
+        if (from == '') from = undefined
+
         if (resp.getArticlesList().length == 0) return 
 
-        from = resp.getNextPageToken()
         resp.getArticlesList().forEach(article => $.add(article))
     }
 
