@@ -27,27 +27,31 @@
         return document.querySelector('#list').scrollTop === 0
     }
 
-    onDestroy(() => {
-        ptr.destroy()
-        unsubscribeItems()
-        window.onscroll = () => {}
-    })
+	const onScroll = e => {
+        const offset = e.target.scrollHeight - e.target.clientHeight - e.target.scrollTop
+        if (offset > 100) {
+			return
+        }
+        loadMore()
+    }
 
     onMount(() => {
         loadMore()
         ptr.init()
+
+        const element = document.querySelector('#list')
+        element.addEventListener("scroll", onScroll)
+        element.addEventListener("resize", onScroll)
     })
 
-    const isBottom = () => {
-        return (window.innerHeight + window.scrollY) >= document.body.offsetHeight
-    }
+    onDestroy(() => {
+        ptr.destroy()
+        unsubscribeItems()
 
-    window.onscroll = () => {
-        if (!isBottom()) {
-            return
-        }
-        loadMore()
-    }
+        const element = document.querySelector('#list')
+        element.addEventListener("scroll", null)
+        element.addEventListener("resize", null)
+    })
 </script>
 
 <div id='page'>
