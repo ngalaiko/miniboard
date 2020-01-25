@@ -1,6 +1,7 @@
 <script>
+    import { navigate } from "svelte-routing"
+
     export let codes
-    export let router
 
     document.title = "Miniboard"
 
@@ -21,7 +22,7 @@
         showCode = true
     }
 
-    const handleCode = async () => router.route(`/codes/${code}`)
+    const handleCode = async () => navigate(`/codes/${code}`)
 </script>
 
 <div class='form'>

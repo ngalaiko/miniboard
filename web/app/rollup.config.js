@@ -9,6 +9,7 @@ import fs from 'fs';
 const mode = process.env.NODE_ENV;
 
 let apiUrl = 'http://localhost:8080'
+
 if (bazel_stamp_file) {
     const versionTag = require('fs')
                         .readFileSync(bazel_stamp_file, {encoding: 'utf-8'})

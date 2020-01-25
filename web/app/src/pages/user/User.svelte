@@ -22,7 +22,6 @@
     export let user
 
     export let articles
-    export let router
     export let pane
 
     const onAdded = async (url) => {
@@ -78,7 +77,6 @@
 
 <div class='articles'>
     <Header
-        router={router}
         on:added={(e) => onAdded(e.detail)}
         on:search={(e) => console.log('search')}
         on:selected={(e) => show(e.detail)}
@@ -92,7 +90,6 @@
             <Article
                 on:deleted={(e) => onDeleted(e.detail)}
                 on:updated={(e) => onUpdated(e.detail)}
-                router={router}
                 {article}
             />
         </Pagination>
@@ -106,7 +103,6 @@
             <Article
                 on:deleted={(e) => onDeleted(e.detail)}
                 on:updated={(e) => onUpdated(e.detail)}
-                router={router}
                 articles={articles}
                 {article}
             />
@@ -121,7 +117,6 @@
             <Article
                 on:deleted={(e) => onDeleted(e.detail)}
                 on:updated={(e) => onUpdated(e.detail)}
-                router={router}
                 articles={articles}
                 {article}
             />

@@ -13,6 +13,7 @@
 
     let items = []
     let pageSize = 8
+    let component
 
     const unsubscribeItems = itemsStore.subscribe(value => {
         Array.isArray(items) ? items = value : []
@@ -31,22 +32,20 @@
     onMount(() => {
         loadMore()
 
-        const element = document.querySelector('#list')
-        element.addEventListener("scroll", onScroll)
-        element.addEventListener("resize", onScroll)
+        component.addEventListener("scroll", onScroll)
+        component.addEventListener("resize", onScroll)
     })
 
     onDestroy(() => {
         unsubscribeItems()
 
-        const element = document.querySelector('#list')
-        element.addEventListener("scroll", null)
-        element.addEventListener("resize", null)
+        component.addEventListener("scroll", null)
+        component.addEventListener("resize", null)
     })
 </script>
 
 <div id='page'>
-    <div id='list'>
+    <div id='list' bind:this={component} >
         {#each items as item, i (item.getName()) }
             <slot
                 item={item}

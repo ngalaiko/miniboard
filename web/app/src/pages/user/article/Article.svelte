@@ -1,10 +1,10 @@
 <script>
     import { createEventDispatcher } from 'svelte'
+    import { navigate } from "svelte-routing"
     import TimeAgo from './timeago/TimeAgo.svelte'
 
     const dispatch = createEventDispatcher()
 
-    export let router
     export let article
 
     const onDeleted = async () => dispatch('deleted', article.getName())
@@ -21,7 +21,7 @@
 
     const onClick = async () => {
         onRead(true)
-        router.route(`/${article.getName()}`)
+        navigate(`/${article.getName()}`)
     }
 </script>
 

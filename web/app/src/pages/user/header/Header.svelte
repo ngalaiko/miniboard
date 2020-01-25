@@ -2,6 +2,7 @@
     import { slide } from 'svelte/transition'
     import { quintOut } from 'svelte/easing'
     import { createEventDispatcher } from 'svelte'
+    import { navigate } from "svelte-routing"
 
     import Add from '../../../icons/Add.svelte'
     import Logout from '../../../icons/Logout.svelte'
@@ -10,11 +11,9 @@
 
     const dispatch = createEventDispatcher()
 
-    export let router
-
     const onLogout = async () => {
         await fetch("/logout")
-        router.route('/')
+        navigate('/')
     }
 
     let showAdd = false

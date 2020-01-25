@@ -1,7 +1,8 @@
 <script>
+    import { navigate } from "svelte-routing"
+
     export let code
     export let tokens
-    export let router
 
     const parseJwt = (token) => {
         var base64Url = token.split('.')[1];
@@ -18,8 +19,8 @@
     }).then((token) => {
         return parseJwt(token).sub
     }).then((subject) => {
-        router.route(`/${subject}`)
+        navigate(`/${subject}`)
     }).catch(e => {
-        router.route(`/?error=${e.message}`)
+        navigate(`/?error=${e.message}`)
     })
 </script>

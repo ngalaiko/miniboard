@@ -4,61 +4,21 @@
     import Login from './pages/login/Login.svelte'
     import NotFound from './pages/notfound/NotFound.svelte'
     import Reader from './pages/reader/Reader.svelte'
+    import { Router, Link, Route, navigate } from 'svelte-routing'
 
     import { Articles as ArticlesClient } from './clients/articles/Articles.svelte'
     import { Codes as CodesClient } from './clients/codes/Codes.svelte'
     import { Users } from './clients/users/Users.svelte'
     import { Tokens } from './clients/tokens/Tokens.svelte'
 
-    import navaid from 'navaid'
-
     const apiUrl = '__API_URL__'
-
-    let router = navaid()
-    let component
-    let props
 
     const users = Users(apiUrl)
     const articles = ArticlesClient(apiUrl)
     const codes = CodesClient(apiUrl)
     const tokens = Tokens(apiUrl)
 
-    router
-        .on('/', () => {
-            component = Login
-            props = {
-                codes: codes,
-                users: users,
-                router: router,
-            }
-        })
-        .on('/codes/:code', (params) => {
-            component = Codes
-            props = {
-                tokens: tokens,
-                code: params.code,
-                router: router,
-            }
-        })
-        .on('/users/:id', (params) => {
-            component = User
-            props = {
-                user: `users/${params.id}`,
-                articles: articles,
-                router: router,
-            }
-        })
-        .on('/users/:id/articles/:articleid', (params) => {
-            component = Reader
-            props = {
-                articles: articles,
-                name: `users/${params.id}/articles/${params.articleid}`,
-            }
-        })
-        .on('*', () => {
-            component = NotFound
-        })
-        .listen()
+    export let url = ""
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -72,16 +32,27 @@
 
     if (location.pathname == "/") {
         users.me()
-            .then(user => router.route(`/${user.getName()}`))
+            .then(user => navigate(`/${user.getName()}`))
             .catch(e => { /* ignore */ })
     }
 </script>
 
 <div class="app">
-    <svelte:component
-        this={component}
-        {...props}
-    />
+    <Router url="{url}">
+        <Route path="/codes/:code" let:params>
+            <Codes tokens={tokens} code="{params.code}" />
+        </Route>
+        <Route path="/users/:userid/articles/:articleid" let:params>
+            <Reader name="users/{params.userid}/articles/{params.articleid}" articles={articles} />
+        </Route>
+        <Route path="/users/:userid" let:params>
+            <User user="users/{params.userid}" articles={articles} />
+        </Route>
+        <Route path="/">
+            <Login codes={codes} users={users} />
+        </Route>
+        <Route path="*" component={NotFound} />
+    </Router>
 </div>
 
 <style>
