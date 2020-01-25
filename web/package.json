@@ -15,7 +15,6 @@
   "dependencies": {
     "google-protobuf": "^3.11.0",
     "grpc-web": "^1.0.7",
-    "navaid": "^1.0.5",
-    "pulltorefreshjs": "^0.1.20"
+    "navaid": "^1.0.5"
   }
 }

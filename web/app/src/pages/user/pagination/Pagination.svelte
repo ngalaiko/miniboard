@@ -1,5 +1,4 @@
 <script>
-    import PullToRefresh from './pulltorefresh/PullToRefresh.js'
     import { createEventDispatcher } from 'svelte'
     import {
         onMount,
@@ -21,12 +20,6 @@
 
     const loadMore = () => dispatch('loadmore', pageSize * 2)
 
-    const ptr = PullToRefresh()
-    ptr.mainElement = '#list'
-    ptr.shouldPullToRefresh = () => {
-        return document.querySelector('#list').scrollTop === 0
-    }
-
 	const onScroll = e => {
         const offset = e.target.scrollHeight - e.target.clientHeight - e.target.scrollTop
         if (offset > 100) {
@@ -37,7 +30,6 @@
 
     onMount(() => {
         loadMore()
-        ptr.init()
 
         const element = document.querySelector('#list')
         element.addEventListener("scroll", onScroll)
@@ -45,7 +37,6 @@
     })
 
     onDestroy(() => {
-        ptr.destroy()
         unsubscribeItems()
 
         const element = document.querySelector('#list')

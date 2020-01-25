@@ -21,7 +21,6 @@ rollup_bundle(
         "@npm//navaid",
         "@npm//grpc-web",
         "@npm//google-protobuf",
-        "@npm//pulltorefreshjs",
 
         # compile
         "@npm//svelte",
