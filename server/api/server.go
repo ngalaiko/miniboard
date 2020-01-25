@@ -28,6 +28,8 @@ func NewServer(
 	emailClient email.Client,
 	domain string,
 ) *Server {
+	log("server").Infof("using domain: %s", domain)
+
 	jwtService := jwt.NewService(ctx, db)
 	images := images.New(db)
 
