@@ -41,20 +41,21 @@ jobs:
         API_URL: https://miniboard.galaiko.rocks
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" run \
-          --platforms=@io_bazel_rules_go//go/toolchain:linux_arm :docker_push
+          --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 :docker_push
 
     - name: Install Helm
       uses: azure/setup-helm@v1
 
-    - name: Generate Chart
+    - name: Set up kubectl
+      uses: matootie/dokube@v1.2.0
+      with:
+        personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
+        clusterName: k8s-1-16-2-do-3-ams3-1579941791756
+        expirationTime: 300
+
+    - name: Apply Chart
       run: |
         cd .charts
         helm template miniboard \
-          --set "Version=$(git rev-parse HEAD)" > chart.yaml
-
-    - name: Apply Chart
-      uses: exelban/kubectl@master
-      env:
-        KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_DATA }}
-      with:
-        args: apply -f /github/workspace/.charts/chart.yaml
+          --set "Version=$(git rev-parse HEAD)" \
+          | kubectl apply -f-
