@@ -29,10 +29,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - miniboard.galaiko.rocks
+    - miniboard.app
     secretName: miniboard-tls
   rules:
-  - host: miniboard.galaiko.rocks
+  - host: miniboard.app
     http:
       paths:
       - path: /

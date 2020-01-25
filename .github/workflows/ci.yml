@@ -19,7 +19,7 @@ jobs:
 
     - name: Run Tests
       env:
-        API_URL: https://miniboard.galaiko.rocks
+        API_URL: https://miniboard.app
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" test //...
 
@@ -38,7 +38,7 @@ jobs:
 
     - name: Push image
       env:
-        API_URL: https://miniboard.galaiko.rocks
+        API_URL: https://miniboard.app
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" run \
           --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 :docker_push

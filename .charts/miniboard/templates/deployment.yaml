@@ -45,7 +45,7 @@ spec:
           - --smtp-sender=auth@miniboard.app
           - --smtp-port=587
           - --smtp-host=smtp.fastmail.com
-          - --domain=https://miniboard.galaiko.rocks
+          - --domain=https://miniboard.app
           - --ssl-cert=/tls/tls.crt
           - --ssl-key=/tls/tls.key
         env:
