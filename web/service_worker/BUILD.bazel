@@ -9,7 +9,7 @@ rollup_bundle(
     },
     format = "iife",
     sourcemap = "false",
-    visibility = ["//visibility:public"],
+    visibility = ["//web:__subpackages__"],
     deps = [
         "@npm//@rollup/plugin-replace",
         "@npm//rollup-plugin-terser",

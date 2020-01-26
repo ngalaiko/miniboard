@@ -1,13 +1,15 @@
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 
 rollup_bundle(
-    name = "app",
+    name = "rollup",
     srcs = glob(["src/**/*"]),
     config_file = "rollup.config.js",
-    entry_point = "src/main.js",
+    entry_points = {
+        "src/main.js": "app",
+    },
     format = "iife",
     sourcemap = "false",
-    visibility = ["//visibility:public"],
+    output_dir = True,
     deps = [
         # runtime
         "//server/proto/codes/v1:codes_grpc_web",
@@ -33,4 +35,14 @@ rollup_bundle(
     ],
 )
 
-exports_files(["index.html"])
+genrule(
+    name = "app",
+    srcs = [":rollup"],
+    outs = [
+        "app.js",
+    ],
+    cmd = """
+        find . -name "app.js" -exec mv {} $(location :app.js) \;
+    """,
+    visibility = ["//web:__subpackages__"],
+)

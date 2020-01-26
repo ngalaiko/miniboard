@@ -62,7 +62,6 @@
         padding-left: 5px;
         padding-right: 5px;
         font-family: -apple-system, BlinkMacSystemFont, helvetica neue, Helvetica, Arial, sans-serif;
-        text-rendering: optimizeLegibility;
         max-width: 800px;
         margin: auto;
     }

@@ -30,7 +30,7 @@ type fs struct {
 func (fs *fs) Open(name string) (http.File, error) {
 	file, err := fs.rootFS.Open(name)
 	if err != nil {
-		return fs.rootFS.Open("app/index.html")
+		return fs.rootFS.Open("index.html")
 	}
 	return file, err
 }

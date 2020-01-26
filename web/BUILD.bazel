@@ -1,0 +1,10 @@
+filegroup(
+    name = "web",
+    srcs = [
+        ":index.html",
+        "//web/app",
+        "//web/service_worker",
+        "//web/static",
+    ],
+    visibility = ["//visibility:public"],
+)

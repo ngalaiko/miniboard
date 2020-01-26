@@ -4,5 +4,5 @@ filegroup(
         ["*"],
         exclude = ["BUILD.bazel"],
     ),
-    visibility = ["//visibility:public"],
+    visibility = ["//web:__subpackages__"],
 )
