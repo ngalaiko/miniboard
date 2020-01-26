@@ -1,9 +1,10 @@
 const version = '__VERSION__'
 
 const filesToCache = [
-    'index.html', 
-    'site.webmanifest', 
-    'src/bundle.js'
+    '/index.html',
+    '/static/site.webmanifest',
+    '/static/favicon-32x32.png',
+    '/app/app.js'
 ]
 
 const cacheName = `${version}-miniboard`
@@ -31,7 +32,7 @@ self.addEventListener('fetch', (event) => {
 
     const url = new URL(event.request.url)
 
-    if (url.pathname.startsWith('/api')) return
+    if (url.pathname.startsWith('/app.miniboard')) return
 
     event.respondWith(
         caches.match(event.request).then((cached) => {
