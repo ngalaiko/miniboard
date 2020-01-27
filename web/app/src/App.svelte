@@ -4,7 +4,7 @@
     import Login from './pages/login/Login.svelte'
     import NotFound from './pages/notfound/NotFound.svelte'
     import Reader from './pages/reader/Reader.svelte'
-    import { Router, Link, Route, navigate } from 'svelte-routing'
+    import { Router, Route, navigate } from 'svelte-routing'
 
     import { Articles as ArticlesClient } from './clients/articles/Articles.svelte'
     import { Codes as CodesClient } from './clients/codes/Codes.svelte'
@@ -45,7 +45,7 @@
         <Route path="/users/:userid/articles/:articleid" let:params>
             <Reader name="users/{params.userid}/articles/{params.articleid}" articles={articles} />
         </Route>
-        <Route path="/users/:userid" let:params>
+        <Route path="/users/:userid/*" let:params>
             <User user="users/{params.userid}" articles={articles} />
         </Route>
         <Route path="/">

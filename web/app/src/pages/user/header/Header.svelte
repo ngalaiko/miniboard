@@ -9,6 +9,8 @@
 
     import Navigation from './navigation/Navigation.svelte'
 
+    export let username
+
     const dispatch = createEventDispatcher()
 
     const onLogout = async () => {
@@ -33,7 +35,7 @@
             </button>
         </span>
         <span class='menu-middle'>
-            <Navigation on:selected />
+            <Navigation username={username} />
         </span>
         <span class='menu-right'>
             <button on:click|preventDefault={onLogout}>

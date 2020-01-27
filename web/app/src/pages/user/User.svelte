@@ -1,13 +1,11 @@
 <script context="module">
     import { writable } from 'svelte/store'
     import { storage } from './storage'
+    import { Router, Route } from 'svelte-routing'
 
     let allStorage = storage()
     let unreadStorage = storage()
     let starredStorage = storage()
-
-    let paneStore = writable('unread')
-    export const show = (pane) => paneStore.set(pane)
 </script>
 
 <script>
@@ -22,7 +20,6 @@
     export let user
 
     export let articles
-    export let pane
 
     const onAdded = async (url) => {
         const ts = new timestamp.Timestamp()
@@ -48,8 +45,6 @@
         unreadStorage.add(article)
     }
 
-    onDestroy(paneStore.subscribe(updated => pane = updated))
-
     const onDeleted = async (name) => {
         await articles.delete(name)
 
@@ -57,6 +52,7 @@
         unreadStorage.delete(name)
         starredStorage.delete(name)
     }
+
     const onUpdated = async (updated) => {
         await articles.update(updated)
 
@@ -77,51 +73,53 @@
 
 <div class='articles'>
     <Header
+        username={user}
         on:added={(e) => onAdded(e.detail)}
         on:search={(e) => console.log('search')}
-        on:selected={(e) => show(e.detail)}
     />
-    {#if pane === 'starred'}
-        <Pagination
-            itemsStore={starredStorage.store}
-            let:item={article}
-            on:loadmore={(e) => starredStorage.loadMoreArticles(user, articles, e.detail, {'isStarred': true}) }
-        >
-            <Article
-                on:deleted={(e) => onDeleted(e.detail)}
-                on:updated={(e) => onUpdated(e.detail)}
-                {article}
-            />
-        </Pagination>
-    {/if}
-    {#if pane === 'unread'}
-        <Pagination
-            itemsStore={unreadStorage.store}
-            let:item={article}
-            on:loadmore={(e) => unreadStorage.loadMoreArticles(user, articles, e.detail, {'isRead': false}) }
-        >
-            <Article
-                on:deleted={(e) => onDeleted(e.detail)}
-                on:updated={(e) => onUpdated(e.detail)}
-                articles={articles}
-                {article}
-            />
-        </Pagination>
-    {/if}
-    {#if pane === 'all'}
-        <Pagination
-            itemsStore={allStorage.store}
-            let:item={article}
-            on:loadmore={(e) => allStorage.loadMoreArticles(user, articles, e.detail) }
-        >
-            <Article
-                on:deleted={(e) => onDeleted(e.detail)}
-                on:updated={(e) => onUpdated(e.detail)}
-                articles={articles}
-                {article}
-            />
-        </Pagination>
-    {/if}
+    <Router>
+        <Route path="starred">
+            <Pagination
+                itemsStore={starredStorage.store}
+                let:item={article}
+                on:loadmore={(e) => starredStorage.loadMoreArticles(user, articles, e.detail, {'isStarred': true}) }
+            >
+                <Article
+                    on:deleted={(e) => onDeleted(e.detail)}
+                    on:updated={(e) => onUpdated(e.detail)}
+                    {article}
+                />
+            </Pagination>
+        </Route>
+        <Route path="*">
+            <Pagination
+                itemsStore={unreadStorage.store}
+                let:item={article}
+                on:loadmore={(e) => unreadStorage.loadMoreArticles(user, articles, e.detail, {'isRead': false}) }
+            >
+                <Article
+                    on:deleted={(e) => onDeleted(e.detail)}
+                    on:updated={(e) => onUpdated(e.detail)}
+                    articles={articles}
+                    {article}
+                />
+            </Pagination>
+        </Route>
+        <Route path="all">
+            <Pagination
+                itemsStore={allStorage.store}
+                let:item={article}
+                on:loadmore={(e) => allStorage.loadMoreArticles(user, articles, e.detail) }
+            >
+                <Article
+                    on:deleted={(e) => onDeleted(e.detail)}
+                    on:updated={(e) => onUpdated(e.detail)}
+                    articles={articles}
+                    {article}
+                />
+            </Pagination>
+        </Route>
+    </Router>
 </div>
 
 <style>
