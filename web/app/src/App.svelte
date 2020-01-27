@@ -32,7 +32,7 @@
 
     if (location.pathname == "/") {
         users.me()
-            .then(user => navigate(`/${user.getName()}`))
+            .then(user => navigate(`/${user.getName()}/unread`))
             .catch(e => { /* ignore */ })
     }
 </script>
