@@ -9,11 +9,11 @@ import (
 // Handler returns http handler for the UI.
 func Handler() http.Handler {
 	fileHandler := http.FileServer(&fs{
-		rootFS: http.Dir("./web"),
+		rootFS: http.Dir("./web/app"),
 	})
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if pusher, ok := w.(http.Pusher); ok {
-			if err := pusher.Push("/app/app.js", nil); err != nil {
+			if err := pusher.Push("/app.js", nil); err != nil {
 				log("web").Errorf("failed to push /app/app.js: %s", err)
 			}
 		}

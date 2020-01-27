@@ -3,6 +3,7 @@ import replace from '@rollup/plugin-replace';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import { terser } from 'rollup-plugin-terser';
+import html from 'rollup-plugin-bundle-html';
 import glob from 'glob';
 import fs from 'fs';
 
@@ -57,6 +58,12 @@ export default {
             'process.env.NODE_ENV': JSON.stringify(mode)
         }),
         svelte(),
+        html({
+            template: "web/app/src/index.html",
+            dest: __dirname.split("miniboard/")[1] + "/rollup",
+            filename: "index.html",
+            absolute: true
+        }),
         resolve(),
         new ResolvePbJS(),
         commonjs(),

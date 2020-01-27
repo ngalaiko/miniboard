@@ -3,7 +3,7 @@ load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 rollup_bundle(
     name = "rollup",
     srcs = glob(["src/**/*"]),
-    config_file = "rollup.config.js",
+    config_file = "rollup.config.app.js",
     entry_points = {
         "src/main.js": "app",
     },
@@ -32,17 +32,39 @@ rollup_bundle(
         "@npm//@rollup/plugin-node-resolve",
         "@npm//@rollup/plugin-commonjs",
         "@npm//rollup-plugin-terser",
+        "@npm//rollup-plugin-bundle-html",
+    ],
+)
+
+rollup_bundle(
+    name = "sw",
+    srcs = ["src/sw.js"],
+    config_file = "rollup.config.sw.js",
+    entry_point = "src/sw.js",
+    format = "iife",
+    sourcemap = "false",
+    output_dir = True,
+    deps = [
+        "@npm//@rollup/plugin-replace",
+        "@npm//rollup-plugin-terser",
     ],
 )
 
 genrule(
     name = "app",
-    srcs = [":rollup"],
+    srcs = [
+        ":rollup",
+        ":sw",
+    ],
     outs = [
         "app.js",
+        "sw.js",
+        "index.html",
     ],
     cmd = """
         find . -name "app.js" -exec mv {} $(location :app.js) \;
+        find . -name "sw.js" -exec mv {} $(location :sw.js) \;
+        find . -name "index.html" -exec mv {} $(location :index.html) \;
     """,
     visibility = ["//web:__subpackages__"],
 )
