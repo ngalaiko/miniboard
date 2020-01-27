@@ -13,11 +13,18 @@
 
     export let username
 
+    const titles = {}
+    titles[`/${username}/starred`] = "Starred - Miniboard"
+    titles[`/${username}/unread`] = "Unread - Miniboard"
+    titles[`/${username}/all`] = "All - Miniboard"
+
     const getProps = (defaultStyle) => {
         return ({ location, href, isPartiallyCurrent, isCurrent }) => {
-            return isCurrent 
-                ? { class: defaultStyle + ' navigation-selected' }
-                : { class: defaultStyle + ' navigation-not-selected'}
+            if (isCurrent) {
+                document.title = titles[href]
+                return { class: defaultStyle + ' navigation-selected' }
+            }
+            return { class: defaultStyle + ' navigation-not-selected'}
         }
     }
 </script>
