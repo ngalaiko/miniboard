@@ -12,7 +12,7 @@
     import { onDestroy } from 'svelte'
 
     import Article from './article/Article.svelte'
-    import Pagination from './pagination/Pagination.svelte'
+    import Articles from './articles/Articles.svelte'
     import Header from './header/Header.svelte'
 
     import timestamp from 'google-protobuf/google/protobuf/timestamp_pb.js'
@@ -79,7 +79,7 @@
     />
     <Router>
         <Route path="starred">
-            <Pagination
+            <Articles
                 itemsStore={starredStorage.store}
                 let:item={article}
                 on:loadmore={(e) => starredStorage.loadMoreArticles(user, articles, e.detail, {'isStarred': true}) }
@@ -89,10 +89,10 @@
                     on:updated={(e) => onUpdated(e.detail)}
                     {article}
                 />
-            </Pagination>
+            </Articles>
         </Route>
         <Route path="*">
-            <Pagination
+            <Articles
                 itemsStore={unreadStorage.store}
                 let:item={article}
                 on:loadmore={(e) => unreadStorage.loadMoreArticles(user, articles, e.detail, {'isRead': false}) }
@@ -103,10 +103,10 @@
                     articles={articles}
                     {article}
                 />
-            </Pagination>
+            </Articles>
         </Route>
         <Route path="all">
-            <Pagination
+            <Articles
                 itemsStore={allStorage.store}
                 let:item={article}
                 on:loadmore={(e) => allStorage.loadMoreArticles(user, articles, e.detail) }
@@ -117,7 +117,7 @@
                     articles={articles}
                     {article}
                 />
-            </Pagination>
+            </Articles>
         </Route>
     </Router>
 </div>
