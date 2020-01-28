@@ -18,8 +18,6 @@ jobs:
         chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
 
     - name: Run Tests
-      env:
-        API_URL: https://miniboard.app
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" test //...
 
@@ -37,8 +35,6 @@ jobs:
         cp /home/runner/.docker/config.json ${DOCKER_HOME}/.docker/config.json
 
     - name: Push image
-      env:
-        API_URL: https://miniboard.app
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" run \
           --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 :docker_push

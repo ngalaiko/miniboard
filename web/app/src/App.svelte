@@ -11,7 +11,7 @@
     import { Users } from './clients/users/Users.svelte'
     import { Tokens } from './clients/tokens/Tokens.svelte'
 
-    const apiUrl = '__API_URL__'
+    const apiUrl = location.origin
 
     const users = Users(apiUrl)
     const articles = ArticlesClient(apiUrl)
