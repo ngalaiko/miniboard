@@ -42,7 +42,9 @@ export default {
             'process.browser': true,
             'process.env.NODE_ENV': JSON.stringify(mode)
         }),
-        svelte(),
+        svelte({
+            css: css => css.write(__dirname.split("miniboard/")[1] + "/rollup/app.css", false)
+        }),
         html({
             template: "web/app/src/index.html",
             dest: __dirname.split("miniboard/")[1] + "/rollup",

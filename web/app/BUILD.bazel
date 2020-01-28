@@ -58,11 +58,13 @@ genrule(
     ],
     outs = [
         "app.js",
+        "app.css",
         "sw.js",
         "index.html",
     ],
     cmd = """
         find . -name "app.js" -exec mv {} $(location :app.js) \;
+        find . -name "app.css" -exec mv {} $(location :app.css) \;
         find . -name "sw.js" -exec mv {} $(location :sw.js) \;
         find . -name "index.html" -exec mv {} $(location :index.html) \;
     """,
