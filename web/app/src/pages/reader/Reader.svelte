@@ -1,5 +1,5 @@
 <script>
-    export let articles
+    export let articlesClient
 
     export let name
 
@@ -12,7 +12,7 @@
 </script>
 
 <div id='article'>
-    {#await articles.get(name)}
+    {#await articlesClient.get(name)}
         loading...
     {:then article}
         {#if article.getContent() === ""}

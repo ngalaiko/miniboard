@@ -34,10 +34,10 @@ export const storage = () => {
     }
 
     let from = ''
-    $.loadMoreArticles = async (articles, pageSize, params) => {
+    $.loadMoreArticles = async (articlesClient, pageSize, params) => {
         if (from === undefined) return []
 
-        let resp = await articles.next(pageSize, from, params)
+        let resp = await articlesClient.list(pageSize, from, params)
 
         from = resp.getNextPageToken()
 

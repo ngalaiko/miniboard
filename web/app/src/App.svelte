@@ -6,7 +6,7 @@
     import Reader from './pages/reader/Reader.svelte'
     import { Router, Route, navigate } from 'svelte-routing'
 
-    import { Articles as ArticlesClient } from './clients/articles/Articles.svelte'
+    import { ArticlesClient } from './clients/articles/articles.js'
     import { Codes as CodesClient } from './clients/codes/Codes.svelte'
     import { Users } from './clients/users/Users.svelte'
     import { Tokens } from './clients/tokens/Tokens.svelte'
@@ -15,7 +15,7 @@
     const apiUrl = location.origin
 
     const users = Users(apiUrl)
-    const articles = ArticlesClient(apiUrl)
+    const articlesClient = new ArticlesClient(apiUrl)
     const codes = CodesClient(apiUrl)
     const tokens = Tokens(apiUrl)
     const sourcesClient = new SourcesClient(apiUrl)
@@ -49,13 +49,13 @@
         <Route path="/users/:userid/articles/:articleid" let:params>
             <Reader
                 name="users/{params.userid}/articles/{params.articleid}"
-                articles={articles}
+                articlesClient={articlesClient}
             />
         </Route>
         <Route path="/users/:userid/*" let:params>
             <User
                 user="users/{params.userid}"
-                articles={articles}
+                articlesClient={articlesClient}
                 sourcesClient={sourcesClient}
             />
         </Route>

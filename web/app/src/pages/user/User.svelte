@@ -19,14 +19,14 @@
 
     export let user
 
-    export let articles
+    export let articlesClient
     export let sourcesClient
 
     const onAdded = async (url) => {
         const ts = new timestamp.Timestamp()
         ts.setSeconds(new Date() / 1000)
 
-        const mock = new articles.proto.Article()
+        const mock = new articlesClient.proto.Article()
         mock.setUrl(url)
         mock.setTitle(url)
         mock.setIsRead(false)
@@ -38,7 +38,7 @@
         unreadStorage.add(mock)
 
         const source = await sourcesClient.createSource(url)
-        const article = await articles.get(source.getName())
+        const article = await articlesClient.get(source.getName())
 
         allStorage.delete(mock.getName())
         unreadStorage.delete(mock.getName())
@@ -48,7 +48,7 @@
     }
 
     const onDeleted = async (name) => {
-        await articles.delete(name)
+        await articlesClient.delete(name)
 
         allStorage.delete(name)
         unreadStorage.delete(name)
@@ -56,7 +56,7 @@
     }
 
     const onUpdated = async (updated) => {
-        await articles.update(updated)
+        await articlesClient.update(updated)
 
         allStorage.update(updated)
         unreadStorage.update(updated)
@@ -84,7 +84,7 @@
             <Articles
                 itemsStore={starredStorage.store}
                 let:item={article}
-                on:loadmore={(e) => starredStorage.loadMoreArticles(articles, e.detail, {'isStarred': true}) }
+                on:loadmore={(e) => starredStorage.loadMoreArticles(articlesClient, e.detail, {'isStarred': true}) }
             >
                 <Article
                     on:deleted={(e) => onDeleted(e.detail)}
@@ -97,12 +97,11 @@
             <Articles
                 itemsStore={unreadStorage.store}
                 let:item={article}
-                on:loadmore={(e) => unreadStorage.loadMoreArticles(articles, e.detail, {'isRead': false}) }
+                on:loadmore={(e) => unreadStorage.loadMoreArticles(articlesClient, e.detail, {'isRead': false}) }
             >
                 <Article
                     on:deleted={(e) => onDeleted(e.detail)}
                     on:updated={(e) => onUpdated(e.detail)}
-                    articles={articles}
                     {article}
                 />
             </Articles>
@@ -111,12 +110,11 @@
             <Articles
                 itemsStore={allStorage.store}
                 let:item={article}
-                on:loadmore={(e) => allStorage.loadMoreArticles(articles, e.detail) }
+                on:loadmore={(e) => allStorage.loadMoreArticles(articlesClient, e.detail) }
             >
                 <Article
                     on:deleted={(e) => onDeleted(e.detail)}
                     on:updated={(e) => onUpdated(e.detail)}
-                    articles={articles}
                     {article}
                 />
             </Articles>
