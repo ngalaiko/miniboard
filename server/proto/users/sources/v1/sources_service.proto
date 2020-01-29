@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package app.miniboard.users.sources.v1;
+
+option go_package = "sources";
+
+service SourcesService {
+    // Create source
+    //
+    // Allows to create a new source for a user.
+    rpc CreateSource(CreateSourceRequest) returns (Source) {}
+}
+
+message CreateSourceRequest {
+    // Source to create.
+    Source source = 2;
+}
+
+message Source {
+    // Name of the source. For example "users/<id>/sources/<1>"
+    string name = 1;
+
+    string url = 2;
+}

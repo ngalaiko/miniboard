@@ -1,0 +1,25 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["sources.go"],
+    importpath = "miniboard.app/sources",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//server/proto/users/articles/v1:go_default_library",
+        "//server/proto/users/sources/v1:go_default_library",
+        "@com_github_pkg_errors//:go_default_library",
+    ],
+)
+
+go_test(
+    name = "go_default_test",
+    srcs = ["sources_test.go"],
+    embed = [":go_default_library"],
+    deps = [
+        "//server/proto/users/articles/v1:go_default_library",
+        "//server/proto/users/sources/v1:go_default_library",
+        "@com_github_stretchr_testify//assert:go_default_library",
+        "@io_bazel_rules_go//proto/wkt:empty_go_proto",
+    ],
+)

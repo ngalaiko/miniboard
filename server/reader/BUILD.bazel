@@ -24,6 +24,7 @@ go_test(
         "//server/images:go_default_library",
         "//server/storage:go_default_library",
         "//server/storage/bolt:go_default_library",
+        "//server/storage/resource:go_default_library",
         "@com_github_stretchr_testify//assert:go_default_library",
     ],
 )
