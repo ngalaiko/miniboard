@@ -23,13 +23,14 @@ jobs:
 
     - name: Login to registry
       env:
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         DOCKER_HOME: /home/runner/work/_temp/_github_home
       run: |
         # this will create /home/runner/.docker/config.json with credentials
         docker login \
-            -u ngalayko \
-            -p ${DOCKER_PASSWORD}
+            -u ngalaiko \
+            -p ${DOCKER_PASSWORD} \
+            docker.pkg.github.com
         # copy credentials to mount them to the bazel container.
         mkdir -p ${DOCKER_HOME}/.docker
         cp /home/runner/.docker/config.json ${DOCKER_HOME}/.docker/config.json

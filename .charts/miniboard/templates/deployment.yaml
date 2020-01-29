@@ -26,7 +26,7 @@ spec:
       - name: github
       containers:
       - name: miniflux
-        image: ngalayko/miniboard:{{ .Values.Version }}
+        image: docker.pkg.github.com/ngalaiko/miniboard/app:{{ .Values.Version }}
         ports:
         - containerPort: 8443
           name: https
