@@ -6,11 +6,11 @@
     import Reader from './pages/reader/Reader.svelte'
     import { Router, Route, navigate } from 'svelte-routing'
 
-    import { ArticlesClient } from './clients/articles/articles.js'
-    import { CodesClient } from './clients/codes/codes.js'
-    import { UsersClient } from './clients/users/users.js'
-    import { TokensClient } from './clients/tokens/tokens.js'
-    import { SourcesClient } from './clients/sources/sources.js'
+    import { ArticlesClient } from './clients/articles.js'
+    import { CodesClient } from './clients/codes.js'
+    import { UsersClient } from './clients/users.js'
+    import { TokensClient } from './clients/tokens.js'
+    import { SourcesClient } from './clients/sources.js'
 
     const apiUrl = location.origin
 
