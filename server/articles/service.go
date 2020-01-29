@@ -43,11 +43,8 @@ func New(storage storage.Storage, images *images.Service) *Service {
 
 // ListArticles returns a list of articles.
 func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticlesRequest) (*articles.ListArticlesResponse, error) {
-	lookFor := resource.ParseName(request.Parent).Child("articles", "*")
-
-	if !actor.Owns(ctx, lookFor) {
-		return nil, grpc.Errorf(codes.PermissionDenied, "forbidden")
-	}
+	actor, _ := actor.FromContext(ctx)
+	lookFor := actor.Child("articles", "*")
 
 	var from *resource.Name
 	if request.PageToken != "" {
@@ -126,11 +123,9 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 	if err != nil {
 		return nil, grpc.Errorf(codes.InvalidArgument, "url is invalid")
 	}
-	name := resource.ParseName(request.Parent).Child("articles", ksuid.New().String())
 
-	if !actor.Owns(ctx, name) {
-		return nil, grpc.Errorf(codes.PermissionDenied, "forbidden")
-	}
+	actor, _ := actor.FromContext(ctx)
+	name := actor.Child("articles", ksuid.New().String())
 
 	r, err := reader.New(ctx, s.client, name, s.images, articleURL)
 	var content []byte

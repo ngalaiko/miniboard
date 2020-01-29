@@ -47,7 +47,6 @@ func Test_articles(t *testing.T) {
 		t.Run("When creating an article with invalid url", func(t *testing.T) {
 			ctx = actor.NewContext(ctx, resource.NewName("users", "test"))
 			resp, err := service.CreateArticle(ctx, &articles.CreateArticleRequest{
-				Parent: resource.NewName("users", "test").String(),
 				Article: &articles.Article{
 					Url: "invalid :(",
 				},
@@ -64,7 +63,6 @@ func Test_articles(t *testing.T) {
 		t.Run("When creating an article", func(t *testing.T) {
 			ctx = actor.NewContext(ctx, resource.NewName("users", "test"))
 			resp, err := service.CreateArticle(ctx, &articles.CreateArticleRequest{
-				Parent: resource.NewName("users", "test1").String(),
 				Article: &articles.Article{
 					Url: "http://localhost",
 				},
@@ -128,7 +126,6 @@ func Test_articles(t *testing.T) {
 			ctx = actor.NewContext(ctx, parent)
 			for i := 0; i < 50; i++ {
 				resp, err := service.CreateArticle(ctx, &articles.CreateArticleRequest{
-					Parent: parent.String(),
 					Article: &articles.Article{
 						Url: fmt.Sprintf("http://localhost.com/%d", i),
 					},
@@ -142,7 +139,6 @@ func Test_articles(t *testing.T) {
 				pageToken := ""
 				for i := 0; i < 10; i++ {
 					resp, err := service.ListArticles(ctx, &articles.ListArticlesRequest{
-						Parent:    parent.String(),
 						PageSize:  5,
 						PageToken: pageToken,
 					})
@@ -160,7 +156,6 @@ func Test_articles(t *testing.T) {
 
 			t.Run("It should be possible filter for article by title", func(t *testing.T) {
 				resp, err := service.ListArticles(ctx, &articles.ListArticlesRequest{
-					Parent:   parent.String(),
 					Title:    &wrappers.StringValue{Value: "Building"},
 					PageSize: 10,
 				})
@@ -170,7 +165,6 @@ func Test_articles(t *testing.T) {
 
 			t.Run("It should be possible filter for article by url", func(t *testing.T) {
 				resp, err := service.ListArticles(ctx, &articles.ListArticlesRequest{
-					Parent:   parent.String(),
 					Url:      &wrappers.StringValue{Value: "localhost"},
 					PageSize: 5,
 				})
