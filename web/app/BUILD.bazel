@@ -20,6 +20,8 @@ rollup_bundle(
         "//server/proto/users/v1:users_commonjs_proto",
         "//server/proto/users/articles/v1:articles_grpc_web",
         "//server/proto/users/articles/v1:articles_commonjs_proto",
+        "//server/proto/users/sources/v1:sources_grpc_web",
+        "//server/proto/users/sources/v1:sources_commonjs_proto",
         "@npm//svelte-routing",
         "@npm//grpc-web",
         "@npm//google-protobuf",

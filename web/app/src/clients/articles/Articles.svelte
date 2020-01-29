@@ -10,16 +10,6 @@
 
         $.proto = proto
 
-        $.add = async (user, url) => {
-            const article = new proto.Article()
-            article.setUrl(url)
-
-            const request = new proto.CreateArticleRequest()
-            request.setParent(user)
-            request.setArticle(article)
-            return await client.createArticle(request)
-        }
-
         $.get = async (name) => {
             const request = new proto.GetArticleRequest()
             request.setName(name)
@@ -40,9 +30,8 @@
             return await client.updateArticle(request)
         }
 
-        $.next = async (user, pageSize, from, params) => {
+        $.next = async (pageSize, from, params) => {
             const request = new proto.ListArticlesRequest()
-            request.setParent(user)
             request.setPageSize(pageSize)
             if (from) request.setPageToken(from)
             if (params) {

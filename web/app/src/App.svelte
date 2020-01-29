@@ -10,6 +10,7 @@
     import { Codes as CodesClient } from './clients/codes/Codes.svelte'
     import { Users } from './clients/users/Users.svelte'
     import { Tokens } from './clients/tokens/Tokens.svelte'
+    import { SourcesClient } from './clients/sources/sources.js'
 
     const apiUrl = location.origin
 
@@ -17,6 +18,7 @@
     const articles = ArticlesClient(apiUrl)
     const codes = CodesClient(apiUrl)
     const tokens = Tokens(apiUrl)
+    const sourcesClient = new SourcesClient(apiUrl)
 
     export let url = ""
 
@@ -45,10 +47,17 @@
             <Codes tokens={tokens} code="{params.code}" />
         </Route>
         <Route path="/users/:userid/articles/:articleid" let:params>
-            <Reader name="users/{params.userid}/articles/{params.articleid}" articles={articles} />
+            <Reader
+                name="users/{params.userid}/articles/{params.articleid}"
+                articles={articles}
+            />
         </Route>
         <Route path="/users/:userid/*" let:params>
-            <User user="users/{params.userid}" articles={articles} />
+            <User
+                user="users/{params.userid}"
+                articles={articles}
+                sourcesClient={sourcesClient}
+            />
         </Route>
         <Route path="/">
             <Login codes={codes} users={users} />

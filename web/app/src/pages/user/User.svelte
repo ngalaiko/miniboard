@@ -20,6 +20,7 @@
     export let user
 
     export let articles
+    export let sourcesClient
 
     const onAdded = async (url) => {
         const ts = new timestamp.Timestamp()
@@ -36,7 +37,8 @@
         allStorage.add(mock)
         unreadStorage.add(mock)
 
-        let article = await articles.add(user, url)
+        const source = await sourcesClient.createSource(url)
+        const article = await articles.get(source.getName())
 
         allStorage.delete(mock.getName())
         unreadStorage.delete(mock.getName())
@@ -82,7 +84,7 @@
             <Articles
                 itemsStore={starredStorage.store}
                 let:item={article}
-                on:loadmore={(e) => starredStorage.loadMoreArticles(user, articles, e.detail, {'isStarred': true}) }
+                on:loadmore={(e) => starredStorage.loadMoreArticles(articles, e.detail, {'isStarred': true}) }
             >
                 <Article
                     on:deleted={(e) => onDeleted(e.detail)}
@@ -95,7 +97,7 @@
             <Articles
                 itemsStore={unreadStorage.store}
                 let:item={article}
-                on:loadmore={(e) => unreadStorage.loadMoreArticles(user, articles, e.detail, {'isRead': false}) }
+                on:loadmore={(e) => unreadStorage.loadMoreArticles(articles, e.detail, {'isRead': false}) }
             >
                 <Article
                     on:deleted={(e) => onDeleted(e.detail)}
@@ -109,7 +111,7 @@
             <Articles
                 itemsStore={allStorage.store}
                 let:item={article}
-                on:loadmore={(e) => allStorage.loadMoreArticles(user, articles, e.detail) }
+                on:loadmore={(e) => allStorage.loadMoreArticles(articles, e.detail) }
             >
                 <Article
                     on:deleted={(e) => onDeleted(e.detail)}
