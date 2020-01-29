@@ -8,13 +8,13 @@
 
     import { ArticlesClient } from './clients/articles/articles.js'
     import { CodesClient } from './clients/codes/codes.js'
-    import { Users } from './clients/users/Users.svelte'
+    import { UsersClient } from './clients/users/users.js'
     import { TokensClient } from './clients/tokens/tokens.js'
     import { SourcesClient } from './clients/sources/sources.js'
 
     const apiUrl = location.origin
 
-    const users = Users(apiUrl)
+    const usersClient = new UsersClient(apiUrl)
     const articlesClient = new ArticlesClient(apiUrl)
     const codesClient = new CodesClient(apiUrl)
     const tokensClient = new TokensClient(apiUrl)
@@ -35,7 +35,7 @@
     }
 
     if (location.pathname == "/") {
-        users.me()
+        usersClient.me()
             .then(user => navigate(`/${user.getName()}/unread`))
             .catch(e => { /* ignore */ })
     }
@@ -60,7 +60,7 @@
             />
         </Route>
         <Route path="/">
-            <Login codesClient={codesClient} users={users} />
+            <Login codesClient={codesClient} />
         </Route>
         <Route path="*" component={NotFound} />
     </Router>
