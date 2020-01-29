@@ -7,7 +7,7 @@
     import { Router, Route, navigate } from 'svelte-routing'
 
     import { ArticlesClient } from './clients/articles/articles.js'
-    import { Codes as CodesClient } from './clients/codes/Codes.svelte'
+    import { CodesClient } from './clients/codes/codes.js'
     import { Users } from './clients/users/Users.svelte'
     import { Tokens } from './clients/tokens/Tokens.svelte'
     import { SourcesClient } from './clients/sources/sources.js'
@@ -16,7 +16,7 @@
 
     const users = Users(apiUrl)
     const articlesClient = new ArticlesClient(apiUrl)
-    const codes = CodesClient(apiUrl)
+    const codesClient = new CodesClient(apiUrl)
     const tokens = Tokens(apiUrl)
     const sourcesClient = new SourcesClient(apiUrl)
 
@@ -60,7 +60,7 @@
             />
         </Route>
         <Route path="/">
-            <Login codes={codes} users={users} />
+            <Login codesClient={codesClient} users={users} />
         </Route>
         <Route path="*" component={NotFound} />
     </Router>

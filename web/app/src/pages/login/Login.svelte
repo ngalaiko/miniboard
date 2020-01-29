@@ -1,7 +1,7 @@
 <script>
     import { navigate } from "svelte-routing"
 
-    export let codes
+    export let codesClient
 
     document.title = "Miniboard"
 
@@ -17,7 +17,7 @@
         if (email == '' ) {
             return
         }
-        let resp = codes.sendCode(email)
+        let resp = codesClient.sendCode(email)
         error = ''
         showCode = true
     }
