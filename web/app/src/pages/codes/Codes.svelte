@@ -2,7 +2,7 @@
     import { navigate } from "svelte-routing"
 
     export let code
-    export let tokens
+    export let tokensClient
 
     const parseJwt = (token) => {
         var base64Url = token.split('.')[1];
@@ -14,7 +14,7 @@
         return JSON.parse(jsonPayload);
     }
 
-    tokens.exchangeCode(code).then((response) => {
+    tokensClient.exchangeCode(code).then((response) => {
         return response.getToken()
     }).then((token) => {
         return parseJwt(token).sub

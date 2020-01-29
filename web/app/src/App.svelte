@@ -9,7 +9,7 @@
     import { ArticlesClient } from './clients/articles/articles.js'
     import { CodesClient } from './clients/codes/codes.js'
     import { Users } from './clients/users/Users.svelte'
-    import { Tokens } from './clients/tokens/Tokens.svelte'
+    import { TokensClient } from './clients/tokens/tokens.js'
     import { SourcesClient } from './clients/sources/sources.js'
 
     const apiUrl = location.origin
@@ -17,7 +17,7 @@
     const users = Users(apiUrl)
     const articlesClient = new ArticlesClient(apiUrl)
     const codesClient = new CodesClient(apiUrl)
-    const tokens = Tokens(apiUrl)
+    const tokensClient = new TokensClient(apiUrl)
     const sourcesClient = new SourcesClient(apiUrl)
 
     export let url = ""
@@ -44,7 +44,7 @@
 <div class="app">
     <Router url="{url}">
         <Route path="/codes/:code" let:params>
-            <Codes tokens={tokens} code="{params.code}" />
+            <Codes tokensClient={tokensClient} code="{params.code}" />
         </Route>
         <Route path="/users/:userid/articles/:articleid" let:params>
             <Reader
