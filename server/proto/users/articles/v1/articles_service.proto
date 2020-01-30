@@ -15,11 +15,6 @@ service ArticlesService {
     // An endpoint to list the user's articles.
     rpc ListArticles(ListArticlesRequest) returns (ListArticlesResponse) {}
 
-    // Create article
-    //
-    // An endpoint to add an article for the user.
-    rpc CreateArticle(CreateArticleRequest) returns (Article) {}
-
     // Update article
     //
     // An endpoint to update the article.
@@ -62,11 +57,6 @@ message ListArticlesResponse {
 
     // Token to retrieve the next page of results, or empty if there are no more results in the list.
     string next_page_token = 2;
-}
-
-message CreateArticleRequest {
-    // Article to create.
-    Article article = 1;
 }
 
 message UpdateArticleRequest {

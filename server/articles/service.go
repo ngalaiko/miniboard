@@ -3,6 +3,7 @@ package articles
 import (
 	"context"
 	"encoding/base64"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -18,7 +19,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"miniboard.app/api/actor"
 	"miniboard.app/images"
-	"miniboard.app/proto/users/articles/v1"
+	articles "miniboard.app/proto/users/articles/v1"
 	"miniboard.app/reader"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
@@ -112,28 +113,23 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 }
 
 // CreateArticle creates a new article.
-func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArticleRequest) (*articles.Article, error) {
+func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL *url.URL) (*articles.Article, error) {
+	article := &articles.Article{
+		Url: articleURL.String(),
+	}
+
 	now := time.Now()
-
-	if request.Article.Url == "" {
-		return nil, grpc.Errorf(codes.InvalidArgument, "url is empty")
-	}
-
-	articleURL, err := url.ParseRequestURI(request.Article.Url)
-	if err != nil {
-		return nil, grpc.Errorf(codes.InvalidArgument, "url is invalid")
-	}
 
 	actor, _ := actor.FromContext(ctx)
 	name := actor.Child("articles", ksuid.New().String())
 
-	r, err := reader.New(ctx, s.client, name, s.images, articleURL)
+	r, err := reader.NewFromReader(ctx, s.client, name, s.images, body, articleURL)
 	var content []byte
 	switch err {
 	case nil:
-		request.Article.Title = r.Title()
-		request.Article.SiteName = r.SiteName()
-		request.Article.IconUrl = r.IconURL()
+		article.Title = r.Title()
+		article.SiteName = r.SiteName()
+		article.IconUrl = r.IconURL()
 
 		content = r.Content()
 		if content != nil {
@@ -142,12 +138,12 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 			}
 		}
 	}
-	request.Article.Name = name.String()
-	request.Article.CreateTime = &timestamp.Timestamp{
+	article.Name = name.String()
+	article.CreateTime = &timestamp.Timestamp{
 		Seconds: now.In(time.UTC).Unix(),
 	}
 
-	rawArticle, err := proto.Marshal(request.Article)
+	rawArticle, err := proto.Marshal(article)
 	if err != nil {
 		return nil, grpc.Errorf(codes.Internal, "failed to marshal the article")
 	}
@@ -156,8 +152,8 @@ func (s *Service) CreateArticle(ctx context.Context, request *articles.CreateArt
 		return nil, grpc.Errorf(codes.Internal, "failed to store the article")
 	}
 
-	request.Article.Content = content
-	return request.Article, nil
+	article.Content = content
+	return article, nil
 }
 
 // UpdateArticle updates the article.

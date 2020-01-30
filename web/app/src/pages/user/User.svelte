@@ -38,13 +38,18 @@
         unreadStorage.add(mock)
 
         const source = await sourcesClient.createSource(url)
-        const article = await articlesClient.get(source.getName())
+
+        const type = source.getName().replace(user, '')
+        switch (true) {
+        case type.startsWith('/article'):
+            const article = await articlesClient.get(source.getName())
+            allStorage.add(article)
+            unreadStorage.add(article)
+            break;
+        }
 
         allStorage.delete(mock.getName())
         unreadStorage.delete(mock.getName())
-
-        allStorage.add(article)
-        unreadStorage.add(article)
     }
 
     const onDeleted = async (name) => {

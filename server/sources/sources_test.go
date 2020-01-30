@@ -1,7 +1,12 @@
 package sources
 
 import (
+	"bytes"
 	"context"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/golang/protobuf/ptypes/empty"
@@ -10,6 +15,15 @@ import (
 	sources "miniboard.app/proto/users/sources/v1"
 )
 
+type testClient struct{}
+
+func (tc *testClient) Get(url string) (*http.Response, error) {
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       ioutil.NopCloser(&bytes.Buffer{}),
+	}, nil
+}
+
 func Test_sources(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -17,6 +31,7 @@ func Test_sources(t *testing.T) {
 	t.Run("With sources service", func(t *testing.T) {
 		articles := &mockArticles{}
 		service := New(articles)
+		service.client = &testClient{}
 
 		t.Run("When creating a source", func(t *testing.T) {
 			source, err := service.CreateSource(ctx, &sources.CreateSourceRequest{
@@ -38,8 +53,10 @@ type mockArticles struct {
 	articles []*articles.Article
 }
 
-func (s *mockArticles) CreateArticle(ctx context.Context, request *articles.CreateArticleRequest) (*articles.Article, error) {
-	s.articles = append(s.articles, request.Article)
+func (s *mockArticles) CreateArticle(ctx context.Context, body io.Reader, url *url.URL) (*articles.Article, error) {
+	s.articles = append(s.articles, &articles.Article{
+		Url: url.String(),
+	})
 	return &articles.Article{}, nil
 }
 

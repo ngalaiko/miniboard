@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"testing"
 
@@ -44,29 +45,17 @@ func Test_articles(t *testing.T) {
 		service := New(db, images.New(db))
 		service.client = &testClient{}
 
-		t.Run("When creating an article with invalid url", func(t *testing.T) {
-			ctx = actor.NewContext(ctx, resource.NewName("users", "test"))
-			resp, err := service.CreateArticle(ctx, &articles.CreateArticleRequest{
-				Article: &articles.Article{
-					Url: "invalid :(",
-				},
-			})
-			t.Run("Error should be InvalidArgument", func(t *testing.T) {
-				assert.Nil(t, resp)
-				assert.Error(t, err)
-				status, ok := status.FromError(err)
-				assert.True(t, ok)
-				assert.Equal(t, status.Code(), codes.InvalidArgument)
-			})
-		})
-
 		t.Run("When creating an article", func(t *testing.T) {
 			ctx = actor.NewContext(ctx, resource.NewName("users", "test"))
-			resp, err := service.CreateArticle(ctx, &articles.CreateArticleRequest{
-				Article: &articles.Article{
-					Url: "http://localhost",
-				},
-			})
+
+			url, err := url.Parse("http://localhost")
+			assert.NoError(t, err)
+
+			body, err := os.Open("./testdata/test.html")
+			assert.NoError(t, err)
+			defer body.Close()
+
+			resp, err := service.CreateArticle(ctx, body, url)
 			t.Run("It should be created", func(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotEmpty(t, resp.Name)
@@ -125,14 +114,17 @@ func Test_articles(t *testing.T) {
 			parent := resource.NewName("users", "test")
 			ctx = actor.NewContext(ctx, parent)
 			for i := 0; i < 50; i++ {
-				resp, err := service.CreateArticle(ctx, &articles.CreateArticleRequest{
-					Article: &articles.Article{
-						Url: fmt.Sprintf("http://localhost.com/%d", i),
-					},
-				})
+				url, err := url.Parse(fmt.Sprintf("http://localhost.com/%d", i))
+				assert.NoError(t, err)
+
+				body, err := os.Open("./testdata/test.html")
+				assert.NoError(t, err)
+				defer body.Close()
+
+				resp, err := service.CreateArticle(ctx, body, url)
+				assert.NoError(t, err)
 				assert.NotEmpty(t, resp.Name)
 				assert.Equal(t, resp.Url, fmt.Sprintf("http://localhost.com/%d", i))
-				assert.NoError(t, err)
 			}
 
 			t.Run("It should be possible to get then page by page", func(t *testing.T) {

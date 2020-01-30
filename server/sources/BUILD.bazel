@@ -8,7 +8,10 @@ go_library(
     deps = [
         "//server/proto/users/articles/v1:go_default_library",
         "//server/proto/users/sources/v1:go_default_library",
+        "//server/reader:go_default_library",
         "@com_github_pkg_errors//:go_default_library",
+        "@org_golang_google_grpc//:go_default_library",
+        "@org_golang_google_grpc//codes:go_default_library",
     ],
 )
 

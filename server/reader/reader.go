@@ -26,18 +26,7 @@ type GetClient interface {
 type Reader struct {
 	article *readability.Article
 	url     *url.URL
-}
-
-// New returns new reader from a url.
-func New(ctx context.Context, client GetClient, articleName *resource.Name, images *images.Service, url *url.URL) (*Reader, error) {
-	resp, err := client.Get(url.String())
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to fetch url")
-	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
-	return NewFromReader(ctx, client, articleName, images, resp.Body, url)
+	content []byte
 }
 
 // NewFromReader returns new reader from io.Reader.
@@ -64,9 +53,15 @@ func NewFromReader(ctx context.Context, client GetClient, articleName *resource.
 
 	wg.Wait()
 
+	b := &bytes.Buffer{}
+	if err := html.Render(b, article.Node); err != nil {
+		return nil, err
+	}
+
 	return &Reader{
 		article: &article,
 		url:     url,
+		content: b.Bytes(),
 	}, nil
 }
 
@@ -129,9 +124,7 @@ func (r *Reader) SiteName() string {
 
 // Content returns page content.
 func (r *Reader) Content() []byte {
-	b := &bytes.Buffer{}
-	html.Render(b, r.article.Node)
-	return b.Bytes()
+	return r.content
 }
 
 // IconURL returns a link to the first page favicon.
