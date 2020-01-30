@@ -33,7 +33,7 @@
         {:else}
         <li><a class='link padding' href={article.getUrl()}>source</a></li>
         {/if}
-        <li class='separator flex'><TimeAgo date={article.getCreateTime().getSeconds()}/></li>
+        <li class='separator flex'><TimeAgo date={article.getCreateTime()}/></li>
         {#if article.getIsFavorite()}
             <li class='separator'>
                 <button on:click|preventDefault={() => onStarred(false)}><b>star</b></button>

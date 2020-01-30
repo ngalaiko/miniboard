@@ -1,5 +1,11 @@
 import proto from './codes_service_grpc_web_pb.js'
 
+export class Code {
+    constructor(protoCode) {
+        this.proto = protoCode
+    }
+}
+
 export class CodesClient {
     constructor(hostname) {
         this.client = new proto.CodesServicePromiseClient(hostname)
@@ -8,6 +14,6 @@ export class CodesClient {
     async sendCode(email) {
         const request = new proto.CreateCodeRequest()
         request.setEmail(email)
-        return await this.client.createCode(request)
+        return new Code(await this.client.createCode(request))
     }
 }

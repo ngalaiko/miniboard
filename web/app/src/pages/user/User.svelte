@@ -15,7 +15,7 @@
     import Articles from './articles/Articles.svelte'
     import Header from './header/Header.svelte'
 
-    import timestamp from 'google-protobuf/google/protobuf/timestamp_pb.js'
+    import { Article as ArticleO } from '../../clients/articles.js'
 
     export let user
 
@@ -23,15 +23,12 @@
     export let sourcesClient
 
     const onAdded = async (url) => {
-        const ts = new timestamp.Timestamp()
-        ts.setSeconds(new Date() / 1000)
-
-        const mock = new articlesClient.proto.Article()
+        const mock = new ArticleO()
         mock.setUrl(url)
         mock.setTitle(url)
         mock.setIsRead(false)
         mock.setIsFavorite(false)
-        mock.setCreateTime(ts)
+        mock.setCreateTime(new Date() / 1000)
         mock.setName(Math.random())
 
         allStorage.add(mock)
