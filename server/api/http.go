@@ -19,7 +19,6 @@ func httpHandler(webHandler http.Handler, jwtService *jwt.Service, images *image
 	mux.Handle("/api/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotImplemented)
 	}))
-	mux.Handle("/images/", images.Handler())
 	mux.Handle("/logout", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, &http.Cookie{
 			Name:     authCookie,
