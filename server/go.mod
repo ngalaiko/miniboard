@@ -3,6 +3,7 @@ module miniboard.app
 go 1.12
 
 require (
+	github.com/PuerkitoBio/goquery v1.5.0 // indirect
 	github.com/andybalholm/brotli v1.0.0
 	github.com/coreos/bbolt v1.3.3
 	github.com/go-shiori/go-readability v0.0.0-20190829113304-8630e8f6e148
@@ -13,6 +14,8 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
 	github.com/improbable-eng/grpc-web v0.11.0
 	github.com/kr/pretty v0.1.0 // indirect
+	github.com/mmcdole/gofeed v1.0.0-beta2
+	github.com/mmcdole/goxpp v0.0.0-20181012175147-0068e33feabf // indirect
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/rs/cors v1.7.0 // indirect
@@ -21,6 +24,7 @@ require (
 	github.com/stretchr/testify v1.4.0
 	go.etcd.io/bbolt v1.3.3 // indirect
 	golang.org/x/net v0.0.0-20190520210107-018c4d40a106
+	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	google.golang.org/grpc v1.23.0
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/square/go-jose.v2 v2.3.1

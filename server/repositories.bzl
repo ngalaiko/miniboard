@@ -439,3 +439,27 @@ def go_repositories():
         sum = "h1:/hemPrYIhOhy8zYrNj+069zDB68us2sMGsfkFJO0iZs=",
         version = "v0.0.0-20190523083050-ea95bdfd59fc",
     )
+    go_repository(
+        name = "com_github_andybalholm_cascadia",
+        importpath = "github.com/andybalholm/cascadia",
+        sum = "h1:hOCXnnZ5A+3eVDX8pvgl4kofXv2ELss0bKcqRySc45o=",
+        version = "v1.0.0",
+    )
+    go_repository(
+        name = "com_github_mmcdole_gofeed",
+        importpath = "github.com/mmcdole/gofeed",
+        sum = "h1:CjQ0ADhAwNSb08zknAkGOEYqr8zfZKfrzgk9BxpWP2E=",
+        version = "v1.0.0-beta2",
+    )
+    go_repository(
+        name = "com_github_mmcdole_goxpp",
+        importpath = "github.com/mmcdole/goxpp",
+        sum = "h1:sWGE2v+hO0Nd4yFU/S/mDBM5plIU8v/Qhfz41hkDIAI=",
+        version = "v0.0.0-20181012175147-0068e33feabf",
+    )
+    go_repository(
+        name = "com_github_puerkitobio_goquery",
+        importpath = "github.com/PuerkitoBio/goquery",
+        sum = "h1:uGvmFXOA73IKluu/F84Xd1tt/z07GYm8X49XKHP7EJk=",
+        version = "v1.5.0",
+    )

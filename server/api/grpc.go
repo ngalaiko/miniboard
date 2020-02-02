@@ -23,6 +23,7 @@ import (
 	articles "miniboard.app/proto/users/articles/v1"
 	sources "miniboard.app/proto/users/sources/v1"
 	users "miniboard.app/proto/users/v1"
+	rssService "miniboard.app/rss"
 	sourcesservice "miniboard.app/sources"
 	"miniboard.app/storage"
 	tokensservice "miniboard.app/tokens"
@@ -50,11 +51,12 @@ func grpcServer(
 	)
 
 	articlesService := articlesservice.New(db, images)
+	rssService := rssService.New(articlesService)
 	articles.RegisterArticlesServiceServer(grpcServer, articlesService)
 	users.RegisterUsersServiceServer(grpcServer, usersservice.New(db))
 	codes.RegisterCodesServiceServer(grpcServer, codesservice.New(domain, emailClient, jwtService))
 	tokens.RegisterTokensServiceServer(grpcServer, tokensservice.New(jwtService))
-	sources.RegisterSourcesServiceServer(grpcServer, sourcesservice.New(articlesService))
+	sources.RegisterSourcesServiceServer(grpcServer, sourcesservice.New(articlesService, rssService))
 
 	return grpcServer
 }

@@ -12,15 +12,27 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/assert"
 	articles "miniboard.app/proto/users/articles/v1"
+	rss "miniboard.app/proto/users/rss/v1"
 	sources "miniboard.app/proto/users/sources/v1"
 )
 
-type testClient struct{}
+type testClient struct {
+	typ string
+}
+
+func newTestClient(typ string) *testClient {
+	return &testClient{
+		typ: typ,
+	}
+}
 
 func (tc *testClient) Get(url string) (*http.Response, error) {
 	return &http.Response{
 		StatusCode: http.StatusOK,
 		Body:       ioutil.NopCloser(&bytes.Buffer{}),
+		Header: map[string][]string{
+			"Content-Type": []string{tc.typ},
+		},
 	}, nil
 }
 
@@ -30,10 +42,11 @@ func Test_sources(t *testing.T) {
 
 	t.Run("With sources service", func(t *testing.T) {
 		articles := &mockArticles{}
-		service := New(articles)
-		service.client = &testClient{}
+		feeds := &mockRss{}
+		service := New(articles, feeds)
 
-		t.Run("When creating a source", func(t *testing.T) {
+		t.Run("When creating a source from html page", func(t *testing.T) {
+			service.client = &testClient{typ: "text/html"}
 			source, err := service.CreateSource(ctx, &sources.CreateSourceRequest{
 				Source: &sources.Source{
 					Url: "http://example.com",
@@ -46,7 +59,44 @@ func Test_sources(t *testing.T) {
 				assert.Equal(t, len(articles.articles), 1)
 			})
 		})
+
+		t.Run("When creating a source from rss page", func(t *testing.T) {
+			service.client = &testClient{typ: "application/rss+xml"}
+			source, err := service.CreateSource(ctx, &sources.CreateSourceRequest{
+				Source: &sources.Source{
+					Url: "http://example.com",
+				},
+			})
+
+			if assert.NoError(t, err) {
+				assert.Equal(t, "http://example.com", source.Url)
+			}
+
+			t.Run("Should create a feed", func(t *testing.T) {
+				assert.Equal(t, len(feeds.feeds), 1)
+			})
+		})
+
+		t.Run("When creating a source from unknown page", func(t *testing.T) {
+			service.client = &testClient{typ: "something else"}
+			_, err := service.CreateSource(ctx, &sources.CreateSourceRequest{
+				Source: &sources.Source{
+					Url: "http://example.com",
+				},
+			})
+			assert.Error(t, err)
+		})
 	})
+}
+
+type mockRss struct {
+	feeds []*rss.Feed
+}
+
+func (s *mockRss) CreateFeed(context.Context, io.Reader) (*rss.Feed, error) {
+	feed := &rss.Feed{}
+	s.feeds = append(s.feeds, feed)
+	return feed, nil
 }
 
 type mockArticles struct {

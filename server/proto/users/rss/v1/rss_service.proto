@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package app.miniboard.users.rss.v1;
+
+option go_package = "rss";
+
+service RSSService {}
+
+message Feed {
+    // Name of the resource, for example "users/user1/feeds/feed1".
+    string name = 1;
+}

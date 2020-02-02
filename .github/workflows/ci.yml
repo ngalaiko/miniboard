@@ -47,7 +47,7 @@ jobs:
       uses: matootie/dokube@v1.2.0
       with:
         personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
-        clusterName: k8s-1-16-2-do-3-ams3-1579941791756
+        clusterName: k8s-1-16-2-do-3-ams3-1580667990888
         expirationTime: 300
 
     - name: Apply Chart
