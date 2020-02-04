@@ -4,7 +4,6 @@ const filesToCache = [
     '/index.html',
     '/static/site.webmanifest',
     '/static/favicon-32x32.png',
-    '/app/app.js'
 ]
 
 const cacheName = `${version}-miniboard`
