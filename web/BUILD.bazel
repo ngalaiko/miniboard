@@ -1,8 +1,0 @@
-filegroup(
-    name = "web",
-    srcs = [
-        "//web/app",
-        "//web/app/static",
-    ],
-    visibility = ["//visibility:public"],
-)

@@ -1,12 +1,8 @@
 # test db
 bolt.db
 
-# bazel
-bazel*
-
-# generated proto files
-*.pb.go
-*.gw.go
-
 # node
 node_modules
+
+# artifacts
+web/dist

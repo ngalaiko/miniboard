@@ -7,17 +7,12 @@ import (
 )
 
 // Handler returns http handler for the UI.
-func Handler() http.Handler {
+func Handler(filePath string) http.Handler {
+	log("web").Infof("filepath: %s", filePath)
 	fileHandler := http.FileServer(&fs{
-		rootFS: http.Dir("./web/app"),
+		rootFS: http.Dir(filePath),
 	})
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if pusher, ok := w.(http.Pusher); ok {
-			if err := pusher.Push("/app.js", nil); err != nil {
-				log("web").Errorf("failed to push /app/app.js: %s", err)
-			}
-		}
-
 		fileHandler.ServeHTTP(w, r)
 	})
 }

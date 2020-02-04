@@ -1,8 +1,0 @@
-filegroup(
-    name = "static",
-    srcs = glob(
-        ["*"],
-        exclude = ["BUILD.bazel"],
-    ),
-    visibility = ["//web:__subpackages__"],
-)

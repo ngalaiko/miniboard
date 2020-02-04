@@ -31,6 +31,8 @@ var (
 	smtpHost   = flag.String("smtp-host", "", "SMTP server host.")
 	smtpPort   = flag.String("smtp-port", "", "SMTP server port.")
 	smtpSender = flag.String("smtp-sender", "", "SMTP sender.")
+
+	filePath = flag.String("static-path", "", "Filepath to static files.")
 )
 
 func main() {
@@ -49,7 +51,7 @@ func main() {
 		logrus.Fatalf("failed to open a connection: %s", err)
 	}
 
-	server := api.NewServer(ctx, db, emailClient(), *domain)
+	server := api.NewServer(ctx, db, emailClient(), *filePath, *domain)
 	if err := server.Serve(ctx, lis, &api.TLSConfig{
 		CertPath: *sslCert,
 		KeyPath:  *sslKey,

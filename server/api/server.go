@@ -26,6 +26,7 @@ func NewServer(
 	ctx context.Context,
 	db storage.Storage,
 	emailClient email.Client,
+	filePath string,
 	domain string,
 ) *Server {
 	log("server").Infof("using domain: %s", domain)
@@ -33,7 +34,7 @@ func NewServer(
 	jwtService := jwt.NewService(ctx, db)
 	images := images.New(db)
 
-	handler := httpHandler(web.Handler(), jwtService, images)
+	handler := httpHandler(web.Handler(filePath), jwtService, images)
 	grpcServer := grpcServer(db, emailClient, jwtService, images, domain)
 	grpcWebServer := grpcweb.WrapServer(grpcServer, grpcweb.WithAllowedRequestHeaders([]string{"Set-Cookie"}))
 

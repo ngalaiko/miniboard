@@ -1,12 +1,16 @@
 {
+  "name": "Miniboard",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "src/main.js",
+  "scripts": {
+    "watch": "rm -rf ./dist && mkdir dist && cp -r static dist/ && NODE_ENV=development rollup --config --watch",
+    "build": "rm -rf ./dist && mkdir dist && cp -r static dist/ && NODE_ENV=production rollup --config",
+    "generate": "./generate.sh"
+  },
   "devDependencies": {
-    "@bazel/bazel": "^1.2.0",
-    "@bazel/ibazel": "^0.10.3",
-    "@bazel/rollup": "^0.42.1",
     "@rollup/plugin-commonjs": "^11.0.0",
     "@rollup/plugin-node-resolve": "^6.0.0",
-    "@rollup/plugin-replace": "^2.2.1",
-    "glob": "^7.1.6",
     "rollup": "^1.27.5",
     "rollup-plugin-bundle-html": "^0.2.2",
     "rollup-plugin-svelte": "^5.1.1",

@@ -1,7 +1,0 @@
-build \
-    --host_force_python=PY2 \
-    --workspace_status_command $PWD/stamp.sh
-
-test \
-    --host_force_python=PY2 \
-    --test_output=errors

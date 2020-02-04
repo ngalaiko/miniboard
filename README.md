@@ -14,6 +14,7 @@
 | smtp-sender             |                          | SMTP sender.                                     |
 | ssl-cert                |                          | Path to ssl certificate.                         |
 | ssl-key                 |                          | Path to ssl key.                                 |
+| static-path             |                          | Path to static files.
 
 ### Environment variables
 
@@ -24,16 +25,22 @@
 
 ## Development
 
-Requirements: 
+1. Watch front changes:
 
-* [bazel](https://bazel.build)
-
-Run: 
 ```
-$ bazel run :miniboard
+$ cd ./web && yarn watch
 ```
 
-Run tests:
+2. Run server: 
+
 ```
-$ bazel test //...
+$ cd ./server && go run \ 
+    cmd/miniboard/main.go \
+    --static-path=../web/dist
+```
+
+3. Open browser
+
+```
+$ open http://localhost:8080
 ```

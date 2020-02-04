@@ -10,17 +10,6 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: Install bazelisk
-      run: |
-        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.1.0/bazelisk-linux-amd64"
-        mkdir -p "${GITHUB_WORKSPACE}/bin/"
-        mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazel"
-        chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
-
-    - name: Run Tests
-      run: |
-        "${GITHUB_WORKSPACE}/bin/bazel" test //...
-
     - name: Login to registry
       env:
         DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
@@ -37,8 +26,10 @@ jobs:
 
     - name: Push image
       run: |
-        "${GITHUB_WORKSPACE}/bin/bazel" run \
-          --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 :docker_push
+        IMAGE_NAME="docker.pkg.github.com/ngalaiko/miniboard/app:$GITHUB_SHA"
+
+        docker build . -t "${IMAGE_NAME}"
+        docker push "${IMAGE_NAME}"
 
     - name: Install Helm
       uses: azure/setup-helm@v1
