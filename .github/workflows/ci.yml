@@ -2,54 +2,75 @@ name: CI
 
 on:
   push: {}
+  pull_request: {}
 
 env:
   GO_VERSION: 1.13.7
+  IMAGE_NAME: docker.pkg.github.com/ngalaiko/miniboard/app
 
 jobs:
   build:
+    name: Build
     runs-on: ubuntu-latest
-    
     steps:
     - uses: actions/checkout@v1
 
-    - name: Set up go ${{env.GO_VERSION}}
+    - name: Set up go ${{ env.GO_VERSION }}
       uses: actions/setup-go@v1
       with:
-        go-version: ${{env.GO_VERSION}}
+        go-version: ${{ env.GO_VERSION }}
       id: go
 
     - name: Run tests
       run: |
         cd server && go test -race -v ./...
 
+    - name: Build image
+      env:
+        IMAGE_NAME: ${{ env.IMAGE_NAME }}
+      run: |
+        docker build . -t "${IMAGE_NAME}:${GITHUB_SHA}"
+        docker save -o app.tar "${IMAGE_NAME}:${GITHUB_SHA}"
+
+    - name: Upload app.tar
+      uses: actions/upload-artifact@v1
+      with:
+        name: app.tar
+        path: app.tar
+
+
+  deploy:
+    name: Deploy
+    if: github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Download app.tar
+      uses: actions/download-artifact@v1
+      with:
+        name: app.tar
+        path: .
+
+    - name: Load image
+      run: |
+        docker load -i app.tar
+
     - name: Login to registry
       env:
         DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        DOCKER_HOME: /home/runner/work/_temp/_github_home
       run: |
-        # this will create /home/runner/.docker/config.json with credentials
         docker login \
             -u ngalaiko \
-            -p ${DOCKER_PASSWORD} \
+            -p "${DOCKER_PASSWORD}" \
             docker.pkg.github.com
-        # copy credentials to mount them to the bazel container.
-        mkdir -p ${DOCKER_HOME}/.docker
-        cp /home/runner/.docker/config.json ${DOCKER_HOME}/.docker/config.json
 
     - name: Push image
+      env:
+        IMAGE_NAME: ${{ env.IMAGE_NAME }}
       run: |
-        IMAGE_NAME="docker.pkg.github.com/ngalaiko/miniboard/app:$GITHUB_SHA"
-
-        docker build . -t "${IMAGE_NAME}"
-        docker save -o app.tar "${IMAGE_NAME}"
-        docker push "${IMAGE_NAME}"
-
-    - name: Export image tar
-      uses: actions/upload-artifact@v1
-      with:
-        name: Image tar
-        path: app.tar
+        docker push "${IMAGE_NAME}:${GITHUB_SHA}"
 
     - name: Install Helm
       uses: azure/setup-helm@v1
