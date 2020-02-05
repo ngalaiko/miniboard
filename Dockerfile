@@ -5,7 +5,6 @@ RUN apk add --no-cache gcc musl-dev
 COPY /server /server
 WORKDIR /server
 
-RUN go test ./...
 RUN go build -o miniboard ./cmd/miniboard/main.go
 
 
