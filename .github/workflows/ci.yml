@@ -42,7 +42,14 @@ jobs:
         IMAGE_NAME="docker.pkg.github.com/ngalaiko/miniboard/app:$GITHUB_SHA"
 
         docker build . -t "${IMAGE_NAME}"
+        docker save -o app.tar "${IMAGE_NAME}"
         docker push "${IMAGE_NAME}"
+
+    - name: Export image tar
+      uses: actions/upload-artifact@v1
+      with:
+        name: Image tar
+        path: app.tar
 
     - name: Install Helm
       uses: azure/setup-helm@v1
