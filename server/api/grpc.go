@@ -38,16 +38,20 @@ func grpcServer(
 	jwtService *jwt.Service,
 	images *images.Service,
 	domain string,
+	options ...grpc.ServerOption,
 ) *grpc.Server {
 	logrusEntry := log("grpc")
 	grpc_logrus.ReplaceGrpcLogger(logrusEntry)
 
 	grpcServer := grpc.NewServer(
-		grpc_middleware.WithUnaryServerChain(
-			grpc_ctxtags.UnaryServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
-			grpc_logrus.UnaryServerInterceptor(logrusEntry),
-			authorize(jwtService),
-		),
+		append(
+			options,
+			grpc_middleware.WithUnaryServerChain(
+				grpc_ctxtags.UnaryServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
+				grpc_logrus.UnaryServerInterceptor(logrusEntry),
+				authorize(jwtService),
+			),
+		)...,
 	)
 
 	articlesService := articlesservice.New(db, images)

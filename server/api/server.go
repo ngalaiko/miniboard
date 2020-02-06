@@ -5,10 +5,12 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/soheilhy/cmux"
 	"golang.org/x/net/http2"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"miniboard.app/email"
 	"miniboard.app/images"
 	"miniboard.app/jwt"
@@ -18,7 +20,12 @@ import (
 
 // Server is the api server.
 type Server struct {
-	httpServer *http.Server
+	imagesService *images.Service
+	jwtService    *jwt.Service
+	db            storage.Storage
+	domain        string
+	filePath      string
+	emailClient   email.Client
 }
 
 // NewServer creates new api server.
@@ -31,45 +38,83 @@ func NewServer(
 ) *Server {
 	log("server").Infof("using domain: %s", domain)
 
-	jwtService := jwt.NewService(ctx, db)
-	images := images.New(db)
-
-	handler := httpHandler(web.Handler(filePath), jwtService, images)
-	grpcServer := grpcServer(db, emailClient, jwtService, images, domain)
-	grpcWebServer := grpcweb.WrapServer(grpcServer, grpcweb.WithAllowedRequestHeaders([]string{"Set-Cookie"}))
-
-	grpcWebHandler := http.Handler(grpcWebServer)
-	grpcWebHandler = withCompression(grpcWebHandler)
-
-	grpcWebProxyHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !grpcWebServer.IsGrpcWebRequest(r) {
-			handler.ServeHTTP(w, r)
-			return
-		}
-
-		grpcWebHandler.ServeHTTP(w, r)
-	})
-
 	srv := &Server{
-		httpServer: &http.Server{
-			Handler: grpcWebProxyHandler,
-		},
-	}
-	if err := http2.ConfigureServer(srv.httpServer, nil); err != nil {
-		log("http2").Errorf("can't configure http2: %s", err)
+		db:            db,
+		domain:        domain,
+		emailClient:   emailClient,
+		filePath:      filePath,
+		jwtService:    jwt.NewService(ctx, db),
+		imagesService: images.New(db),
 	}
 	return srv
 }
 
 // Serve starts the server.
 func (s *Server) Serve(ctx context.Context, lis net.Listener, tlsConfig *TLSConfig) error {
+	m := cmux.New(lis)
+
+	grpcL := m.Match(cmux.HTTP2HeaderField("content-type", "application/grpc"))
+	httpL := m.Match(cmux.Any())
+
+	go s.serveGRPC(ctx, grpcL, tlsConfig)
+	go s.serveHTTP(ctx, httpL, tlsConfig)
+
+	<-ctx.Done()
+
+	return nil
+}
+
+func (s *Server) serveGRPC(ctx context.Context, lis net.Listener, tlsConfig *TLSConfig) error {
+	log("grpc").Infof("starting server on %s", lis.Addr())
+
+	options := []grpc.ServerOption{}
+	if tlsConfig != nil && tlsConfig.valid() {
+		creds, err := credentials.NewServerTLSFromFile(tlsConfig.CertPath, tlsConfig.KeyPath)
+		if err != nil {
+			return errors.Wrap(err, "failed to read certificates")
+		}
+
+		log("grpc").Infof("tls cert: %s", tlsConfig.CertPath)
+		log("grpc").Infof("tls key: %s", tlsConfig.KeyPath)
+		options = append(options,
+			grpc.Creds(creds),
+		)
+	}
+
+	srv := grpcServer(s.db, s.emailClient, s.jwtService, s.imagesService, s.domain, options...)
+
+	idleConnsClosed := make(chan struct{})
+	go func() {
+		<-ctx.Done()
+		log("grpc").Info("stopping server")
+		srv.GracefulStop()
+		close(idleConnsClosed)
+	}()
+
+	if err := srv.Serve(lis); err != nil {
+		return errors.Wrap(err, "error serving grpc")
+	}
+	return nil
+}
+
+func (s *Server) serveHTTP(ctx context.Context, lis net.Listener, tlsConfig *TLSConfig) error {
 	log("http").Infof("starting server on %s", lis.Addr())
+
+	handler := httpHandler(web.Handler(s.filePath), s.jwtService, s.imagesService)
+	handler = http.Handler(handler)
+	handler = withCompression(handler)
+	httpServer := &http.Server{
+		Handler: handler,
+	}
+	if err := http2.ConfigureServer(httpServer, nil); err != nil {
+		return errors.Wrapf(err, "can't configure http")
+	}
 
 	idleConnsClosed := make(chan struct{})
 	go func() {
 		<-ctx.Done()
 		log("http").Infof("stopping server")
-		if err := s.httpServer.Shutdown(context.Background()); err != nil {
+		if err := httpServer.Shutdown(context.Background()); err != nil {
 			log("http").Errorf("error stopping server: %s", err)
 		}
 		close(idleConnsClosed)
@@ -79,11 +124,11 @@ func (s *Server) Serve(ctx context.Context, lis net.Listener, tlsConfig *TLSConf
 	case true:
 		log("http").Infof("tls cert: %s", tlsConfig.CertPath)
 		log("http").Infof("tls key: %s", tlsConfig.KeyPath)
-		if err := s.httpServer.ServeTLS(lis, tlsConfig.CertPath, tlsConfig.KeyPath); err != nil {
+		if err := httpServer.ServeTLS(lis, tlsConfig.CertPath, tlsConfig.KeyPath); err != nil {
 			return errors.Wrap(err, "failed to start tls http server")
 		}
 	case false:
-		if err := s.httpServer.Serve(lis); err != nil {
+		if err := httpServer.Serve(lis); err != nil {
 			return errors.Wrap(err, "failed to start http server")
 		}
 	}
