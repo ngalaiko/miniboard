@@ -2,13 +2,20 @@ syntax = "proto3";
 
 package app.miniboard.tokens.v1;
 
+import "google/api/annotations.proto";
+
 option go_package = "tokens";
 
 service TokensService {
     // Create authorization token.
     //
     // Returns an authorization token.
-    rpc CreateToken(CreateTokenRequest) returns (Token) {}
+    rpc CreateToken(CreateTokenRequest) returns (Token) {
+        option (google.api.http) = {
+            post: "/api/v1/tokens"
+            body: "*"
+        };
+    }
 }
 
 message CreateTokenRequest {

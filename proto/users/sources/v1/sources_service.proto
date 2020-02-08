@@ -1,6 +1,8 @@
 syntax = "proto3";
 
-package app.miniboard.users.sources.v1;
+package app.miniboard.users.sources.api.v1;
+
+import "google/api/annotations.proto";
 
 option go_package = "sources";
 
@@ -8,7 +10,12 @@ service SourcesService {
     // Create source
     //
     // Allows to create a new source for a user.
-    rpc CreateSource(CreateSourceRequest) returns (Source) {}
+    rpc CreateSource(CreateSourceRequest) returns (Source) {
+        option (google.api.http) = {
+            post: "/api/v1/users/articles"
+            body: 'source'
+        };
+    }
 }
 
 message CreateSourceRequest {

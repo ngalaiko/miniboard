@@ -1,6 +1,8 @@
 syntax = "proto3";
 
-package app.miniboard.users.articles.v1;
+package app.miniboard.users.articles.api.v1;
+
+import "google/api/annotations.proto";
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
@@ -13,22 +15,39 @@ service ArticlesService {
     // List articles
     //
     // An endpoint to list the user's articles.
-    rpc ListArticles(ListArticlesRequest) returns (ListArticlesResponse) {}
+    rpc ListArticles(ListArticlesRequest) returns (ListArticlesResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/users/*/articles"
+        };
+    }
 
     // Update article
     //
     // An endpoint to update the article.
-    rpc UpdateArticle(UpdateArticleRequest) returns (Article) {}
+    rpc UpdateArticle(UpdateArticleRequest) returns (Article) {
+        option (google.api.http) = {
+            patch: "/api/v1/{article.name=users/*/articles/*}"
+            body: 'article'
+        };
+    }
 
     // Get article
     //
     // An endpoint to get an article by id.
-    rpc GetArticle(GetArticleRequest) returns (Article) {}
+    rpc GetArticle(GetArticleRequest) returns (Article) {
+        option (google.api.http) = {
+            get: "/api/v1/{name=users/*/articles/*}"
+        };
+    }
 
     // Delete article
     //
     // An endpoint to delete an article by id.
-    rpc DeleteArticle(DeleteArticleRequest) returns (google.protobuf.Empty) {}
+    rpc DeleteArticle(DeleteArticleRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            delete: "/api/v1/{name=users/*/articles/*}"
+        };
+    }
 }
 
 message ListArticlesRequest {

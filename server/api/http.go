@@ -6,42 +6,9 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"miniboard.app/images"
-	"miniboard.app/jwt"
 )
 
 var imageRegExp = regexp.MustCompile("users/.+/articles/.+/images/.+")
-
-func httpHandler(webHandler http.Handler, jwtService *jwt.Service, images *images.Service) http.Handler {
-	imagesHandler := images.Handler()
-
-	mux := http.NewServeMux()
-	mux.Handle("/api/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusNotImplemented)
-	}))
-	mux.Handle("/logout", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.SetCookie(w, &http.Cookie{
-			Name:     authCookie,
-			Path:     "/",
-			MaxAge:   -1,
-			HttpOnly: true,
-		})
-	}))
-	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if imageRegExp.MatchString(r.RequestURI) {
-			imagesHandler.ServeHTTP(w, r)
-			return
-		}
-
-		webHandler.ServeHTTP(w, r)
-	}))
-
-	handler := http.Handler(mux)
-	handler = withAccessLogs(handler)
-	handler = withCompression(handler)
-
-	return handler
-}
 
 type loggingResponseWriter struct {
 	http.ResponseWriter

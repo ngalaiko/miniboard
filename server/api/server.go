@@ -5,27 +5,31 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/soheilhy/cmux"
 	"golang.org/x/net/http2"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
+	articlesservice "miniboard.app/articles"
+	codesservice "miniboard.app/codes"
 	"miniboard.app/email"
 	"miniboard.app/images"
 	"miniboard.app/jwt"
+	codes "miniboard.app/proto/codes/v1"
+	tokens "miniboard.app/proto/tokens/v1"
+	articles "miniboard.app/proto/users/articles/v1"
+	sources "miniboard.app/proto/users/sources/v1"
+	users "miniboard.app/proto/users/v1"
+	rssservice "miniboard.app/rss"
+	sourcesservice "miniboard.app/sources"
 	"miniboard.app/storage"
+	tokensservice "miniboard.app/tokens"
+	usersservice "miniboard.app/users"
 	"miniboard.app/web"
 )
 
 // Server is the api server.
 type Server struct {
-	imagesService *images.Service
-	jwtService    *jwt.Service
-	db            storage.Storage
-	domain        string
-	filePath      string
-	emailClient   email.Client
+	httpServer *http.Server
 }
 
 // NewServer creates new api server.
@@ -35,86 +39,87 @@ func NewServer(
 	emailClient email.Client,
 	filePath string,
 	domain string,
-) *Server {
+) (*Server, error) {
 	log("server").Infof("using domain: %s", domain)
 
-	srv := &Server{
-		db:            db,
-		domain:        domain,
-		emailClient:   emailClient,
-		filePath:      filePath,
-		jwtService:    jwt.NewService(ctx, db),
-		imagesService: images.New(db),
+	imagesService := images.New(db)
+	jwtService := jwt.NewService(ctx, db)
+	articlesService := articlesservice.New(db, imagesService)
+	rssService := rssservice.New(articlesService)
+	usersService := usersservice.New(db)
+	codesService := codesservice.New(domain, emailClient, jwtService)
+	tokensService := tokensservice.New(jwtService)
+	sourcesService := sourcesservice.New(articlesService, rssService)
+
+	gwMux := runtime.NewServeMux()
+
+	if err := articles.RegisterArticlesServiceHandlerServer(ctx, gwMux, articlesService); err != nil {
+		return nil, errors.Wrap(err, "failed to register articles http handler")
 	}
-	return srv
-}
 
-// Serve starts the server.
-func (s *Server) Serve(ctx context.Context, lis net.Listener, tlsConfig *TLSConfig) error {
-	m := cmux.New(lis)
+	if err := tokens.RegisterTokensServiceHandlerServer(ctx, gwMux, tokensService); err != nil {
+		return nil, errors.Wrap(err, "failed to register tokens http handler")
+	}
 
-	grpcL := m.Match(cmux.HTTP2HeaderField("content-type", "application/grpc"))
-	httpL := m.Match(cmux.Any())
+	if err := codes.RegisterCodesServiceHandlerServer(ctx, gwMux, codesService); err != nil {
+		return nil, errors.Wrap(err, "failed to register codes http handler")
+	}
 
-	go s.serveGRPC(ctx, grpcL, tlsConfig)
-	go s.serveHTTP(ctx, httpL, tlsConfig)
+	if err := sources.RegisterSourcesServiceHandlerServer(ctx, gwMux, sourcesService); err != nil {
+		return nil, errors.Wrap(err, "failed to register tokens http handler")
+	}
 
-	<-ctx.Done()
+	if err := users.RegisterUsersServiceHandlerServer(ctx, gwMux, usersService); err != nil {
+		return nil, errors.Wrap(err, "failed to register tokens http handler")
+	}
 
-	return nil
-}
+	mux := http.NewServeMux()
+	mux.Handle("/logout", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.SetCookie(w, &http.Cookie{
+			Name:     authCookie,
+			Path:     "/",
+			MaxAge:   -1,
+			HttpOnly: true,
+		})
+	}))
 
-func (s *Server) serveGRPC(ctx context.Context, lis net.Listener, tlsConfig *TLSConfig) error {
-	log("grpc").Infof("starting server on %s", lis.Addr())
+	mux.Handle("/api/", authorize(gwMux, jwtService))
 
-	options := []grpc.ServerOption{}
-	if tlsConfig != nil && tlsConfig.valid() {
-		creds, err := credentials.NewServerTLSFromFile(tlsConfig.CertPath, tlsConfig.KeyPath)
-		if err != nil {
-			return errors.Wrap(err, "failed to read certificates")
+	imagesHandler := imagesService.Handler()
+	webHandler := web.Handler(filePath)
+	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if imageRegExp.MatchString(r.RequestURI) {
+			imagesHandler.ServeHTTP(w, r)
+			return
 		}
 
-		log("grpc").Infof("tls cert: %s", tlsConfig.CertPath)
-		log("grpc").Infof("tls key: %s", tlsConfig.KeyPath)
-		options = append(options,
-			grpc.Creds(creds),
-		)
-	}
+		webHandler.ServeHTTP(w, r)
+	}))
 
-	srv := grpcServer(s.db, s.emailClient, s.jwtService, s.imagesService, s.domain, options...)
-
-	idleConnsClosed := make(chan struct{})
-	go func() {
-		<-ctx.Done()
-		log("grpc").Info("stopping server")
-		srv.GracefulStop()
-		close(idleConnsClosed)
-	}()
-
-	if err := srv.Serve(lis); err != nil {
-		return errors.Wrap(err, "error serving grpc")
-	}
-	return nil
-}
-
-func (s *Server) serveHTTP(ctx context.Context, lis net.Listener, tlsConfig *TLSConfig) error {
-	log("http").Infof("starting server on %s", lis.Addr())
-
-	handler := httpHandler(web.Handler(s.filePath), s.jwtService, s.imagesService)
-	handler = http.Handler(handler)
+	handler := http.Handler(mux)
+	handler = withAccessLogs(handler)
 	handler = withCompression(handler)
 	httpServer := &http.Server{
 		Handler: handler,
 	}
 	if err := http2.ConfigureServer(httpServer, nil); err != nil {
-		return errors.Wrapf(err, "can't configure http")
+		return nil, errors.Wrapf(err, "can't configure http")
 	}
+
+	return &Server{
+		httpServer: httpServer,
+	}, nil
+}
+
+// Serve starts the server.
+func (s *Server) Serve(ctx context.Context, lis net.Listener, tlsConfig *TLSConfig) error {
+	log("http").Infof("starting server on %s", lis.Addr())
 
 	idleConnsClosed := make(chan struct{})
 	go func() {
 		<-ctx.Done()
 		log("http").Infof("stopping server")
-		if err := httpServer.Shutdown(context.Background()); err != nil {
+		if err := s.httpServer.Shutdown(context.Background()); err != nil {
 			log("http").Errorf("error stopping server: %s", err)
 		}
 		close(idleConnsClosed)
@@ -124,11 +129,11 @@ func (s *Server) serveHTTP(ctx context.Context, lis net.Listener, tlsConfig *TLS
 	case true:
 		log("http").Infof("tls cert: %s", tlsConfig.CertPath)
 		log("http").Infof("tls key: %s", tlsConfig.KeyPath)
-		if err := httpServer.ServeTLS(lis, tlsConfig.CertPath, tlsConfig.KeyPath); err != nil {
+		if err := s.httpServer.ServeTLS(lis, tlsConfig.CertPath, tlsConfig.KeyPath); err != nil {
 			return errors.Wrap(err, "failed to start tls http server")
 		}
 	case false:
-		if err := httpServer.Serve(lis); err != nil {
+		if err := s.httpServer.Serve(lis); err != nil {
 			return errors.Wrap(err, "failed to start http server")
 		}
 	}

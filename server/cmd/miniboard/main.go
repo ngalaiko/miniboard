@@ -51,7 +51,11 @@ func main() {
 		logrus.Fatalf("failed to open a connection: %s", err)
 	}
 
-	server := api.NewServer(ctx, db, emailClient(), *filePath, *domain)
+	server, err := api.NewServer(ctx, db, emailClient(), *filePath, *domain)
+	if err != nil {
+		logrus.Fatalf("failed to create server: %s", err)
+	}
+
 	if err := server.Serve(ctx, lis, &api.TLSConfig{
 		CertPath: *sslCert,
 		KeyPath:  *sslKey,
