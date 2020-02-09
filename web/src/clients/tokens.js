@@ -1,23 +1,21 @@
-import proto from './proto/tokens_service_grpc_web_pb.js'
-
 export class Token {
-    constructor(protoToken) {
-		this.proto = protoToken
+    constructor(body) {
+		this.token = body.token
     }
 
     getToken() {
-		return this.proto.getToken()
+		return this.token
     }
 }
 
 export class TokensClient {
-    constructor(hostname) {
-		this.client = new proto.TokensServicePromiseClient(hostname)
+    constructor(apiClient) {
+        this.apiClient = apiClient
     }
 
     async exchangeCode(code) {
-		const request = new proto.CreateTokenRequest()
-		request.setCode(code)
-		return new Token(await this.client.createToken(request))
+        return new Token(await this.apiClient.post(`/api/v1/tokens`, {
+            code: code,
+        }))
     }
 }

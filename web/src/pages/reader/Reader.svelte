@@ -3,11 +3,12 @@
 
     export let name
 
-    const decoder = new TextDecoder()
-
     const decode = (article) => {
         document.title = `${article.getTitle()} - Miniboard`
-        return decoder.decode(article.getContent())
+
+        return decodeURIComponent(atob(article.getContent()).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''))
     }
 </script>
 

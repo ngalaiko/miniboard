@@ -7,10 +7,12 @@ import html from 'rollup-plugin-bundle-html'
 const mode = process.env.NODE_ENV 
 const isDevelopment = mode === "development"
 
+const name = isDevelopment ? 'app' : 'app-[hash]'
+
 const appPlugins = [
     svelte({
         dev: isDevelopment,
-        css: css => css.write("./dist/app-[hash].css", isDevelopment)
+        css: css => css.write(`./dist/${name}.css`, isDevelopment)
     }),
     html({
         template: "src/index.html",
@@ -31,7 +33,7 @@ const swPlugins = [
 module.exports = [{
 	input: "src/main.js",
 	output: {
-		file: "dist/app-[hash].js",
+		file: `dist/${name}.js`,
 		sourcemap: isDevelopment,
 		format: "iife"
 	},

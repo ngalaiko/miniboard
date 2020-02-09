@@ -12,7 +12,7 @@ service SourcesService {
     // Allows to create a new source for a user.
     rpc CreateSource(CreateSourceRequest) returns (Source) {
         option (google.api.http) = {
-            post: "/api/v1/users/articles"
+            post: "/api/v1/users/*/sources"
             body: 'source'
         };
     }

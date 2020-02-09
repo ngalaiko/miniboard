@@ -1,22 +1,19 @@
-import proto from './proto/users_service_grpc_web_pb.js'
-
 export class User {
-    constructor(protoUser) {
-        this.proto = protoUser
+    constructor(body) {
+        this.body = body
     }
 
     getName() {
-        return this.proto.getName()
+        return this.body.name
     }
 }
 
 export class UsersClient {
-    constructor(hostname) {
-        this.client = new proto.UsersServicePromiseClient(hostname)
+    constructor(apiClient) {
+        this.apiClient = apiClient
     }
 
     async me() {
-        const request = new proto.GetMeRequest()
-        return await this.client.getMe(request)
+        return new User(await this.apiClient.get('/api/v1/users/me'))
     }
 }

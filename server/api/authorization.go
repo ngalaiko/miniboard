@@ -20,12 +20,6 @@ func authorize(handler http.Handler, jwtService *jwt.Service) http.Handler {
 			return
 		}
 
-		if cookies := r.Header.Get("cookie"); cookies != "" {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte(`{"error":"auth cookie missing"}`))
-			return
-		}
-
 		for _, cookie := range r.Cookies() {
 			if cookie.Name != authCookie {
 				continue

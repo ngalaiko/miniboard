@@ -28,13 +28,13 @@
         mock.setTitle(url)
         mock.setIsRead(false)
         mock.setIsFavorite(false)
-        mock.setCreateTime(new Date() / 1000)
+        mock.setCreateTime(new Date().toISOString())
         mock.setName(Math.random())
 
         allStorage.add(mock)
         unreadStorage.add(mock)
 
-        const source = await sourcesClient.createSource(url)
+        const source = await sourcesClient.createSource(user, url)
 
         const type = source.getName().replace(user, '')
         switch (true) {
@@ -86,7 +86,7 @@
             <Articles
                 itemsStore={starredStorage.store}
                 let:item={article}
-                on:loadmore={(e) => starredStorage.loadMoreArticles(articlesClient, e.detail, {'isStarred': true}) }
+                on:loadmore={(e) => starredStorage.loadMoreArticles(articlesClient, user, e.detail, {'is_favorite': true}) }
             >
                 <Article
                     on:deleted={(e) => onDeleted(e.detail)}
@@ -99,7 +99,7 @@
             <Articles
                 itemsStore={unreadStorage.store}
                 let:item={article}
-                on:loadmore={(e) => unreadStorage.loadMoreArticles(articlesClient, e.detail, {'isRead': false}) }
+                on:loadmore={(e) => unreadStorage.loadMoreArticles(articlesClient, user, e.detail, {'is_read': false}) }
             >
                 <Article
                     on:deleted={(e) => onDeleted(e.detail)}
@@ -112,7 +112,7 @@
             <Articles
                 itemsStore={allStorage.store}
                 let:item={article}
-                on:loadmore={(e) => allStorage.loadMoreArticles(articlesClient, e.detail) }
+                on:loadmore={(e) => allStorage.loadMoreArticles(articlesClient, user, e.detail) }
             >
                 <Article
                     on:deleted={(e) => onDeleted(e.detail)}

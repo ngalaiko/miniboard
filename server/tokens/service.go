@@ -2,14 +2,10 @@ package tokens
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
 	"miniboard.app/jwt"
@@ -43,14 +39,6 @@ func (s *Service) CreateToken(ctx context.Context, request *tokens.CreateTokenRe
 		log("tokens").Errorf("failed to generate token :%s", err)
 		return nil, status.New(codes.InvalidArgument, "failed to generate token").Err()
 	}
-
-	grpc.SendHeader(ctx, metadata.Pairs(
-		"Set-Cookie", fmt.Sprintf(
-			"auth=%s; Path=/; Expires=%s; HttpOnly",
-			token,
-			time.Now().Add(authDuration).Format(http.TimeFormat),
-		),
-	))
 
 	return &tokens.Token{
 		Token: token,

@@ -1,88 +1,78 @@
-import proto from './proto/articles_service_grpc_web_pb.js'
-import wrappers from 'google-protobuf/google/protobuf/wrappers_pb.js'
-import updateMask from 'google-protobuf/google/protobuf/field_mask_pb.js'
-import timestamp from 'google-protobuf/google/protobuf/timestamp_pb.js'
-
 export class Article {
-    constructor(protoArticle) {
-        if (protoArticle !== undefined) {
-            this.proto = protoArticle
+    constructor(body) {
+        if (body === undefined) {
+            this.body = {}
         } else {
-            this.proto = new proto.Article()
+            this.body = body
         }
     }
 
     setUrl(url) {
-        this.proto.setUrl(url)
+        this.body.url = url
     }
 
     setTitle(title) {
-        this.proto.setTitle(title)
+        this.body.title = title
     }
 
     setIsRead(isRead) {
-        this.proto.setIsRead(isRead)
+        this.body.isRead = isRead
     }
 
     setIsFavorite(isFavorite) {
-        this.proto.setIsFavorite(isFavorite)
+        this.body.isFavorite = isFavorite
     }
 
     setCreateTime(seconds) {
-        const ts = new timestamp.Timestamp()
-        ts.setSeconds(seconds)
-        this.proto.setCreateTime(ts)
+        this.body.createTime = seconds
     }
 
     setName(name) {
-        this.proto.setName(name)
+        this.body.name = name
     }
 
     getName() {
-        return this.proto.getName()
+        return this.body.name
     }
 
     getUrl() {
-        return this.proto.getUrl()
+        return this.body.url
     }
 
     getTitle() {
-        return this.proto.getTitle()
+        return this.body.title
     }
 
     getIconUrl() {
-        return this.proto.getIconUrl()
+        return this.body.iconUrl
     }
 
     getCreateTime() {
-        return this.proto.getCreateTime()
+        return this.body.createTime
     }
 
     getContent() {
-        return this.proto.getContent()
+        return this.body.content
     }
 
     getIsRead() {
-        return this.proto.getIsRead()
+        return this.body.isRead
     }
 
     getIsFavorite() {
-        return this.proto.getIsFavorite()
+        return this.body.isFavorite
     }
 
     getSiteName() {
-        return this.proto.getSiteName()
+        return this.body.siteName
     }
 }
 
 export class Articles {
-    constructor(proto) {
-        this.proto = proto
-
+    constructor(body) {
+        this.body = body
         this.articles = []
-        this.proto.getArticlesList().forEach(a => {
-            this.articles.push(new Article(a))
-        })
+        body.articles.forEach(a => this.articles.push(new Article(a)))
     }
 
     getArticlesList() {
@@ -90,43 +80,35 @@ export class Articles {
     }
 
     getNextPageToken() {
-        return this.proto.getNextPageToken()
+        return this.nextPageToken
     }
 }
 
 export class ArticlesClient {
-    constructor(hostname) {
-        this.client = new proto.ArticlesServicePromiseClient(hostname)
+    constructor(apiClient) {
+        this.apiClient = apiClient
     }
 
     async get(name) {
-        const request = new proto.GetArticleRequest()
-        request.setName(name)
-        request.setView(2)
-        return new Article(await this.client.getArticle(request))
+        return new Article(await this.apiClient.get(`/api/v1/${name}?view=ARTICLE_VIEW_FULL`))
     }
 
     async update(article) {
-        const request = new proto.UpdateArticleRequest()
-        request.setArticle(article.proto)
-        request.setUpdateMask(new updateMask.FieldMask().addPaths('is_read').addPaths('is_favorite'))
-        return new Article(await this.client.updateArticle(request))
+        return new Article(await this.apiClient.patch(`/api/v1/${article.getName()}`, article.body))
     }
 
     async delete(name) {
-        const request = new proto.DeleteArticleRequest()
-        request.setName(name)
-        return new Article(await this.client.deleteArticle(request))
+        return new Article(await this.apiClient.delete(`/api/v1/${name}`))
     }
 
-    async list(pageSize, from, params) {
-        const request = new proto.ListArticlesRequest()
-        request.setPageSize(pageSize)
-        if (from) request.setPageToken(from)
-        if (params) {
-            if (params.isRead !== undefined) request.setIsRead(new wrappers.BoolValue().setValue(params.isRead))
-            if (params.isStarred !== undefined) request.setIsFavorite(new wrappers.BoolValue().setValue(params.isStarred))
+    async list(username, pageSize, from, params) {
+        let query = `page_size=${pageSize}`
+        if (from !== '') {
+            query += `&page_token=${from}`
         }
-        return new Articles(await this.client.listArticles(request))
+        if (params) Object.keys(params).forEach(key => {
+            query += `&${key}=${params[key]}`
+        })
+        return new Articles(await this.apiClient.get(`/api/v1/${username}/articles?${query}`))
     }
 }

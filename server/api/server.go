@@ -4,7 +4,9 @@ import (
 	"context"
 	"net"
 	"net/http"
+	"time"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -26,6 +28,9 @@ import (
 	usersservice "miniboard.app/users"
 	"miniboard.app/web"
 )
+
+// todo: make it shorter
+const authDuration = 28 * 24 * time.Hour
 
 // Server is the api server.
 type Server struct {
@@ -51,7 +56,24 @@ func NewServer(
 	tokensService := tokensservice.New(jwtService)
 	sourcesService := sourcesservice.New(articlesService, rssService)
 
-	gwMux := runtime.NewServeMux()
+	gwMux := runtime.NewServeMux(
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
+			OrigName:     false,
+			EmitDefaults: true,
+		}),
+		runtime.WithForwardResponseOption(func(ctx context.Context, rw http.ResponseWriter, msg proto.Message) error {
+			if token, ok := msg.(*tokens.Token); ok {
+				http.SetCookie(rw, &http.Cookie{
+					Name:     authCookie,
+					Value:    token.Token,
+					Path:     "/",
+					Expires:  time.Now().Add(authDuration),
+					HttpOnly: true,
+				})
+			}
+			return nil
+		}),
+	)
 
 	if err := articles.RegisterArticlesServiceHandlerServer(ctx, gwMux, articlesService); err != nil {
 		return nil, errors.Wrap(err, "failed to register articles http handler")

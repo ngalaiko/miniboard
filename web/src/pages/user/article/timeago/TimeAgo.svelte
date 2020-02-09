@@ -2,7 +2,7 @@
     export let date
 
     const timeAgo = () =>  {
-        let seconds = ~~((Date.now() - new Date(0).setUTCSeconds(date)) / 1000)
+        let seconds = ~~((Date.now() - new Date(date).getTime()) / 1000)
         let minutes = ~~(seconds / 60)
         if (minutes == 0) {
             return `${seconds}s ago`

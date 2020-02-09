@@ -7,12 +7,15 @@ export const storage = () => {
 
     $.add = async (article) => {
         articlesListStore.update(list => {
+            if (list === undefined) list = []
+
             for (let i in list) {
                 if (list[i].getName() == article.getName()) return list
             }
+
             return [article].concat(list).sort((a, b) => {
-                const d1 = new Date(0).setUTCSeconds(a.getCreateTime())
-                const d2 = new Date(0).setUTCSeconds(b.getCreateTime())
+                const d1 = a.getCreateTime()
+                const d2 = b.getCreateTime()
                 return d1 < d2 ? 1 : -1
             })
         })
@@ -34,10 +37,10 @@ export const storage = () => {
     }
 
     let from = ''
-    $.loadMoreArticles = async (articlesClient, pageSize, params) => {
+    $.loadMoreArticles = async (articlesClient, username, pageSize, params) => {
         if (from === undefined) return []
 
-        let resp = await articlesClient.list(pageSize, from, params)
+        let resp = await articlesClient.list(username, pageSize, from, params)
 
         from = resp.getNextPageToken()
 

@@ -6,19 +6,19 @@
     import Reader from './pages/reader/Reader.svelte'
     import { Router, Route, navigate } from 'svelte-routing'
 
+    import { ApiClient } from './clients/api.js'
     import { ArticlesClient } from './clients/articles.js'
     import { CodesClient } from './clients/codes.js'
     import { UsersClient } from './clients/users.js'
     import { TokensClient } from './clients/tokens.js'
     import { SourcesClient } from './clients/sources.js'
 
-    const apiUrl = location.origin
-
-    const usersClient = new UsersClient(apiUrl)
-    const articlesClient = new ArticlesClient(apiUrl)
-    const codesClient = new CodesClient(apiUrl)
-    const tokensClient = new TokensClient(apiUrl)
-    const sourcesClient = new SourcesClient(apiUrl)
+    const apiClient = new ApiClient()
+    const usersClient = new UsersClient(apiClient)
+    const articlesClient = new ArticlesClient(apiClient)
+    const codesClient = new CodesClient(apiClient)
+    const tokensClient = new TokensClient(apiClient)
+    const sourcesClient = new SourcesClient(apiClient)
 
     export let url = ""
 
