@@ -3,8 +3,8 @@ package users
 import (
 	"context"
 
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
 	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage"
@@ -29,7 +29,7 @@ func (s *Service) GetMe(
 ) (*users.User, error) {
 	actor, ok := actor.FromContext(ctx)
 	if !ok {
-		return nil, grpc.Errorf(codes.NotFound, "not authenticated")
+		return nil, status.Errorf(codes.NotFound, "not authenticated")
 	}
 	return &users.User{
 		Name: actor.String(),

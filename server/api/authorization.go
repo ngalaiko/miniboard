@@ -28,7 +28,7 @@ func authorize(handler http.Handler, jwtService *jwt.Service) http.Handler {
 			subject, err := jwtService.Validate(r.Context(), cookie.Value, "access_token")
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte(`{"error":"invalid auth token"}`))
+				_, _ = w.Write([]byte(`{"error":"invalid auth token"}`))
 				return
 			}
 
@@ -38,7 +38,6 @@ func authorize(handler http.Handler, jwtService *jwt.Service) http.Handler {
 		}
 
 		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte(`{"error":"auth cookie missing"}`))
-		return
+		_, _ = w.Write([]byte(`{"error":"auth cookie missing"}`))
 	})
 }

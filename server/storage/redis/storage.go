@@ -12,8 +12,6 @@ import (
 	"miniboard.app/storage/resource"
 )
 
-const poolSize = 10
-
 // Storage used to store key value data.
 type Storage struct {
 	db *redis.Pool
@@ -101,10 +99,10 @@ func (s *Storage) Load(ctx context.Context, name *resource.Name) ([]byte, error)
 	defer func() {
 		_ = conn.Close()
 	}()
-	return s.load(ctx, conn, name)
+	return s.load(conn, name)
 }
 
-func (s *Storage) load(ctx context.Context, conn redis.Conn, name *resource.Name) ([]byte, error) {
+func (s *Storage) load(conn redis.Conn, name *resource.Name) ([]byte, error) {
 	data, err := redis.Bytes(conn.Do("GET", name.String()))
 	switch err {
 	case nil:
@@ -179,7 +177,7 @@ func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resour
 			Name: resource.ParseName(fmt.Sprintf("%s/%s", first, key)),
 		}
 
-		res.Data, err = s.load(ctx, conn, res.Name)
+		res.Data, err = s.load(conn, res.Name)
 		switch err {
 		case nil:
 		case storage.ErrNotFound:

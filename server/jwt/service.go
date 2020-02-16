@@ -45,7 +45,7 @@ func NewService(ctx context.Context, db storage.Storage) *Service {
 	}
 
 	if err := s.newSigner(ctx); err != nil {
-		log("jwt").Panicf("failed to generate encryption key: %s", err)
+		log().Panicf("failed to generate encryption key: %s", err)
 	}
 
 	go s.rotateKeys(ctx)
@@ -59,7 +59,7 @@ func (s *Service) newSigner(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	log("jwt").Infof("%s: new encryption key", key.ID)
+	log().Infof("%s: new encryption key", key.ID)
 
 	options := (&jose.SignerOptions{}).
 		WithHeader("kid", key.ID).
@@ -146,7 +146,7 @@ func (s *Service) rotateKeys(ctx context.Context) {
 			return
 		case <-timer.C:
 			if err := s.newSigner(ctx); err != nil {
-				log("jwt").Errorf("failed to rotate keys: %s", err)
+				log().Errorf("failed to rotate keys: %s", err)
 			}
 		}
 	}
@@ -160,7 +160,7 @@ func (s *Service) cleanupOldKeys(ctx context.Context) {
 			return
 		case <-timer.C:
 			if err := s.deleteOldKeys(ctx); err != nil {
-				log("jwt").Errorf("failed to delete keys: %s", err)
+				log().Errorf("failed to delete keys: %s", err)
 			}
 		}
 	}
@@ -176,7 +176,7 @@ func (s *Service) deleteOldKeys(ctx context.Context) error {
 	for _, k := range kk {
 		ksID, err := ksuid.Parse(k.ID)
 		if err != nil {
-			log("jwt").Errorf("%s: malformed kuid", k.ID)
+			log().Errorf("%s: malformed kuid", k.ID)
 			continue
 		}
 
@@ -184,17 +184,17 @@ func (s *Service) deleteOldKeys(ctx context.Context) error {
 			continue
 		}
 		if err := s.keyStorage.Delete(ctx, k.ID); err != nil {
-			log("jwt").Errorf("%s: can't delete key: %s", k.ID, err)
+			log().Errorf("%s: can't delete key: %s", k.ID, err)
 			continue
 		}
-		log("jwt").Infof("%s: key removed", k.ID)
+		log().Infof("%s: key removed", k.ID)
 	}
 
 	return nil
 }
 
-func log(src string) *logrus.Entry {
+func log() *logrus.Entry {
 	return logrus.WithFields(logrus.Fields{
-		"source": src,
+		"source": "jwt",
 	})
 }

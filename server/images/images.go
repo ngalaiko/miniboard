@@ -63,7 +63,7 @@ func (s *Service) Handler() http.Handler {
 		}
 
 		w.Header().Set("Content-Type", http.DetectContentType(data))
-		w.Write(data)
+		_, _ = w.Write(data)
 	})
 }
 

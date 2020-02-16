@@ -17,31 +17,29 @@ import (
 	"miniboard.app/storage/redis"
 )
 
-var (
-	domain = flag.String("domain", "http://localhost:8080", "Service domain.")
-	addr   = flag.String("addr", ":8080", "Address to listen for connections.")
-
-	boltPath = flag.String("bolt-path", "./bolt.db", "Path to the bolt storage.")
-
-	redisURI = flag.String("redis-uri", "", "Redis URI to connect to.")
-
-	sslCert = flag.String("ssl-cert", "", "Path to ssl certificate.")
-	sslKey  = flag.String("ssl-key", "", "Path to ssl key.")
-
-	smtpHost   = flag.String("smtp-host", "", "SMTP server host.")
-	smtpPort   = flag.String("smtp-port", "", "SMTP server port.")
-	smtpSender = flag.String("smtp-sender", "", "SMTP sender.")
-
-	filePath = flag.String("static-path", "", "Filepath to static files.")
-)
-
 func main() {
+	domain := flag.String("domain", "http://localhost:8080", "Service domain.")
+	addr := flag.String("addr", ":8080", "Address to listen for connections.")
+
+	boltPath := flag.String("bolt-path", "./bolt.db", "Path to the bolt storage.")
+
+	redisURI := flag.String("redis-uri", "", "Redis URI to connect to.")
+
+	sslCert := flag.String("ssl-cert", "", "Path to ssl certificate.")
+	sslKey := flag.String("ssl-key", "", "Path to ssl key.")
+
+	smtpHost := flag.String("smtp-host", "", "SMTP server host.")
+	smtpPort := flag.String("smtp-port", "", "SMTP server port.")
+	smtpSender := flag.String("smtp-sender", "", "SMTP sender.")
+
+	filePath := flag.String("static-path", "", "Filepath to static files.")
+
 	flag.Parse()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	db, err := initStorage(ctx)
+	db, err := initStorage(ctx, *redisURI, *boltPath)
 	if err != nil {
 		logrus.Fatalf("failed to connect to database: %s", err)
 	}
@@ -51,7 +49,7 @@ func main() {
 		logrus.Fatalf("failed to open a connection: %s", err)
 	}
 
-	server, err := api.NewServer(ctx, db, emailClient(), *filePath, *domain)
+	server, err := api.NewServer(ctx, db, emailClient(*smtpHost, *smtpPort, *smtpSender), *filePath, *domain)
 	if err != nil {
 		logrus.Fatalf("failed to create server: %s", err)
 	}
@@ -64,25 +62,25 @@ func main() {
 	}
 }
 
-func initStorage(ctx context.Context) (storage.Storage, error) {
+func initStorage(ctx context.Context, redisURI, boltPath string) (storage.Storage, error) {
 	switch {
-	case *redisURI != "":
-		return redis.New(ctx, *redisURI)
-	case *boltPath != "":
-		return bolt.New(ctx, *boltPath)
+	case redisURI != "":
+		return redis.New(ctx, redisURI)
+	case boltPath != "":
+		return bolt.New(ctx, boltPath)
 	default:
 		return nil, errors.New("one of redis-uri or bolt-path must be provided")
 	}
 }
 
-func emailClient() email.Client {
-	if *smtpHost == "" {
+func emailClient(host, port, sender string) email.Client {
+	if host == "" {
 		return disabled.New()
 	}
 	return smtp.New(
-		*smtpHost,
-		*smtpPort,
-		*smtpSender,
+		host,
+		port,
+		sender,
 		os.Getenv("SMTP_USERNAME"),
 		os.Getenv("SMTP_PASSWORD"),
 	)

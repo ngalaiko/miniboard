@@ -20,9 +20,9 @@ type DB struct {
 // New creates new storage instance. Database is storad in the _path_.
 func New(ctx context.Context, path string) (*DB, error) {
 	if _, err := os.Open(path); err != nil {
-		log("bolt").Infof("creating storage in %s", path)
+		log().Infof("creating storage in %s", path)
 	} else {
-		log("bolt").Infof("found storage in %s", path)
+		log().Infof("found storage in %s", path)
 	}
 
 	db, err := bolt.Open(path, 0600, &bolt.Options{})
@@ -33,9 +33,9 @@ func New(ctx context.Context, path string) (*DB, error) {
 	go func() {
 		<-ctx.Done()
 
-		log("bolt").Infof("[bolt] closing storage %s", path)
+		log().Infof("closing storage %s", path)
 		if err := db.Close(); err != nil {
-			log("bolt").Errorf("[bolt] closing storage error: %s", err)
+			log().Errorf("closing storage error: %s", err)
 		}
 	}()
 
@@ -44,8 +44,8 @@ func New(ctx context.Context, path string) (*DB, error) {
 	}, nil
 }
 
-func log(src string) *logrus.Entry {
+func log() *logrus.Entry {
 	return logrus.WithFields(logrus.Fields{
-		"source": src,
+		"source": "bolt",
 	})
 }

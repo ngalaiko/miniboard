@@ -4,6 +4,7 @@ import (
 	"context"
 	"net"
 	"net/http"
+	"regexp"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -109,6 +110,9 @@ func NewServer(
 
 	imagesHandler := imagesService.Handler()
 	webHandler := web.Handler(filePath)
+
+	imageRegExp := regexp.MustCompile("users/.+/articles/.+/images/.+")
+
 	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if imageRegExp.MatchString(r.RequestURI) {
 			imagesHandler.ServeHTTP(w, r)
@@ -138,6 +142,7 @@ func (s *Server) Serve(ctx context.Context, lis net.Listener, tlsConfig *TLSConf
 	log("http").Infof("starting server on %s", lis.Addr())
 
 	idleConnsClosed := make(chan struct{})
+
 	go func() {
 		<-ctx.Done()
 		log("http").Infof("stopping server")

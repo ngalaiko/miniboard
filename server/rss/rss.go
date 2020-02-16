@@ -43,6 +43,7 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader) (*rss.Feed, 
 	wg, ctx := errgroup.WithContext(ctx)
 	for _, item := range feed.Items {
 		item := item
+
 		wg.Go(func() error {
 			if err := s.saveItem(ctx, item); err != nil {
 				return errors.Wrapf(err, "failed to save item %s", item.Link)

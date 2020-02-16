@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	articles "miniboard.app/proto/users/articles/v1"
 	rss "miniboard.app/proto/users/rss/v1"
 	sources "miniboard.app/proto/users/sources/v1"
@@ -46,7 +46,7 @@ func New(articlesService articlesService, rssService rssService) *Service {
 func (s *Service) CreateSource(ctx context.Context, request *sources.CreateSourceRequest) (*sources.Source, error) {
 	url, err := url.ParseRequestURI(request.Source.Url)
 	if err != nil {
-		return nil, grpc.Errorf(codes.InvalidArgument, "url is invalid")
+		return nil, status.Errorf(codes.InvalidArgument, "url is invalid")
 	}
 
 	resp, err := s.client.Get(request.Source.Url)
@@ -56,7 +56,8 @@ func (s *Service) CreateSource(ctx context.Context, request *sources.CreateSourc
 	defer resp.Body.Close()
 
 	ct := resp.Header.Get("Content-Type")
-	switch true {
+
+	switch {
 	case strings.HasPrefix(ct, "text/html"):
 		article, err := s.articlesService.CreateArticle(ctx, resp.Body, url)
 		if err != nil {
@@ -74,6 +75,6 @@ func (s *Service) CreateSource(ctx context.Context, request *sources.CreateSourc
 		request.Source.Name = feed.Name
 		return request.Source, nil
 	default:
-		return nil, grpc.Errorf(codes.InvalidArgument, "unsupported format %s", ct)
+		return nil, status.Errorf(codes.InvalidArgument, "unsupported format %s", ct)
 	}
 }

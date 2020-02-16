@@ -39,7 +39,7 @@ func New(
 // CreateCode creates new authorization code.
 func (s *Service) CreateCode(ctx context.Context, request *codes.CreateCodeRequest) (*codes.Code, error) {
 	h := md5.New()
-	io.WriteString(h, request.Email)
+	_, _ = io.WriteString(h, request.Email)
 	hashedEmail := fmt.Sprintf("%x", h.Sum(nil))
 
 	token, err := s.jwt.NewToken(resource.NewName("users", hashedEmail), 10*time.Minute, "authorization_code")

@@ -81,10 +81,8 @@ func Test_split(t *testing.T) {
 		},
 	}
 	for _, tc := range testCases {
-		t.Run(tc.in.String(), func(t *testing.T) {
-			first, last := tc.in.Split()
-			assert.Equal(t, first, tc.first)
-			assert.Equal(t, last, tc.last)
-		})
+		first, last := tc.in.Split()
+		assert.Equal(t, first, tc.first)
+		assert.Equal(t, last, tc.last)
 	}
 }

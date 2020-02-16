@@ -20,18 +20,12 @@ type testClient struct {
 	typ string
 }
 
-func newTestClient(typ string) *testClient {
-	return &testClient{
-		typ: typ,
-	}
-}
-
 func (tc *testClient) Get(url string) (*http.Response, error) {
 	return &http.Response{
 		StatusCode: http.StatusOK,
 		Body:       ioutil.NopCloser(&bytes.Buffer{}),
 		Header: map[string][]string{
-			"Content-Type": []string{tc.typ},
+			"Content-Type": {tc.typ},
 		},
 	}, nil
 }

@@ -2,13 +2,10 @@ package api
 
 import (
 	"net/http"
-	"regexp"
 	"time"
 
 	"github.com/sirupsen/logrus"
 )
-
-var imageRegExp = regexp.MustCompile("users/.+/articles/.+/images/.+")
 
 type loggingResponseWriter struct {
 	http.ResponseWriter

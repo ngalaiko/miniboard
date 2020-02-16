@@ -159,12 +159,11 @@ func Benchmark_DB(b *testing.B) {
 			b.ResetTimer()
 
 			for i := 0; i < b.N; i++ {
-				storage.Store(ctx, name, []byte(`data`))
-				storage.Load(ctx, name)
+				_ = storage.Store(ctx, name, []byte(`data`))
+				_, _ = storage.Load(ctx, name)
 			}
 		})
 	}
-
 }
 
 func testBucket(ctx context.Context, t *testing.T) storage.Storage {

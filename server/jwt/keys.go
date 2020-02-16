@@ -108,7 +108,7 @@ func (s *keyStorage) List(ctx context.Context) ([]*key, error) {
 	for _, d := range dd {
 		privateKey, err := x509.ParseECPrivateKey(d.Data)
 		if err != nil {
-			log("jwt").Errorf("failed to parse key '%s': %s", d.Name, err)
+			log().Errorf("failed to parse key '%s': %s", d.Name, err)
 			continue
 		}
 		kk = append(kk, &key{

@@ -1,0 +1,56 @@
+run:
+  timeout: 1m
+  skip-dirs-use-default: true
+  skip-files:
+    - ".pb\\.go$"
+    - ".gw\\.go$"
+
+linters:
+  enable:
+    - bodyclose
+    - deadcode
+    - depguard
+    - dogsled
+    - dupl
+    - errcheck
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - golint
+    - goprintffuncname
+    - gosimple
+    - govet
+    - ineffassign
+    - misspell
+    - nakedret
+    - rowserrcheck
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - whitespace
+    - gochecknoglobals
+    - gocognit
+    - maligned
+    - prealloc
+  # - gosec
+  # - wsl
+  # - funlen
+  # - gomnd
+  # - godox
+  # - lll
+  # - interfacer
+  # - scopelint
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gocognit
