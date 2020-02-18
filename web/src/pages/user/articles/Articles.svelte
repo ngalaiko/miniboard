@@ -46,7 +46,7 @@
 
 <div id='page'>
     <div id='list' bind:this={component} >
-        {#each items as item, i (item.getName()) }
+        {#each items as item, i (item.name) }
             <slot
                 item={item}
             />

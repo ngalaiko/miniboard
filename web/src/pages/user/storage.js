@@ -10,24 +10,24 @@ export const storage = () => {
             if (list === undefined) list = []
 
             for (let i in list) {
-                if (list[i].getName() == article.getName()) return list
+                if (list[i].name == article.name) return list
             }
 
             return [article].concat(list).sort((a, b) => {
-                const d1 = a.getCreateTime()
-                const d2 = b.getCreateTime()
+                const d1 = a.createTime
+                const d2 = b.createTime
                 return d1 < d2 ? 1 : -1
             })
         })
     }
     $.delete = async (name) => {
-        articlesListStore.update(list => list.filter(a => a.getName() != name))
+        articlesListStore.update(list => list.filter(a => a.name != name))
     }
 
     $.update = async (updated) => {
         articlesListStore.update(list => {
             for (let i in list) {
-                if (list[i].getName() == updated.getName()) {
+                if (list[i].name == updated.name) {
                     list[i] = updated
                     break
                 }
@@ -42,13 +42,13 @@ export const storage = () => {
 
         let resp = await articlesClient.list(username, pageSize, from, params)
 
-        from = resp.getNextPageToken()
+        from = resp.nextPageToken
 
         if (from == '') from = undefined
 
-        if (resp.getArticlesList().length == 0) return 
+        if (resp.articles.length == 0) return 
 
-        resp.getArticlesList().forEach(article => $.add(article))
+        resp.articles.forEach(article => $.add(article))
     }
 
     $.store = articlesListStore

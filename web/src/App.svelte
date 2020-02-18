@@ -6,12 +6,12 @@
     import Reader from './pages/reader/Reader.svelte'
     import { Router, Route, navigate } from 'svelte-routing'
 
-    import { ApiClient } from './clients/api.js'
-    import { ArticlesClient } from './clients/articles.js'
-    import { CodesClient } from './clients/codes.js'
-    import { UsersClient } from './clients/users.js'
-    import { TokensClient } from './clients/tokens.js'
-    import { SourcesClient } from './clients/sources.js'
+    import { ApiClient } from './clients/api.ts'
+    import { ArticlesClient } from './clients/articles.ts'
+    import { CodesClient } from './clients/codes.ts'
+    import { UsersClient } from './clients/users.ts'
+    import { TokensClient } from './clients/tokens.ts'
+    import { SourcesClient } from './clients/sources.ts'
 
     const apiClient = new ApiClient()
     const usersClient = new UsersClient(apiClient)

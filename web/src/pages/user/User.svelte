@@ -15,7 +15,7 @@
     import Articles from './articles/Articles.svelte'
     import Header from './header/Header.svelte'
 
-    import { Article as article } from '../../clients/articles.js'
+    import { Article as article } from '../../clients/articles.ts'
 
     export let user
 
@@ -24,29 +24,29 @@
 
     const onAdded = async (url) => {
         const mock = new article()
-        mock.setUrl(url)
-        mock.setTitle(url)
-        mock.setIsRead(false)
-        mock.setIsFavorite(false)
-        mock.setCreateTime(new Date().toISOString())
-        mock.setName(Math.random())
+        mock.url = url
+        mock.title = url
+        mock.isRead = false
+        mock.isFavorite = false
+        mock.createTime = new Date().toISOString()
+        mock.name = Math.random()
 
         allStorage.add(mock)
         unreadStorage.add(mock)
 
         const source = await sourcesClient.createSource(user, url)
 
-        const type = source.getName().replace(user, '')
+        const type = source.name.replace(user, '')
         switch (true) {
         case type.startsWith('/article'):
-            const article = await articlesClient.get(source.getName())
+            const article = await articlesClient.get(source.name)
             allStorage.add(article)
             unreadStorage.add(article)
             break;
         }
 
-        allStorage.delete(mock.getName())
-        unreadStorage.delete(mock.getName())
+        allStorage.delete(mock.name)
+        unreadStorage.delete(mock.name)
     }
 
     const onDeleted = async (name) => {
@@ -63,14 +63,14 @@
         allStorage.update(updated)
         unreadStorage.update(updated)
 
-        if (!updated.getIsRead()) {
+        if (!updated.isRead) {
             unreadStorage.add(updated)
         }
 
-        if (updated.getIsFavorite()) {
+        if (updated.isFavorite) {
             starredStorage.add(updated)
         } else {
-            starredStorage.delete(updated.getName())
+            starredStorage.delete(updated.name)
         }
     }
 </script>

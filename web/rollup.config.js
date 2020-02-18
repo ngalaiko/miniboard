@@ -3,6 +3,8 @@ import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import { terser } from 'rollup-plugin-terser'
 import html from 'rollup-plugin-bundle-html'
+import typescript from 'rollup-plugin-typescript2'
+import typescriptCompiler from 'typescript'
 
 const mode = process.env.NODE_ENV 
 const isDevelopment = mode === "development"
@@ -21,6 +23,10 @@ const appPlugins = [
         absolute: true
     }),
     commonjs(),
+    typescript({
+        typescript: typescriptCompiler,
+        tsconfig: './tsconfig.json',
+    }),
     resolve(),
     !isDevelopment && terser(),
 ]

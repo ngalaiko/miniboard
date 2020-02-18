@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "baseUrl": "./",
+        "charset": "utf-8",
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "forceConsistentCasingInFileNames": true,
+        "types": ["whatwg-fetch"],
+        "strict": true,
+        "downlevelIteration": true,
+        "useDefineForClassFields": true,
+    },
+    "include": [
+        "src/**/*",
+    ],
+}

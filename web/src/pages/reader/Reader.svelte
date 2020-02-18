@@ -4,9 +4,9 @@
     export let name
 
     const decode = (article) => {
-        document.title = `${article.getTitle()} - Miniboard`
+        document.title = `${article.title} - Miniboard`
 
-        return decodeURIComponent(atob(article.getContent()).split('').map(function(c) {
+        return decodeURIComponent(atob(article.content).split('').map(function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''))
     }
@@ -16,14 +16,14 @@
     {#await articlesClient.get(name)}
         loading...
     {:then article}
-        {#if article.getContent() === ""}
-            no saved content, redirecting to <a href={article.url} target='_blank'>{article.getUrl()}</a>
+        {#if article.content === ""}
+            no saved content, redirecting to <a href={article.url} target='_blank'>{article.url}</a>
             <div hidden>
-                {window.open(article.getUrl(), '_blank')}
+                {window.open(article.url, '_blank')}
             </div>
         {:else}
             <div class='page'>
-                <h1>{article.getTitle()}</h1>
+                <h1>{article.title}</h1>
                 {@html decode(article)}
             </div>
         {/if}

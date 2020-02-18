@@ -1,19 +1,25 @@
+import { ApiClient } from './api'
+
 export class Token {
-    constructor(body) {
+    token: string
+
+    constructor(body: any) {
 		this.token = body.token
     }
 
-    getToken() {
+    getToken(): string {
 		return this.token
     }
 }
 
 export class TokensClient {
-    constructor(apiClient) {
+    private apiClient: ApiClient
+
+    constructor(apiClient: ApiClient) {
         this.apiClient = apiClient
     }
 
-    async exchangeCode(code) {
+    async exchangeCode(code: string): Promise<Token> {
         return new Token(await this.apiClient.post(`/api/v1/tokens`, {
             code: code,
         }))

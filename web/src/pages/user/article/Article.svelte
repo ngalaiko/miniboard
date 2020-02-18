@@ -7,34 +7,34 @@
 
     export let article
 
-    const onDeleted = async () => dispatch('deleted', article.getName())
+    const onDeleted = async () => dispatch('deleted', article.name)
 
     const onRead = async (isRead) => {
-        article.setIsRead(isRead)
+        article.isRead = isRead
         dispatch('updated', article)
     }
 
     const onStarred = async (isStarred) => {
-        article.setIsFavorite(isStarred)
+        article.isFavorite = isStarred
         dispatch('updated', article)
     }
 
     const onClick = async () => {
         onRead(true)
-        navigate(`/${article.getName()}`)
+        navigate(`/${article.name}`)
     }
 </script>
 
-<div class='article' class:opacity={article.getIsRead()}>
-    <span class='title' on:click|preventDefault={onClick}>{article.getTitle()}</span>
+<div class='article' class:opacity={article.isRead}>
+    <span class='title' on:click|preventDefault={onClick}>{article.title}</span>
     <ul class='article-info'>
-        {#if article.getSiteName() !== ''}
-        <li><a class='link padding' href={article.getUrl()}>{article.getSiteName()}</a></li>
+        {#if article.siteName !== ''}
+        <li><a class='link padding' href={article.url}>{article.siteName}</a></li>
         {:else}
-        <li><a class='link padding' href={article.getUrl()}>source</a></li>
+        <li><a class='link padding' href={article.url}>source</a></li>
         {/if}
-        <li class='separator flex'><TimeAgo date={article.getCreateTime()}/></li>
-        {#if article.getIsFavorite()}
+        <li class='separator flex'><TimeAgo date={article.xreateTime}/></li>
+        {#if article.isFavorite}
             <li class='separator'>
                 <button on:click|preventDefault={() => onStarred(false)}><b>star</b></button>
             </li>
@@ -43,7 +43,7 @@
                 <button on:click|preventDefault={() => onStarred(true)}>star</button>
             </li>
         {/if}
-        {#if article.getIsRead()}
+        {#if article.isRead}
             <li class='separator'>
                 <button on:click|preventDefault={() => onRead(false)}>unread</button>
             </li>

@@ -11,11 +11,15 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^11.0.0",
     "@rollup/plugin-node-resolve": "^6.0.0",
+    "@types/node-fetch": "^2.5.4",
+    "@types/whatwg-fetch": "^0.0.33",
     "rollup": "^1.27.5",
     "rollup-plugin-bundle-html": "^0.2.2",
     "rollup-plugin-svelte": "^5.1.1",
     "rollup-plugin-terser": "^5.1.3",
-    "svelte": "^3.15.0"
+    "rollup-plugin-typescript2": "^0.26.0",
+    "svelte": "^3.15.0",
+    "typescript": "^3.7.5"
   },
   "dependencies": {
     "google-protobuf": "^3.11.0",
