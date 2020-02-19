@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import User  from './pages/user/User.svelte'
     import Codes from './pages/codes/Codes.svelte'
     import Login from './pages/login/Login.svelte'
@@ -6,11 +6,17 @@
     import Reader from './pages/reader/Reader.svelte'
     import { Router, Route, navigate } from 'svelte-routing'
 
+    // @ts-ignore
     import { ApiClient } from './clients/api.ts'
+    // @ts-ignore
     import { ArticlesClient } from './clients/articles.ts'
+    // @ts-ignore
     import { CodesClient } from './clients/codes.ts'
+    // @ts-ignore
     import { UsersClient } from './clients/users.ts'
+    // @ts-ignore
     import { TokensClient } from './clients/tokens.ts'
+    // @ts-ignore
     import { SourcesClient } from './clients/sources.ts'
 
     const apiClient = new ApiClient()
@@ -20,15 +26,13 @@
     const tokensClient = new TokensClient(apiClient)
     const sourcesClient = new SourcesClient(apiClient)
 
-    export let url = ""
-
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register(`/sw.js`, {
                 scope: '/'
-            }).then((registration) => {
+            }).then(() => {
                 console.log('ServiceWorker registration successful')
-            }, (err) => {
+            }, (err: Error) => {
                 console.log(`ServiceWorker registration failed: ${err}`)
             })
         })
@@ -36,13 +40,13 @@
 
     if (location.pathname == "/") {
         usersClient.me()
-            .then(user => navigate(`/${user.getName()}/unread`))
-            .catch(e => { /* ignore */ })
+            .then((user: User) => navigate(`/${user.name}/unread`))
+            .catch(() => { /* ignore */ })
     }
 </script>
 
 <div class="app">
-    <Router url="{url}">
+    <Router>
         <Route path="/codes/:code" let:params>
             <Codes tokensClient={tokensClient} code="{params.code}" />
         </Route>

@@ -3,8 +3,8 @@ import { ApiClient } from './api'
 export class User {
     name: string
 
-    constructor(body: string) {
-        this.name = body
+    constructor(body: any) {
+        this.name = body.name
     }
 }
 

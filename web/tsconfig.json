@@ -2,20 +2,19 @@
     "compilerOptions": {
         "target": "es6",
         "baseUrl": "./",
-        "charset": "utf-8",
         "noImplicitAny": true,
         "noImplicitThis": true,
-        "noUnusedLocals": true,
+        "noUnusedLocals": false,
         "noUnusedParameters": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
         "forceConsistentCasingInFileNames": true,
-        "types": ["whatwg-fetch"],
         "strict": true,
         "downlevelIteration": true,
         "useDefineForClassFields": true,
+        "typeRoots" : ["./src/@types"],
     },
     "include": [
-        "src/**/*",
+        "src/**/*"
     ],
 }

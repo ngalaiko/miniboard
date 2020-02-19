@@ -5,6 +5,7 @@ import { terser } from 'rollup-plugin-terser'
 import html from 'rollup-plugin-bundle-html'
 import typescript from 'rollup-plugin-typescript2'
 import typescriptCompiler from 'typescript'
+import sveltePreprocessor from 'svelte-preprocess'
 
 const mode = process.env.NODE_ENV 
 const isDevelopment = mode === "development"
@@ -14,6 +15,7 @@ const name = isDevelopment ? 'app' : 'app-[hash]'
 const appPlugins = [
     svelte({
         dev: isDevelopment,
+        preprocess: sveltePreprocessor({}),
         css: css => css.write(`./dist/${name}.css`, isDevelopment)
     }),
     html({
@@ -22,11 +24,8 @@ const appPlugins = [
         filename: "index.html",
         absolute: true
     }),
+    typescript({ typescript: typescriptCompiler }),
     commonjs(),
-    typescript({
-        typescript: typescriptCompiler,
-        tsconfig: './tsconfig.json',
-    }),
     resolve(),
     !isDevelopment && terser(),
 ]
@@ -37,7 +36,7 @@ const swPlugins = [
 ]
 
 module.exports = [{
-	input: "src/main.js",
+	input: "src/index.ts",
 	output: {
 		file: `dist/${name}.js`,
 		sourcemap: isDevelopment,
