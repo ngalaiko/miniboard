@@ -12,7 +12,7 @@
         "strict": true,
         "downlevelIteration": true,
         "useDefineForClassFields": true,
-        "typeRoots" : ["./src/@types"],
+        "typeRoots" : ["./@types"],
     },
     "include": [
         "src/**/*"
