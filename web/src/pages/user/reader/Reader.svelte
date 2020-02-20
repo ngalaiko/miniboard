@@ -1,3 +1,3 @@
-<div id='reader'>
+<div class='reader'>
   reader
 </div>

@@ -44,16 +44,15 @@
   }
 </script>
 
-<div id="app">
+<div class="app">
   <Router>
     <Route path="/codes/:code" let:params>
       <Codes tokensClient={tokensClient} code="{params.code}" />
     </Route>
     <Route path="/users/:userid/*" let:params>
       <User
-        user="users/{params.userid}"
+        username="users/{params.userid}"
         articlesClient={articlesClient}
-        sourcesClient={sourcesClient}
       />
     </Route>
     <Route path="/">
@@ -64,7 +63,7 @@
 </div>
 
 <style>
-  #app {
+  .app {
     display: flex;
     height: 100%;
     font-family: Helvetica neue, Helvetica, Arial, sans-serif;

@@ -21,6 +21,7 @@
     "typescript": "^3.7.5"
   },
   "dependencies": {
+    "svelte-infinite-scroll": "^1.0.0",
     "svelte-routing": "^1.4.0"
   }
 }

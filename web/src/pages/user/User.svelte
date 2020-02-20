@@ -1,36 +1,45 @@
-<script>
+<script lang="ts">
   import Menu from './menu/Menu.svelte'
   import List from './list/List.svelte'
   import Reader from './reader/Reader.svelte'
+
+  // @ts-ignore
+  import { ArticlesClient } from '../../clients/articles.ts'
+
+  export let username: string
+  export let articlesClient: ArticlesClient
 </script>
 
-<div id="user">
-  <div id="menu" class="column">
+<div class="user">
+  <div class="menu column">
     <Menu />
   </div>
-  <div id="list" class="column">
-    <List />
+  <div class="list column">
+    <List 
+      username={username}
+      articlesClient={articlesClient}
+    />
   </div>
-  <div id="reader" class="column">
+  <div class="reader column">
     <Reader />
   </div>
 </div>
 
 <style>
-  #user {
+  .user {
     display: flex;
     width: 100%;
   }
 
-  #list {
+  .list {
     flex-basis: 20%;
   }
 
-  #menu {
+  .menu {
     flex-basis: 20%;
   }
 
-  #reader {
+  .reader {
     flex-basis: 60%;
   }
 
