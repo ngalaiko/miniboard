@@ -45,7 +45,7 @@
     }
 </script>
 
-<div class="app">
+<div id="app">
     <Router>
         <Route path="/codes/:code" let:params>
             <Codes tokensClient={tokensClient} code="{params.code}" />
@@ -71,12 +71,12 @@
 </div>
 
 <style>
-    .app {
+    #app {
         display: flex;
         height: 100%;
         padding-left: 5px;
         padding-right: 5px;
-        font-family: -apple-system, BlinkMacSystemFont, helvetica neue, Helvetica, Arial, sans-serif;
+        font-family: Helvetica neue, Helvetica, Arial, sans-serif;
         max-width: 800px;
         margin: auto;
     }
