@@ -1,96 +1,100 @@
-<script>
-    import { navigate } from "svelte-routing"
+<script lang="ts">
+  import { navigate } from "svelte-routing"
 
-    export let codesClient
+  // @ts-ignore
+  import { CodesClient } from '../../clients/codes.ts'
 
-    document.title = "Miniboard"
+  export let codesClient: CodesClient
 
-    let email = ''
+  let email = ''
 
-    const urlParams = new URLSearchParams(window.location.search)
-    let error = urlParams.get('error')
+  const urlParams = new URLSearchParams(window.location.search)
+  let error = urlParams.get('error')
 
-    let showCode = false
-    let code = ''
+  let showCode = false
+  let code = ''
 
-    const handleClick = async () => {
-        if (email == '' ) {
-            return
-        }
-        let resp = codesClient.sendCode(email)
-        error = ''
-        showCode = true
+  const handleClick = async () => {
+    if (email == '' ) {
+        return
     }
+    let resp = codesClient.sendCode(email)
+    error = ''
+    showCode = true
+  }
 
-    const handleCode = async () => navigate(`/codes/${code}`)
+  const handleCode = async () => navigate(`/codes/${code}`)
 </script>
 
-<div class='form'>
-    {#if error}
-        <div class='alert'>{error}</div>
-    {/if}
+<svelte:head>
+  <title>Miniboard</title>
+</svelte:head>
+
+<div id='login'>
+  {#if error}
+    <div class='alert'>{error}</div>
+  {/if}
+  <form>
+    <input
+      name='email'
+      type='email'
+      bind:value={email}
+      placeholder='email'
+    />
+    <button on:click|preventDefault={handleClick} />
+  </form>
+  <form>
+  {#if showCode}
     <form>
-        <input
-            name='email'
-            type='email'
-            bind:value={email}
-            placeholder='email'
-        />
-        <button on:click|preventDefault={handleClick} />
+      <input
+        name='code'
+        type='text'
+        bind:value={code}
+        placeholder='code from the email'
+      />
+      <button on:click|preventDefault={handleCode} />
     </form>
-    <form>
-    {#if showCode}
-    <form>
-         <input
-            name='code'
-            type='text'
-            bind:value={code}
-            placeholder='code from the email'
-        />
-        <button on:click|preventDefault={handleCode} />
-    </form>
-    {/if}
+  {/if}
 </div>
 
 <style>
-    .form {
-        margin: 25% auto 0;
-        max-width: 250px
-    }
+  #login {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+  }
 
-    button {
-        padding-left: 0; padding-right: 0;
-        border-left-width: 0; border-right-width: 0;
-        white-space: nowrap;
-        overflow: hidden;
-    }
+  button {
+    padding-left: 0; padding-right: 0;
+    border-left-width: 0; border-right-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+  }
 
-    input {
-        border: 1px solid;
-        width: 100%;
-        font-size: 1.1em;
-        padding: 5px;
-        padding-left: 7px;
-        -webkit-appearance: none;
-        border-radius: 0;
-    }
+  input {
+    border: 1px solid;
+    width: 100%;
+    font-size: 1.1em;
+    padding: 5px;
+    padding-left: 7px;
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
 
-    input:focus{
-        outline: none;
-        outline-width: 0;
-    }
+  input:focus {
+    outline: none;
+    outline-width: 0;
+  }
 
-    .info {
-        text-align: center;
-    }
-
-    .alert{
-        color: #b94a48;
-        background-color: #f2dede;
-        border-color: #eed3d7;
-        padding: 8px;
-        border: 1px solid #fbeed5;
-        overflow: auto;
-        margin: 10px;
-    }
+  .alert {
+    color: #b94a48;
+    background-color: #f2dede;
+    border-color: #eed3d7;
+    padding: 8px;
+    border: 1px solid #fbeed5;
+    overflow: auto;
+    margin: 10px;
+  }
 </style>
