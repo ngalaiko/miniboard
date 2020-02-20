@@ -1,6 +1,10 @@
 {
     "compilerOptions": {
         "target": "es6",
+        "module": "esnext",
+        "moduleResolution": "node",
+        "outDir": "./dist",
+        "skipLibCheck": true,
         "baseUrl": "./",
         "noImplicitAny": true,
         "noImplicitThis": true,
@@ -12,9 +16,20 @@
         "strict": true,
         "downlevelIteration": true,
         "useDefineForClassFields": true,
-        "typeRoots" : ["./@types"],
+        "strictNullChecks": true,
+        "typeRoots" : [
+            "./@types", 
+        ],
+        "lib": [
+            "esnext", 
+            "dom", 
+            "webworker",
+        ],
     },
     "include": [
         "src/**/*"
+    ],
+    "exclude": [
+        "node_modules/**/*"
     ],
 }
