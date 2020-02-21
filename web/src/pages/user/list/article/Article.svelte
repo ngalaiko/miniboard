@@ -3,10 +3,9 @@
   import { Article } from '../../../../clients/articles.ts'
 
   export let article: Article
-
 </script>
 
-<div class="article">
+<div class="article" on:click>
   {article.title}
 </div>
 

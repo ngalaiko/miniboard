@@ -8,6 +8,8 @@
 
   export let username: string
   export let articlesClient: ArticlesClient
+
+  let selected: string|null = null
 </script>
 
 <div class="user">
@@ -18,33 +20,40 @@
     <List 
       username={username}
       articlesClient={articlesClient}
+      on:selected={(e) => selected = e.detail}
     />
   </div>
   <div class="reader column">
-    <Reader />
+    <Reader
+      articleName={selected}
+      articlesClient={articlesClient}
+    />
   </div>
 </div>
 
 <style>
   .user {
     display: flex;
-    width: 100%;
+    max-width: 100%;
+    min-width: 100%;
+  }
+
+  .menu {
+    flex-basis: 15%;
+    max-width:  15%;
+    min-width:  15%;
   }
 
   .list {
     flex-basis: 20%;
-  }
-
-  .menu {
-    flex-basis: 20%;
+    max-width:  20%;
+    min-width:  20%;
   }
 
   .reader {
-    flex-basis: 60%;
   }
 
   .column {
     border-left: 1px solid;
-    border-right: 1px solid;
   }
 </style>
