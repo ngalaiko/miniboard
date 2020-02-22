@@ -1,5 +1,15 @@
 import { ApiClient } from './api'
 
+export class ListParams {
+    isFavorite?: boolean
+    isRead?: boolean
+
+    constructor(isFavorite?: boolean, isRead?: boolean) {
+        this.isFavorite = isFavorite
+        this.isRead = isRead
+    }
+}
+
 export class Article {
     url: string
     title: string
@@ -53,14 +63,17 @@ export class ArticlesClient {
         return new Article(await this.apiClient.delete(`/api/v1/${name}`))
     }
 
-    async list(username: string, pageSize: number, from: string, params?: any): Promise<Articles> {
+    async list(username: string, pageSize: number, from: string, params: ListParams): Promise<Articles> {
         let query = `page_size=${pageSize}`
         if (from !== '') {
             query += `&page_token=${from}`
         }
-        if (params) Object.keys(params).forEach(key => {
-            query += `&${key}=${params[key]}`
-        })
+        if (params.isFavorite !== undefined) {
+            query += `&isFavorite=${params.isFavorite}`
+        }
+        if (params.isRead !== undefined) {
+            query += `&isRead=${params.isRead}`
+        }
         return new Articles(await this.apiClient.get(`/api/v1/${username}/articles?${query}`))
     }
 }

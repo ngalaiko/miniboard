@@ -4,28 +4,57 @@
   import Reader from './reader/Reader.svelte'
 
   // @ts-ignore
-  import { ArticlesClient } from '../../clients/articles.ts'
+  import { ArticlesClient, ListParams } from '../../clients/articles.ts'
 
   export let username: string
   export let articlesClient: ArticlesClient
 
-  let selected: string|null = null
+  enum Selected {
+    All = 0,
+    Unread = 1,
+    Favorite = 2,
+  }
+
+  let selected: Selected = Selected.Unread
+
+  let selectedArticleName: string|null = null
 </script>
 
 <div class="user">
   <div class="menu column">
-    <Menu />
+    <Menu
+      on:unread={() => { selected = Selected.Unread }}
+      on:favorite={() => { selected = Selected.Favorite }}
+      on:all={() => { selected =  Selected.All }}
+    />
   </div>
   <div class="list column">
-    <List 
-      username={username}
-      articlesClient={articlesClient}
-      on:selected={(e) => selected = e.detail}
-    />
+    {#if selected == Selected.All}
+      <List 
+        username={username}
+        articlesClient={articlesClient}
+        listParams={new ListParams()}
+        on:selected={(e) => selectedArticleName = e.detail}
+      />
+    {:else if selected == Selected.Unread}
+      <List 
+        username={username}
+        articlesClient={articlesClient}
+        listParams={new ListParams(undefined, false)}
+        on:selected={(e) => selectedArticleName = e.detail}
+      />
+    {:else if selected == Selected.Favorite}
+      <List 
+        username={username}
+        articlesClient={articlesClient}
+        listParams={new ListParams(true, undefined)}
+        on:selected={(e) => selectedArticleName = e.detail}
+      />
+    {/if}
   </div>
   <div class="reader column">
     <Reader
-      articleName={selected}
+      articleName={selectedArticleName}
       articlesClient={articlesClient}
     />
   </div>
@@ -51,6 +80,7 @@
   }
 
   .reader {
+    max-width:  64%;
   }
 
   .column {
