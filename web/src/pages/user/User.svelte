@@ -2,6 +2,7 @@
   import Menu from './menu/Menu.svelte'
   import List from './list/List.svelte'
   import Reader from './reader/Reader.svelte'
+  import { Router, Route, navigate } from 'svelte-routing'
 
   // @ts-ignore
   import { ArticlesClient, ListParams } from '../../clients/articles.ts'
@@ -9,48 +10,44 @@
   export let username: string
   export let articlesClient: ArticlesClient
 
-  enum Selected {
-    All = 0,
-    Unread = 1,
-    Favorite = 2,
-  }
-
-  let selected: Selected = Selected.Unread
-
   let selectedArticleName: string|null = null
 </script>
 
 <div class="user">
   <div class="menu column">
     <Menu
-      on:unread={() => { selected = Selected.Unread }}
-      on:favorite={() => { selected = Selected.Favorite }}
-      on:all={() => { selected =  Selected.All }}
+      on:unread={() => { navigate(`/${username}/unread`) }}
+      on:favorite={() => { navigate(`/${username}/favorite`) }}
+      on:all={() => { navigate(`/${username}/all`) }}
     />
   </div>
   <div class="list column">
-    {#if selected == Selected.All}
-      <List 
-        username={username}
-        articlesClient={articlesClient}
-        listParams={new ListParams()}
-        on:selected={(e) => selectedArticleName = e.detail}
-      />
-    {:else if selected == Selected.Unread}
-      <List 
-        username={username}
-        articlesClient={articlesClient}
-        listParams={new ListParams(undefined, false)}
-        on:selected={(e) => selectedArticleName = e.detail}
-      />
-    {:else if selected == Selected.Favorite}
-      <List 
-        username={username}
-        articlesClient={articlesClient}
-        listParams={new ListParams(true, undefined)}
-        on:selected={(e) => selectedArticleName = e.detail}
-      />
-    {/if}
+    <Router>
+      <Route path="all">
+        <List
+          username={username}
+          articlesClient={articlesClient}
+          listParams={new ListParams()}
+          on:selected={(e) => selectedArticleName = e.detail}
+        />
+      </Route>
+      <Route path="favorite">
+        <List
+          username={username}
+          articlesClient={articlesClient}
+          listParams={new ListParams(true, undefined)}
+          on:selected={(e) => selectedArticleName = e.detail}
+        />
+      </Route>
+      <Route path="*"> <!-- unread -->
+        <List
+          username={username}
+          articlesClient={articlesClient}
+          listParams={new ListParams(undefined, false)}
+          on:selected={(e) => selectedArticleName = e.detail}
+        />
+      </Route>
+    </Router>
   </div>
   <div class="reader column">
     <Reader
