@@ -77,7 +77,8 @@
   }
 
   .reader {
-    max-width:  64%;
+    max-width:  65%;
+    min-width:  65%;
   }
 
   .column {

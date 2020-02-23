@@ -17,6 +17,9 @@
     {#await articlesClient.get(articleName)}
       loading...
     {:then article}
+      <div class="header">
+        <h1>{article.title}</h1>
+      </div>
       {@html decode(article)}
     {/await}
   {/if}
@@ -24,9 +27,37 @@
 
 <style>
   .reader {
+    display: flex;
+    flex-direction: column;
     max-height: 100%;
     max-width: 100%;
     overflow-y: scroll;
-    padding: 5px;
+    overflow-x: hidden;
+    padding-left: 40px;
+    padding-right: 40px;
+    align-items: center;
+  }
+
+  .header {
+    display: flex;
+    flex-direction: column;
+    max-width: 660px;
+  }
+
+  :global(.page) {
+    max-width: 660px;
+  }
+
+  :global(img) {
+    max-width: 100%;
+    height: auto;
+  }
+
+  :global(blockquote) {
+    font-style: italic;
+    border-left: 3px solid #ccc;
+    margin-left: 2px;
+    margin-right: 6px;
+    padding-left: 16px;
   }
 </style>

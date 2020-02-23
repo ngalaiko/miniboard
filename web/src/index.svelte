@@ -76,5 +76,6 @@
   :global(body) {
     margin: 0px;
     height: 100%;
+    overflow: hidden;
   }
 </style>
