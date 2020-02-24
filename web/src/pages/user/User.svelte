@@ -46,7 +46,7 @@
         <List
           username={username}
           articlesClient={articlesClient}
-          listParams={new ListParams(true, undefined)}
+          listParams={new ListParams().withFavorite(true)}
           on:selected={(e) => selectedArticleName = e.detail}
         />
       </div>
@@ -64,7 +64,7 @@
         <List
           username={username}
           articlesClient={articlesClient}
-          listParams={new ListParams(undefined, false)}
+          listParams={new ListParams().withRead(false)}
           on:selected={(e) => selectedArticleName = e.detail}
         />
       </div>

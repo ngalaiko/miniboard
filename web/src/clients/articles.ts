@@ -4,9 +4,14 @@ export class ListParams {
     isFavorite?: boolean
     isRead?: boolean
 
-    constructor(isFavorite?: boolean, isRead?: boolean) {
+    withFavorite(isFavorite: boolean): ListParams {
         this.isFavorite = isFavorite
+        return this
+    }
+
+    withRead(isRead: boolean): ListParams {
         this.isRead = isRead
+        return this
     }
 }
 
@@ -22,12 +27,12 @@ export class Article {
     siteName: string
 
     constructor(body: any) {
-        this.url = body.url 
-        this.title = body.title 
-        this.isRead = body.isRead 
-        this.isFavorite = body.isFavorite 
-        this.createTime = body.createTime 
-        this.name = body.name 
+        this.url = body.url
+        this.title = body.title
+        this.isRead = body.isRead
+        this.isFavorite = body.isFavorite
+        this.createTime = body.createTime
+        this.name = body.name
         this.iconUrl = body.iconUrl
         this.content = body.content
         this.siteName = body.siteName
