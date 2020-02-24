@@ -1,28 +1,36 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from 'svelte'
+  import { createEventDispatcher } from 'svelte'
 
 	const dispatch = createEventDispatcher()
 
   const clicked = (e: Event) => {
     const target = e.target as HTMLElement
-    const parent = target.parentElement as HTMLElement
-    parent.childNodes.forEach((child: ChildNode) => {
-      const e = child as HTMLElement
-      if (e.classList) e.classList.remove('menu-selected')
-    })
-    target.classList.add('menu-selected')
     dispatch(target.id)
   }
+
+  export let current: string = 'unread'
 </script>
 
 <div class="menu">
-  <div id="unread" class="menu-element menu-selected" on:click={clicked}>
+  <div
+    id="unread"
+    class="menu-element {current === 'unread' ? 'active' : ''}"
+    on:click={clicked}
+  >
     unread
   </div>
-  <div id="favorite" class="menu-element" on:click={clicked}>
+  <div
+    id="favorite"
+    class="menu-element {current === 'favorite' ? 'active' : ''}"
+    on:click={clicked}
+  >
     favorite
   </div>
-  <div id="all" class="menu-element" on:click={clicked}>
+  <div
+    id="all"
+    class="menu-element {current === 'all' ? 'active' : ''}"
+    on:click={clicked}
+  >
     all
   </div>
 </div>
@@ -37,7 +45,7 @@
     padding: 5px;
   }
 
-  .menu-selected {
+  .active {
     background: gray;
   }
 </style>

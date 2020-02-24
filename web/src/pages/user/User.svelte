@@ -14,41 +14,62 @@
 </script>
 
 <div class="user">
-  <div class="menu column">
-    <Menu
-      on:unread={() => { navigate(`/${username}/unread`) }}
-      on:favorite={() => { navigate(`/${username}/favorite`) }}
-      on:all={() => { navigate(`/${username}/all`) }}
-    />
-  </div>
-  <div class="list column">
-    <Router>
-      <Route path="all">
+  <Router>
+    <Route path="all">
+      <div class="menu column">
+        <Menu
+          on:unread={() => { navigate(`/${username}/unread`) }}
+          on:favorite={() => { navigate(`/${username}/favorite`) }}
+          on:all={() => { navigate(`/${username}/all`) }}
+          current='all'
+        />
+      </div>
+      <div class="list column">
         <List
           username={username}
           articlesClient={articlesClient}
           listParams={new ListParams()}
           on:selected={(e) => selectedArticleName = e.detail}
         />
-      </Route>
-      <Route path="favorite">
+      </div>
+    </Route>
+    <Route path="favorite">
+      <div class="menu column">
+        <Menu
+          on:unread={() => { navigate(`/${username}/unread`) }}
+          on:favorite={() => { navigate(`/${username}/favorite`) }}
+          on:all={() => { navigate(`/${username}/all`) }}
+          current='favorite'
+        />
+      </div>
+      <div class="list column">
         <List
           username={username}
           articlesClient={articlesClient}
           listParams={new ListParams(true, undefined)}
           on:selected={(e) => selectedArticleName = e.detail}
         />
-      </Route>
-      <Route path="*"> <!-- unread -->
+      </div>
+    </Route>
+    <Route path="*"> <!-- unread -->
+      <div class="menu column">
+        <Menu
+          on:unread={() => { navigate(`/${username}/unread`) }}
+          on:favorite={() => { navigate(`/${username}/favorite`) }}
+          on:all={() => { navigate(`/${username}/all`) }}
+          current='unread'
+        />
+      </div>
+      <div class="list column">
         <List
           username={username}
           articlesClient={articlesClient}
           listParams={new ListParams(undefined, false)}
           on:selected={(e) => selectedArticleName = e.detail}
         />
-      </Route>
-    </Router>
-  </div>
+      </div>
+    </Route>
+  </Router>
   <div class="reader column">
     <Reader
       articleName={selectedArticleName}
