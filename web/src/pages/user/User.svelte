@@ -2,7 +2,7 @@
   import Menu from './menu/Menu.svelte'
   import List from './list/List.svelte'
   import Reader from './reader/Reader.svelte'
-  import { Router, Route, navigate } from 'svelte-routing'
+  import { Router, Route } from 'svelte-routing'
 
   // @ts-ignore
   import { ArticlesClient, ListParams } from '../../clients/articles.ts'
@@ -18,9 +18,6 @@
     <Route path="all">
       <div class="menu column">
         <Menu
-          on:unread={() => { navigate(`/${username}/unread`) }}
-          on:favorite={() => { navigate(`/${username}/favorite`) }}
-          on:all={() => { navigate(`/${username}/all`) }}
           current='all'
         />
       </div>
@@ -36,9 +33,6 @@
     <Route path="favorite">
       <div class="menu column">
         <Menu
-          on:unread={() => { navigate(`/${username}/unread`) }}
-          on:favorite={() => { navigate(`/${username}/favorite`) }}
-          on:all={() => { navigate(`/${username}/all`) }}
           current='favorite'
         />
       </div>
@@ -54,9 +48,6 @@
     <Route path="*"> <!-- unread -->
       <div class="menu column">
         <Menu
-          on:unread={() => { navigate(`/${username}/unread`) }}
-          on:favorite={() => { navigate(`/${username}/favorite`) }}
-          on:all={() => { navigate(`/${username}/all`) }}
           current='unread'
         />
       </div>

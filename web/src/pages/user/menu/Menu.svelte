@@ -1,44 +1,30 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
   import BookOpen from '../../../icons/BookOpen.svelte'
   import List from '../../../icons/List.svelte'
   import Star from '../../../icons/Star.svelte'
+  import { Link } from 'svelte-routing'
 
-	const dispatch = createEventDispatcher()
-
-  const clicked = (e: Event) => {
-    const target = e.target as HTMLElement
-    dispatch(target.id)
+  const getProps = (props: any): any => {
+    if (props.isCurrent) {
+      return { class: 'menu-element menu-active' }
+    }
+    return { class: 'menu-element' }
   }
-
-  export let current: string = 'unread'
 </script>
 
 <div class="menu">
-  <div
-    id="unread"
-    class="menu-element {current === 'unread' ? 'active' : ''}"
-    on:click={clicked}
-  >
-    <BookOpen size={'1em'} />
-    <div class='title'>Unread</div>
-  </div>
-  <div
-    id="favorite"
-    class="menu-element {current === 'favorite' ? 'active' : ''}"
-    on:click={clicked}
-  >
-    <Star size={'1em'} />
-    <div class='title'>Favorite</div>
-  </div>
-  <div
-    id="all"
-    class="menu-element {current === 'all' ? 'active' : ''}"
-    on:click={clicked}
-  >
-    <List size={'1em'} />
-    <div class='title'>All</div>
-  </div>
+  <Link to="unread" getProps={getProps}>
+      <BookOpen size={'1em'} />
+      <div class='title'>Unread</div>
+  </Link>
+  <Link to="favorite" getProps={getProps}>
+      <Star size={'1em'} />
+      <div class='title'>Favorite</div>
+  </Link>
+  <Link to="all" getProps={getProps}>
+      <List size={'1em'} />
+      <div class='title'>All</div>
+  </Link>
 </div>
 
 <style>
@@ -47,13 +33,15 @@
     flex-direction: column;
   }
 
-  .menu-element {
+  :global(.menu-element) {
     display: flex;
     padding: 5px;
     align-items: center;
+    color: inherit;
+    text-decoration: none;
   }
 
-  .active {
+  :global(.menu-active) {
     background: lightgray;
   }
 
