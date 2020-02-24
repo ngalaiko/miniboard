@@ -7,7 +7,6 @@
   // @ts-ignore
   import { ArticlesClient, ListParams } from '../../clients/articles.ts'
 
-  export let username: string
   export let articlesClient: ArticlesClient
 
   let selectedArticleName: string|null = null
@@ -15,58 +14,42 @@
 
 <div class="user">
   <Router>
-    <Route path="all">
-      <div class="menu column">
-        <Menu
-          current='all'
-        />
-      </div>
-      <div class="list column">
+    <div class="menu column">
+      <Menu />
+    </div>
+    <div class="list column">
+      <Route path="all" let:params>
         <List
-          username={username}
+          username="users/{params.userid}"
           articlesClient={articlesClient}
           listParams={new ListParams()}
           on:selected={(e) => selectedArticleName = e.detail}
         />
-      </div>
-    </Route>
-    <Route path="favorite">
-      <div class="menu column">
-        <Menu
-          current='favorite'
-        />
-      </div>
-      <div class="list column">
+      </Route>
+      <Route path="unread" let:params>
         <List
-          username={username}
-          articlesClient={articlesClient}
-          listParams={new ListParams().withFavorite(true)}
-          on:selected={(e) => selectedArticleName = e.detail}
-        />
-      </div>
-    </Route>
-    <Route path="*"> <!-- unread -->
-      <div class="menu column">
-        <Menu
-          current='unread'
-        />
-      </div>
-      <div class="list column">
-        <List
-          username={username}
+          username="users/{params.userid}"
           articlesClient={articlesClient}
           listParams={new ListParams().withRead(false)}
           on:selected={(e) => selectedArticleName = e.detail}
         />
-      </div>
-    </Route>
+      </Route>
+      <Route path="favorite" let:params>
+        <List
+          username="users/{params.userid}"
+          articlesClient={articlesClient}
+          listParams={new ListParams().withFavorite(true)}
+          on:selected={(e) => selectedArticleName = e.detail}
+        />
+      </Route>
+    </div>
+    <div class="reader column">
+      <Reader
+        articleName={selectedArticleName}
+        articlesClient={articlesClient}
+      />
+    </div>
   </Router>
-  <div class="reader column">
-    <Reader
-      articleName={selectedArticleName}
-      articlesClient={articlesClient}
-    />
-  </div>
 </div>
 
 <style>

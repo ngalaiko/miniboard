@@ -49,9 +49,8 @@
     <Route path="/codes/:code" let:params>
       <Codes tokensClient={tokensClient} code="{params.code}" />
     </Route>
-    <Route path="/users/:userid/*" let:params>
+  <Route path="/users/:userid/*" let:params>
       <User
-        username="users/{params.userid}"
         articlesClient={articlesClient}
       />
     </Route>
