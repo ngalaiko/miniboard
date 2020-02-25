@@ -17,9 +17,9 @@
     {#await articlesClient.get(articleName)}
       loading...
     {:then article}
-      <div class="header">
+      <a class="header" href={article.url} target="_blank">
         <h1>{article.title}</h1>
-      </div>
+      </a>
       {@html decode(article)}
     {/await}
   {/if}
@@ -39,9 +39,27 @@
   }
 
   .header {
+    padding: 20px;
+    padding-right: 20px;
+    margin-top: 20px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     max-width: 660px;
+  }
+
+  h1 {
+    margin: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .header:hover {
+    background: gainsboro;
+    cursor: pointer;
   }
 
   :global(.page) {
