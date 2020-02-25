@@ -35,5 +35,6 @@
     border-bottom: 1px solid;
     padding: 5px;
     line-height: 1.1em;
+    cursor: pointer;
   }
 </style>
