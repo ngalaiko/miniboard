@@ -42,7 +42,7 @@
   }
 
   :global(.menu-active) {
-    background: lightgray;
+    background: gainsboro;
   }
 
   .title {

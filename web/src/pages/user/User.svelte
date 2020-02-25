@@ -9,7 +9,8 @@
 
   export let articlesClient: ArticlesClient
 
-  let selectedArticleName: string|null = null
+  let selectedArticleName: string = ''
+  $: selectedArticleName = location.hash.slice(1)
 </script>
 
 <div class="user">

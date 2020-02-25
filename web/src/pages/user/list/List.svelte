@@ -3,7 +3,9 @@
   // @ts-ignore
   import { ArticlesClient, Articles, Article, ListParams } from '../../../clients/articles.ts'
   import ArticleView from './Article.svelte'
-  import { onMount } from 'svelte'
+  import { createEventDispatcher , onMount, onDestroy } from 'svelte'
+
+	const dispatch = createEventDispatcher()
 
   export let username: string = ''
   export let articlesClient: ArticlesClient
@@ -25,14 +27,25 @@
     hasMore = pageToken !== ''
   }
 
+  let selectedArticleName = ''
+  $: selectedArticleName = location.hash.slice(1)
+
+  const onSelected = (article: Article) => {
+    selectedArticleName = article.name
+    history.pushState(null, "", `#${article.name}`)
+    dispatch('selected', article.name)
+  }
+
   onMount(loadMore)
+  onDestroy(() => dispatch('selected', null))
 </script>
 
 <div class="list">
   {#each articlesList as article}
     <ArticleView 
       article={article} 
-      on:selected
+      isSelected={article.name === selectedArticleName}
+      on:click={(e) => onSelected(article)}
     />
   {/each}
   <SvelteInfiniteScroll 
