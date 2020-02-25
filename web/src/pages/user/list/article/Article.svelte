@@ -7,7 +7,7 @@
   export let isSelected = false
 </script>
 
-<div class="article {isSelected ? 'selected' : ''}" on:click>
+<div class="article" on:click>
   <div class="header">
     <div class="meta">{article.siteName !== '' ? article.siteName : new URL(article.url).hostname}</div>
     <TimeAgo date={new Date(article.createTime)} />
@@ -33,13 +33,8 @@
   .article {
     display: flex;
     flex-direction: column;
-    border-bottom: 1px solid;
-    padding: 5px;
     line-height: 1.1em;
     cursor: pointer;
-  }
-
-  .selected {
-    background: gainsboro;
+    padding: 5px;
   }
 </style>

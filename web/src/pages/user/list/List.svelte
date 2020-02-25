@@ -40,26 +40,38 @@
   onDestroy(() => dispatch('selected', null))
 </script>
 
-<div class="list">
+<ul class="list">
   {#each articlesList as article}
-    <ArticleView 
-      article={article} 
-      isSelected={article.name === selectedArticleName}
-      on:click={(e) => onSelected(article)}
-    />
+    <li class="list-element {article.name === selectedArticleName ? 'selected' : ''}">
+      <ArticleView 
+        article={article} 
+        on:click={(e) => onSelected(article)}
+      />
+    </li>
   {/each}
   <SvelteInfiniteScroll 
     threshold={100} 
     hasMore={hasMore}
     on:loadMore={loadMore} 
   />
-</div>
+</ul>
 
 <style>
-  .list{
+  .list {
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
     max-height: 100%;
     overflow-y: scroll;
+  }
+
+  .list-element {
+    border-bottom: 1px solid;
+    padding-right: 5px;
+  }
+
+  .selected {
+    background: gainsboro;
   }
 </style>
