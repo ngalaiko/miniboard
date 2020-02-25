@@ -1,6 +1,6 @@
 <script lang="ts">
   // @ts-ignore
-  import { Article } from '../../../clients/articles.ts'
+  import { Article } from '../../../../clients/articles.ts'
   import TimeAgo from './TimeAgo.svelte'
 
   export let article: Article

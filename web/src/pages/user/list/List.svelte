@@ -2,7 +2,7 @@
   import SvelteInfiniteScroll from 'svelte-infinite-scroll'
   // @ts-ignore
   import { ArticlesClient, Articles, Article, ListParams } from '../../../clients/articles.ts'
-  import ArticleView from './Article.svelte'
+  import ArticleView from './article/Article.svelte'
   import { createEventDispatcher , onMount, onDestroy } from 'svelte'
 
 	const dispatch = createEventDispatcher()
