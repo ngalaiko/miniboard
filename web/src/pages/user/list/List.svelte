@@ -3,9 +3,7 @@
   // @ts-ignore
   import { ArticlesClient, Articles, Article, ListParams } from '../../../clients/articles.ts'
   import ArticleView from './Article.svelte'
-  import { createEventDispatcher, onMount } from 'svelte'
-
-	const dispatch = createEventDispatcher()
+  import { onMount } from 'svelte'
 
   export let username: string = ''
   export let articlesClient: ArticlesClient
@@ -34,7 +32,7 @@
   {#each articlesList as article}
     <ArticleView 
       article={article} 
-      on:click={()=> dispatch('selected', article.name)}
+      on:selected
     />
   {/each}
   <SvelteInfiniteScroll 
