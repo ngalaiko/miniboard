@@ -99,19 +99,33 @@ func (s *Storage) Load(ctx context.Context, name *resource.Name) ([]byte, error)
 	defer func() {
 		_ = conn.Close()
 	}()
-	return s.load(conn, name)
+	return s.loadOne(conn, name)
 }
 
-func (s *Storage) load(conn redis.Conn, name *resource.Name) ([]byte, error) {
-	data, err := redis.Bytes(conn.Do("GET", name.String()))
-	switch err {
-	case nil:
-		return data, nil
-	case redis.ErrNil:
+func (s *Storage) loadOne(conn redis.Conn, name *resource.Name) ([]byte, error) {
+	dd, err := s.loadMany(conn, name)
+	switch {
+	case err != nil:
+		return nil, errors.Wrapf(err, "failed to MGET %s", name)
+	case dd[0] == nil:
 		return nil, storage.ErrNotFound
 	default:
-		return nil, errors.Wrapf(err, "failed to GET %s", name)
+		return dd[0], nil
 	}
+}
+
+func (s *Storage) loadMany(conn redis.Conn, names ...*resource.Name) ([][]byte, error) {
+	ns := make([]string, 0, len(names))
+	for _, name := range names {
+		ns = append(ns, name.String())
+	}
+
+	data, err := redis.ByteSlices(conn.Do("MGET", redis.Args{}.AddFlat(ns)...))
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to MGET %s", names)
+	}
+
+	return data, nil
 }
 
 // Delete implements storage.Storage.
@@ -172,18 +186,26 @@ func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resour
 		return errors.Wrapf(err, "failed: LRANGE %s %d -1", first, start)
 	}
 
+	nn := make([]*resource.Name, 0, len(keys))
 	for _, key := range keys {
-		res := &resource.Resource{
-			Name: resource.ParseName(fmt.Sprintf("%s/%s", first, key)),
+		nn = append(nn, resource.ParseName(fmt.Sprintf("%s/%s", first, key)))
+	}
+
+	// TODO: load in batches
+
+	dd, err := s.loadMany(conn, nn...)
+	if err != nil {
+		return errors.Wrapf(err, "failed to load")
+	}
+
+	for i, d := range dd {
+		if d == nil {
+			continue
 		}
 
-		res.Data, err = s.load(conn, res.Name)
-		switch err {
-		case nil:
-		case storage.ErrNotFound:
-			continue
-		default:
-			return errors.Wrap(err, "failed to GET")
+		res := &resource.Resource{
+			Name: nn[i],
+			Data: d,
 		}
 
 		goon, err := okFunc(res)
