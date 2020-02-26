@@ -3,6 +3,7 @@ import { ApiClient } from './api'
 export class ListParams {
     isFavorite?: boolean
     isRead?: boolean
+    title?: string
 
     withFavorite(isFavorite: boolean): ListParams {
         this.isFavorite = isFavorite
@@ -11,6 +12,20 @@ export class ListParams {
 
     withRead(isRead: boolean): ListParams {
         this.isRead = isRead
+        return this
+    }
+
+    withTitle(title?: string): ListParams {
+        switch (true) {
+            case !title:
+                this.title = undefined
+                break
+            case title && title.length < 3:
+                break
+            default:
+                this.title = title
+                break
+        }
         return this
     }
 }
@@ -78,6 +93,9 @@ export class ArticlesClient {
         }
         if (params.isRead !== undefined) {
             query += `&isRead=${params.isRead}`
+        }
+        if (params.title !== undefined) {
+            query += `&title=${params.title}`
         }
         return new Articles(await this.apiClient.get(`/api/v1/${username}/articles?${query}`))
     }
