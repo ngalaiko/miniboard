@@ -15,8 +15,16 @@
   let hasMore = true
   let articlesList: Article[] = []
 
+  let query: string|null = ''
+  let selectedArticleName = ''
+
+  $: history.pushState(null, "", `?query=${query ? query : ''}#${selectedArticleName}`)
+  $: selectedArticleName = location.hash.slice(1)
+  $: query = new URLSearchParams(location.search).get('query')
+
   const loadMore = async () => {
-    const articles = await articlesClient.list(username, 25, pageToken, listParams)
+    const articles = await articlesClient.list(
+      username, 25, pageToken, listParams.withTitle(query))
 
     articlesList = [
       ...articlesList,
@@ -27,37 +35,74 @@
     hasMore = pageToken !== ''
   }
 
-  let selectedArticleName = ''
-  $: selectedArticleName = location.hash.slice(1)
-
   const onSelected = (article: Article) => {
     selectedArticleName = article.name
-    history.pushState(null, "", `#${article.name}`)
     dispatch('selected', article.name)
+  }
+
+  const refresh = () => {
+    pageToken = ''
+    articlesList = []
+    loadMore()
+  }
+
+  let typingTimerId: number | undefined
+  const onInput = () => {
+    clearTimeout(typingTimerId)
+    typingTimerId = setTimeout(refresh, 300)
   }
 
   onMount(loadMore)
   onDestroy(() => dispatch('selected', null))
 </script>
 
-<ul class="list">
-  {#each articlesList as article}
-    <li class="list-element {article.name === selectedArticleName ? 'selected' : ''}">
-      <ArticleView 
-        article={article} 
-        on:click={(e) => onSelected(article)}
-      />
-    </li>
-  {/each}
-  <SvelteInfiniteScroll 
-    threshold={100} 
-    hasMore={hasMore}
-    on:loadMore={loadMore} 
+
+<div class="list">
+  <input
+    class="search-input"
+    placeholder="filter"
+    bind:value={query}
+    on:change={onInput}
+    on:input={onInput}
+    on:cut={onInput}
+    on:copy={onInput}
+    on:paste={onInput}
   />
-</ul>
+  <ul class="list-ul">
+    {#each articlesList as article}
+      <li class="list-li {article.name === selectedArticleName ? 'selected' : ''}">
+        <ArticleView
+          article={article}
+          on:click={(e) => onSelected(article)}
+        />
+      </li>
+    {/each}
+    <SvelteInfiniteScroll
+      threshold={100}
+      hasMore={hasMore}
+      on:loadMore={loadMore}
+    />
+  </ul>
+</div>
 
 <style>
   .list {
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+  }
+
+  .search-input {
+    font: inherit;
+    border: 0;
+    padding: 5px;
+  }
+
+  .search-input:focus {
+    outline: none;
+  }
+
+  .list-ul {
     margin: 0;
     padding: 0;
     display: flex;
@@ -66,7 +111,7 @@
     overflow-y: scroll;
   }
 
-  .list-element {
+  .list-li {
     border-bottom: 1px solid;
     padding-right: 5px;
   }
