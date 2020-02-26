@@ -4,7 +4,6 @@
   import TimeAgo from './TimeAgo.svelte'
 
   export let article: Article
-  export let isSelected = false
 </script>
 
 <div class="article" on:click>
