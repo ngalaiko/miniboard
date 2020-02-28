@@ -18,7 +18,7 @@
     "rollup-plugin-typescript2": "^0.26.0",
     "svelte": "^3.18.1",
     "svelte-preprocess": "^3.4.0",
-    "typescript": "^3.7.5"
+    "typescript": "^3.8.2"
   },
   "dependencies": {
     "svelte-infinite-scroll": "^1.0.0",
