@@ -66,6 +66,7 @@
     display: flex;
     height: 100%;
     font-family: Helvetica neue, Helvetica, Arial, sans-serif;
+    background: #F5F5F5;
   }
 
   :global(html) {

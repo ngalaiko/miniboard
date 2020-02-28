@@ -96,6 +96,7 @@
     font: inherit;
     border: 0;
     padding: 5px;
+    background: inherit;
   }
 
   .search-input:focus {
