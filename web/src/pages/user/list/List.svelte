@@ -16,16 +16,16 @@
   let hasMore = true
   let articlesList: Article[] = []
 
-  let query: string|null = ''
+  let title: string|null = ''
   let selectedArticleName = ''
 
-  $: history.pushState(null, "", `?query=${query ? query : ''}#${selectedArticleName}`)
+  $: history.pushState(null, "", `?title=${title ? title : ''}#${selectedArticleName}`)
   $: selectedArticleName = location.hash.slice(1)
-  $: query = new URLSearchParams(location.search).get('query')
+  $: title = new URLSearchParams(location.search).get('title')
 
   const loadMore = async () => {
     const articles = await articlesClient.list(
-      username, 25, pageToken, listParams.withTitle(query))
+      username, 25, pageToken, listParams.withTitle(title))
 
     articlesList = [
       ...articlesList,
@@ -64,7 +64,7 @@
     <input
       class="search-input"
       placeholder="search"
-      bind:value={query}
+      bind:value={title}
       on:change={onInput}
       on:input={onInput}
       on:cut={onInput}
