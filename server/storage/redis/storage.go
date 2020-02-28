@@ -144,18 +144,6 @@ func (s *Storage) Delete(ctx context.Context, name *resource.Name) error {
 	return nil
 }
 
-// LoadChildren implements storage.Storage.
-func (s *Storage) LoadChildren(ctx context.Context, name *resource.Name, from *resource.Name, limit int) ([]*resource.Resource, error) {
-	data := make([]*resource.Resource, 0, limit)
-	return data, s.ForEach(ctx, name, from, func(r *resource.Resource) (bool, error) {
-		if len(data) == limit {
-			return false, nil
-		}
-		data = append(data, r)
-		return true, nil
-	})
-}
-
 // ForEach implements storage.Storage.
 func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resource.Name, okFunc func(*resource.Resource) (bool, error)) error {
 	conn := s.db.Get()

@@ -46,46 +46,6 @@ func Test_DB(t *testing.T) {
 				assert.NoError(t, db.Store(ctx, name, data))
 			}
 
-			t.Run("When loading all elements", func(t *testing.T) {
-				name := resource.NewName("test", "*")
-
-				dd, err := db.LoadChildren(ctx, name, nil, 10)
-				assert.NoError(t, err)
-
-				assert.Len(t, dd, 10)
-				for i, d := range dd {
-					assert.Equal(t, d.Data, []byte(fmt.Sprintf("data %d", 9-i)))
-				}
-			})
-
-			t.Run("When loading with limit", func(t *testing.T) {
-				name := resource.NewName("test", "*")
-
-				dd, err := db.LoadChildren(ctx, name, nil, 5)
-				assert.NoError(t, err)
-
-				assert.Len(t, dd, 5)
-				for i, d := range dd {
-					assert.Equal(t, d.Data, []byte(fmt.Sprintf("data %d", 9-i)))
-				}
-			})
-
-			t.Run("When loading elements from", func(t *testing.T) {
-				name := resource.NewName("test", "*")
-				from := resource.NewName("test", "6")
-
-				dd, err := db.LoadChildren(ctx, name, from, 10)
-				assert.NoError(t, err)
-
-				assert.Len(t, dd, 7)
-
-				i := 6
-				for _, d := range dd {
-					assert.Equal(t, d.Data, []byte(fmt.Sprintf("data %d", i)))
-					i--
-				}
-			})
-
 			t.Run("When iterating through all elemetns", func(t *testing.T) {
 				name := resource.NewName("test", "*")
 
@@ -143,13 +103,6 @@ func Test_DB(t *testing.T) {
 						return false, nil
 					}
 					return true, nil
-				})
-
-				t.Run("When removing one element from the middle, it should be removed", func(t *testing.T) {
-					dd, err := db.LoadChildren(ctx, name, nil, 10)
-					assert.NoError(t, err)
-
-					assert.Len(t, dd, 9)
 				})
 			})
 		})

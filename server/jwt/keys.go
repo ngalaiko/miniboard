@@ -99,24 +99,19 @@ func (s *keyStorage) Create(ctx context.Context) (*key, error) {
 
 // List returns all keys from the storage.
 func (s *keyStorage) List(ctx context.Context) ([]*key, error) {
-	dd, err := s.storage.LoadChildren(ctx, resource.NewName("jwt-key", "*"), nil, 50)
-	if err != nil {
-		return nil, fmt.Errorf("failed to load keys: %w", err)
-	}
-
-	kk := make([]*key, 0, len(dd))
-	for _, d := range dd {
-		privateKey, err := x509.ParseECPrivateKey(d.Data)
+	kk := make([]*key, 0, 10)
+	return kk, s.storage.ForEach(ctx, resource.NewName("jwt-key", "*"), nil, func(resource *resource.Resource) (bool, error) {
+		privateKey, err := x509.ParseECPrivateKey(resource.Data)
 		if err != nil {
-			log().Errorf("failed to parse key '%s': %s", d.Name, err)
-			continue
+			return false, err
 		}
+
 		kk = append(kk, &key{
-			ID:      d.Name.ID(),
+			ID:      resource.Name.ID(),
 			Public:  privateKey.Public,
 			Private: privateKey,
 		})
-	}
 
-	return kk, nil
+		return true, nil
+	})
 }
