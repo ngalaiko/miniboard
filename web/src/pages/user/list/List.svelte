@@ -3,10 +3,8 @@
   // @ts-ignore
   import { ArticlesClient, Articles, Article, ListParams } from '../../../clients/articles.ts'
   import ArticleView from './article/Article.svelte'
-  import { createEventDispatcher , onMount, onDestroy } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
   import Search from '../../../icons/Search.svelte'
-
-	const dispatch = createEventDispatcher()
 
   export let username: string = ''
   export let articlesClient: ArticlesClient
@@ -38,7 +36,6 @@
 
   const onSelected = (article: Article) => {
     selectedArticleName = article.name
-    dispatch('selected', article.name)
   }
 
   const refresh = () => {
@@ -54,7 +51,6 @@
   }
 
   onMount(loadMore)
-  onDestroy(() => dispatch('selected', null))
 </script>
 
 
