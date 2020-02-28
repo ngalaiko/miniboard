@@ -82,13 +82,6 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 			return true, nil
 		}
 
-		if request.Url != nil && !strings.Contains(
-			strings.ToLower(a.Url),
-			strings.ToLower(request.Url.GetValue()),
-		) {
-			return true, nil
-		}
-
 		aa = append(aa, a)
 
 		return true, nil

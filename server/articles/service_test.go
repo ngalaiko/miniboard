@@ -154,15 +154,6 @@ func Test_articles(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Len(t, resp.Articles, 10)
 			})
-
-			t.Run("It should be possible filter for article by url", func(t *testing.T) {
-				resp, err := service.ListArticles(ctx, &articles.ListArticlesRequest{
-					Url:      &wrappers.StringValue{Value: "localhost"},
-					PageSize: 5,
-				})
-				assert.NoError(t, err)
-				assert.Len(t, resp.Articles, 5)
-			})
 		})
 	})
 }

@@ -65,9 +65,6 @@ message ListArticlesRequest {
 
     // Filter by title field.
     google.protobuf.StringValue title = 5;
-
-    // Filter by url field.
-    google.protobuf.StringValue url = 6;
 }
 
 message ListArticlesResponse {
