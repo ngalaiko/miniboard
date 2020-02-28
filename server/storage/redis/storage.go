@@ -114,6 +114,10 @@ func (s *Storage) loadOne(conn redis.Conn, name *resource.Name) ([]byte, error) 
 }
 
 func (s *Storage) loadMany(conn redis.Conn, names ...*resource.Name) ([][]byte, error) {
+	if len(names) == 0 {
+		return nil, nil
+	}
+
 	ns := make([]string, 0, len(names))
 	for _, name := range names {
 		ns = append(ns, name.String())
