@@ -1,134 +1,83 @@
-<script context="module">
-    import { writable } from 'svelte/store'
-    import { storage } from './storage'
-    import { Router, Route } from 'svelte-routing'
+<script lang="ts">
+  import Menu from './menu/Menu.svelte'
+  import List from './list/List.svelte'
+  import Reader from './reader/Reader.svelte'
+  import { Router, Route } from 'svelte-routing'
 
-    let allStorage = storage()
-    let unreadStorage = storage()
-    let starredStorage = storage()
+  // @ts-ignore
+  import { ArticlesClient, ListParams } from '../../clients/articles.ts'
+
+  export let articlesClient: ArticlesClient
+
+  let selectedArticleName: string = ''
+  $: selectedArticleName = location.hash.slice(1)
 </script>
 
-<script>
-    import { onDestroy } from 'svelte'
-
-    import Article from './article/Article.svelte'
-    import Articles from './articles/Articles.svelte'
-    import Header from './header/Header.svelte'
-
-    import { Article as article } from '../../clients/articles.ts'
-
-    export let user
-
-    export let articlesClient
-    export let sourcesClient
-
-    const onAdded = async (url) => {
-        const mock = new article()
-        mock.url = url
-        mock.title = url
-        mock.isRead = false
-        mock.isFavorite = false
-        mock.createTime = new Date().toISOString()
-        mock.name = Math.random()
-
-        allStorage.add(mock)
-        unreadStorage.add(mock)
-
-        const source = await sourcesClient.createSource(user, url)
-
-        const type = source.name.replace(user, '')
-        switch (true) {
-        case type.startsWith('/article'):
-            const article = await articlesClient.get(source.name)
-            allStorage.add(article)
-            unreadStorage.add(article)
-            break;
-        }
-
-        allStorage.delete(mock.name)
-        unreadStorage.delete(mock.name)
-    }
-
-    const onDeleted = async (name) => {
-        await articlesClient.delete(name)
-
-        allStorage.delete(name)
-        unreadStorage.delete(name)
-        starredStorage.delete(name)
-    }
-
-    const onUpdated = async (updated) => {
-        await articlesClient.update(updated)
-
-        allStorage.update(updated)
-        unreadStorage.update(updated)
-
-        if (!updated.isRead) {
-            unreadStorage.add(updated)
-        }
-
-        if (updated.isFavorite) {
-            starredStorage.add(updated)
-        } else {
-            starredStorage.delete(updated.name)
-        }
-    }
-</script>
-
-<div class='articles'>
-    <Header
-        username={user}
-        on:added={(e) => onAdded(e.detail)}
-        on:search={(e) => console.log('search')}
-    />
-    <Router>
-        <Route path="starred">
-            <Articles
-                itemsStore={starredStorage.store}
-                let:item={article}
-                on:loadmore={(e) => starredStorage.loadMoreArticles(articlesClient, user, e.detail, {'is_favorite': true}) }
-            >
-                <Article
-                    on:deleted={(e) => onDeleted(e.detail)}
-                    on:updated={(e) => onUpdated(e.detail)}
-                    {article}
-                />
-            </Articles>
-        </Route>
-        <Route path="*">
-            <Articles
-                itemsStore={unreadStorage.store}
-                let:item={article}
-                on:loadmore={(e) => unreadStorage.loadMoreArticles(articlesClient, user, e.detail, {'is_read': false}) }
-            >
-                <Article
-                    on:deleted={(e) => onDeleted(e.detail)}
-                    on:updated={(e) => onUpdated(e.detail)}
-                    {article}
-                />
-            </Articles>
-        </Route>
-        <Route path="all">
-            <Articles
-                itemsStore={allStorage.store}
-                let:item={article}
-                on:loadmore={(e) => allStorage.loadMoreArticles(articlesClient, user, e.detail) }
-            >
-                <Article
-                    on:deleted={(e) => onDeleted(e.detail)}
-                    on:updated={(e) => onUpdated(e.detail)}
-                    {article}
-                />
-            </Articles>
-        </Route>
-    </Router>
+<div class="user">
+  <Router>
+    <div class="menu column">
+      <Menu />
+    </div>
+    <div class="list column">
+      <Route path="all" let:params>
+        <List
+          username="users/{params.userid}"
+          articlesClient={articlesClient}
+          listParams={new ListParams()}
+          on:selected={(e) => selectedArticleName = e.detail}
+        />
+      </Route>
+      <Route path="unread" let:params>
+        <List
+          username="users/{params.userid}"
+          articlesClient={articlesClient}
+          listParams={new ListParams().withRead(false)}
+          on:selected={(e) => selectedArticleName = e.detail}
+        />
+      </Route>
+      <Route path="favorite" let:params>
+        <List
+          username="users/{params.userid}"
+          articlesClient={articlesClient}
+          listParams={new ListParams().withFavorite(true)}
+          on:selected={(e) => selectedArticleName = e.detail}
+        />
+      </Route>
+    </div>
+    <div class="reader column">
+      <Reader
+        articleName={selectedArticleName}
+        articlesClient={articlesClient}
+      />
+    </div>
+  </Router>
 </div>
 
 <style>
-    .articles {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        width: 100%;
-    }
+  .user {
+    display: flex;
+    max-width: 100%;
+    min-width: 100%;
+  }
+
+  .menu {
+    flex-basis: 15%;
+    max-width:  15%;
+    min-width:  15%;
+  }
+
+  .list {
+    flex-basis: 20%;
+    max-width:  20%;
+    min-width:  20%;
+  }
+
+  .reader {
+    max-width:  65%;
+    min-width:  65%;
+  }
+
+  .column {
+    border-left: 1px solid;
+  }
 </style>

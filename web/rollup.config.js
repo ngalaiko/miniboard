@@ -31,6 +31,7 @@ const appPlugins = [
 ]
 
 const swPlugins = [
+    typescript({ typescript: typescriptCompiler }),
     commonjs(),
     !isDevelopment && terser(),
 ]
@@ -44,7 +45,7 @@ module.exports = [{
 	},
     plugins: appPlugins
 },{
-	input: "src/sw.js",
+	input: "src/sw.ts",
 	output: {
 		file: "dist/sw.js",
 		sourcemap: isDevelopment,

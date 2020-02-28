@@ -1,87 +1,80 @@
 <script lang="ts">
-    import User  from './pages/user/User.svelte'
-    import Codes from './pages/codes/Codes.svelte'
-    import Login from './pages/login/Login.svelte'
-    import NotFound from './pages/notfound/NotFound.svelte'
-    import Reader from './pages/reader/Reader.svelte'
-    import { Router, Route, navigate } from 'svelte-routing'
+  import User  from './pages/user/User.svelte'
+  import Codes from './pages/codes/Codes.svelte'
+  import Login from './pages/login/Login.svelte'
+  import NotFound from './pages/notfound/NotFound.svelte'
+  import { Router, Route, navigate } from 'svelte-routing'
 
-    // @ts-ignore
-    import { ApiClient } from './clients/api.ts'
-    // @ts-ignore
-    import { ArticlesClient } from './clients/articles.ts'
-    // @ts-ignore
-    import { CodesClient } from './clients/codes.ts'
-    // @ts-ignore
-    import { UsersClient } from './clients/users.ts'
-    // @ts-ignore
-    import { TokensClient } from './clients/tokens.ts'
-    // @ts-ignore
-    import { SourcesClient } from './clients/sources.ts'
+  // @ts-ignore
+  import { ApiClient } from './clients/api.ts'
+  // @ts-ignore
+  import { ArticlesClient } from './clients/articles.ts'
+  // @ts-ignore
+  import { CodesClient } from './clients/codes.ts'
+  // @ts-ignore
+  import { UsersClient } from './clients/users.ts'
+  // @ts-ignore
+  import { TokensClient } from './clients/tokens.ts'
+  // @ts-ignore
+  import { SourcesClient } from './clients/sources.ts'
 
-    const apiClient = new ApiClient()
-    const usersClient = new UsersClient(apiClient)
-    const articlesClient = new ArticlesClient(apiClient)
-    const codesClient = new CodesClient(apiClient)
-    const tokensClient = new TokensClient(apiClient)
-    const sourcesClient = new SourcesClient(apiClient)
+  const apiClient = new ApiClient()
+  const usersClient = new UsersClient(apiClient)
+  const articlesClient = new ArticlesClient(apiClient)
+  const codesClient = new CodesClient(apiClient)
+  const tokensClient = new TokensClient(apiClient)
+  const sourcesClient = new SourcesClient(apiClient)
 
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register(`/sw.js`, {
-                scope: '/'
-            }).then(() => {
-                console.log('ServiceWorker registration successful')
-            }, (err: Error) => {
-                console.log(`ServiceWorker registration failed: ${err}`)
-            })
-        })
-    }
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register(`/sw.js`, {
+        scope: '/'
+      }).then(() => {
+        console.log('ServiceWorker registration successful')
+      }, (err: Error) => {
+        console.log(`ServiceWorker registration failed: ${err}`)
+      })
+    })
+  }
 
-    if (location.pathname == "/") {
-        usersClient.me()
-            .then((user: User) => navigate(`/${user.name}/unread`))
-            .catch(() => { /* ignore */ })
-    }
+  if (location.pathname == "/") {
+    usersClient.me()
+      .then((user: User) => navigate(`/${user.name}/unread`))
+      .catch(() => { /* ignore */ })
+  }
 </script>
 
 <div class="app">
-    <Router>
-        <Route path="/codes/:code" let:params>
-            <Codes tokensClient={tokensClient} code="{params.code}" />
-        </Route>
-        <Route path="/users/:userid/articles/:articleid" let:params>
-            <Reader
-                name="users/{params.userid}/articles/{params.articleid}"
-                articlesClient={articlesClient}
-            />
-        </Route>
-        <Route path="/users/:userid/*" let:params>
-            <User
-                user="users/{params.userid}"
-                articlesClient={articlesClient}
-                sourcesClient={sourcesClient}
-            />
-        </Route>
-        <Route path="/">
-            <Login codesClient={codesClient} />
-        </Route>
-        <Route path="*" component={NotFound} />
-    </Router>
+  <Router>
+    <Route path="/codes/:code" let:params>
+      <Codes tokensClient={tokensClient} code="{params.code}" />
+    </Route>
+  <Route path="/users/:userid/*" let:params>
+      <User
+        articlesClient={articlesClient}
+      />
+    </Route>
+    <Route path="/">
+      <Login codesClient={codesClient} />
+    </Route>
+    <Route path="*" component={NotFound} />
+  </Router>
 </div>
 
 <style>
-    .app {
-        display: flex;
-        height: 100%;
-        padding-left: 5px;
-        padding-right: 5px;
-        font-family: -apple-system, BlinkMacSystemFont, helvetica neue, Helvetica, Arial, sans-serif;
-        max-width: 800px;
-        margin: auto;
-    }
+  .app {
+    display: flex;
+    height: 100%;
+    font-family: Helvetica neue, Helvetica, Arial, sans-serif;
+  }
 
-    :global(body) {
-        margin: 0px;
-    }
+  :global(html) {
+    height: 100%;
+  }
+
+  :global(body) {
+    margin: 0px;
+    height: 100%;
+    overflow: hidden;
+  }
 </style>

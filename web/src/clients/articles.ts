@@ -1,5 +1,35 @@
 import { ApiClient } from './api'
 
+export class ListParams {
+    isFavorite?: boolean
+    isRead?: boolean
+    title?: string
+
+    withFavorite(isFavorite: boolean): ListParams {
+        this.isFavorite = isFavorite
+        return this
+    }
+
+    withRead(isRead: boolean): ListParams {
+        this.isRead = isRead
+        return this
+    }
+
+    withTitle(title?: string): ListParams {
+        switch (true) {
+            case !title:
+                this.title = undefined
+                break
+            case title && title.length < 3:
+                break
+            default:
+                this.title = title
+                break
+        }
+        return this
+    }
+}
+
 export class Article {
     url: string
     title: string
@@ -12,12 +42,12 @@ export class Article {
     siteName: string
 
     constructor(body: any) {
-        this.url = body.url 
-        this.title = body.title 
-        this.isRead = body.isRead 
-        this.isFavorite = body.isFavorite 
-        this.createTime = body.createTime 
-        this.name = body.name 
+        this.url = body.url
+        this.title = body.title
+        this.isRead = body.isRead
+        this.isFavorite = body.isFavorite
+        this.createTime = body.createTime
+        this.name = body.name
         this.iconUrl = body.iconUrl
         this.content = body.content
         this.siteName = body.siteName
@@ -53,14 +83,20 @@ export class ArticlesClient {
         return new Article(await this.apiClient.delete(`/api/v1/${name}`))
     }
 
-    async list(username: string, pageSize: number, from: string, params?: any): Promise<Articles> {
+    async list(username: string, pageSize: number, from: string, params: ListParams): Promise<Articles> {
         let query = `page_size=${pageSize}`
         if (from !== '') {
             query += `&page_token=${from}`
         }
-        if (params) Object.keys(params).forEach(key => {
-            query += `&${key}=${params[key]}`
-        })
+        if (params.isFavorite !== undefined) {
+            query += `&isFavorite=${params.isFavorite}`
+        }
+        if (params.isRead !== undefined) {
+            query += `&isRead=${params.isRead}`
+        }
+        if (params.title !== undefined) {
+            query += `&title=${params.title}`
+        }
         return new Articles(await this.apiClient.get(`/api/v1/${username}/articles?${query}`))
     }
 }

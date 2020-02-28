@@ -20,6 +20,6 @@ declare module 'svelte-routing' {
         to: string
         replace?: boolean
         state?: State
-        getProps?: () => {}
+        getProps?: (any) => any
     }
 }
