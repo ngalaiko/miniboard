@@ -4,6 +4,7 @@
   import { ArticlesClient, Articles, Article, ListParams } from '../../../clients/articles.ts'
   import ArticleView from './article/Article.svelte'
   import { createEventDispatcher , onMount, onDestroy } from 'svelte'
+  import Search from '../../../icons/Search.svelte'
 
 	const dispatch = createEventDispatcher()
 
@@ -58,16 +59,19 @@
 
 
 <div class="list">
-  <input
-    class="search-input"
-    placeholder="filter"
-    bind:value={query}
-    on:change={onInput}
-    on:input={onInput}
-    on:cut={onInput}
-    on:copy={onInput}
-    on:paste={onInput}
-  />
+  <div class="list-header">
+    <Search size="1em" />
+    <input
+      class="search-input"
+      placeholder="search"
+      bind:value={query}
+      on:change={onInput}
+      on:input={onInput}
+      on:cut={onInput}
+      on:copy={onInput}
+      on:paste={onInput}
+    />
+  </div>
   <ul class="list-ul">
     {#each articlesList as article}
       <li class="list-li {article.name === selectedArticleName ? 'selected' : ''}">
@@ -92,10 +96,16 @@
     max-height: 100%;
   }
 
+  .list-header {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    border-bottom: 1px solid;
+  }
+
   .search-input {
     font: inherit;
     border: 0;
-    padding: 5px;
     background: inherit;
   }
 
