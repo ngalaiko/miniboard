@@ -17,7 +17,7 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/segmentio/ksuid v1.0.2
 	github.com/sirupsen/logrus v1.4.2
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.5.1
 	go.etcd.io/bbolt v1.3.3 // indirect
 	golang.org/x/net v0.0.0-20191002035440-2ec189313ef0
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
