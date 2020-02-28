@@ -2,11 +2,11 @@ package jwt
 
 import (
 	"context"
+	"errors"
 	"io/ioutil"
 	"os"
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
@@ -35,7 +35,7 @@ func Test_keyStorage_Get(t *testing.T) {
 		t.Run("Then error should be not found", func(t *testing.T) {
 			key, err := service.Get(ctx, "random id")
 			assert.Nil(t, key)
-			assert.Equal(t, errors.Cause(err), storage.ErrNotFound)
+			assert.True(t, errors.Is(err, storage.ErrNotFound))
 		})
 	})
 

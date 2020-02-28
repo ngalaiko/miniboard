@@ -2,11 +2,11 @@ package redis
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/storage"
@@ -35,7 +35,7 @@ func Test_DB(t *testing.T) {
 			t.Run("it should not be found", func(t *testing.T) {
 				loaded, err := db.Load(ctx, resource.NewName("undefined", ksuid.New().String()))
 				assert.Empty(t, loaded)
-				assert.Equal(t, errors.Cause(err), storage.ErrNotFound)
+				assert.True(t, errors.Is(err, storage.ErrNotFound))
 			})
 		})
 

@@ -2,12 +2,12 @@ package sources
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
 
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	articles "miniboard.app/proto/users/articles/v1"
@@ -51,7 +51,7 @@ func (s *Service) CreateSource(ctx context.Context, request *sources.CreateSourc
 
 	resp, err := s.client.Get(request.Source.Url)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to fetch url")
+		return nil, fmt.Errorf("failed to fetch url: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -61,7 +61,7 @@ func (s *Service) CreateSource(ctx context.Context, request *sources.CreateSourc
 	case strings.HasPrefix(ct, "text/html"):
 		article, err := s.articlesService.CreateArticle(ctx, resp.Body, url)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to create article from source")
+			return nil, fmt.Errorf("failed to create article from source: %w", err)
 		}
 		request.Source.Name = article.Name
 		return request.Source, nil
@@ -70,7 +70,7 @@ func (s *Service) CreateSource(ctx context.Context, request *sources.CreateSourc
 		strings.HasPrefix(ct, "text/xm"):
 		feed, err := s.rssService.CreateFeed(ctx, resp.Body)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to create feed from source")
+			return nil, fmt.Errorf("failed to create feed from source: %w", err)
 		}
 		request.Source.Name = feed.Name
 		return request.Source, nil

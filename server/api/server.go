@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/http"
 	"regexp"
@@ -9,7 +10,6 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
 	articlesservice "miniboard.app/articles"
@@ -77,23 +77,23 @@ func NewServer(
 	)
 
 	if err := articles.RegisterArticlesServiceHandlerServer(ctx, gwMux, articlesService); err != nil {
-		return nil, errors.Wrap(err, "failed to register articles http handler")
+		return nil, fmt.Errorf("failed to register articles http handler: %w", err)
 	}
 
 	if err := tokens.RegisterTokensServiceHandlerServer(ctx, gwMux, tokensService); err != nil {
-		return nil, errors.Wrap(err, "failed to register tokens http handler")
+		return nil, fmt.Errorf("failed to register tokens http handler: %w", err)
 	}
 
 	if err := codes.RegisterCodesServiceHandlerServer(ctx, gwMux, codesService); err != nil {
-		return nil, errors.Wrap(err, "failed to register codes http handler")
+		return nil, fmt.Errorf("failed to register codes http handler: %w", err)
 	}
 
 	if err := sources.RegisterSourcesServiceHandlerServer(ctx, gwMux, sourcesService); err != nil {
-		return nil, errors.Wrap(err, "failed to register tokens http handler")
+		return nil, fmt.Errorf("failed to register tokens http handler: %w", err)
 	}
 
 	if err := users.RegisterUsersServiceHandlerServer(ctx, gwMux, usersService); err != nil {
-		return nil, errors.Wrap(err, "failed to register tokens http handler")
+		return nil, fmt.Errorf("failed to register tokens http handler: %w", err)
 	}
 
 	mux := http.NewServeMux()
@@ -129,7 +129,7 @@ func NewServer(
 		Handler: handler,
 	}
 	if err := http2.ConfigureServer(httpServer, nil); err != nil {
-		return nil, errors.Wrapf(err, "can't configure http")
+		return nil, fmt.Errorf("can't configure http: %w", err)
 	}
 
 	return &Server{
@@ -157,11 +157,11 @@ func (s *Server) Serve(ctx context.Context, lis net.Listener, tlsConfig *TLSConf
 		log("http").Infof("tls cert: %s", tlsConfig.CertPath)
 		log("http").Infof("tls key: %s", tlsConfig.KeyPath)
 		if err := s.httpServer.ServeTLS(lis, tlsConfig.CertPath, tlsConfig.KeyPath); err != nil {
-			return errors.Wrap(err, "failed to start tls http server")
+			return fmt.Errorf("failed to start tls http server: %w", err)
 		}
 	case false:
 		if err := s.httpServer.Serve(lis); err != nil {
-			return errors.Wrap(err, "failed to start http server")
+			return fmt.Errorf("failed to start http server: %w", err)
 		}
 	}
 

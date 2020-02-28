@@ -7,8 +7,8 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/x509"
+	"fmt"
 
-	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
@@ -42,12 +42,12 @@ func (s *keyStorage) Get(ctx context.Context, id string) (*key, error) {
 
 	data, err := s.storage.Load(ctx, resource.NewName("jwt-key", id))
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to load key")
+		return nil, fmt.Errorf("failed to load key: %w", err)
 	}
 
 	privateKey, err := x509.ParseECPrivateKey(data)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse key")
+		return nil, fmt.Errorf("failed to parse key: %w", err)
 	}
 
 	k := &key{
@@ -63,7 +63,7 @@ func (s *keyStorage) Get(ctx context.Context, id string) (*key, error) {
 // Delete deletes a key by id.
 func (s *keyStorage) Delete(ctx context.Context, id string) error {
 	if err := s.storage.Delete(ctx, resource.NewName("jwt-key", id)); err != nil {
-		return errors.Wrap(err, "failed to delete key")
+		return fmt.Errorf("failed to delete key: %w", err)
 	}
 	s.cache.Delete(id)
 	return nil
@@ -73,18 +73,18 @@ func (s *keyStorage) Delete(ctx context.Context, id string) error {
 func (s *keyStorage) Create(ctx context.Context) (*key, error) {
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to generate encryption key")
+		return nil, fmt.Errorf("failed to generate encryption key: %w", err)
 	}
 
 	data, err := x509.MarshalECPrivateKey(privateKey)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal encryption key")
+		return nil, fmt.Errorf("failed to marshal encryption key: %w", err)
 	}
 
 	id := ksuid.New().String()
 
 	if err := s.storage.Store(ctx, resource.NewName("jwt-key", id), data); err != nil {
-		return nil, errors.Wrap(err, "failed to store encryption key")
+		return nil, fmt.Errorf("failed to store encryption key: %w", err)
 	}
 
 	k := &key{
@@ -101,7 +101,7 @@ func (s *keyStorage) Create(ctx context.Context) (*key, error) {
 func (s *keyStorage) List(ctx context.Context) ([]*key, error) {
 	dd, err := s.storage.LoadChildren(ctx, resource.NewName("jwt-key", "*"), nil, 50)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to load keys")
+		return nil, fmt.Errorf("failed to load keys: %w", err)
 	}
 
 	kk := make([]*key, 0, len(dd))

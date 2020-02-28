@@ -10,7 +10,6 @@ import (
 	"sync"
 
 	"github.com/go-shiori/go-readability"
-	"github.com/pkg/errors"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 	"miniboard.app/images"
@@ -34,7 +33,7 @@ type Reader struct {
 func NewFromReader(ctx context.Context, client GetClient, articleName *resource.Name, images *images.Service, raw io.Reader, url *url.URL) (*Reader, error) {
 	article, err := readability.FromReader(raw, url.String())
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse document")
+		return nil, fmt.Errorf("failed to parse document: %w", err)
 	}
 
 	wg := &sync.WaitGroup{}

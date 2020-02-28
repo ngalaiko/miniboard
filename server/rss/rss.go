@@ -2,12 +2,12 @@ package rss
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 
 	"github.com/mmcdole/gofeed"
-	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
 	"golang.org/x/sync/errgroup"
 	"miniboard.app/api/actor"
@@ -37,7 +37,7 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader) (*rss.Feed, 
 
 	feed, err := s.parser.Parse(reader)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse feed")
+		return nil, fmt.Errorf("failed to parse feed: %w", err)
 	}
 
 	wg, ctx := errgroup.WithContext(ctx)
@@ -46,13 +46,13 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader) (*rss.Feed, 
 
 		wg.Go(func() error {
 			if err := s.saveItem(ctx, item); err != nil {
-				return errors.Wrapf(err, "failed to save item %s", item.Link)
+				return fmt.Errorf("failed to save item %s: %w", item.Link, err)
 			}
 			return nil
 		})
 	}
 	if err := wg.Wait(); err != nil {
-		return nil, errors.Wrap(err, "failed to add feed")
+		return nil, fmt.Errorf("failed to add feed: %w", err)
 	}
 
 	name := actor.Child("feeds", ksuid.New().String())
@@ -64,13 +64,13 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader) (*rss.Feed, 
 func (s *Service) saveItem(ctx context.Context, item *gofeed.Item) error {
 	resp, err := s.parser.Client.Get(item.Link)
 	if err != nil {
-		return errors.Wrap(err, "failed to fetch")
+		return fmt.Errorf("failed to fetch: %w", err)
 	}
 	defer resp.Body.Close()
 
 	link, _ := url.Parse(item.Link)
 	if _, err := s.articlesService.CreateArticle(ctx, resp.Body, link); err != nil {
-		return errors.Wrap(err, "failed to create article")
+		return fmt.Errorf("failed to create article: %w", err)
 	}
 	return nil
 }

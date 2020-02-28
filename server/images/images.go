@@ -3,6 +3,7 @@ package images
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"image"
 	"io"
 	"net/http"
@@ -11,7 +12,6 @@ import (
 	// supported image formats
 	_ "image/png"
 
-	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 	"miniboard.app/storage"
@@ -34,17 +34,17 @@ func New(storage storage.Storage) *Service {
 func (s *Service) Save(ctx context.Context, articleName *resource.Name, reader io.Reader) (*resource.Name, error) {
 	imageData, _, err := image.Decode(reader)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to decode image")
+		return nil, fmt.Errorf("failed to decode image: %w", err)
 	}
 
 	jpegImage := &bytes.Buffer{}
 	if err := jpeg.Encode(jpegImage, imageData, nil); err != nil {
-		return nil, errors.Wrap(err, "failed to encode jpeg")
+		return nil, fmt.Errorf("failed to encode jpeg: %w", err)
 	}
 
 	name := articleName.Child("images", ksuid.New().String())
 	if err := s.storage.Store(ctx, name, jpegImage.Bytes()); err != nil {
-		return nil, errors.Wrap(err, "failed to save image")
+		return nil, fmt.Errorf("failed to save image: %w", err)
 	}
 
 	return name, nil

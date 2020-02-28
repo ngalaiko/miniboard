@@ -3,6 +3,7 @@ package articles
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -12,7 +13,6 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -222,9 +222,9 @@ func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRe
 	}
 
 	article.Content, err = s.storage.Load(ctx, resource.NewName("content", name.ID()))
-	switch errors.Cause(err) {
-	case nil:
-	case storage.ErrNotFound:
+	switch {
+	case err == nil:
+	case errors.Is(err, storage.ErrNotFound):
 		return article, nil
 	default:
 		return nil, status.Errorf(codes.Internal, "failed to load the article's content")
@@ -235,9 +235,9 @@ func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRe
 
 func (s *Service) getArticle(ctx context.Context, name *resource.Name) (*articles.Article, error) {
 	raw, err := s.storage.Load(ctx, name)
-	switch errors.Cause(err) {
-	case nil:
-	case storage.ErrNotFound:
+	switch {
+	case err == nil:
+	case errors.Is(err, storage.ErrNotFound):
 		return nil, status.Errorf(codes.NotFound, "not found")
 	default:
 		return nil, status.Errorf(codes.Internal, "failed to load the article")

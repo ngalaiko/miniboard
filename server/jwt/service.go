@@ -2,10 +2,10 @@ package jwt
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 	jose "gopkg.in/square/go-jose.v2"
@@ -104,35 +104,35 @@ func (s *Service) NewToken(subject *resource.Name, validFor time.Duration, typ s
 func (s *Service) Validate(ctx context.Context, raw string, typ string) (*resource.Name, error) {
 	token, err := jwt.ParseSigned(raw)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse token")
+		return nil, fmt.Errorf("failed to parse token: %w", err)
 	}
 
 	if len(token.Headers) == 0 {
-		return nil, errors.Wrap(err, "headers missing from the token")
+		return nil, fmt.Errorf("headers missing from the token: %w", err)
 	}
 
 	id := token.Headers[0].KeyID
 
 	key, err := s.keyStorage.Get(ctx, id)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to find key '%s'", id)
+		return nil, fmt.Errorf("failed to find key '%s': %w", id, err)
 	}
 
 	claims := &jwt.Claims{}
 	custom := &customClaims{}
 	if err := token.Claims(key.Public, claims, custom); err != nil {
-		return nil, errors.Wrapf(err, "failed to parse claims")
+		return nil, fmt.Errorf("failed to parse claims: %w", err)
 	}
 
 	if custom.Type != typ {
-		return nil, errors.Wrapf(err, "wrong token type, expected '%s'", typ)
+		return nil, fmt.Errorf("wrong token type, expected '%s': %w", typ, err)
 	}
 
 	if err := claims.Validate(jwt.Expected{
 		Issuer: defaultIssuer,
 		Time:   time.Now(),
 	}); err != nil {
-		return nil, errors.Wrap(err, "token is invalid")
+		return nil, fmt.Errorf("token is invalid: %w", err)
 	}
 
 	return resource.ParseName(claims.Subject), nil
@@ -169,7 +169,7 @@ func (s *Service) cleanupOldKeys(ctx context.Context) {
 func (s *Service) deleteOldKeys(ctx context.Context) error {
 	kk, err := s.keyStorage.List(ctx)
 	if err != nil {
-		return errors.Wrap(err, "can't list keys from the storage")
+		return fmt.Errorf("can't list keys from the storage: %w", err)
 	}
 
 	deleteBefore := time.Now().Add(-2 * s.expiryInterval)

@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/gomodule/redigo/redis"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
@@ -27,7 +26,7 @@ func New(ctx context.Context, addr string) (*Storage, error) {
 	}()
 
 	if _, err := conn.Do("PING"); err != nil {
-		return nil, errors.Wrap(err, "failed to ping redis client")
+		return nil, fmt.Errorf("failed to ping redis client: %w", err)
 	}
 
 	log("redis").Infof("connected to %s", addr)
@@ -61,7 +60,7 @@ func (s *Storage) Store(ctx context.Context, name *resource.Name, data []byte) e
 
 	// add element data
 	if _, err := conn.Do("SET", name.String(), data); err != nil {
-		return errors.Wrapf(err, "failed to SET %s", name)
+		return fmt.Errorf("failed to SET %s: %w", name, err)
 	}
 
 	first, last := name.Split()
@@ -69,12 +68,12 @@ func (s *Storage) Store(ctx context.Context, name *resource.Name, data []byte) e
 	// add element to to the list
 	index, err := redis.Int(conn.Do("LPUSH", first, last))
 	if err != nil {
-		return errors.Wrapf(err, "failed to LPUSH %s %s", first, last)
+		return fmt.Errorf("failed to LPUSH %s %s: %w", first, last, err)
 	}
 
 	// add save element index
 	if _, err := conn.Do("HSET", first+"/hash", last, index); err != nil {
-		return errors.Wrapf(err, "failed to HSET %s %s %d", first, last, index)
+		return fmt.Errorf("failed to HSET %s %s %d: %w", first, last, index, err)
 	}
 
 	return nil
@@ -88,7 +87,7 @@ func (s *Storage) Update(ctx context.Context, name *resource.Name, data []byte) 
 	}()
 
 	if _, err := conn.Do("SET", name.String(), data); err != nil {
-		return errors.Wrapf(err, "failed to SET %s", name)
+		return fmt.Errorf("failed to SET %s: %w", name, err)
 	}
 	return nil
 }
@@ -106,7 +105,7 @@ func (s *Storage) loadOne(conn redis.Conn, name *resource.Name) ([]byte, error) 
 	dd, err := s.loadMany(conn, name)
 	switch {
 	case err != nil:
-		return nil, errors.Wrapf(err, "failed to MGET %s", name)
+		return nil, fmt.Errorf("failed to MGET %s: %w", name, err)
 	case dd[0] == nil:
 		return nil, storage.ErrNotFound
 	default:
@@ -122,7 +121,7 @@ func (s *Storage) loadMany(conn redis.Conn, names ...*resource.Name) ([][]byte, 
 
 	data, err := redis.ByteSlices(conn.Do("MGET", redis.Args{}.AddFlat(ns)...))
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to MGET %s", names)
+		return nil, fmt.Errorf("failed to MGET %s: %w", names, err)
 	}
 
 	return data, nil
@@ -136,7 +135,7 @@ func (s *Storage) Delete(ctx context.Context, name *resource.Name) error {
 	}()
 
 	if _, err := conn.Do("DEL", name.String()); err != nil {
-		return errors.Wrapf(err, "failed to DEL %s", name)
+		return fmt.Errorf("failed to DEL %s: %w", name, err)
 	}
 	return nil
 }
@@ -167,7 +166,7 @@ func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resour
 
 		len, err := redis.Int(conn.Do("LLEN", first))
 		if err != nil {
-			return errors.Wrapf(err, "failed to LLEN %s", first)
+			return fmt.Errorf("failed to LLEN %s: %w", first, err)
 		}
 
 		index, err := redis.Int(conn.Do("HGET", first+"/hash", last))
@@ -176,14 +175,14 @@ func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resour
 			start = len - index
 		case redis.ErrNil:
 		default:
-			return errors.Wrapf(err, "failed to HGET %s %s", first, last)
+			return fmt.Errorf("failed to HGET %s %s: %w", first, last, err)
 		}
 	}
 
 	first, _ := name.Split()
 	keys, err := redis.Strings(conn.Do("LRANGE", first, start, -1))
 	if err != nil {
-		return errors.Wrapf(err, "failed: LRANGE %s %d -1", first, start)
+		return fmt.Errorf("failed: LRANGE %s %d -1: %w", first, start, err)
 	}
 
 	nn := make([]*resource.Name, 0, len(keys))
@@ -195,7 +194,7 @@ func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resour
 
 	dd, err := s.loadMany(conn, nn...)
 	if err != nil {
-		return errors.Wrapf(err, "failed to load")
+		return fmt.Errorf("failed to load: %w", err)
 	}
 
 	for i, d := range dd {

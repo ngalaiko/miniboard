@@ -2,10 +2,10 @@ package bolt
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	bolt "github.com/coreos/bbolt"
-	"github.com/pkg/errors"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
 )
@@ -128,7 +128,7 @@ func bucket(tx *bolt.Tx, name *resource.Name) (*bolt.Bucket, error) {
 		var err error
 		bucket, err = tx.CreateBucket([]byte(path[0]))
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to create bucket")
+			return nil, fmt.Errorf("failed to create bucket: %w", err)
 		}
 	}
 
@@ -138,7 +138,7 @@ func bucket(tx *bolt.Tx, name *resource.Name) (*bolt.Bucket, error) {
 			var err error
 			childBucket, err = bucket.CreateBucket([]byte(bucketName))
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to create bucket")
+				return nil, fmt.Errorf("failed to create bucket: %w", err)
 			}
 		}
 		bucket = childBucket

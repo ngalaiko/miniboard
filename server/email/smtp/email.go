@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/smtp"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -45,7 +44,7 @@ func (c *Client) Send(to string, subject string, payload string) error {
 		[]string{to},
 		msg,
 	); err != nil {
-		return errors.Wrap(err, "failed to send email")
+		return fmt.Errorf("failed to send email: %w", err)
 	}
 	return nil
 }

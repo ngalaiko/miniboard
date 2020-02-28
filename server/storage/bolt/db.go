@@ -2,10 +2,10 @@ package bolt
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	bolt "github.com/coreos/bbolt"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"miniboard.app/storage"
 )
@@ -27,7 +27,7 @@ func New(ctx context.Context, path string) (*DB, error) {
 
 	db, err := bolt.Open(path, 0600, &bolt.Options{})
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to create bolt database in '%s'", path)
+		return nil, fmt.Errorf("failed to create bolt database in '%s': %w", path, err)
 	}
 
 	go func() {

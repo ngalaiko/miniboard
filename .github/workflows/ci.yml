@@ -14,16 +14,23 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
+    - name: Set up go ${{ env.GO_VERSION }}
+      uses: actions/setup-go@v1
+      with:
+        go-version: ${{ env.GO_VERSION }}
+      id: go
+
     - name: Setup golangci-lint
       env:
-        VERSION: 1.23.6
+        VERSION: v1.23.7
       run: |
         curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
-         | sh -s -- -b "${GITHUB_WORKSPACE}/bin" v1.23.6
+         | sh -s -- -b "${GITHUB_WORKSPACE}/bin" ${VERSION}
 
     - name: Run lint
       run: |
         cd server && "${GITHUB_WORKSPACE}/bin/golangci-lint" run ./...
+
 
   test:
     name: Test
