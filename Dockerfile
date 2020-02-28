@@ -16,6 +16,7 @@ WORKDIR /web
 RUN npm install --global rollup
 RUN yarn install && yarn build
 
+
 FROM alpine:3.11.3
 
 COPY --from=go_builder /server/miniboard /app/miniboard
