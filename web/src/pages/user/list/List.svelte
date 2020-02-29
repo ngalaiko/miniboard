@@ -116,6 +116,8 @@
     display: flex;
     flex-direction: column;
     max-height: 100%;
+    min-height: 100%;
+    justify-content: space-between;
   }
 
   .list-header {
@@ -160,7 +162,6 @@
     font: inherit;
     border: 0;
     background: none;
-    padding: 0;
     border-top: 1px solid;
     padding: 10px;
     cursor: pointer;
