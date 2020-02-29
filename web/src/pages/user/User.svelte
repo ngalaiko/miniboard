@@ -24,6 +24,7 @@
           username="users/{params.userid}"
           articlesClient={articlesClient}
           listParams={new ListParams()}
+          on:selected={(e) => selectedArticleName = e.detail}
         />
       </Route>
       <Route path="unread" let:params>
@@ -31,6 +32,7 @@
           username="users/{params.userid}"
           articlesClient={articlesClient}
           listParams={new ListParams().withRead(false)}
+          on:selected={(e) => selectedArticleName = e.detail}
         />
       </Route>
       <Route path="favorite" let:params>
@@ -38,6 +40,7 @@
           username="users/{params.userid}"
           articlesClient={articlesClient}
           listParams={new ListParams().withFavorite(true)}
+          on:selected={(e) => selectedArticleName = e.detail}
         />
       </Route>
     </div>
