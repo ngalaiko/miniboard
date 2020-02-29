@@ -3,11 +3,13 @@
   import List from './list/List.svelte'
   import Reader from './reader/Reader.svelte'
   import { Router, Route } from 'svelte-routing'
-
   // @ts-ignore
   import { ArticlesClient, ListParams } from '../../clients/articles.ts'
+  // @ts-ignore
+  import { SourcesClient } from '../../clients/sources.ts'
 
   export let articlesClient: ArticlesClient
+  export let sourcesClient: SourcesClient
 
   let selectedArticleName: string = ''
   $: selectedArticleName = location.hash.slice(1)
@@ -23,6 +25,7 @@
         <List
           username="users/{params.userid}"
           articlesClient={articlesClient}
+          sourcesClient={sourcesClient}
           listParams={new ListParams()}
           on:selected={(e) => selectedArticleName = e.detail}
         />
@@ -31,6 +34,7 @@
         <List
           username="users/{params.userid}"
           articlesClient={articlesClient}
+          sourcesClient={sourcesClient}
           listParams={new ListParams().withRead(false)}
           on:selected={(e) => selectedArticleName = e.detail}
         />
@@ -39,6 +43,7 @@
         <List
           username="users/{params.userid}"
           articlesClient={articlesClient}
+          sourcesClient={sourcesClient}
           listParams={new ListParams().withFavorite(true)}
           on:selected={(e) => selectedArticleName = e.detail}
         />

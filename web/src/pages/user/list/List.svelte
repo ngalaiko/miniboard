@@ -2,15 +2,21 @@
   import SvelteInfiniteScroll from 'svelte-infinite-scroll'
   // @ts-ignore
   import { ArticlesClient, Articles, Article, ListParams } from '../../../clients/articles.ts'
+  // @ts-ignore
+  import { SourcesClient, } from '../../../clients/sources.ts'
   import ArticleView from './article/Article.svelte'
   import { createEventDispatcher , onMount, onDestroy } from 'svelte'
   import Search from '../../../icons/Search.svelte'
   import Add from '../../../icons/Add.svelte'
+	import Modal from './Modal.svelte'
+
+	let showModal = false
 
 	const dispatch = createEventDispatcher()
 
   export let username: string = ''
   export let articlesClient: ArticlesClient
+  export let sourcesClient: SourcesClient
   export let listParams: ListParams = new ListParams(false, false)
 
   let pageToken = ''
@@ -54,10 +60,14 @@
     typingTimerId = setTimeout(refresh, 300)
   }
 
+  const onAdd = async (url: string) => {
+    await sourcesClient.create(username, url)
+    refresh()
+  }
+
   onMount(loadMore)
   onDestroy(() => dispatch('selected', null))
 </script>
-
 
 <div class="list">
   <div class="list-header">
@@ -88,11 +98,18 @@
       on:loadMore={loadMore}
     />
   </ul>
-  <button class="button-add">
+  <button class="button-add" on:click={() => showModal = true}>
     <Add />
     <div>Add</div>
   </button>
 </div>
+
+{#if showModal}
+  <Modal 
+    on:close={() => showModal = false} 
+    on:add={(e) => onAdd(e.detail)}
+  />
+{/if}
 
 <style>
   .list {

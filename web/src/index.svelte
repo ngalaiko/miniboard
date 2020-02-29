@@ -52,6 +52,7 @@
   <Route path="/users/:userid/*" let:params>
       <User
         articlesClient={articlesClient}
+        sourcesClient={sourcesClient}
       />
     </Route>
     <Route path="/">

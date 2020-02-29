@@ -17,7 +17,7 @@ export class SourcesClient {
 		this.apiClient = apiClient
     }
 
-    async createSource(username: string, url: string): Promise<Source> {
+    async create(username: string, url: string): Promise<Source> {
         return new Source(await this.apiClient.post(`/api/v1/${username}/sources`, {
             url: url,
         }))
