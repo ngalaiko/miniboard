@@ -131,6 +131,7 @@
     font: inherit;
     border: 0;
     background: inherit;
+    width: 100%;
   }
 
   .search-input:focus {
