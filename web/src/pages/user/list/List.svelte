@@ -5,6 +5,7 @@
   import ArticleView from './article/Article.svelte'
   import { createEventDispatcher , onMount, onDestroy } from 'svelte'
   import Search from '../../../icons/Search.svelte'
+  import Add from '../../../icons/Add.svelte'
 
 	const dispatch = createEventDispatcher()
 
@@ -87,6 +88,10 @@
       on:loadMore={loadMore}
     />
   </ul>
+  <button class="button-add">
+    <Add />
+    <div>Add</div>
+  </button>
 </div>
 
 <style>
@@ -128,6 +133,27 @@
   }
 
   .selected {
+    background: gainsboro;
+  }
+
+  .button-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font: inherit;
+    border: 0;
+    background: none;
+    padding: 0;
+    border-top: 1px solid;
+    padding: 10px;
+    cursor: pointer;
+  }
+
+  .button-add:focus {
+    outline: none;
+  }
+
+  .button-add:hover {
     background: gainsboro;
   }
 </style>
