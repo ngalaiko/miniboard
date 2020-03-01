@@ -123,15 +123,20 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 	}
 	article.UpdateTime = ptypes.TimestampNow()
 
-	h := sha256.New()
-	_, _ = h.Write(content)
+	urlHash := sha256.New()
+	_, _ = urlHash.Write([]byte(article.Url))
 
 	actor, _ := actor.FromContext(ctx)
-	name := actor.Child("articles", fmt.Sprintf("%x", h.Sum(nil)))
+	name := actor.Child("articles", fmt.Sprintf("%x", urlHash.Sum(nil)))
 	article.Name = name.String()
 
-	if article, err := s.getArticle(ctx, name); err == nil {
-		return article, nil
+	contentHash := sha256.New()
+	_, _ = contentHash.Write(content)
+	article.ContentSha256Sum = fmt.Sprintf("%x", contentHash.Sum(nil))
+
+	if existingArticle, err := s.getArticle(ctx, name); err == nil &&
+		existingArticle.ContentSha256Sum == article.ContentSha256Sum {
+		return existingArticle, nil
 	}
 
 	if err := s.storage.Store(ctx, resource.NewName("content", name.ID()), content); err != nil {

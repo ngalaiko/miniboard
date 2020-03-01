@@ -125,6 +125,9 @@ message Article {
 
     // Name of source website.
     string site_name = 9;
+
+    // SHA256 sum of the content.
+    string content_sha256_sum = 10;
 }
 
 enum ArticleView {
