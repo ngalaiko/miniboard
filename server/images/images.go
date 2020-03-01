@@ -31,7 +31,7 @@ func New(storage storage.Storage) *Service {
 }
 
 // Save saves an image.
-func (s *Service) Save(ctx context.Context, articleName *resource.Name, reader io.Reader) (*resource.Name, error) {
+func (s *Service) Save(ctx context.Context, reader io.Reader) (*resource.Name, error) {
 	imageData, _, err := image.Decode(reader)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode image: %w", err)
@@ -42,7 +42,7 @@ func (s *Service) Save(ctx context.Context, articleName *resource.Name, reader i
 		return nil, fmt.Errorf("failed to encode jpeg: %w", err)
 	}
 
-	name := articleName.Child("images", ksuid.New().String())
+	name := resource.NewName("images", ksuid.New().String())
 	if err := s.storage.Store(ctx, name, jpegImage.Bytes()); err != nil {
 		return nil, fmt.Errorf("failed to save image: %w", err)
 	}

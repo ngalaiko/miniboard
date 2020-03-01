@@ -12,7 +12,6 @@ import (
 	"miniboard.app/images"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
-	"miniboard.app/storage/resource"
 )
 
 func Test(t *testing.T) {
@@ -21,7 +20,7 @@ func Test(t *testing.T) {
 
 	url, _ := url.Parse("http://example.com")
 
-	r, err := NewFromReader(ctx, &http.Client{}, resource.NewName("articles", "1"), images.New(testDB(ctx, t)), testData(t), url)
+	r, err := NewFromReader(ctx, &http.Client{}, images.New(testDB(ctx, t)), testData(t), url)
 	assert.NoError(t, err)
 
 	title := r.Title()

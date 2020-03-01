@@ -2,8 +2,10 @@ package articles
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -12,7 +14,6 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -110,26 +111,33 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 		Url: articleURL.String(),
 	}
 
-	actor, _ := actor.FromContext(ctx)
-	name := actor.Child("articles", ksuid.New().String())
-
 	var content []byte
 
-	r, err := reader.NewFromReader(ctx, s.client, name, s.images, body, articleURL)
+	r, err := reader.NewFromReader(ctx, s.client, s.images, body, articleURL)
 	if err == nil {
 		article.Title = r.Title()
 		article.SiteName = r.SiteName()
 		article.IconUrl = r.IconURL()
 
 		content = r.Content()
-		if content != nil {
-			if err := s.storage.Store(ctx, resource.NewName("content", name.ID()), content); err != nil {
-				return nil, status.Errorf(codes.Internal, "failed to store the article content")
-			}
-		}
 	}
-	article.Name = name.String()
 	article.UpdateTime = ptypes.TimestampNow()
+
+	h := sha256.New()
+	_, _ = h.Write(content)
+
+	actor, _ := actor.FromContext(ctx)
+	name := actor.Child("articles", fmt.Sprintf("%x", h.Sum(nil)))
+	article.Name = name.String()
+
+	if article, err := s.getArticle(ctx, name); err == nil {
+		return article, nil
+	}
+
+	if err := s.storage.Store(ctx, resource.NewName("content", name.ID()), content); err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to store the article content")
+	}
+
 	rawArticle, err := proto.Marshal(article)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to marshal the article")

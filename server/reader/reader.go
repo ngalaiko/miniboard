@@ -13,7 +13,6 @@ import (
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 	"miniboard.app/images"
-	"miniboard.app/storage/resource"
 )
 
 // GetClient is used to fetch article's data from the Internet.
@@ -30,7 +29,7 @@ type Reader struct {
 
 // NewFromReader returns new reader from io.Reader.
 // URL is needed to form complete links to images.
-func NewFromReader(ctx context.Context, client GetClient, articleName *resource.Name, images *images.Service, raw io.Reader, url *url.URL) (*Reader, error) {
+func NewFromReader(ctx context.Context, client GetClient, images *images.Service, raw io.Reader, url *url.URL) (*Reader, error) {
 	article, err := readability.FromReader(raw, url.String())
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse document: %w", err)
@@ -44,7 +43,7 @@ func NewFromReader(ctx context.Context, client GetClient, articleName *resource.
 
 		wg.Add(1)
 		go func(n *html.Node) {
-			inlineImage(ctx, client, articleName, images, n)
+			inlineImage(ctx, client, images, n)
 			wg.Done()
 		}(n)
 		return true
@@ -64,7 +63,7 @@ func NewFromReader(ctx context.Context, client GetClient, articleName *resource.
 	}, nil
 }
 
-func inlineImage(ctx context.Context, client GetClient, articleName *resource.Name, images *images.Service, n *html.Node) {
+func inlineImage(ctx context.Context, client GetClient, images *images.Service, n *html.Node) {
 	for _, attr := range n.Attr {
 		if attr.Key != "src" {
 			continue
@@ -80,7 +79,7 @@ func inlineImage(ctx context.Context, client GetClient, articleName *resource.Na
 			return
 		}
 
-		name, err := images.Save(ctx, articleName, resp.Body)
+		name, err := images.Save(ctx, resp.Body)
 		if err != nil {
 			return
 		}

@@ -4,13 +4,11 @@ import (
 	"context"
 	"io/ioutil"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
-	"miniboard.app/storage/resource"
 )
 
 func Test_Save__should_save_jpeg_image(t *testing.T) {
@@ -22,9 +20,8 @@ func Test_Save__should_save_jpeg_image(t *testing.T) {
 	file, err := os.Open("./testdata/image.jpeg")
 	assert.NoError(t, err)
 
-	name, err := s.Save(ctx, resource.NewName("article", "1"), file)
+	_, err = s.Save(ctx, file)
 	assert.NoError(t, err)
-	assert.True(t, strings.HasPrefix(name.String(), "article/1"))
 }
 
 func Test_Save__should_save_png_image(t *testing.T) {
@@ -36,9 +33,8 @@ func Test_Save__should_save_png_image(t *testing.T) {
 	file, err := os.Open("./testdata/image.png")
 	assert.NoError(t, err)
 
-	name, err := s.Save(ctx, resource.NewName("article", "1"), file)
+	_, err = s.Save(ctx, file)
 	assert.NoError(t, err)
-	assert.True(t, strings.HasPrefix(name.String(), "article/1"))
 }
 
 func testDB(ctx context.Context, t *testing.T) storage.Storage {

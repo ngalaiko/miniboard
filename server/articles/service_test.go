@@ -1,8 +1,10 @@
 package articles
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -21,17 +23,28 @@ import (
 	"miniboard.app/storage/resource"
 )
 
+func testArticle(replacement string) io.ReadCloser {
+	file, err := os.Open("./testdata/test.html")
+	if err != nil {
+		return nil
+	}
+
+	dd, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil
+	}
+
+	dd = bytes.Replace(dd, []byte("__RANDOM__"), []byte(replacement), 1)
+
+	return ioutil.NopCloser(bytes.NewBuffer(dd))
+}
+
 type testClient struct{}
 
 func (tc *testClient) Get(url string) (*http.Response, error) {
-	file, err := os.Open("./testdata/test.html")
-	if err != nil {
-		return nil, err
-	}
-
 	return &http.Response{
 		StatusCode: http.StatusOK,
-		Body:       file,
+		Body:       testArticle(url),
 	}, nil
 }
 
@@ -51,9 +64,7 @@ func Test_articles(t *testing.T) {
 			url, err := url.Parse("http://localhost")
 			assert.NoError(t, err)
 
-			body, err := os.Open("./testdata/test.html")
-			assert.NoError(t, err)
-			defer body.Close()
+			body := testArticle(url.String())
 
 			resp, err := service.CreateArticle(ctx, body, url)
 			t.Run("It should be created", func(t *testing.T) {
@@ -117,9 +128,7 @@ func Test_articles(t *testing.T) {
 				url, err := url.Parse(fmt.Sprintf("http://localhost.com/%d", i))
 				assert.NoError(t, err)
 
-				body, err := os.Open("./testdata/test.html")
-				assert.NoError(t, err)
-				defer body.Close()
+				body := testArticle(url.String())
 
 				resp, err := service.CreateArticle(ctx, body, url)
 				assert.NoError(t, err)
