@@ -73,6 +73,27 @@ func Test_articles(t *testing.T) {
 				assert.Equal(t, resp.Url, "http://localhost")
 				assert.NotEmpty(t, resp.Content)
 			})
+			t.Run("When adding the same article twice", func(t *testing.T) {
+				body = testArticle(url.String())
+				resp2, err := service.CreateArticle(ctx, body, url)
+				t.Run("It should return the same article with the same content", func(t *testing.T) {
+					if assert.NoError(t, err) {
+						assert.Equal(t, resp2.Name, resp.Name)
+						assert.Equal(t, resp2.ContentSha256Sum, resp.ContentSha256Sum)
+					}
+				})
+			})
+			t.Run("When adding the same article with different content", func(t *testing.T) {
+				body = testArticle("new content here")
+				resp2, err := service.CreateArticle(ctx, body, url)
+
+				t.Run("It should return the same article with different content", func(t *testing.T) {
+					if assert.NoError(t, err) {
+						assert.Equal(t, resp2.Name, resp.Name)
+						assert.NotEqual(t, resp2.ContentSha256Sum, resp.ContentSha256Sum)
+					}
+				})
+			})
 			t.Run("When getting the article with full view", func(t *testing.T) {
 				resp, err := service.GetArticle(ctx, &articles.GetArticleRequest{
 					Name: resp.Name,
