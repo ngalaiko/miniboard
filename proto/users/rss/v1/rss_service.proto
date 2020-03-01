@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package app.miniboard.users.rss.v1;
 
+import "google/protobuf/timestamp.proto";
+
 option go_package = "rss";
 
 service RSSService {}
@@ -9,4 +11,6 @@ service RSSService {}
 message Feed {
     // Name of the resource, for example "users/user1/feeds/feed1".
     string name = 1;
+    // Time of the last feed fetch by the reader.
+    google.protobuf.Timestamp last_fetched = 2;
 }

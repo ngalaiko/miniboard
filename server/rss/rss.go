@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/golang/protobuf/ptypes"
 	"github.com/mmcdole/gofeed"
 	"github.com/segmentio/ksuid"
 	"golang.org/x/sync/errgroup"
@@ -57,7 +58,8 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader) (*rss.Feed, 
 
 	name := actor.Child("feeds", ksuid.New().String())
 	return &rss.Feed{
-		Name: name.String(),
+		Name:        name.String(),
+		LastFetched: ptypes.TimestampNow(),
 	}, nil
 }
 
