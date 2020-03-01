@@ -8,11 +8,10 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -111,8 +110,6 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 		Url: articleURL.String(),
 	}
 
-	now := time.Now()
-
 	actor, _ := actor.FromContext(ctx)
 	name := actor.Child("articles", ksuid.New().String())
 
@@ -132,10 +129,7 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 		}
 	}
 	article.Name = name.String()
-	article.CreateTime = &timestamp.Timestamp{
-		Seconds: now.In(time.UTC).Unix(),
-	}
-
+	article.UpdateTime = ptypes.TimestampNow()
 	rawArticle, err := proto.Marshal(article)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to marshal the article")

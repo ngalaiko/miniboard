@@ -9,7 +9,7 @@
 <div class="article" on:click>
   <div class="header">
     <div class="meta">{article.siteName !== '' ? article.siteName : new URL(article.url).hostname}</div>
-    <TimeAgo date={new Date(article.createTime)} />
+    <TimeAgo date={new Date(article.updateTime)} />
   </div>
   <div class="title">{article.title}</div>
 </div>

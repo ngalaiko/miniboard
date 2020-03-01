@@ -111,8 +111,8 @@ message Article {
     // Icon url.
     string icon_url = 4;
 
-    // Time when article was added.&articles.List
-    google.protobuf.Timestamp create_time = 5;
+    // Time when article was added.
+    google.protobuf.Timestamp update_time = 5;
 
     // Readable content of the article.
     bytes content = 6;
