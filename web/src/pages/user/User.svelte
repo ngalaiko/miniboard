@@ -85,4 +85,35 @@
   .column {
     border-left: 1px solid;
   }
+
+  @media screen and (max-width: 1023px) {
+    .menu {
+      display: none;
+    }
+
+    .list {
+      max-width:  35%;
+      min-width:  35%;
+    }
+
+    .reader {
+      max-width:  65%;
+      min-width:  65%;
+    }
+  }
+
+  @media screen and (max-width: 414px) {
+    .menu {
+      display: none;
+    }
+
+    .list {
+      max-width:  100%;
+      min-width:  100%;
+    }
+
+    .reader {
+      display: none;
+    }
+  }
 </style>
