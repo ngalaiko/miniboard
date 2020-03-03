@@ -13,7 +13,7 @@ export class Category {
 }
 
 export const Categories = {
-    All: new Category('all', 'All', new ListParams()),
     Unread: new Category('unread', 'Unread', new ListParams().withRead(false)),
     Favorite: new Category('favorite', 'Favorite', new ListParams().withFavorite(true)),
+    All: new Category('all', 'All', new ListParams()),
 }
