@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Menu from './menu/Menu.svelte'
   import List from './list/List.svelte'
   import Reader from './reader/Reader.svelte'
   import { Router, Route } from 'svelte-routing'
@@ -17,9 +16,6 @@
 
 <div class="user">
   <Router>
-    <div class="menu column">
-      <Menu />
-    </div>
     <div class="list column">
       <Route path="all" let:params>
         <List
@@ -65,48 +61,22 @@
     min-width: 100%;
   }
 
-  .menu {
-    flex-basis: 15%;
-    max-width:  15%;
-    min-width:  15%;
-  }
-
   .list {
-    flex-basis: 20%;
-    max-width:  20%;
-    min-width:  20%;
+    flex-basis: 25%;
+    max-width:  25%;
+    min-width:  25%;
   }
 
   .reader {
-    max-width:  65%;
-    min-width:  65%;
+    max-width:  75%;
+    min-width:  75%;
   }
 
   .column {
     border-left: 1px solid;
   }
 
-  @media screen and (max-width: 1023px) {
-    .menu {
-      display: none;
-    }
-
-    .list {
-      max-width:  35%;
-      min-width:  35%;
-    }
-
-    .reader {
-      max-width:  65%;
-      min-width:  65%;
-    }
-  }
-
   @media screen and (max-width: 414px) {
-    .menu {
-      display: none;
-    }
-
     .list {
       max-width:  100%;
       min-width:  100%;
