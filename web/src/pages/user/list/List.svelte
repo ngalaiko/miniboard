@@ -1,7 +1,7 @@
 <script lang="ts">
   import SvelteInfiniteScroll from 'svelte-infinite-scroll'
   // @ts-ignore
-  import { ArticlesClient, Articles, Article, ListParams } from '../../../clients/articles.ts'
+  import { ArticlesClient, Articles, Article } from '../../../clients/articles.ts'
   // @ts-ignore
   import { SourcesClient, } from '../../../clients/sources.ts'
   import ArticleView from './article/Article.svelte'
@@ -9,6 +9,9 @@
   import Search from '../../../icons/Search.svelte'
   import Add from '../../../icons/Add.svelte'
 	import Modal from './Modal.svelte'
+  import Selector from './Selector.svelte'
+  // @ts-ignore
+  import { Category, Categories } from './Category.ts'
 
 	let showModal = false
 
@@ -17,9 +20,9 @@
   export let username: string = ''
   export let articlesClient: ArticlesClient
   export let sourcesClient: SourcesClient
-  export let listParams: ListParams = new ListParams(false, false)
 
   let pageToken = ''
+  export let category: Category = Categories.All
   let hasMore = true
   let articlesList: Article[] = []
 
@@ -30,6 +33,7 @@
   $: selectedArticleName = location.hash.slice(1)
   $: searchQuery = new URLSearchParams(location.search).get('searchQuery')
 
+  const listParams = category.listParams
   const loadMore = async () => {
     const articles = await articlesClient.list(
       username, 25, pageToken, listParams.withTitle(searchQuery))
@@ -84,6 +88,12 @@
       on:copy={onInput}
       on:paste={onInput}
     />
+    <div class="select {searchQuery == null ? '' : 'hidden'}">
+      <Selector 
+        selectedValue={category}
+        on:select={(e) => dispatch('select_category', e.detail)} 
+      />
+    </div>
   </div>
   <ul class="list-ul">
     {#each articlesList as article}
@@ -193,5 +203,9 @@
 
   .hidden {
     display: none;
+  }
+
+  .select {
+    width: 100%;
   }
 </style>

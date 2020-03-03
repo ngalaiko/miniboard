@@ -1,11 +1,13 @@
 <script lang="ts">
   import List from './list/List.svelte'
   import Reader from './reader/Reader.svelte'
-  import { Router, Route } from 'svelte-routing'
+  import { Router, Route, navigate } from 'svelte-routing'
   // @ts-ignore
-  import { ArticlesClient, ListParams } from '../../clients/articles.ts'
+  import { ArticlesClient } from '../../clients/articles.ts'
   // @ts-ignore
   import { SourcesClient } from '../../clients/sources.ts'
+  // @ts-ignore
+  import { Categories } from './list/Category.ts'
 
   export let articlesClient: ArticlesClient
   export let sourcesClient: SourcesClient
@@ -22,8 +24,9 @@
           username="users/{params.userid}"
           articlesClient={articlesClient}
           sourcesClient={sourcesClient}
-          listParams={new ListParams()}
+          category={Categories.All}
           on:selected={(e) => selectedArticleName = e.detail}
+          on:select_category={(e) => navigate(e.detail)}
         />
       </Route>
       <Route path="unread" let:params>
@@ -31,8 +34,9 @@
           username="users/{params.userid}"
           articlesClient={articlesClient}
           sourcesClient={sourcesClient}
-          listParams={new ListParams().withRead(false)}
+          category={Categories.Unread}
           on:selected={(e) => selectedArticleName = e.detail}
+          on:select_category={(e) => navigate(e.detail)}
         />
       </Route>
       <Route path="favorite" let:params>
@@ -40,8 +44,9 @@
           username="users/{params.userid}"
           articlesClient={articlesClient}
           sourcesClient={sourcesClient}
-          listParams={new ListParams().withFavorite(true)}
+          category={Categories.Favorite}
           on:selected={(e) => selectedArticleName = e.detail}
+          on:select_category={(e) => navigate(e.detail)}
         />
       </Route>
     </div>
