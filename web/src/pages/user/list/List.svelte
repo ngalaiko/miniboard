@@ -64,6 +64,7 @@
     typingTimerId = setTimeout(refresh, 300)
   }
 
+  let inputElement: HTMLElement
   const onAdd = async (url: string) => {
     await sourcesClient.create(username, url)
     refresh()
@@ -75,10 +76,15 @@
 
 <div class="list">
   <div class="list-header">
-      <button class="button-search" on:click={() => searchQuery = searchQuery == null ? '' : null}>
+    <button class="button-search" on:click={() => {
+      searchQuery = searchQuery == null ? '' : null
+      console.log(inputElement)
+      inputElement.focus()
+    }}>
       <Search size="1em" />
     </button>
     <input
+      bind:this={inputElement}
       class="search-input {searchQuery != null ? '' : 'hidden'}"
       placeholder="search"
       bind:value={searchQuery}
@@ -156,7 +162,7 @@
     border: 0;
     background: inherit;
     width: 100%;
-    padding: 0;
+    padding: 4px;
   }
 
   .search-input:focus {

@@ -28,5 +28,7 @@
     --background: #F5F5F5;
     --height: 100%;
     --indicatorWidth: 0;
+    --padding: 5px;
+    --itemPadding: 5px;
   }
 </style>
