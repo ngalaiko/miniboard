@@ -135,7 +135,6 @@
     flex-direction: column;
     max-height: 100%;
     min-height: 100%;
-    justify-content: space-between;
   }
 
   .button-search {
@@ -197,6 +196,7 @@
     border-top: 1px solid;
     padding: 10px;
     cursor: pointer;
+    margin-top: auto;
   }
 
   .button-add:focus {
