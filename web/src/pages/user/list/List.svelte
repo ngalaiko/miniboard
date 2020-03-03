@@ -23,16 +23,16 @@
   let hasMore = true
   let articlesList: Article[] = []
 
-  let title: string|null = ''
+  let searchQuery: string|null = ''
   let selectedArticleName = ''
 
-  $: history.pushState(null, "", `?title=${title ? title : ''}#${selectedArticleName}`)
+  $: history.pushState(null, "", `?${searchQuery ? 'searchQuery='+searchQuery : ''}#${selectedArticleName}`)
   $: selectedArticleName = location.hash.slice(1)
-  $: title = new URLSearchParams(location.search).get('title')
+  $: searchQuery = new URLSearchParams(location.search).get('searchQuery')
 
   const loadMore = async () => {
     const articles = await articlesClient.list(
-      username, 25, pageToken, listParams.withTitle(title))
+      username, 25, pageToken, listParams.withTitle(searchQuery))
 
     articlesList = [
       ...articlesList,
@@ -71,11 +71,13 @@
 
 <div class="list">
   <div class="list-header">
-    <Search size="1em" />
+      <button class="button-search" on:click={() => searchQuery = searchQuery == null ? '' : null}>
+      <Search size="1em" />
+    </button>
     <input
-      class="search-input"
+      class="search-input {searchQuery != null ? '' : 'hidden'}"
       placeholder="search"
-      bind:value={title}
+      bind:value={searchQuery}
       on:change={onInput}
       on:input={onInput}
       on:cut={onInput}
@@ -120,6 +122,18 @@
     justify-content: space-between;
   }
 
+  .button-search {
+    background: inherit;
+    padding: 0;
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .button-search:focus {
+    outline: none;
+  }
+
   .list-header {
     display: flex;
     align-items: center;
@@ -132,6 +146,7 @@
     border: 0;
     background: inherit;
     width: 100%;
+    padding: 0;
   }
 
   .search-input:focus {
@@ -174,5 +189,9 @@
 
   .button-add:hover {
     background: gainsboro;
+  }
+
+  .hidden {
+    display: none;
   }
 </style>
