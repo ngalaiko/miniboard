@@ -14,11 +14,12 @@
 
   let selectedArticleName: string = ''
   $: selectedArticleName = location.hash.slice(1)
+  $: console.log(selectedArticleName)
 </script>
 
 <div class="user">
   <Router>
-    <div class="list column">
+    <div class="list column {selectedArticleName === '' ? 'full-screen' : 'hidden'}">
       <Route path="all" let:params>
         <List
           username="users/{params.userid}"
@@ -50,7 +51,7 @@
         />
       </Route>
     </div>
-    <div class="reader column">
+    <div class="reader column { selectedArticleName === '' ? 'hidden' : 'full-screen' }">
       <Reader
         articleName={selectedArticleName}
         articlesClient={articlesClient}
@@ -82,12 +83,12 @@
   }
 
   @media screen and (max-width: 414px) {
-    .list {
+    .full-screen {
       max-width:  100%;
       min-width:  100%;
     }
 
-    .reader {
+    .hidden {
       display: none;
     }
   }
