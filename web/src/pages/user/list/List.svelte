@@ -6,8 +6,7 @@
   import { SourcesClient, } from '../../../clients/sources.ts'
   import ArticleView from './article/Article.svelte'
   import { createEventDispatcher , onMount, onDestroy } from 'svelte'
-  import Search from '../../../icons/Search.svelte'
-  import Add from '../../../icons/Add.svelte'
+  import { PlusIcon, SearchIcon } from 'svelte-feather-icons'
 	import Modal from './Modal.svelte'
   import Selector from './Selector.svelte'
   // @ts-ignore
@@ -81,7 +80,7 @@
       console.log(inputElement)
       inputElement.focus()
     }}>
-      <Search size="1em" />
+      <SearchIcon size="20" />
     </button>
     <input
       bind:this={inputElement}
@@ -117,7 +116,7 @@
     />
   </ul>
   <button class="button-add" on:click={() => showModal = true}>
-    <Add />
+    <PlusIcon size="24" />
     <div>Add</div>
   </button>
 </div>

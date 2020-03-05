@@ -14,7 +14,6 @@
 
   let selectedArticleName: string = ''
   $: selectedArticleName = location.hash.slice(1)
-  $: console.log(selectedArticleName)
 </script>
 
 <div class="user">
