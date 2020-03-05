@@ -4,7 +4,7 @@
   import { ChevronLeftIcon } from 'svelte-feather-icons'
   import { createEventDispatcher } from 'svelte'
 
-	const dispatch = createEventDispatcher()
+  const dispatch = createEventDispatcher()
 
   export let articleName: string|null
   export let articlesClient: ArticlesClient
@@ -28,7 +28,7 @@
       loading...
     {:then article}
       <div class='page'>
-        <h1 href={article.url} target="_blank">{article.title}</h1>
+        <a href={article.url} target="_blank"><h1>{article.title}</h1></a>
         {@html decode(article)}
       </div>
     {/await}
@@ -47,13 +47,14 @@
   }
 
   a {
+    display: flex;
     color: inherit;
     text-decoration: none;
   }
 
-  .header:hover {
-    background: gainsboro;
+  a:hover {
     cursor: pointer;
+    background: gainsboro;
   }
 
   .navigation-bar {
