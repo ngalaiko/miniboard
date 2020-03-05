@@ -37,12 +37,9 @@
 
 <style>
   .reader {
-    display: flex;
-    flex-direction: column;
     max-height: 100%;
-    max-width: 100%;
     overflow-y: scroll;
-    align-items: center;
+    padding: 5px;
   }
 
   h1 {
@@ -120,7 +117,10 @@
   }
 
   @media screen and (min-width: 704px) {
-    .page { padding-left: 42px; padding-right: 42px; }
+    .page {
+      padding-left: 42px;
+      padding-right: 42px;
+    }
   }
 
   @media only screen and (min-width: 780px) {
@@ -134,10 +134,5 @@
       margin-left: 70px;
       margin-right: 70px;
     }
-  }
-
-  .reader {
-    -webkit-font-smoothing: subpixel-antialiased;
-    padding: 5px;
   }
 </style>
