@@ -99,12 +99,10 @@
       margin-right: auto;
       padding-top: 35px;
       padding-bottom: 35px;
-      position: relative;
     }
 
     .page video {
       height: auto;
-      position: relative;
     }
   }
 
