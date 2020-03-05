@@ -25,7 +25,7 @@
           articlesClient={articlesClient}
           sourcesClient={sourcesClient}
           category={Categories.All}
-          on:selected={(e) => selectedArticleName = e.detail}
+          on:select={(e) => selectedArticleName = e.detail}
           on:select_category={(e) => navigate(e.detail)}
         />
       </Route>
@@ -35,7 +35,7 @@
           articlesClient={articlesClient}
           sourcesClient={sourcesClient}
           category={Categories.Unread}
-          on:selected={(e) => selectedArticleName = e.detail}
+          on:select={(e) => selectedArticleName = e.detail}
           on:select_category={(e) => navigate(e.detail)}
         />
       </Route>
@@ -45,7 +45,7 @@
           articlesClient={articlesClient}
           sourcesClient={sourcesClient}
           category={Categories.Favorite}
-          on:selected={(e) => selectedArticleName = e.detail}
+          on:select={(e) => selectedArticleName = e.detail}
           on:select_category={(e) => navigate(e.detail)}
         />
       </Route>
@@ -54,6 +54,7 @@
       <Reader
         articleName={selectedArticleName}
         articlesClient={articlesClient}
+        on:close={() => selectedArticleName = ''}
       />
     </div>
   </Router>

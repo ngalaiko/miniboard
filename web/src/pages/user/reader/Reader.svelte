@@ -1,6 +1,10 @@
 <script lang="ts">
   // @ts-ignore
   import { ArticlesClient, Article } from '../../../clients/articles.ts'
+  import { ChevronLeftIcon } from 'svelte-feather-icons'
+  import { createEventDispatcher } from 'svelte'
+
+	const dispatch = createEventDispatcher()
 
   export let articleName: string|null
   export let articlesClient: ArticlesClient
@@ -13,6 +17,12 @@
 </script>
 
 <div class='reader'>
+  <button class="navigation-bar" on:click={() => {
+    history.pushState(null, "", `#`)
+    dispatch('close')
+  }}>
+    <ChevronLeftIcon size="24" />
+  </button>
   {#if articleName}
     {#await articlesClient.get(articleName)}
       loading...
@@ -33,8 +43,6 @@
     max-width: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
-    padding-left: 40px;
-    padding-right: 40px;
     align-items: center;
   }
 
@@ -60,6 +68,21 @@
   .header:hover {
     background: gainsboro;
     cursor: pointer;
+  }
+
+  .navigation-bar {
+    display: none;
+  }
+
+  @media screen and (max-width: 414px) {
+    .navigation-bar {
+      display: flex;
+      width: 100%;
+      padding: 0;
+      font: inherit;
+      border: 0;
+      background: inherit;
+    }
   }
 
   :global(.page) {

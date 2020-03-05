@@ -5,7 +5,7 @@
   // @ts-ignore
   import { SourcesClient, } from '../../../clients/sources.ts'
   import ArticleView from './article/Article.svelte'
-  import { createEventDispatcher , onMount, onDestroy } from 'svelte'
+  import { createEventDispatcher, onMount, onDestroy } from 'svelte'
   import { PlusIcon, SearchIcon } from 'svelte-feather-icons'
 	import Modal from './Modal.svelte'
   import Selector from './Selector.svelte'
@@ -48,7 +48,7 @@
 
   const onSelected = (article: Article) => {
     selectedArticleName = article.name
-    dispatch('selected', article.name)
+    dispatch('select', article.name)
   }
 
   const refresh = () => {
