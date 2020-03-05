@@ -16,13 +16,13 @@
   }
 </script>
 
+<button class="navigation-bar" on:click={() => {
+  history.pushState(null, "", `#`)
+  dispatch('close')
+}}>
+  <ChevronLeftIcon size="24" />
+</button>
 <div class='reader'>
-  <button class="navigation-bar" on:click={() => {
-    history.pushState(null, "", `#`)
-    dispatch('close')
-  }}>
-    <ChevronLeftIcon size="24" />
-  </button>
   {#if articleName}
     {#await articlesClient.get(articleName)}
       loading...
