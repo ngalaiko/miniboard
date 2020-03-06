@@ -8,7 +8,7 @@ WORKDIR /server
 RUN go build -o miniboard ./cmd/miniboard/main.go
 
 
-FROM node:13.8.0-alpine as node_builder
+FROM node:13.10.1-alpine as node_builder
 
 COPY /web web
 WORKDIR /web
