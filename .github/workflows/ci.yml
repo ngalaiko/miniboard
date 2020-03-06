@@ -77,7 +77,7 @@ jobs:
 
   deploy:
     name: Deploy
-    if: false #github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -113,7 +113,7 @@ jobs:
       uses: matootie/dokube@v1.2.0
       with:
         personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
-        clusterName: k8s-1-16-2-do-3-ams3-1580667990888
+        clusterName: k8s-0
         expirationTime: 300
 
     - name: Apply Chart
