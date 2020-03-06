@@ -17,13 +17,12 @@
 </script>
 
 <button class="navigation-bar" on:click={() => {
-  history.pushState(null, "", `#`)
   dispatch('close')
 }}>
   <ChevronLeftIcon size="24" />
 </button>
 <div class='reader'>
-  {#if articleName}
+  {#if /users\/.+\/articles\/.+/.test(articleName)}
     {#await articlesClient.get(articleName)}
       loading...
     {:then article}

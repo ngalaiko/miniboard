@@ -5,7 +5,7 @@
   // @ts-ignore
   import { SourcesClient, } from '../../../clients/sources.ts'
   import ArticleView from './article/Article.svelte'
-  import { createEventDispatcher, onMount, onDestroy } from 'svelte'
+  import { createEventDispatcher, onMount } from 'svelte'
   import { PlusIcon, SearchIcon } from 'svelte-feather-icons'
 	import Modal from './Modal.svelte'
   import Selector from './Selector.svelte'
@@ -28,10 +28,10 @@
   let articlesList: Article[] = []
 
   let searchQuery: string|null = new URLSearchParams(location.search).get('title')
-  let selectedArticleName = location.hash.slice(1)
+  export let selectedArticleName = ''
 
   $: history.pushState(null, "", `?category=${category.value}`
-    + `${searchQuery ? '&title='+searchQuery : ''}#${selectedArticleName}`)
+    + `${searchQuery ? '&title='+searchQuery : ''}`)
 
   const loadMore = async () => {
     const articles = await articlesClient.list(
@@ -44,11 +44,6 @@
 
     pageToken = articles.nextPageToken
     hasMore = pageToken !== ''
-  }
-
-  const onSelected = (article: Article) => {
-    selectedArticleName = article.name
-    dispatch('select', article.name)
   }
 
   const refresh = () => {
@@ -75,7 +70,6 @@
   }
 
   onMount(loadMore)
-  onDestroy(() => dispatch('selected', null))
 </script>
 
 <div class="list">
@@ -110,7 +104,7 @@
       <li class="list-li {article.name === selectedArticleName ? 'selected' : ''}">
         <ArticleView
           article={article}
-          on:click={(e) => onSelected(article)}
+          on:click={(e) => dispatch('select', article.name)}
         />
       </li>
     {/each}

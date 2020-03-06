@@ -1,7 +1,7 @@
 <script lang="ts">
   import List from './list/List.svelte'
   import Reader from './reader/Reader.svelte'
-  import { Router, Route } from 'svelte-routing'
+  import { Router, Route, navigate } from 'svelte-routing'
   // @ts-ignore
   import { ArticlesClient } from '../../clients/articles.ts'
   // @ts-ignore
@@ -9,29 +9,29 @@
 
   export let articlesClient: ArticlesClient
   export let sourcesClient: SourcesClient
-
-  export let username: string = ''
-
-  let selectedArticleName: string = ''
-  $: selectedArticleName = location.hash.slice(1)
 </script>
 
 <div class="user">
-  <div class="list column {selectedArticleName === '' ? 'full-screen' : 'hidden'}">
-    <List
-      username={username}
-      articlesClient={articlesClient}
-      sourcesClient={sourcesClient}
-      on:select={(e) => selectedArticleName = e.detail}
-    />
-  </div>
-  <div class="reader column { selectedArticleName === '' ? 'hidden' : 'full-screen' }">
-    <Reader
-      articleName={selectedArticleName}
-      articlesClient={articlesClient}
-      on:close={() => selectedArticleName = ''}
-    />
-  </div>
+  <Router>
+    <Route path="*articleName" let:params>
+      <div class="list column { params.articleName === '' ? 'full-screen' : 'hidden' }">
+        <List
+          selectedArticleName="users/{params.userid}/{params.articleName}"
+          username="users/{params.userid}"
+          articlesClient={articlesClient}
+          sourcesClient={sourcesClient}
+          on:select={(e) => navigate(`/${e.detail}${location.search}`, { replace: true })}
+        />
+      </div>
+      <div class="reader column { params.articleName === '' ? 'hidden' : 'full-screen' }">
+        <Reader
+          articleName="users/{params.userid}/{params.articleName}"
+          articlesClient={articlesClient}
+          on:close={() => navigate(`/users/${params.userid}${location.search}`, { replace: true })}
+        />
+      </div>
+    </Route>
+  </Router>
 </div>
 
 <style>
