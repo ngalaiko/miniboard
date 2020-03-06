@@ -216,6 +216,7 @@
   }
 
   .select {
+    max-width: 18em;
     width: 100%;
   }
 </style>

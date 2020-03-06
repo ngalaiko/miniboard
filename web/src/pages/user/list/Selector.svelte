@@ -24,11 +24,12 @@
 
 <style>
   .select {
+    width: 100%;
     --border: 0;
     --background: #F5F5F5;
     --height: 100%;
     --indicatorWidth: 0;
-    --padding: 5px;
-    --itemPadding: 5px;
+    --padding: 0.5em;
+    --itemPadding: 0.5em;
   }
 </style>
