@@ -6,7 +6,7 @@
   export let article: Article
 </script>
 
-<div class="article" on:click>
+<div class="article" class:read={article.isRead} on:click>
   <div class="header">
     <div class="meta">{article.siteName !== '' ? article.siteName : new URL(article.url).hostname}</div>
     <TimeAgo date={new Date(article.updateTime)} />
@@ -35,5 +35,9 @@
     line-height: 1.1em;
     cursor: pointer;
     padding: 5px;
+  }
+
+  .read {
+    opacity: 0.5;
   }
 </style>
