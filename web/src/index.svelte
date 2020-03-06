@@ -44,6 +44,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Miniboard</title>
+</svelte:head>
+
 <div class="app">
   <Router>
     <Route path="/codes/:code" let:params>

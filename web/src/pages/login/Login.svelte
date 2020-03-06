@@ -26,10 +26,6 @@
   const handleCode = async () => navigate(`/codes/${code}`)
 </script>
 
-<svelte:head>
-  <title>Miniboard</title>
-</svelte:head>
-
 <div id='login'>
   {#if error}
     <div class='alert'>{error}</div>
