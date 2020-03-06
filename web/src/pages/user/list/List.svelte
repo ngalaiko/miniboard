@@ -163,7 +163,6 @@
     border: 0;
     background: inherit;
     width: 100%;
-    padding: 4px;
   }
 
   .search-input:focus {
@@ -181,7 +180,7 @@
 
   .list-li {
     border-bottom: 1px solid;
-    padding-right: 5px;
+    padding-right: 0.4em;
   }
 
   .selected {
@@ -196,9 +195,11 @@
     border: 0;
     background: none;
     border-top: 1px solid;
-    padding: 10px;
     cursor: pointer;
     margin-top: auto;
+    margin-right: 0;
+    margin-left: 0;
+    margin-bottom: 0;
     min-height: 3em;
   }
 

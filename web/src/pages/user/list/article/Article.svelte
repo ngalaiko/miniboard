@@ -19,7 +19,7 @@
     display: flex;
     justify-content: space-between;
     opacity: 70%;
-    margin-bottom: 2px;
+    margin-bottom: 0.1em;
     font-size: 0.8em;
   }
 
@@ -34,7 +34,7 @@
     flex-direction: column;
     line-height: 1.1em;
     cursor: pointer;
-    padding: 5px;
+    padding: 0.3em;
   }
 
   .read {

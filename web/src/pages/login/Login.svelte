@@ -66,6 +66,10 @@
     margin: auto;
   }
 
+  form {
+    height: 3em;
+  }
+
   button {
     padding-left: 0; padding-right: 0;
     border-left-width: 0; border-right-width: 0;
@@ -77,9 +81,7 @@
     border: 1px solid;
     width: 100%;
     font-size: 1.1em;
-    padding: 5px;
-    padding-left: 7px;
-    -webkit-appearance: none;
+    padding: 0.3em;
     border-radius: 0;
   }
 
@@ -92,9 +94,9 @@
     color: #b94a48;
     background-color: #f2dede;
     border-color: #eed3d7;
-    padding: 8px;
+    padding: 0.5em;
     border: 1px solid #fbeed5;
     overflow: auto;
-    margin: 10px;
+    margin: 0.5em;
   }
 </style>

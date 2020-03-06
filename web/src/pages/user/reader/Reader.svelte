@@ -38,11 +38,11 @@
   .reader {
     max-height: 100%;
     overflow-y: scroll;
-    padding: 5px;
+    padding: 0.5em;
   }
 
   h1 {
-    margin: 5px;
+    margin: 0.2em;
   }
 
   a {
