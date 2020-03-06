@@ -75,8 +75,8 @@ export class ArticlesClient {
         return new Article(await this.apiClient.get(`/api/v1/${name}?view=ARTICLE_VIEW_FULL`))
     }
 
-    async update(article: Article): Promise<Article> {
-        return new Article(await this.apiClient.patch(`/api/v1/${article.name}`, article))
+    async update(articleName: string, diff: any): Promise<Article> {
+        return new Article(await this.apiClient.patch(`/api/v1/${articleName}`, diff))
     }
 
     async delete(name: string): Promise<Article> {

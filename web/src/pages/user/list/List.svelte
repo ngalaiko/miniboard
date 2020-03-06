@@ -104,7 +104,11 @@
       <li class="list-li {article.name === selectedArticleName ? 'selected' : ''}">
         <ArticleView
           article={article}
-          on:click={(e) => dispatch('select', article.name)}
+          on:click={(e) => {
+            article.isRead = true
+            articlesClient.update(article.name, { isRead: true })
+            dispatch('select', article.name)
+          }}
         />
       </li>
     {/each}
