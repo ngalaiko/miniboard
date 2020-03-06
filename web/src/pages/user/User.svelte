@@ -1,63 +1,37 @@
 <script lang="ts">
   import List from './list/List.svelte'
   import Reader from './reader/Reader.svelte'
-  import { Router, Route, navigate } from 'svelte-routing'
+  import { Router, Route } from 'svelte-routing'
   // @ts-ignore
   import { ArticlesClient } from '../../clients/articles.ts'
   // @ts-ignore
   import { SourcesClient } from '../../clients/sources.ts'
-  // @ts-ignore
-  import { Categories } from './list/Category.ts'
 
   export let articlesClient: ArticlesClient
   export let sourcesClient: SourcesClient
+
+  export let username: string = ''
 
   let selectedArticleName: string = ''
   $: selectedArticleName = location.hash.slice(1)
 </script>
 
 <div class="user">
-  <Router>
-    <div class="list column {selectedArticleName === '' ? 'full-screen' : 'hidden'}">
-      <Route path="all" let:params>
-        <List
-          username="users/{params.userid}"
-          articlesClient={articlesClient}
-          sourcesClient={sourcesClient}
-          category={Categories.All}
-          on:select={(e) => selectedArticleName = e.detail}
-          on:select_category={(e) => navigate(e.detail)}
-        />
-      </Route>
-      <Route path="unread" let:params>
-        <List
-          username="users/{params.userid}"
-          articlesClient={articlesClient}
-          sourcesClient={sourcesClient}
-          category={Categories.Unread}
-          on:select={(e) => selectedArticleName = e.detail}
-          on:select_category={(e) => navigate(e.detail)}
-        />
-      </Route>
-      <Route path="favorite" let:params>
-        <List
-          username="users/{params.userid}"
-          articlesClient={articlesClient}
-          sourcesClient={sourcesClient}
-          category={Categories.Favorite}
-          on:select={(e) => selectedArticleName = e.detail}
-          on:select_category={(e) => navigate(e.detail)}
-        />
-      </Route>
-    </div>
-    <div class="reader column { selectedArticleName === '' ? 'hidden' : 'full-screen' }">
-      <Reader
-        articleName={selectedArticleName}
-        articlesClient={articlesClient}
-        on:close={() => selectedArticleName = ''}
-      />
-    </div>
-  </Router>
+  <div class="list column {selectedArticleName === '' ? 'full-screen' : 'hidden'}">
+    <List
+      username={username}
+      articlesClient={articlesClient}
+      sourcesClient={sourcesClient}
+      on:select={(e) => selectedArticleName = e.detail}
+    />
+  </div>
+  <div class="reader column { selectedArticleName === '' ? 'hidden' : 'full-screen' }">
+    <Reader
+      articleName={selectedArticleName}
+      articlesClient={articlesClient}
+      on:close={() => selectedArticleName = ''}
+    />
+  </div>
 </div>
 
 <style>

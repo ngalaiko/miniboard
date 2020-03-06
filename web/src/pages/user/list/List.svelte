@@ -19,23 +19,23 @@
   export let username: string = ''
   export let articlesClient: ArticlesClient
   export let sourcesClient: SourcesClient
+  
+  const categoryParam = new URLSearchParams(location.search).get('category')
+  let category: Category = categoryParam ? Categories[categoryParam] : Categories['unread']
 
   let pageToken = ''
-  export let category: Category = Categories.All
   let hasMore = true
   let articlesList: Article[] = []
 
-  let searchQuery: string|null = ''
-  let selectedArticleName = ''
+  let searchQuery: string|null = new URLSearchParams(location.search).get('title')
+  let selectedArticleName = location.hash.slice(1)
 
-  $: history.pushState(null, "", `?${searchQuery ? 'searchQuery='+searchQuery : ''}#${selectedArticleName}`)
-  $: selectedArticleName = location.hash.slice(1)
-  $: searchQuery = new URLSearchParams(location.search).get('searchQuery')
+  $: history.pushState(null, "", `?category=${category.value}`
+    + `${searchQuery ? '&title='+searchQuery : ''}#${selectedArticleName}`)
 
-  const listParams = category.listParams
   const loadMore = async () => {
     const articles = await articlesClient.list(
-      username, 25, pageToken, listParams.withTitle(searchQuery))
+      username, 25, pageToken, category.listParams.withTitle(searchQuery))
 
     articlesList = [
       ...articlesList,
@@ -69,6 +69,11 @@
     refresh()
   }
 
+  const onCalegorySelect = async (c: Category) => {
+    category = c
+    refresh()
+  }
+
   onMount(loadMore)
   onDestroy(() => dispatch('selected', null))
 </script>
@@ -96,7 +101,7 @@
     <div class="select {searchQuery == null ? '' : 'hidden'}">
       <Selector 
         selectedValue={category}
-        on:select={(e) => dispatch('select_category', e.detail)} 
+        on:select={(e) => onCalegorySelect(Categories[e.detail])} 
       />
     </div>
   </div>
