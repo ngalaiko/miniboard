@@ -44,7 +44,7 @@
   .list {
     flex-basis: 25%;
     max-width:  25%;
-    min-width:  25%;
+    min-width: 9em;
   }
 
   .reader {

@@ -154,7 +154,7 @@
   .list-header {
     display: flex;
     align-items: center;
-    padding: 5px;
+    min-height: 2em;
     border-bottom: 1px solid;
   }
 
@@ -199,6 +199,7 @@
     padding: 10px;
     cursor: pointer;
     margin-top: auto;
+    min-height: 3em;
   }
 
   .button-add:focus {
