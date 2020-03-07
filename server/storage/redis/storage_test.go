@@ -23,10 +23,13 @@ func Test_DB(t *testing.T) {
 			t.Skip("no redis host provided")
 		}
 
-		db := testDB(ctx, t)
+		db, err := New(ctx, host)
+		if err != nil {
+			t.Fatalf("failed to create database: %s", err)
+		}
 
-		conn := db.(*Storage).db.Get()
-		_, err := conn.Do("FLUSHALL")
+		conn := db.db.Get()
+		_, err = conn.Do("FLUSHALL")
 		_ = conn.Close()
 
 		assert.NoError(t, err)
@@ -152,12 +155,4 @@ func Test_DB(t *testing.T) {
 			})
 		})
 	})
-}
-
-func testDB(ctx context.Context, t *testing.T) storage.Storage {
-	s, err := New(ctx, "localhost:6379")
-	if err != nil {
-		t.Fatalf("failed to create database: %s", err)
-	}
-	return s
 }
