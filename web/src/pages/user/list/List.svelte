@@ -156,6 +156,7 @@
     align-items: center;
     min-height: 2em;
     border-bottom: 1px solid;
+    padding: 0.3em;
   }
 
   .search-input {
