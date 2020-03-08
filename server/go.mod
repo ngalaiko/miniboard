@@ -7,14 +7,17 @@ require (
 	github.com/alicebob/miniredis/v2 v2.11.3
 	github.com/andybalholm/brotli v1.0.0
 	github.com/coreos/bbolt v1.3.3
+	github.com/go-redis/redis v6.15.7+incompatible
 	github.com/go-shiori/go-readability v0.0.0-20190829113304-8630e8f6e148
 	github.com/gogo/protobuf v1.2.1
 	github.com/golang/protobuf v1.3.4
-	github.com/gomodule/redigo v2.0.0+incompatible
+	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.13.0
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/mmcdole/gofeed v1.0.0-beta2
 	github.com/mmcdole/goxpp v0.0.0-20181012175147-0068e33feabf // indirect
+	github.com/onsi/ginkgo v1.12.0 // indirect
+	github.com/onsi/gomega v1.9.0 // indirect
 	github.com/segmentio/ksuid v1.0.2
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.5.1

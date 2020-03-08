@@ -3,9 +3,8 @@ package redis
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/gomodule/redigo/redis"
+	"github.com/go-redis/redis"
 	"github.com/sirupsen/logrus"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
@@ -13,66 +12,44 @@ import (
 
 // Storage used to store key value data.
 type Storage struct {
-	db *redis.Pool
+	db *redis.Client
 }
 
 // New returns new mongo client instance.
 func New(ctx context.Context, addr string) (*Storage, error) {
-	pool := newPool(addr)
+	redisdb := redis.NewClient(&redis.Options{
+		Addr: addr,
+	})
 
-	conn := pool.Get()
-	defer func() {
-		_ = conn.Close()
-	}()
-
-	if _, err := conn.Do("PING"); err != nil {
-		return nil, fmt.Errorf("failed to ping redis client: %w", err)
+	if _, err := redisdb.Ping().Result(); err != nil {
+		return nil, fmt.Errorf("failed to ping redis: %w", err)
 	}
 
 	log("redis").Infof("connected to %s", addr)
-	return &Storage{
-		db: pool,
-	}, nil
-}
 
-func newPool(addr string) *redis.Pool {
-	return &redis.Pool{
-		MaxIdle:     3,
-		IdleTimeout: 240 * time.Second,
-		// Dial or DialContext must be set. When both are set, DialContext takes precedence over Dial.
-		Dial: func() (redis.Conn, error) { return redis.Dial("tcp", addr) },
-		TestOnBorrow: func(c redis.Conn, t time.Time) error {
-			if time.Since(t) < time.Minute {
-				return nil
-			}
-			_, err := c.Do("PING")
-			return err
-		},
-	}
+	return &Storage{
+		db: redisdb,
+	}, nil
 }
 
 // Store implements storage.Storage.
 func (s *Storage) Store(ctx context.Context, name *resource.Name, data []byte) error {
-	conn := s.db.Get()
-	defer func() {
-		_ = conn.Close()
-	}()
+	db := s.db.WithContext(ctx)
 
-	// add element data
-	if _, err := conn.Do("SET", name.String(), data); err != nil {
+	if err := db.Set(name.String(), data, 0).Err(); err != nil {
 		return fmt.Errorf("failed to SET %s: %w", name, err)
 	}
 
 	first, last := name.Split()
 
 	// add element to to the list
-	index, err := redis.Int(conn.Do("LPUSH", first, last))
+	index, err := db.LPush(first, last).Result()
 	if err != nil {
 		return fmt.Errorf("failed to LPUSH %s %s: %w", first, last, err)
 	}
 
 	// add save element index
-	if _, err := conn.Do("HSET", first+"/hash", last, index); err != nil {
+	if _, err := db.HSet(first+"/hash", last, index).Result(); err != nil {
 		return fmt.Errorf("failed to HSET %s %s %d: %w", first, last, index, err)
 	}
 
@@ -81,12 +58,9 @@ func (s *Storage) Store(ctx context.Context, name *resource.Name, data []byte) e
 
 // Update implements storage.Storage.
 func (s *Storage) Update(ctx context.Context, name *resource.Name, data []byte) error {
-	conn := s.db.Get()
-	defer func() {
-		_ = conn.Close()
-	}()
+	db := s.db.WithContext(ctx)
 
-	if _, err := conn.Do("SET", name.String(), data); err != nil {
+	if err := db.Set(name.String(), data, 0).Err(); err != nil {
 		return fmt.Errorf("failed to SET %s: %w", name, err)
 	}
 	return nil
@@ -94,15 +68,11 @@ func (s *Storage) Update(ctx context.Context, name *resource.Name, data []byte) 
 
 // Load implements storage.Storage.
 func (s *Storage) Load(ctx context.Context, name *resource.Name) ([]byte, error) {
-	conn := s.db.Get()
-	defer func() {
-		_ = conn.Close()
-	}()
-	return s.loadOne(conn, name)
+	return s.loadOne(ctx, name)
 }
 
-func (s *Storage) loadOne(conn redis.Conn, name *resource.Name) ([]byte, error) {
-	dd, err := s.loadMany(conn, name)
+func (s *Storage) loadOne(ctx context.Context, name *resource.Name) ([]byte, error) {
+	dd, err := s.loadMany(ctx, name)
 	switch {
 	case err != nil:
 		return nil, fmt.Errorf("failed to MGET %s: %w", name, err)
@@ -113,7 +83,7 @@ func (s *Storage) loadOne(conn redis.Conn, name *resource.Name) ([]byte, error) 
 	}
 }
 
-func (s *Storage) loadMany(conn redis.Conn, names ...*resource.Name) ([][]byte, error) {
+func (s *Storage) loadMany(ctx context.Context, names ...*resource.Name) ([][]byte, error) {
 	if len(names) == 0 {
 		return nil, nil
 	}
@@ -123,22 +93,34 @@ func (s *Storage) loadMany(conn redis.Conn, names ...*resource.Name) ([][]byte, 
 		ns = append(ns, name.String())
 	}
 
-	data, err := redis.ByteSlices(conn.Do("MGET", redis.Args{}.AddFlat(ns)...))
+	db := s.db.WithContext(ctx)
+
+	dd, err := db.MGet(ns...).Result()
 	if err != nil {
 		return nil, fmt.Errorf("failed to MGET %s: %w", names, err)
 	}
 
+	data := make([][]byte, 0, len(dd))
+	for _, d := range dd {
+		switch b := d.(type) {
+		case nil:
+			data = append(data, nil)
+		case []byte:
+			data = append(data, b)
+		case string:
+			data = append(data, []byte(b))
+		default:
+			panic(fmt.Sprint("unexpected type"))
+		}
+	}
 	return data, nil
 }
 
 // Delete implements storage.Storage.
 func (s *Storage) Delete(ctx context.Context, name *resource.Name) error {
-	conn := s.db.Get()
-	defer func() {
-		_ = conn.Close()
-	}()
+	db := s.db.WithContext(ctx)
 
-	if _, err := conn.Do("DEL", name.String()); err != nil {
+	if _, err := db.Del("DEL", name.String()).Result(); err != nil {
 		return fmt.Errorf("failed to DEL %s: %w", name, err)
 	}
 	return nil
@@ -146,33 +128,30 @@ func (s *Storage) Delete(ctx context.Context, name *resource.Name) error {
 
 // ForEach implements storage.Storage.
 func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resource.Name, okFunc func(*resource.Resource) (bool, error)) error {
-	conn := s.db.Get()
-	defer func() {
-		_ = conn.Close()
-	}()
+	db := s.db.WithContext(ctx)
 
-	start := 0
+	var start int64
 	// get start position from a list
 	if from != nil {
 		first, last := from.Split()
 
-		len, err := redis.Int(conn.Do("LLEN", first))
+		len, err := db.LLen(first).Result()
 		if err != nil {
 			return fmt.Errorf("failed to LLEN %s: %w", first, err)
 		}
 
-		index, err := redis.Int(conn.Do("HGET", first+"/hash", last))
+		index, err := db.HGet(first+"/hash", last).Int64()
 		switch err {
 		case nil:
 			start = len - index
-		case redis.ErrNil:
+		case redis.Nil:
 		default:
 			return fmt.Errorf("failed to HGET %s %s: %w", first, last, err)
 		}
 	}
 
 	first, _ := name.Split()
-	keys, err := redis.Strings(conn.Do("LRANGE", first, start, -1))
+	keys, err := s.db.LRange(first, start, -1).Result()
 	if err != nil {
 		return fmt.Errorf("failed: LRANGE %s %d -1: %w", first, start, err)
 	}
@@ -184,7 +163,7 @@ func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resour
 
 	// TODO: load in batches
 
-	dd, err := s.loadMany(conn, nn...)
+	dd, err := s.loadMany(ctx, nn...)
 	if err != nil {
 		return fmt.Errorf("failed to load: %w", err)
 	}
