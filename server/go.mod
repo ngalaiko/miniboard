@@ -7,14 +7,12 @@ require (
 	github.com/adjust/gocheck v0.0.0-20131111155431-fbc315b36e0e // indirect
 	github.com/adjust/rmq v1.0.1-0.20200114125905-c575b40117c9
 	github.com/adjust/uniuri v0.0.0-20130923163420-498743145e60 // indirect
-	github.com/alicebob/miniredis/v2 v2.11.3
 	github.com/andybalholm/brotli v1.0.0
 	github.com/coreos/bbolt v1.3.3
 	github.com/go-redis/redis v6.15.7+incompatible
 	github.com/go-shiori/go-readability v0.0.0-20190829113304-8630e8f6e148
 	github.com/gogo/protobuf v1.2.1
 	github.com/golang/protobuf v1.3.4
-	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.13.0
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/mmcdole/gofeed v1.0.0-beta2

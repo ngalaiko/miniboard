@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"testing"
 
-	miniredis "github.com/alicebob/miniredis/v2"
 	"github.com/segmentio/ksuid"
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/storage"
@@ -17,15 +17,18 @@ func Test_DB(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	s, err := miniredis.Run()
-	assert.NoError(t, err)
-	defer s.Close()
+	host := os.Getenv("REDIS_HOST")
+	if host == "" {
+		t.Skip("REDIS_HOST is not set")
+	}
 
 	t.Run("With redis", func(t *testing.T) {
-		db, err := New(ctx, s.Addr())
+		db, err := New(ctx, host)
 		if err != nil {
 			t.Fatalf("failed to create database: %s", err)
 		}
+
+		assert.NoError(t, db.db.FlushAll().Err())
 
 		t.Run("When data doesn't exist", func(t *testing.T) {
 			t.Run("it should not be found", func(t *testing.T) {
