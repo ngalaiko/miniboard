@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.0 // indirect
+	github.com/alicebob/miniredis/v2 v2.11.3
 	github.com/andybalholm/brotli v1.0.0
 	github.com/coreos/bbolt v1.3.3
 	github.com/go-shiori/go-readability v0.0.0-20190829113304-8630e8f6e148

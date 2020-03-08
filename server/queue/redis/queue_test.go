@@ -2,9 +2,9 @@ package redis
 
 import (
 	"context"
-	"os"
 	"testing"
 
+	miniredis "github.com/alicebob/miniredis/v2"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,21 +12,15 @@ func Test_Queue(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	t.Run("With redis", func(t *testing.T) {
-		host := os.Getenv("REDIS_HOST")
-		if host == "" {
-			t.Skip("no redis host provided")
-		}
+	s, err := miniredis.Run()
+	assert.NoError(t, err)
+	defer s.Close()
 
-		queue, err := New(ctx, host)
+	t.Run("With redis", func(t *testing.T) {
+		queue, err := New(ctx, s.Addr())
 		if err != nil {
 			t.Fatalf("failed to create database: %s", err)
 		}
-
-		conn := queue.pool.Get()
-		_, err = conn.Do("FLUSHALL")
-		_ = conn.Close()
-		assert.NoError(t, err)
 
 		messages := make(chan []byte)
 
