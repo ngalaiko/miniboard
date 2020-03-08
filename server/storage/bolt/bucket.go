@@ -2,6 +2,7 @@ package bolt
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -31,6 +32,11 @@ func (db *DB) Update(ctx context.Context, name *resource.Name, data []byte) erro
 	return db.update(name, func(bucket *bolt.Bucket) error {
 		return bucket.Put([]byte(name.ID()), data)
 	})
+}
+
+// LoadAll returns returns data matching _name_.
+func (db *DB) LoadAll(ctx context.Context, name *resource.Name) ([][]byte, error) {
+	return nil, errors.New("not implemented")
 }
 
 // Load returns returns data from bucket by _id_.

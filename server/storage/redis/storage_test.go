@@ -45,6 +45,16 @@ func Test_DB(t *testing.T) {
 				assert.NoError(t, db.Store(ctx, name, data))
 			}
 
+			t.Run("When loading all", func(t *testing.T) {
+				name := resource.NewName("test", "*")
+
+				t.Run("Should load all", func(t *testing.T) {
+					dd, err := db.LoadAll(ctx, name)
+					assert.NoError(t, err)
+					assert.Equal(t, 10, len(dd))
+				})
+			})
+
 			t.Run("When iterating through all elemetns", func(t *testing.T) {
 				name := resource.NewName("test", "*")
 
@@ -145,7 +155,7 @@ func Test_DB(t *testing.T) {
 			t.Run("When it's deleted", func(t *testing.T) {
 				assert.NoError(t, db.Delete(ctx, name))
 
-				t.Run("Data should not ne found", func(t *testing.T) {
+				t.Run("Data should not be found", func(t *testing.T) {
 					_, err := db.Load(ctx, name)
 					assert.Equal(t, storage.ErrNotFound, err)
 				})
@@ -154,7 +164,7 @@ func Test_DB(t *testing.T) {
 			t.Run("When it's updated", func(t *testing.T) {
 				assert.NoError(t, db.Update(ctx, name, []byte("updated")))
 
-				t.Run("Data should not ne found", func(t *testing.T) {
+				t.Run("Data should not be found", func(t *testing.T) {
 					d, err := db.Load(ctx, name)
 					assert.NoError(t, err)
 					assert.Equal(t, []byte("updated"), d)

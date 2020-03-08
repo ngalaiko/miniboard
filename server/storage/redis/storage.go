@@ -3,8 +3,9 @@ package redis
 import (
 	"context"
 	"fmt"
+	"strings"
 
-	"github.com/go-redis/redis"
+	redis "github.com/go-redis/redis/v7"
 	"github.com/sirupsen/logrus"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
@@ -78,7 +79,7 @@ func (s *Storage) Load(ctx context.Context, name *resource.Name) ([]byte, error)
 }
 
 func (s *Storage) loadOne(ctx context.Context, name *resource.Name) ([]byte, error) {
-	dd, err := s.loadMany(ctx, name)
+	dd, err := s.loadMany(ctx, name.String())
 	switch {
 	case err != nil:
 		return nil, fmt.Errorf("failed to MGET %s: %w", name, err)
@@ -89,19 +90,14 @@ func (s *Storage) loadOne(ctx context.Context, name *resource.Name) ([]byte, err
 	}
 }
 
-func (s *Storage) loadMany(ctx context.Context, names ...*resource.Name) ([][]byte, error) {
+func (s *Storage) loadMany(ctx context.Context, names ...string) ([][]byte, error) {
 	if len(names) == 0 {
 		return nil, nil
 	}
 
-	ns := make([]string, 0, len(names))
-	for _, name := range names {
-		ns = append(ns, name.String())
-	}
-
 	db := s.db.WithContext(ctx)
 
-	dd, err := db.MGet(ns...).Result()
+	dd, err := db.MGet(names...).Result()
 	if err != nil {
 		return nil, fmt.Errorf("failed to MGET %s: %w", names, err)
 	}
@@ -126,10 +122,31 @@ func (s *Storage) loadMany(ctx context.Context, names ...*resource.Name) ([][]by
 func (s *Storage) Delete(ctx context.Context, name *resource.Name) error {
 	db := s.db.WithContext(ctx)
 
-	if _, err := db.Del("DEL", name.String()).Result(); err != nil {
+	if _, err := db.Del(name.String()).Result(); err != nil {
 		return fmt.Errorf("failed to DEL %s: %w", name, err)
 	}
 	return nil
+}
+
+// LoadAll implements storage.Storage.
+func (s *Storage) LoadAll(ctx context.Context, name *resource.Name) ([][]byte, error) {
+	db := s.db.WithContext(ctx)
+
+	kk := []string{}
+	iter := db.Scan(0, name.String(), 100).Iterator()
+	for iter.Next() {
+		if strings.HasSuffix(iter.Val(), "/hash") {
+			continue
+		}
+		kk = append(kk, iter.Val())
+	}
+
+	if err := iter.Err(); err != nil {
+		return nil, fmt.Errorf("failed to iterate: %w", err)
+	}
+
+	dd, err := s.loadMany(ctx, kk...)
+	return dd, err
 }
 
 // ForEach implements storage.Storage.
@@ -163,13 +180,15 @@ func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resour
 	}
 
 	nn := make([]*resource.Name, 0, len(keys))
+	ss := make([]string, 0, len(keys))
 	for _, key := range keys {
 		nn = append(nn, resource.ParseName(fmt.Sprintf("%s/%s", first, key)))
+		ss = append(ss, fmt.Sprintf("%s/%s", first, key))
 	}
 
 	// TODO: load in batches
 
-	dd, err := s.loadMany(ctx, nn...)
+	dd, err := s.loadMany(ctx, ss...)
 	if err != nil {
 		return fmt.Errorf("failed to load: %w", err)
 	}
