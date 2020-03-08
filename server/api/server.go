@@ -22,7 +22,6 @@ import (
 	articles "miniboard.app/proto/users/articles/v1"
 	sources "miniboard.app/proto/users/sources/v1"
 	users "miniboard.app/proto/users/v1"
-	"miniboard.app/queue"
 	rssservice "miniboard.app/rss"
 	sourcesservice "miniboard.app/sources"
 	"miniboard.app/storage"
@@ -43,7 +42,6 @@ type Server struct {
 func NewServer(
 	ctx context.Context,
 	db storage.Storage,
-	queue queue.Queue,
 	emailClient email.Client,
 	filePath string,
 	domain string,

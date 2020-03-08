@@ -12,7 +12,6 @@ import (
 	"miniboard.app/email"
 	"miniboard.app/email/disabled"
 	"miniboard.app/email/smtp"
-	queue "miniboard.app/queue/redis"
 	"miniboard.app/storage"
 	"miniboard.app/storage/bolt"
 	"miniboard.app/storage/redis"
@@ -45,17 +44,12 @@ func main() {
 		logrus.Fatalf("failed to connect to database: %s", err)
 	}
 
-	queue, err := queue.New(ctx, *redisURI)
-	if err != nil {
-		logrus.Fatalf("failed to connect to queue: %s", err)
-	}
-
 	lis, err := net.Listen("tcp", *addr)
 	if err != nil {
 		logrus.Fatalf("failed to open a connection: %s", err)
 	}
 
-	server, err := api.NewServer(ctx, db, queue, emailClient(*smtpHost, *smtpPort, *smtpSender), *filePath, *domain)
+	server, err := api.NewServer(ctx, db, emailClient(*smtpHost, *smtpPort, *smtpSender), *filePath, *domain)
 	if err != nil {
 		logrus.Fatalf("failed to create server: %s", err)
 	}
