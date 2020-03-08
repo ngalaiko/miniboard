@@ -3,9 +3,8 @@ package redis
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/adjust/rmq"
+	"github.com/go-redis/redis"
 	"github.com/sirupsen/logrus"
 	"miniboard.app/queue"
 )
@@ -14,65 +13,95 @@ var _ queue.Queue = &Queue{}
 
 // Queue is a redis backed queue.
 type Queue struct {
-	name  string
-	queue rmq.Queue
-
-	PrefetchLimit int
-	PollDuration  time.Duration
+	name   string
+	client *redis.Client
 }
 
 // New returns new queue instance.
-func New(ctx context.Context, addr string, name string) *Queue {
-	log("queue").Infof("opened queue '%s' connection to '%s'", name, addr)
-	queue := rmq.OpenConnection("producer", "tcp", addr, 1).OpenQueue(name)
-	queue.SetPushQueue(queue)
+func New(ctx context.Context, addr string) (*Queue, error) {
+	redisdb := redis.NewClient(&redis.Options{
+		Addr: addr,
+	})
+
+	if err := redisdb.Ping().Err(); err != nil {
+		return nil, fmt.Errorf("failed to connect to '%s': %w", addr, err)
+	}
+
 	go func() {
 		<-ctx.Done()
-		queue.Close()
+		log().Infof("stopping client")
+		_ = redisdb.Close()
 	}()
+
+	log().Infof("connected to %s", addr)
+
 	return &Queue{
-		name:          name,
-		queue:         queue,
-		PrefetchLimit: 50,
-		PollDuration:  time.Second,
-	}
+		client: redisdb,
+	}, nil
 }
 
 // Send implements queue.Queue#Send.
-func (q *Queue) Send(ctx context.Context, data []byte) error {
-	if q.queue.PublishBytes(data) {
-		return nil
+func (q *Queue) Send(ctx context.Context, channel string, data []byte) error {
+	client := q.client.WithContext(ctx)
+
+	if err := client.Publish(channel, data).Err(); err != nil {
+		return fmt.Errorf("failed to send msg to '%s': %w", q.name, err)
 	}
-	return fmt.Errorf("failed to send msg to '%s'", q.name)
-}
-
-// Receive implements queue.Queue#Receive.
-func (q *Queue) Receive(ctx context.Context, onMessage func([]byte) (bool, error)) error {
-	if !q.queue.StartConsuming(q.PrefetchLimit, q.PollDuration) {
-		return fmt.Errorf("failed to start consuming '%s'", q.name)
-	}
-
-	q.queue.AddConsumerFunc("consumer", func(delivery rmq.Delivery) {
-		acked, err := onMessage([]byte(delivery.Payload()))
-		switch {
-		case err != nil:
-			log("queue").Infof("failed to process message from '%s': %s", q.name, err)
-			delivery.Reject()
-		case !acked:
-			delivery.Push()
-		default:
-			delivery.Ack()
-		}
-	})
-
-	<-ctx.Done()
-	<-q.queue.StopConsuming()
 
 	return nil
 }
 
-func log(src string) *logrus.Entry {
+// Listen implements queue.Queue#Receive.
+func (q *Queue) Listen(ctx context.Context, channel string, onMessage func([]byte) (bool, error)) error {
+	client := q.client.WithContext(ctx)
+
+	pubsub := client.Subscribe(channel)
+
+	// Wait for confirmation that subscription is created before publishing anything.
+	if _, err := pubsub.Receive(); err != nil {
+		return fmt.Errorf("failed to subscribe to '%s': %w", channel, err)
+	}
+
+	log().Infof("listening to '%s'", channel)
+
+	for {
+		select {
+		case <-ctx.Done():
+			if err := pubsub.Close(); err != nil {
+				return fmt.Errorf("failed to close channel '%s': %w", channel, err)
+			}
+			return nil
+		case msg := <-pubsub.Channel():
+			q.processMessage(ctx, msg, onMessage)
+		}
+	}
+}
+
+func (q *Queue) processMessage(ctx context.Context, msg *redis.Message, onMessage func(data []byte) (bool, error)) {
+	defer func() {
+		if r := recover(); r != nil {
+			log().Panicf("failed to process message from '%s': %s", msg.Channel, r)
+		}
+	}()
+
+	payload := []byte(msg.Payload)
+
+	acked, err := onMessage(payload)
+	if err != nil {
+		log().Errorf("faield to process message from '%s': %s", msg.Channel, err)
+		return
+	}
+
+	if !acked {
+		if err := q.Send(ctx, msg.Channel, payload); err != nil {
+			log().Errorf("faield to reschedule message to %s: %s", msg.Channel, err)
+		}
+		return
+	}
+}
+
+func log() *logrus.Entry {
 	return logrus.WithFields(logrus.Fields{
-		"source": src,
+		"source": "queue",
 	})
 }

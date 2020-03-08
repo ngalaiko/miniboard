@@ -21,6 +21,12 @@ func New(ctx context.Context, addr string) (*Storage, error) {
 		Addr: addr,
 	})
 
+	go func() {
+		<-ctx.Done()
+		log("storage").Infof("stopping client")
+		_ = redisdb.Close()
+	}()
+
 	if _, err := redisdb.Ping().Result(); err != nil {
 		return nil, fmt.Errorf("failed to ping redis: %w", err)
 	}

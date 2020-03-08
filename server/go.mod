@@ -4,9 +4,6 @@ go 1.12
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.0 // indirect
-	github.com/adjust/gocheck v0.0.0-20131111155431-fbc315b36e0e // indirect
-	github.com/adjust/rmq v1.0.1-0.20200114125905-c575b40117c9
-	github.com/adjust/uniuri v0.0.0-20130923163420-498743145e60 // indirect
 	github.com/andybalholm/brotli v1.0.0
 	github.com/coreos/bbolt v1.3.3
 	github.com/go-redis/redis v6.15.7+incompatible
@@ -30,5 +27,4 @@ require (
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/square/go-jose.v2 v2.4.1
 	gopkg.in/yaml.v2 v2.2.8 // indirect
-	launchpad.net/gocheck v0.0.0-20140225173054-000000000087 // indirect
 )
