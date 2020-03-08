@@ -41,13 +41,27 @@ func Test_DB(t *testing.T) {
 
 				t.Run("Should iterate from end to start", func(t *testing.T) {
 					c := 0
-					err := db.ForEach(ctx, name, nil, func(r *resource.Resource) (bool, error) {
+					err := db.ForEach(ctx, name, nil, 0, func(r *resource.Resource) (bool, error) {
 						c++
 						assert.Equal(t, fmt.Sprintf("data %d", 10-c), string(r.Data))
 						return true, nil
 					})
 					assert.NoError(t, err)
 					assert.Equal(t, 10, c)
+				})
+			})
+
+			t.Run("When iterating through all elemetns with limit", func(t *testing.T) {
+				name := resource.NewName("test", "*")
+
+				t.Run("Should return max limit elelemtns", func(t *testing.T) {
+					c := 0
+					err := db.ForEach(ctx, name, nil, 2, func(r *resource.Resource) (bool, error) {
+						c++
+						return true, nil
+					})
+					assert.NoError(t, err)
+					assert.Equal(t, 2, c)
 				})
 			})
 		})

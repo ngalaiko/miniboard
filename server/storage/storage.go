@@ -20,5 +20,5 @@ type Storage interface {
 	// If from provided, starts from that element.
 	// NOTE: sorted by DESC.
 	// NOTE: IDs of the resource must be sortable to get the correct order.
-	ForEach(ctx context.Context, name *resource.Name, from *resource.Name, okFunc func(*resource.Resource) (bool, error)) error
+	ForEach(ctx context.Context, name *resource.Name, from *resource.Name, limit int64, okFunc func(*resource.Resource) (bool, error)) error
 }

@@ -133,7 +133,7 @@ func (s *Storage) Delete(ctx context.Context, name *resource.Name) error {
 }
 
 // ForEach implements storage.Storage.
-func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resource.Name, okFunc func(*resource.Resource) (bool, error)) error {
+func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resource.Name, limit int64, okFunc func(*resource.Resource) (bool, error)) error {
 	db := s.db.WithContext(ctx)
 
 	var start int64
@@ -174,6 +174,7 @@ func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resour
 		return fmt.Errorf("failed to load: %w", err)
 	}
 
+	var c int64
 	for i, d := range dd {
 		if d == nil {
 			continue
@@ -189,6 +190,11 @@ func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resour
 			return err
 		}
 		if !goon {
+			return nil
+		}
+
+		c++
+		if limit != 0 && c == limit {
 			return nil
 		}
 	}

@@ -50,7 +50,7 @@ func Test_DB(t *testing.T) {
 
 				t.Run("Should iterate from end to start", func(t *testing.T) {
 					c := 0
-					err := db.ForEach(ctx, name, nil, func(r *resource.Resource) (bool, error) {
+					err := db.ForEach(ctx, name, nil, 0, func(r *resource.Resource) (bool, error) {
 						c++
 						assert.Equal(t, fmt.Sprintf("data %d", 10-c), string(r.Data))
 						return true, nil
@@ -66,7 +66,7 @@ func Test_DB(t *testing.T) {
 				t.Run("Should iterate from end to start", func(t *testing.T) {
 					c := 0
 					var from *resource.Name
-					err := db.ForEach(ctx, name, nil, func(r *resource.Resource) (bool, error) {
+					err := db.ForEach(ctx, name, nil, 0, func(r *resource.Resource) (bool, error) {
 						c++
 
 						assert.Equal(t, fmt.Sprintf("data %d", 10-c), string(r.Data))
@@ -79,7 +79,7 @@ func Test_DB(t *testing.T) {
 					assert.NoError(t, err)
 					assert.Equal(t, 5, c)
 
-					err = db.ForEach(ctx, name, from, func(r *resource.Resource) (bool, error) {
+					err = db.ForEach(ctx, name, from, 0, func(r *resource.Resource) (bool, error) {
 						c++
 
 						assert.Equal(t, fmt.Sprintf("data %d", 11-c), string(r.Data))
@@ -91,11 +91,22 @@ func Test_DB(t *testing.T) {
 				})
 			})
 
+			t.Run("With limit", func(t *testing.T) {
+				name := resource.NewName("test", "*")
+
+				c := 0
+				err = db.ForEach(ctx, name, nil, 2, func(r *resource.Resource) (bool, error) {
+					c++
+					return true, nil
+				})
+				assert.Equal(t, 2, c)
+			})
+
 			t.Run("When removing one element from the middle", func(t *testing.T) {
 				name := resource.NewName("test", "*")
 
 				c := 0
-				err = db.ForEach(ctx, name, nil, func(r *resource.Resource) (bool, error) {
+				err = db.ForEach(ctx, name, nil, 0, func(r *resource.Resource) (bool, error) {
 					c++
 					if c == 5 {
 						assert.NoError(t, db.Delete(ctx, r.Name))

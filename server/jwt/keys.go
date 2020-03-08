@@ -100,7 +100,7 @@ func (s *keyStorage) Create(ctx context.Context) (*key, error) {
 // List returns all keys from the storage.
 func (s *keyStorage) List(ctx context.Context) ([]*key, error) {
 	kk := make([]*key, 0, 10)
-	return kk, s.storage.ForEach(ctx, resource.NewName("jwt-key", "*"), nil, func(resource *resource.Resource) (bool, error) {
+	return kk, s.storage.ForEach(ctx, resource.NewName("jwt-key", "*"), nil, 0, func(resource *resource.Resource) (bool, error) {
 		privateKey, err := x509.ParseECPrivateKey(resource.Data)
 		if err != nil {
 			return false, err

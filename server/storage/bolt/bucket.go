@@ -55,7 +55,7 @@ func (db *DB) Delete(ctx context.Context, name *resource.Name) error {
 }
 
 // ForEach implements storage.Storage.
-func (db *DB) ForEach(ctx context.Context, name *resource.Name, from *resource.Name, filter func(*resource.Resource) (bool, error)) error {
+func (db *DB) ForEach(ctx context.Context, name *resource.Name, from *resource.Name, limit int64, filter func(*resource.Resource) (bool, error)) error {
 	return db.view(resource.NewName(name.Type(), "bucket").AddChild(name), func(bucket *bolt.Bucket) error {
 		c := bucket.Cursor()
 
@@ -70,6 +70,7 @@ func (db *DB) ForEach(ctx context.Context, name *resource.Name, from *resource.N
 			return nil
 		}
 
+		var i int64
 		for ; k != nil; k, v = c.Prev() {
 			goon, err := filter(&resource.Resource{
 				Name: name.Parent().Child(name.Type(), string(k)),
@@ -79,6 +80,10 @@ func (db *DB) ForEach(ctx context.Context, name *resource.Name, from *resource.N
 				return err
 			}
 			if !goon {
+				return nil
+			}
+			i++
+			if limit != 0 && i == limit {
 				return nil
 			}
 		}

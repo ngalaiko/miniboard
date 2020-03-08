@@ -57,11 +57,7 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 	}
 
 	aa := []*articles.Article{}
-	err := s.storage.ForEach(ctx, lookFor, from, func(r *resource.Resource) (bool, error) {
-		if int64(len(aa)) == request.PageSize+1 {
-			return false, nil
-		}
-
+	err := s.storage.ForEach(ctx, lookFor, from, request.PageSize+1, func(r *resource.Resource) (bool, error) {
 		a := &articles.Article{}
 		if err := proto.Unmarshal(r.Data, a); err != nil {
 			return false, status.Errorf(codes.Internal, "failed to unmarshal article")
