@@ -90,6 +90,7 @@ func Test_articles(t *testing.T) {
 				t.Run("It should return the same article with different content", func(t *testing.T) {
 					if assert.NoError(t, err) {
 						assert.Equal(t, resp2.Name, resp.Name)
+						assert.Equal(t, resp2.CreateTime, resp.CreateTime)
 						assert.NotEqual(t, resp2.ContentSha256Sum, resp.ContentSha256Sum)
 					}
 				})
@@ -105,7 +106,7 @@ func Test_articles(t *testing.T) {
 					assert.Equal(t, resp.Url, "http://localhost")
 					assert.NotEmpty(t, resp.Title)
 					assert.NotEmpty(t, resp.IconUrl)
-					assert.NotEmpty(t, resp.UpdateTime)
+					assert.NotEmpty(t, resp.CreateTime)
 					assert.NotEmpty(t, resp.Content)
 				})
 			})
@@ -119,7 +120,7 @@ func Test_articles(t *testing.T) {
 					assert.Equal(t, resp.Url, "http://localhost")
 					assert.NotEmpty(t, resp.Title)
 					assert.NotEmpty(t, resp.IconUrl)
-					assert.NotEmpty(t, resp.UpdateTime)
+					assert.NotEmpty(t, resp.CreateTime)
 					assert.Empty(t, resp.Content)
 				})
 			})

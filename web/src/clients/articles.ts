@@ -36,7 +36,7 @@ export class Article {
     isRead: boolean
     isFavorite: boolean
     name: string
-    updateTime: number
+    createTime: number
     iconUrl: string
     content: string
     siteName: string
@@ -46,7 +46,7 @@ export class Article {
         this.title = body.title
         this.isRead = body.isRead
         this.isFavorite = body.isFavorite
-        this.updateTime = body.updateTime
+        this.createTime = body.createTime
         this.name = body.name
         this.iconUrl = body.iconUrl
         this.content = body.content

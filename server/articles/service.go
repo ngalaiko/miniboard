@@ -104,7 +104,8 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 // CreateArticle creates a new article.
 func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL *url.URL) (*articles.Article, error) {
 	article := &articles.Article{
-		Url: articleURL.String(),
+		Url:        articleURL.String(),
+		CreateTime: ptypes.TimestampNow(),
 	}
 
 	var content []byte
@@ -117,7 +118,6 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 
 		content = r.Content()
 	}
-	article.UpdateTime = ptypes.TimestampNow()
 
 	urlHash := sha256.New()
 	_, _ = urlHash.Write([]byte(article.Url))
@@ -136,7 +136,12 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 		if existingArticle.ContentSha256Sum == article.ContentSha256Sum {
 			return existingArticle, nil
 		}
+		existingArticle.ContentSha256Sum = article.ContentSha256Sum
+		article = existingArticle
 		storeFunc = s.storage.Update
+		log().Infof("updating %s", name)
+	} else {
+		log().Infof("creating %s", name)
 	}
 
 	if err := storeFunc(ctx, resource.NewName("content", name.ID()), content); err != nil {
@@ -151,8 +156,6 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 	if err := storeFunc(ctx, name, rawArticle); err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to store the article")
 	}
-
-	log().Infof("created %s", name)
 
 	article.Content = content
 	return article, nil

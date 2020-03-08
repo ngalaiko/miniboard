@@ -112,7 +112,7 @@ message Article {
     string icon_url = 4;
 
     // Time when article was added.
-    google.protobuf.Timestamp update_time = 5;
+    google.protobuf.Timestamp create_time = 5;
 
     // Readable content of the article.
     bytes content = 6;
