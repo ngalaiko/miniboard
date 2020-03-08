@@ -46,7 +46,7 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 	urlHash := sha256.New()
 	_, _ = urlHash.Write([]byte(url.String()))
 
-	name := actor.Child("feeds", fmt.Sprintf("%x", urlHash.Sum(nil)))
+	name := actor.Child("rss", fmt.Sprintf("%x", urlHash.Sum(nil)))
 
 	if rawExisting, err := s.storage.Load(ctx, name); err == nil {
 		feed := &rss.Feed{}
@@ -60,6 +60,7 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 	f := &rss.Feed{
 		Name:        name.String(),
 		LastFetched: ptypes.TimestampNow(),
+		Url:         url.String(),
 	}
 
 	raw, err := proto.Marshal(f)

@@ -13,4 +13,6 @@ message Feed {
     string name = 1;
     // Time of the last feed fetch by the reader.
     google.protobuf.Timestamp last_fetched = 2;
+    // Url is a feed's url.
+    string url = 3;
 }

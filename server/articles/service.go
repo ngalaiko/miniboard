@@ -96,7 +96,7 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 			NextPageToken: nextPageToken,
 		}, nil
 	default:
-		log("articles.list").Error(err)
+		log().Error(err)
 		return nil, status.Errorf(codes.Internal, "failed to list articles")
 	}
 }
@@ -151,6 +151,8 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 	if err := storeFunc(ctx, name, rawArticle); err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to store the article")
 	}
+
+	log().Infof("created %s", name)
 
 	article.Content = content
 	return article, nil
@@ -266,8 +268,8 @@ func (s *Service) DeleteArticle(ctx context.Context, request *articles.DeleteArt
 	return &empty.Empty{}, nil
 }
 
-func log(src string) *logrus.Entry {
+func log() *logrus.Entry {
 	return logrus.WithFields(logrus.Fields{
-		"source": src,
+		"source": "articles",
 	})
 }
