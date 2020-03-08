@@ -111,7 +111,7 @@ func NewServer(
 	imagesHandler := imagesService.Handler()
 	webHandler := web.Handler(filePath)
 
-	imageRegExp := regexp.MustCompile("users/.+/articles/.+/images/.+")
+	imageRegExp := regexp.MustCompile("images/.+")
 
 	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if imageRegExp.MatchString(r.RequestURI) {
