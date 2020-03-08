@@ -87,7 +87,7 @@ type mockRss struct {
 	feeds []*rss.Feed
 }
 
-func (s *mockRss) CreateFeed(context.Context, io.Reader) (*rss.Feed, error) {
+func (s *mockRss) CreateFeed(context.Context, io.Reader, *url.URL) (*rss.Feed, error) {
 	feed := &rss.Feed{}
 	s.feeds = append(s.feeds, feed)
 	return feed, nil

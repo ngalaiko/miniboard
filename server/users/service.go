@@ -7,19 +7,15 @@ import (
 	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
 	"miniboard.app/proto/users/v1"
-	"miniboard.app/storage"
 )
 
 // Service controls users resource.
 type Service struct {
-	usersStorage storage.Storage
 }
 
 // New returns new users storage instance.
-func New(db storage.Storage) *Service {
-	return &Service{
-		usersStorage: db,
-	}
+func New() *Service {
+	return &Service{}
 }
 
 // GetMe returns authenticated user.

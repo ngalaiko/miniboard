@@ -22,6 +22,7 @@ import (
 	articles "miniboard.app/proto/users/articles/v1"
 	sources "miniboard.app/proto/users/sources/v1"
 	users "miniboard.app/proto/users/v1"
+	"miniboard.app/queue"
 	rssservice "miniboard.app/rss"
 	sourcesservice "miniboard.app/sources"
 	"miniboard.app/storage"
@@ -42,6 +43,7 @@ type Server struct {
 func NewServer(
 	ctx context.Context,
 	db storage.Storage,
+	queue queue.Queue,
 	emailClient email.Client,
 	filePath string,
 	domain string,
@@ -51,8 +53,8 @@ func NewServer(
 	imagesService := images.New(db)
 	jwtService := jwt.NewService(ctx, db)
 	articlesService := articlesservice.New(db, imagesService)
-	rssService := rssservice.New(articlesService)
-	usersService := usersservice.New(db)
+	rssService := rssservice.New(ctx, db, articlesService)
+	usersService := usersservice.New()
 	codesService := codesservice.New(domain, emailClient, jwtService)
 	tokensService := tokensservice.New(jwtService)
 	sourcesService := sourcesservice.New(articlesService, rssService)

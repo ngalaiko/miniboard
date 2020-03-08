@@ -2,43 +2,86 @@ package rss
 
 import (
 	"context"
+	"crypto/sha256"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/mmcdole/gofeed"
-	"github.com/segmentio/ksuid"
 	"golang.org/x/sync/errgroup"
 	"miniboard.app/api/actor"
 	"miniboard.app/articles"
 	rss "miniboard.app/proto/users/rss/v1"
+	"miniboard.app/storage"
 )
 
 // Service is an RSS service.
 type Service struct {
 	parser          *gofeed.Parser
 	articlesService *articles.Service
+	storage         storage.Storage
 }
 
 // New creates rss service.
-func New(articlesService *articles.Service) *Service {
+func New(ctx context.Context, storage storage.Storage, articlesService *articles.Service) *Service {
 	parser := gofeed.NewParser()
 	parser.Client = &http.Client{}
-	return &Service{
+
+	s := &Service{
 		articlesService: articlesService,
 		parser:          parser,
+		storage:         storage,
 	}
+	go s.listenToUpdates(ctx)
+	return s
 }
 
 // CreateFeed creates a new rss feed, fetches articles and schedules a next update.
-func (s *Service) CreateFeed(ctx context.Context, reader io.Reader) (*rss.Feed, error) {
+func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL) (*rss.Feed, error) {
 	actor, _ := actor.FromContext(ctx)
 
+	urlHash := sha256.New()
+	_, _ = urlHash.Write([]byte(url.String()))
+
+	name := actor.Child("feeds", fmt.Sprintf("%x", urlHash.Sum(nil)))
+
+	if rawExisting, err := s.storage.Load(ctx, name); err == nil {
+		feed := &rss.Feed{}
+		if err := proto.Unmarshal(rawExisting, feed); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal the article: %w", err)
+		}
+
+		return feed, err
+	}
+
+	f := &rss.Feed{
+		Name:        name.String(),
+		LastFetched: ptypes.TimestampNow(),
+	}
+
+	raw, err := proto.Marshal(f)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal feed: %w", err)
+	}
+
+	if err := s.storage.Store(ctx, name, raw); err != nil {
+		return nil, fmt.Errorf("failed to save feed: %w", err)
+	}
+
+	if err := s.parse(ctx, reader); err != nil {
+		return nil, fmt.Errorf("failed to parse feed: %w", err)
+	}
+
+	return f, nil
+}
+
+func (s *Service) parse(ctx context.Context, reader io.Reader) error {
 	feed, err := s.parser.Parse(reader)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse feed: %w", err)
+		return fmt.Errorf("failed to parse feed: %w", err)
 	}
 
 	wg, ctx := errgroup.WithContext(ctx)
@@ -53,14 +96,9 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader) (*rss.Feed, 
 		})
 	}
 	if err := wg.Wait(); err != nil {
-		return nil, fmt.Errorf("failed to add feed: %w", err)
+		return fmt.Errorf("failed to add feed: %w", err)
 	}
-
-	name := actor.Child("feeds", ksuid.New().String())
-	return &rss.Feed{
-		Name:        name.String(),
-		LastFetched: ptypes.TimestampNow(),
-	}, nil
+	return nil
 }
 
 func (s *Service) saveItem(ctx context.Context, item *gofeed.Item) error {

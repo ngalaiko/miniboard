@@ -22,7 +22,7 @@ type articlesService interface {
 }
 
 type rssService interface {
-	CreateFeed(context.Context, io.Reader) (*rss.Feed, error)
+	CreateFeed(context.Context, io.Reader, *url.URL) (*rss.Feed, error)
 }
 
 // Service allows to add new article's sources.
@@ -68,7 +68,7 @@ func (s *Service) CreateSource(ctx context.Context, request *sources.CreateSourc
 	case strings.HasPrefix(ct, "application/rss+xml"),
 		strings.HasPrefix(ct, "application/atom+xml"),
 		strings.HasPrefix(ct, "text/xm"):
-		feed, err := s.rssService.CreateFeed(ctx, resp.Body)
+		feed, err := s.rssService.CreateFeed(ctx, resp.Body, url)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create feed from source: %w", err)
 		}
