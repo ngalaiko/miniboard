@@ -17,6 +17,7 @@ require (
 	github.com/onsi/gomega v1.9.0 // indirect
 	github.com/segmentio/ksuid v1.0.2
 	github.com/sirupsen/logrus v1.4.2
+	github.com/spaolacci/murmur3 v1.1.0
 	github.com/stretchr/testify v1.5.1
 	go.etcd.io/bbolt v1.3.3 // indirect
 	golang.org/x/net v0.0.0-20191002035440-2ec189313ef0

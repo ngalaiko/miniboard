@@ -10,11 +10,14 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
+	"github.com/spaolacci/murmur3"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
@@ -119,11 +122,17 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 		content = r.Content()
 	}
 
-	urlHash := sha256.New()
+	urlHash := murmur3.New128()
 	_, _ = urlHash.Write([]byte(article.Url))
 
+	// timestamp order == lexicographical order
+	id, err := ksuid.FromParts(time.Now(), urlHash.Sum(nil))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to generate id")
+	}
+
 	actor, _ := actor.FromContext(ctx)
-	name := actor.Child("articles", fmt.Sprintf("%x", urlHash.Sum(nil)))
+	name := actor.Child("articles", id.String())
 	article.Name = name.String()
 
 	contentHash := sha256.New()
