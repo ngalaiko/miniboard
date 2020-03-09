@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	redis "github.com/go-redis/redis/v7"
 	"github.com/sirupsen/logrus"
@@ -13,18 +14,26 @@ import (
 
 // Storage used to store key value data.
 type Storage struct {
-	db *redis.Client
+	db redis.UniversalClient
 }
 
 // New returns new mongo client instance.
 func New(ctx context.Context, addr string) (*Storage, error) {
-	redisdb := redis.NewClient(&redis.Options{
-		Addr: addr,
+	redisdb := redis.NewUniversalClient(&redis.UniversalOptions{
+		Addrs:              []string{addr},
+		MaxRetries:         10,
+		MinRetryBackoff:    time.Millisecond,
+		MaxRetryBackoff:    time.Second,
+		PoolSize:           100,
+		MaxConnAge:         10 * time.Minute,
+		MinIdleConns:       10,
+		IdleTimeout:        5 * time.Minute,
+		IdleCheckFrequency: 10 * time.Second,
 	})
 
 	go func() {
 		<-ctx.Done()
-		log("storage").Infof("stopping client")
+		log().Infof("stopping client")
 		_ = redisdb.Close()
 	}()
 
@@ -32,7 +41,7 @@ func New(ctx context.Context, addr string) (*Storage, error) {
 		return nil, fmt.Errorf("failed to ping redis: %w", err)
 	}
 
-	log("redis").Infof("connected to %s", addr)
+	log().Infof("connected to %s", addr)
 
 	return &Storage{
 		db: redisdb,
@@ -41,22 +50,20 @@ func New(ctx context.Context, addr string) (*Storage, error) {
 
 // Store implements storage.Storage.
 func (s *Storage) Store(ctx context.Context, name *resource.Name, data []byte) error {
-	db := s.db.WithContext(ctx)
-
-	if err := db.Set(name.String(), data, 0).Err(); err != nil {
+	if err := s.db.Set(name.String(), data, 0).Err(); err != nil {
 		return fmt.Errorf("failed to SET %s: %w", name, err)
 	}
 
 	first, last := name.Split()
 
 	// add element to to the list
-	index, err := db.LPush(first, last).Result()
+	index, err := s.db.LPush(first, last).Result()
 	if err != nil {
 		return fmt.Errorf("failed to LPUSH %s %s: %w", first, last, err)
 	}
 
 	// add save element index
-	if _, err := db.HSet(first+"/hash", last, index).Result(); err != nil {
+	if _, err := s.db.HSet(first+"/hash", last, index).Result(); err != nil {
 		return fmt.Errorf("failed to HSET %s %s %d: %w", first, last, index, err)
 	}
 
@@ -65,9 +72,7 @@ func (s *Storage) Store(ctx context.Context, name *resource.Name, data []byte) e
 
 // Update implements storage.Storage.
 func (s *Storage) Update(ctx context.Context, name *resource.Name, data []byte) error {
-	db := s.db.WithContext(ctx)
-
-	if err := db.Set(name.String(), data, 0).Err(); err != nil {
+	if err := s.db.Set(name.String(), data, 0).Err(); err != nil {
 		return fmt.Errorf("failed to SET %s: %w", name, err)
 	}
 	return nil
@@ -95,9 +100,7 @@ func (s *Storage) loadMany(ctx context.Context, names ...string) ([][]byte, erro
 		return nil, nil
 	}
 
-	db := s.db.WithContext(ctx)
-
-	dd, err := db.MGet(names...).Result()
+	dd, err := s.db.MGet(names...).Result()
 	if err != nil {
 		return nil, fmt.Errorf("failed to MGET %s: %w", names, err)
 	}
@@ -120,9 +123,7 @@ func (s *Storage) loadMany(ctx context.Context, names ...string) ([][]byte, erro
 
 // Delete implements storage.Storage.
 func (s *Storage) Delete(ctx context.Context, name *resource.Name) error {
-	db := s.db.WithContext(ctx)
-
-	if _, err := db.Del(name.String()).Result(); err != nil {
+	if _, err := s.db.Del(name.String()).Result(); err != nil {
 		return fmt.Errorf("failed to DEL %s: %w", name, err)
 	}
 	return nil
@@ -130,10 +131,8 @@ func (s *Storage) Delete(ctx context.Context, name *resource.Name) error {
 
 // LoadAll implements storage.Storage.
 func (s *Storage) LoadAll(ctx context.Context, name *resource.Name) ([][]byte, error) {
-	db := s.db.WithContext(ctx)
-
 	kk := []string{}
-	iter := db.Scan(0, name.String(), 100).Iterator()
+	iter := s.db.Scan(0, name.String(), 100).Iterator()
 	for iter.Next() {
 		if strings.HasSuffix(iter.Val(), "/hash") {
 			continue
@@ -151,19 +150,17 @@ func (s *Storage) LoadAll(ctx context.Context, name *resource.Name) ([][]byte, e
 
 // ForEach implements storage.Storage.
 func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resource.Name, limit int64, okFunc func(*resource.Resource) (bool, error)) error {
-	db := s.db.WithContext(ctx)
-
 	var start int64
 	// get start position from a list
 	if from != nil {
 		first, last := from.Split()
 
-		len, err := db.LLen(first).Result()
+		len, err := s.db.LLen(first).Result()
 		if err != nil {
 			return fmt.Errorf("failed to LLEN %s: %w", first, err)
 		}
 
-		index, err := db.HGet(first+"/hash", last).Int64()
+		index, err := s.db.HGet(first+"/hash", last).Int64()
 		switch err {
 		case nil:
 			start = len - index
@@ -220,8 +217,8 @@ func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resour
 	return nil
 }
 
-func log(src string) *logrus.Entry {
+func log() *logrus.Entry {
 	return logrus.WithFields(logrus.Fields{
-		"source": src,
+		"source": "redis",
 	})
 }
