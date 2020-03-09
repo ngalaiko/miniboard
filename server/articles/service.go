@@ -105,10 +105,18 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 }
 
 // CreateArticle creates a new article.
-func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL *url.URL) (*articles.Article, error) {
+func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL *url.URL, published *time.Time) (*articles.Article, error) {
+	createTime := time.Now()
+	if published != nil {
+		createTime = *published
+	}
 	article := &articles.Article{
-		Url:        articleURL.String(),
-		CreateTime: ptypes.TimestampNow(),
+		Url: articleURL.String(),
+	}
+	var err error
+	article.CreateTime, err = ptypes.TimestampProto(createTime)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to convert timestamp")
 	}
 
 	var content []byte
@@ -126,7 +134,7 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 	_, _ = urlHash.Write([]byte(article.Url))
 
 	// timestamp order == lexicographical order
-	id, err := ksuid.FromParts(time.Now(), urlHash.Sum(nil))
+	id, err := ksuid.FromParts(createTime, urlHash.Sum(nil))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to generate id")
 	}
@@ -139,18 +147,22 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 	_, _ = contentHash.Write(content)
 	article.ContentSha256Sum = fmt.Sprintf("%x", contentHash.Sum(nil))
 
-	if existingArticle, err := s.getArticle(ctx, name); err == nil {
-		if existingArticle.ContentSha256Sum == article.ContentSha256Sum {
-			return existingArticle, nil
+	// if content exists
+	if cc, err := s.storage.LoadAll(ctx, actor.Child("articles", "*").Child("content", fmt.Sprintf("%x", urlHash.Sum(nil)))); err == nil && len(cc) == 1 {
+		// compare content
+		if existingArticle, err := s.getArticle(ctx, cc[0].Name.Parent()); err == nil {
+			if existingArticle.ContentSha256Sum == article.ContentSha256Sum {
+				return existingArticle, nil
+			}
+			existingArticle.ContentSha256Sum = article.ContentSha256Sum
+			article = existingArticle
+			log().Infof("updating %s", name)
+		} else {
+			log().Infof("creating %s", name)
 		}
-		existingArticle.ContentSha256Sum = article.ContentSha256Sum
-		article = existingArticle
-		log().Infof("updating %s", name)
-	} else {
-		log().Infof("creating %s", name)
 	}
 
-	if err := s.storage.Store(ctx, resource.NewName("content", name.ID()), content); err != nil {
+	if err := s.storage.Store(ctx, name.Child("content", fmt.Sprintf("%x", urlHash.Sum(nil))), content); err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to store the article content")
 	}
 
@@ -232,7 +244,10 @@ func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRe
 		return article, nil
 	}
 
-	article.Content, err = s.storage.Load(ctx, resource.NewName("content", name.ID()))
+	urlHash := murmur3.New128()
+	_, _ = urlHash.Write([]byte(article.Url))
+
+	article.Content, err = s.storage.Load(ctx, name.Child("content", fmt.Sprintf("%x", urlHash.Sum(nil))))
 	switch {
 	case err == nil:
 	case errors.Is(err, storage.ErrNotFound):

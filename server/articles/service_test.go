@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/stretchr/testify/assert"
@@ -17,9 +18,8 @@ import (
 	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
 	"miniboard.app/images"
-	"miniboard.app/proto/users/articles/v1"
-	"miniboard.app/storage"
-	"miniboard.app/storage/bolt"
+	articles "miniboard.app/proto/users/articles/v1"
+	"miniboard.app/storage/redis"
 	"miniboard.app/storage/resource"
 )
 
@@ -52,7 +52,15 @@ func Test_articles(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	db := testDB(ctx, t)
+	host := os.Getenv("REDIS_HOST")
+	if host == "" {
+		t.Skip("REDIS_HOST is not set")
+	}
+
+	db, err := redis.New(ctx, host)
+	if err != nil {
+		t.Fatalf("failed to create database: %s", err)
+	}
 
 	t.Run("With articles service", func(t *testing.T) {
 		service := New(db, images.New(db))
@@ -66,7 +74,7 @@ func Test_articles(t *testing.T) {
 
 			body := testArticle(url.String())
 
-			resp, err := service.CreateArticle(ctx, body, url)
+			resp, err := service.CreateArticle(ctx, body, url, nil)
 			t.Run("It should be created", func(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotEmpty(t, resp.Name)
@@ -75,7 +83,8 @@ func Test_articles(t *testing.T) {
 			})
 			t.Run("When adding the same article twice", func(t *testing.T) {
 				body = testArticle(url.String())
-				resp2, err := service.CreateArticle(ctx, body, url)
+				ts := time.Now().Add(time.Second)
+				resp2, err := service.CreateArticle(ctx, body, url, &ts)
 				t.Run("It should return the same article with the same content", func(t *testing.T) {
 					if assert.NoError(t, err) {
 						assert.Equal(t, resp2.Name, resp.Name)
@@ -85,7 +94,8 @@ func Test_articles(t *testing.T) {
 			})
 			t.Run("When adding the same article with different content", func(t *testing.T) {
 				body = testArticle("new content here")
-				resp2, err := service.CreateArticle(ctx, body, url)
+				ts := time.Now().Add(time.Hour)
+				resp2, err := service.CreateArticle(ctx, body, url, &ts)
 
 				t.Run("It should return the same article with different content", func(t *testing.T) {
 					if assert.NoError(t, err) {
@@ -144,7 +154,7 @@ func Test_articles(t *testing.T) {
 		})
 
 		t.Run("When adding a few articles", func(t *testing.T) {
-			parent := resource.NewName("users", "test")
+			parent := resource.NewName("users", "test2")
 			ctx = actor.NewContext(ctx, parent)
 			for i := 0; i < 50; i++ {
 				url, err := url.Parse(fmt.Sprintf("http://localhost.com/%d", i))
@@ -152,7 +162,7 @@ func Test_articles(t *testing.T) {
 
 				body := testArticle(url.String())
 
-				resp, err := service.CreateArticle(ctx, body, url)
+				resp, err := service.CreateArticle(ctx, body, url, nil)
 				assert.NoError(t, err)
 				assert.NotEmpty(t, resp.Name)
 				assert.Equal(t, resp.Url, fmt.Sprintf("http://localhost.com/%d", i))
@@ -187,21 +197,4 @@ func Test_articles(t *testing.T) {
 			})
 		})
 	})
-}
-
-func testDB(ctx context.Context, t *testing.T) storage.Storage {
-	tmpfile, err := ioutil.TempFile("", "bolt")
-	if err != nil {
-		t.Fatalf("failed to create database: %s", err)
-	}
-	go func() {
-		<-ctx.Done()
-		defer os.Remove(tmpfile.Name()) // clean up
-	}()
-
-	db, err := bolt.New(ctx, tmpfile.Name())
-	if err != nil {
-		t.Fatalf("failed to create database: %s", err)
-	}
-	return db
 }

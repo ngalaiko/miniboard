@@ -49,7 +49,7 @@ func (s *Service) updateFeeds(ctx context.Context) error {
 	wg, ctx := errgroup.WithContext(ctx)
 	for _, r := range raw {
 		feed := &rss.Feed{}
-		if err := proto.Unmarshal(r, feed); err != nil {
+		if err := proto.Unmarshal(r.Data, feed); err != nil {
 			return fmt.Errorf("failed to unmarshal feed: %w", err)
 		}
 

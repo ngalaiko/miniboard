@@ -14,7 +14,7 @@ type Storage interface {
 	Load(context.Context, *resource.Name) ([]byte, error)
 	// LoadAll returns all data by the resource name.
 	// NOTE: order is not guaranteed.
-	LoadAll(context.Context, *resource.Name) ([][]byte, error)
+	LoadAll(context.Context, *resource.Name) ([]*resource.Resource, error)
 	// Delete deletes data by the resource name.
 	Delete(context.Context, *resource.Name) error
 	// Iterates over the resource children. Stops, if _okFunc_ returns false or an error.

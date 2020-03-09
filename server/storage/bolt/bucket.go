@@ -24,7 +24,7 @@ func (db *DB) Store(ctx context.Context, name *resource.Name, data []byte) error
 }
 
 // LoadAll returns returns data matching _name_.
-func (db *DB) LoadAll(ctx context.Context, name *resource.Name) ([][]byte, error) {
+func (db *DB) LoadAll(ctx context.Context, name *resource.Name) ([]*resource.Resource, error) {
 	return nil, errors.New("not implemented")
 }
 

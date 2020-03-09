@@ -3,7 +3,6 @@ package redis
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	redis "github.com/go-redis/redis/v7"
@@ -71,18 +70,18 @@ func (s *Storage) Load(ctx context.Context, name *resource.Name) ([]byte, error)
 }
 
 func (s *Storage) loadOne(ctx context.Context, name *resource.Name) ([]byte, error) {
-	dd, err := s.loadMany(ctx, name.String())
+	rr, err := s.loadMany(ctx, name.String())
 	switch {
 	case err != nil:
 		return nil, fmt.Errorf("failed to MGET %s: %w", name, err)
-	case dd[0] == nil:
+	case rr[0].Data == nil:
 		return nil, storage.ErrNotFound
 	default:
-		return dd[0], nil
+		return rr[0].Data, nil
 	}
 }
 
-func (s *Storage) loadMany(_ context.Context, names ...string) ([][]byte, error) {
+func (s *Storage) loadMany(_ context.Context, names ...string) ([]*resource.Resource, error) {
 	if len(names) == 0 {
 		return nil, nil
 	}
@@ -92,20 +91,27 @@ func (s *Storage) loadMany(_ context.Context, names ...string) ([][]byte, error)
 		return nil, fmt.Errorf("failed to MGET %s: %w", names, err)
 	}
 
-	data := make([][]byte, 0, len(dd))
-	for _, d := range dd {
+	rr := make([]*resource.Resource, 0, len(names))
+	for i, d := range dd {
+		var data []byte
 		switch b := d.(type) {
 		case nil:
-			data = append(data, nil)
+			data = nil
 		case []byte:
-			data = append(data, b)
+			data = b
 		case string:
-			data = append(data, []byte(b))
+			data = []byte(b)
 		default:
 			panic(fmt.Sprint("unexpected type"))
 		}
+
+		rr = append(rr, &resource.Resource{
+			Name: resource.ParseName(names[i]),
+			Data: data,
+		})
 	}
-	return data, nil
+
+	return rr, nil
 }
 
 // Delete implements storage.Storage.
@@ -121,13 +127,10 @@ func (s *Storage) Delete(ctx context.Context, name *resource.Name) error {
 }
 
 // LoadAll implements storage.Storage.
-func (s *Storage) LoadAll(ctx context.Context, name *resource.Name) ([][]byte, error) {
+func (s *Storage) LoadAll(ctx context.Context, name *resource.Name) ([]*resource.Resource, error) {
 	kk := []string{}
 	iter := s.db.Scan(0, name.String(), 100).Iterator()
 	for iter.Next() {
-		if strings.HasSuffix(iter.Val(), "/hash") {
-			continue
-		}
 		kk = append(kk, iter.Val())
 	}
 
@@ -156,18 +159,13 @@ func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resour
 		return fmt.Errorf("failed: ZREVRANGEBYLEX %s %s + LIMIT %d: %w", collection, fromName, limit, err)
 	}
 
-	dd, err := s.loadMany(ctx, keys...)
+	rr, err := s.loadMany(ctx, keys...)
 	if err != nil {
 		return fmt.Errorf("failed to load: %w", err)
 	}
 
-	for i, d := range dd {
-		res := &resource.Resource{
-			Name: resource.ParseName(keys[i]),
-			Data: d,
-		}
-
-		goon, err := okFunc(res)
+	for _, r := range rr {
+		goon, err := okFunc(r)
 		if err != nil {
 			return err
 		}

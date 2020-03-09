@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -18,7 +19,7 @@ import (
 
 type articlesService interface {
 	articles.ArticlesServiceServer
-	CreateArticle(context.Context, io.Reader, *url.URL) (*articles.Article, error)
+	CreateArticle(context.Context, io.Reader, *url.URL, *time.Time) (*articles.Article, error)
 }
 
 type rssService interface {
@@ -59,7 +60,8 @@ func (s *Service) CreateSource(ctx context.Context, request *sources.CreateSourc
 
 	switch {
 	case strings.HasPrefix(ct, "text/html"):
-		article, err := s.articlesService.CreateArticle(ctx, resp.Body, url)
+		now := time.Now()
+		article, err := s.articlesService.CreateArticle(ctx, resp.Body, url, &now)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create article from source: %w", err)
 		}

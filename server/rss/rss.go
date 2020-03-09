@@ -118,7 +118,7 @@ func (s *Service) saveItem(ctx context.Context, item *gofeed.Item) error {
 	defer resp.Body.Close()
 
 	link, _ := url.Parse(item.Link)
-	if _, err := s.articlesService.CreateArticle(ctx, resp.Body, link); err != nil {
+	if _, err := s.articlesService.CreateArticle(ctx, resp.Body, link, item.PublishedParsed); err != nil {
 		return fmt.Errorf("failed to create article: %w", err)
 	}
 	return nil

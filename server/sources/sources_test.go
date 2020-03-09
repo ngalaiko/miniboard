@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/assert"
@@ -97,7 +98,7 @@ type mockArticles struct {
 	articles []*articles.Article
 }
 
-func (s *mockArticles) CreateArticle(ctx context.Context, body io.Reader, url *url.URL) (*articles.Article, error) {
+func (s *mockArticles) CreateArticle(ctx context.Context, body io.Reader, url *url.URL, _ *time.Time) (*articles.Article, error) {
 	s.articles = append(s.articles, &articles.Article{
 		Url: url.String(),
 	})
