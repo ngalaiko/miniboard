@@ -2,12 +2,12 @@ package codes
 
 import (
 	"context"
-	"crypto/md5"
 	"fmt"
 	"io"
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/spaolacci/murmur3"
 	responsecodes "google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/email"
@@ -38,7 +38,7 @@ func New(
 
 // CreateCode creates new authorization code.
 func (s *Service) CreateCode(ctx context.Context, request *codes.CreateCodeRequest) (*codes.Code, error) {
-	h := md5.New()
+	h := murmur3.New128()
 	_, _ = io.WriteString(h, request.Email)
 	hashedEmail := fmt.Sprintf("%x", h.Sum(nil))
 
