@@ -2,15 +2,17 @@ package rss
 
 import (
 	"context"
-	"crypto/sha256"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/mmcdole/gofeed"
+	"github.com/segmentio/ksuid"
+	"github.com/spaolacci/murmur3"
 	"golang.org/x/sync/errgroup"
 	"miniboard.app/api/actor"
 	"miniboard.app/articles"
@@ -43,10 +45,16 @@ func New(ctx context.Context, storage storage.Storage, articlesService *articles
 func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL) (*rss.Feed, error) {
 	actor, _ := actor.FromContext(ctx)
 
-	urlHash := sha256.New()
+	urlHash := murmur3.New128()
 	_, _ = urlHash.Write([]byte(url.String()))
 
-	name := actor.Child("rss", fmt.Sprintf("%x", urlHash.Sum(nil)))
+	// timestamp order == lexicographical order
+	id, err := ksuid.FromParts(time.Now(), urlHash.Sum(nil))
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate id: %w", err)
+	}
+
+	name := actor.Child("rss", fmt.Sprintf("%x", id.String()))
 
 	if rawExisting, err := s.storage.Load(ctx, name); err == nil {
 		feed := &rss.Feed{}
