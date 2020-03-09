@@ -130,21 +130,18 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 	_, _ = contentHash.Write(content)
 	article.ContentSha256Sum = fmt.Sprintf("%x", contentHash.Sum(nil))
 
-	storeFunc := s.storage.Store
-
 	if existingArticle, err := s.getArticle(ctx, name); err == nil {
 		if existingArticle.ContentSha256Sum == article.ContentSha256Sum {
 			return existingArticle, nil
 		}
 		existingArticle.ContentSha256Sum = article.ContentSha256Sum
 		article = existingArticle
-		storeFunc = s.storage.Update
 		log().Infof("updating %s", name)
 	} else {
 		log().Infof("creating %s", name)
 	}
 
-	if err := storeFunc(ctx, resource.NewName("content", name.ID()), content); err != nil {
+	if err := s.storage.Store(ctx, resource.NewName("content", name.ID()), content); err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to store the article content")
 	}
 
@@ -153,7 +150,7 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 		return nil, status.Errorf(codes.Internal, "failed to marshal the article")
 	}
 
-	if err := storeFunc(ctx, name, rawArticle); err != nil {
+	if err := s.storage.Store(ctx, name, rawArticle); err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to store the article")
 	}
 
@@ -203,7 +200,7 @@ func (s *Service) UpdateArticle(ctx context.Context, request *articles.UpdateArt
 		return nil, status.Errorf(codes.Internal, "failed to marshal the article")
 	}
 
-	if err := s.storage.Update(ctx, name, rawArticle); err != nil {
+	if err := s.storage.Store(ctx, name, rawArticle); err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to store the article")
 	}
 

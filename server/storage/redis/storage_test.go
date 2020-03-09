@@ -162,7 +162,7 @@ func Test_DB(t *testing.T) {
 			})
 
 			t.Run("When it's updated", func(t *testing.T) {
-				assert.NoError(t, db.Update(ctx, name, []byte("updated")))
+				assert.NoError(t, db.Store(ctx, name, []byte("updated")))
 
 				t.Run("Data should not be found", func(t *testing.T) {
 					d, err := db.Load(ctx, name)

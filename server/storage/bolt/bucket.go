@@ -19,17 +19,6 @@ import (
 func (db *DB) Store(ctx context.Context, name *resource.Name, data []byte) error {
 	name = resource.NewName(name.Type(), "bucket").AddChild(name)
 	return db.update(name, func(bucket *bolt.Bucket) error {
-		if bucket.Get([]byte(name.ID())) != nil {
-			return storage.ErrAlreadyExists
-		}
-		return bucket.Put([]byte(name.ID()), data)
-	})
-}
-
-// Update stores _data_ by _in_ in the bucket.
-func (db *DB) Update(ctx context.Context, name *resource.Name, data []byte) error {
-	name = resource.NewName(name.Type(), "bucket").AddChild(name)
-	return db.update(name, func(bucket *bolt.Bucket) error {
 		return bucket.Put([]byte(name.ID()), data)
 	})
 }

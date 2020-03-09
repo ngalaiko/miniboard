@@ -70,14 +70,6 @@ func (s *Storage) Store(ctx context.Context, name *resource.Name, data []byte) e
 	return nil
 }
 
-// Update implements storage.Storage.
-func (s *Storage) Update(ctx context.Context, name *resource.Name, data []byte) error {
-	if err := s.db.Set(name.String(), data, 0).Err(); err != nil {
-		return fmt.Errorf("failed to SET %s: %w", name, err)
-	}
-	return nil
-}
-
 // Load implements storage.Storage.
 func (s *Storage) Load(ctx context.Context, name *resource.Name) ([]byte, error) {
 	return s.loadOne(ctx, name)
