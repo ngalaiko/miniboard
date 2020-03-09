@@ -54,17 +54,12 @@ func (s *Storage) Store(ctx context.Context, name *resource.Name, data []byte) e
 		return fmt.Errorf("failed to SET %s: %w", name, err)
 	}
 
-	first, last := name.Split()
+	collection, _ := name.Split()
 
-	// add element to to the list
-	index, err := s.db.LPush(first, last).Result()
-	if err != nil {
-		return fmt.Errorf("failed to LPUSH %s %s: %w", first, last, err)
-	}
-
-	// add save element index
-	if _, err := s.db.HSet(first+"/hash", last, index).Result(); err != nil {
-		return fmt.Errorf("failed to HSET %s %s %d: %w", first, last, index, err)
+	if _, err := s.db.ZAdd(collection, &redis.Z{
+		Member: name.String(),
+	}).Result(); err != nil {
+		return fmt.Errorf("failed to ZADD %s 0 %s: %w", collection, name, err)
 	}
 
 	return nil
@@ -87,7 +82,7 @@ func (s *Storage) loadOne(ctx context.Context, name *resource.Name) ([]byte, err
 	}
 }
 
-func (s *Storage) loadMany(ctx context.Context, names ...string) ([][]byte, error) {
+func (s *Storage) loadMany(_ context.Context, names ...string) ([][]byte, error) {
 	if len(names) == 0 {
 		return nil, nil
 	}
@@ -118,6 +113,10 @@ func (s *Storage) Delete(ctx context.Context, name *resource.Name) error {
 	if _, err := s.db.Del(name.String()).Result(); err != nil {
 		return fmt.Errorf("failed to DEL %s: %w", name, err)
 	}
+	collection, _ := name.Split()
+	if _, err := s.db.ZRem(collection, name.String()).Result(); err != nil {
+		return fmt.Errorf("failed to ZREM %s %s: %w", collection, name, err)
+	}
 	return nil
 }
 
@@ -142,54 +141,29 @@ func (s *Storage) LoadAll(ctx context.Context, name *resource.Name) ([][]byte, e
 
 // ForEach implements storage.Storage.
 func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resource.Name, limit int64, okFunc func(*resource.Resource) (bool, error)) error {
-	var start int64
-	// get start position from a list
+	collection, _ := name.Split()
+
+	fromName := "+"
 	if from != nil {
-		first, last := from.Split()
-
-		len, err := s.db.LLen(first).Result()
-		if err != nil {
-			return fmt.Errorf("failed to LLEN %s: %w", first, err)
-		}
-
-		index, err := s.db.HGet(first+"/hash", last).Int64()
-		switch err {
-		case nil:
-			start = len - index
-		case redis.Nil:
-		default:
-			return fmt.Errorf("failed to HGET %s %s: %w", first, last, err)
-		}
+		fromName = "[" + from.String()
 	}
-
-	first, _ := name.Split()
-	keys, err := s.db.LRange(first, start, -1).Result()
+	keys, err := s.db.ZRevRangeByLex(collection, &redis.ZRangeBy{
+		Min:   "-",
+		Max:   fromName,
+		Count: limit,
+	}).Result()
 	if err != nil {
-		return fmt.Errorf("failed: LRANGE %s %d -1: %w", first, start, err)
+		return fmt.Errorf("failed: ZREVRANGEBYLEX %s %s + LIMIT %d: %w", collection, fromName, limit, err)
 	}
 
-	nn := make([]*resource.Name, 0, len(keys))
-	ss := make([]string, 0, len(keys))
-	for _, key := range keys {
-		nn = append(nn, resource.ParseName(fmt.Sprintf("%s/%s", first, key)))
-		ss = append(ss, fmt.Sprintf("%s/%s", first, key))
-	}
-
-	// TODO: load in batches
-
-	dd, err := s.loadMany(ctx, ss...)
+	dd, err := s.loadMany(ctx, keys...)
 	if err != nil {
 		return fmt.Errorf("failed to load: %w", err)
 	}
 
-	var c int64
 	for i, d := range dd {
-		if d == nil {
-			continue
-		}
-
 		res := &resource.Resource{
-			Name: nn[i],
+			Name: resource.ParseName(keys[i]),
 			Data: d,
 		}
 
@@ -198,11 +172,6 @@ func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resour
 			return err
 		}
 		if !goon {
-			return nil
-		}
-
-		c++
-		if limit != 0 && c == limit {
 			return nil
 		}
 	}
