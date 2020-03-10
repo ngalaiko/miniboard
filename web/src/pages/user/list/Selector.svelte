@@ -28,14 +28,14 @@
   .select {
     display: flex;
     justify-content: center;
-    padding: 0.2em;
+    padding: 0.3em;
   }
 
   .option {
     display: flex;
     justify-content: center;
-    width: 3em;
-    padding: 0.25em 1em;
+    width: 100%;
+    padding: 0.15em 0;
     cursor: pointer;
   }
 
@@ -46,10 +46,12 @@
 
   .border-left {
     border-left: 1px solid black;
+    border-radius: 0.25em 0 0 0.25em;
   }
 
   .border-right {
     border-right: 1px solid black;
+    border-radius: 0 0.25em 0.25em 0;
   }
 
   .selected {
