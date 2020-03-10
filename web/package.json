@@ -23,7 +23,6 @@
   },
   "dependencies": {
     "svelte-infinite-scroll": "^1.0.0",
-    "svelte-routing": "^1.4.0",
-    "svelte-select": "^3.4.0"
+    "svelte-routing": "^1.4.0"
   }
 }

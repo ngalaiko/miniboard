@@ -595,11 +595,6 @@ svelte-routing@^1.4.0:
   resolved "https://registry.yarnpkg.com/svelte-routing/-/svelte-routing-1.4.0.tgz#09285f3c7b19f509dfb1289fbc1235b348aa7d80"
   integrity sha512-09ypn0/vD2PcuyZEEocUHFgi7kvLOxSoUUuJZ4j3p4Y4sT/kMIWtHIRpnLdsr8bQ+sGo77sbEkO+av6yd1RjPg==
 
-svelte-select@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/svelte-select/-/svelte-select-3.4.0.tgz#93c81b3bba9b4e5c7666ad7d306ceb7185376d9f"
-  integrity sha512-pbT/Lzp3OcwhZLv465yeWH1gIwn6J6kP4Y9tMWPPp0fRdsxl2V8cvF6b/BCJA+Pf5OfF5lhn7mHQ1bYiVc6L6Q==
-
 svelte@^3.19.1:
   version "3.19.1"
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.19.1.tgz#2455e443f8ca67b98f3b7eb58285eaeb8af0c4b9"

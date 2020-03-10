@@ -73,29 +73,28 @@
 </script>
 
 <div class="list">
-  <div class="list-header">
-    <button class="button-search" on:click={() => {
-      searchQuery = searchQuery == null ? '' : null
-      console.log(inputElement)
-      inputElement.focus()
-    }}>
-      <SearchIcon size="20" />
-    </button>
-    <input
-      bind:this={inputElement}
-      class="search-input {searchQuery != null ? '' : 'hidden'}"
-      placeholder="search"
-      bind:value={searchQuery}
-      on:change={onInput}
-      on:input={onInput}
-      on:cut={onInput}
-      on:copy={onInput}
-      on:paste={onInput}
+  <div>
+    <Selector
+      selectedValue={category}
+      on:select={(e) => onCalegorySelect(Categories[e.detail])}
     />
-    <div class="select {searchQuery == null ? '' : 'hidden'}">
-      <Selector 
-        selectedValue={category}
-        on:select={(e) => onCalegorySelect(Categories[e.detail])} 
+    <div class="header-search">
+      <button class="button-search" on:click={() => {
+        searchQuery = searchQuery == null ? '' : null
+        inputElement.focus()
+      }}>
+        <SearchIcon size="15" />
+      </button>
+      <input
+        bind:this={inputElement}
+        class="search-input"
+        placeholder="Search articles"
+        bind:value={searchQuery}
+        on:change={onInput}
+        on:input={onInput}
+        on:cut={onInput}
+        on:copy={onInput}
+        on:paste={onInput}
       />
     </div>
   </div>
@@ -139,6 +138,11 @@
     min-height: 100%;
   }
 
+  .header-search {
+    display: flex;
+    padding: 0.2em;
+  }
+
   .button-search {
     background: inherit;
     padding: 0;
@@ -149,14 +153,6 @@
 
   .button-search:focus {
     outline: none;
-  }
-
-  .list-header {
-    display: flex;
-    align-items: center;
-    min-height: 2em;
-    border-bottom: 1px solid;
-    padding: 0.3em;
   }
 
   .search-input {
@@ -180,12 +176,8 @@
   }
 
   .list-li {
-    border-bottom: 1px solid;
+    border-top: 1px solid;
     padding-right: 0.4em;
-  }
-
-  .selected {
-    background: gainsboro;
   }
 
   .button-add {
