@@ -6,11 +6,12 @@
   import { SourcesClient, } from '../../../clients/sources.ts'
   import ArticleView from './article/Article.svelte'
   import { createEventDispatcher, onMount } from 'svelte'
-  import { PlusIcon, SearchIcon } from 'svelte-feather-icons'
+  import { PlusIcon } from 'svelte-feather-icons'
 	import Modal from './Modal.svelte'
   import Selector from './Selector.svelte'
   // @ts-ignore
   import { Category, Categories } from './Category.ts'
+  import Search from './Search.svelte'
 
 	let showModal = false
 
@@ -78,25 +79,14 @@
       selectedValue={category}
       on:select={(e) => onCalegorySelect(Categories[e.detail])}
     />
-    <div class="header-search">
-      <button class="button-search" on:click={() => {
-        searchQuery = searchQuery == null ? '' : null
-        inputElement.focus()
-      }}>
-        <SearchIcon size="15" />
-      </button>
-      <input
-        bind:this={inputElement}
-        class="search-input"
-        placeholder="Search articles"
-        bind:value={searchQuery}
-        on:change={onInput}
-        on:input={onInput}
-        on:cut={onInput}
-        on:copy={onInput}
-        on:paste={onInput}
-      />
-    </div>
+    <Search 
+      bind:value={searchQuery}
+      on:change={onInput}
+      on:input={onInput}
+      on:cut={onInput}
+      on:copy={onInput}
+      on:paste={onInput}
+    />
   </div>
   <ul class="list-ul">
     {#each articlesList as article}
@@ -136,34 +126,6 @@
     flex-direction: column;
     max-height: 100%;
     min-height: 100%;
-  }
-
-  .header-search {
-    display: flex;
-    padding: 0.2em;
-  }
-
-  .button-search {
-    background: inherit;
-    padding: 0;
-    border: 0;
-    cursor: pointer;
-    font: inherit;
-  }
-
-  .button-search:focus {
-    outline: none;
-  }
-
-  .search-input {
-    font: inherit;
-    border: 0;
-    background: inherit;
-    width: 100%;
-  }
-
-  .search-input:focus {
-    outline: none;
   }
 
   .list-ul {
