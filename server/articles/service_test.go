@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	miniredis "github.com/alicebob/miniredis/v2"
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
@@ -52,12 +53,11 @@ func Test_articles(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	host := os.Getenv("REDIS_HOST")
-	if host == "" {
-		t.Skip("REDIS_HOST is not set")
-	}
+	s, err := miniredis.Run()
+	assert.NoError(t, err)
+	defer s.Close()
 
-	db, err := redis.New(ctx, host)
+	db, err := redis.New(ctx, s.Addr())
 	if err != nil {
 		t.Fatalf("failed to create database: %s", err)
 	}

@@ -2,10 +2,10 @@ package jwt
 
 import (
 	"context"
-	"os"
 	"testing"
 	"time"
 
+	miniredis "github.com/alicebob/miniredis/v2"
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/storage/redis"
 	"miniboard.app/storage/resource"
@@ -16,12 +16,11 @@ func Test_Service(t *testing.T) {
 	defer cancel()
 
 	t.Run("With new service", func(t *testing.T) {
-		host := os.Getenv("REDIS_HOST")
-		if host == "" {
-			t.Skip("REDIS_HOST is not set")
-		}
+		s, err := miniredis.Run()
+		assert.NoError(t, err)
+		defer s.Close()
 
-		db, err := redis.New(ctx, host)
+		db, err := redis.New(ctx, s.Addr())
 		assert.NoError(t, err)
 
 		service := NewService(ctx, db)

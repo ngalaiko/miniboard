@@ -7,6 +7,7 @@ import (
 	"os"
 	"testing"
 
+	miniredis "github.com/alicebob/miniredis/v2"
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/images"
 	"miniboard.app/storage/redis"
@@ -18,12 +19,11 @@ func Test(t *testing.T) {
 
 	url, _ := url.Parse("http://example.com")
 
-	host := os.Getenv("REDIS_HOST")
-	if host == "" {
-		t.Skip("REDIS_HOST is not set")
-	}
+	s, err := miniredis.Run()
+	assert.NoError(t, err)
+	defer s.Close()
 
-	db, err := redis.New(ctx, host)
+	db, err := redis.New(ctx, s.Addr())
 	assert.NoError(t, err)
 
 	r, err := NewFromReader(ctx, &http.Client{}, images.New(db), testData(t), url)
