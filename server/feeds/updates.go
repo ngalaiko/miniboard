@@ -1,4 +1,4 @@
-package rss
+package feeds
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 	"miniboard.app/api/actor"
-	rss "miniboard.app/proto/users/rss/v1"
+	feeds "miniboard.app/proto/users/feeds/v1"
 	"miniboard.app/storage/resource"
 )
 
@@ -41,14 +41,14 @@ func (s *Service) listenToUpdates(ctx context.Context) {
 }
 
 func (s *Service) updateFeeds(ctx context.Context) error {
-	raw, err := s.storage.LoadAll(ctx, resource.ParseName("users/*/rss/*"))
+	raw, err := s.storage.LoadAll(ctx, resource.ParseName("users/*/feeds/*"))
 	if err != nil {
 		return fmt.Errorf("failed to load feeds: %w", err)
 	}
 
 	wg, ctx := errgroup.WithContext(ctx)
 	for _, r := range raw {
-		feed := &rss.Feed{}
+		feed := &feeds.Feed{}
 		if err := proto.Unmarshal(r.Data, feed); err != nil {
 			return fmt.Errorf("failed to unmarshal feed: %w", err)
 		}
@@ -64,7 +64,7 @@ func (s *Service) updateFeeds(ctx context.Context) error {
 	return wg.Wait()
 }
 
-func (s *Service) updateFeed(ctx context.Context, feed *rss.Feed) error {
+func (s *Service) updateFeed(ctx context.Context, feed *feeds.Feed) error {
 	defer func() {
 		if r := recover(); r != nil {
 			log().Panicf("%s: %s", r, debug.Stack())
@@ -112,6 +112,6 @@ func (s *Service) updateFeed(ctx context.Context, feed *rss.Feed) error {
 
 func log() *logrus.Entry {
 	return logrus.WithFields(logrus.Fields{
-		"source": "rss",
+		"source": "feeds",
 	})
 }

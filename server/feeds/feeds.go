@@ -1,4 +1,4 @@
-package rss
+package feeds
 
 import (
 	"context"
@@ -16,18 +16,18 @@ import (
 	"golang.org/x/sync/errgroup"
 	"miniboard.app/api/actor"
 	"miniboard.app/articles"
-	rss "miniboard.app/proto/users/rss/v1"
+	feeds "miniboard.app/proto/users/feeds/v1"
 	"miniboard.app/storage"
 )
 
-// Service is an RSS service.
+// Service is a Feeds service.
 type Service struct {
 	parser          *gofeed.Parser
 	articlesService *articles.Service
 	storage         storage.Storage
 }
 
-// New creates rss service.
+// New creates feeds service.
 func New(ctx context.Context, storage storage.Storage, articlesService *articles.Service) *Service {
 	parser := gofeed.NewParser()
 	parser.Client = &http.Client{}
@@ -41,8 +41,8 @@ func New(ctx context.Context, storage storage.Storage, articlesService *articles
 	return s
 }
 
-// CreateFeed creates a new rss feed, fetches articles and schedules a next update.
-func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL) (*rss.Feed, error) {
+// CreateFeed creates a new feeds feed, fetches articles and schedules a next update.
+func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL) (*feeds.Feed, error) {
 	actor, _ := actor.FromContext(ctx)
 
 	urlHash := murmur3.New128()
@@ -54,10 +54,10 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 		return nil, fmt.Errorf("failed to generate id: %w", err)
 	}
 
-	name := actor.Child("rss", fmt.Sprintf("%x", id.String()))
+	name := actor.Child("feeds", fmt.Sprintf("%x", id.String()))
 
 	if rawExisting, err := s.storage.Load(ctx, name); err == nil {
-		feed := &rss.Feed{}
+		feed := &feeds.Feed{}
 		if err := proto.Unmarshal(rawExisting, feed); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal the article: %w", err)
 		}
@@ -65,7 +65,7 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 		return feed, err
 	}
 
-	f := &rss.Feed{
+	f := &feeds.Feed{
 		Name:        name.String(),
 		LastFetched: ptypes.TimestampNow(),
 		Url:         url.String(),

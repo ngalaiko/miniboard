@@ -13,7 +13,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/assert"
 	articles "miniboard.app/proto/users/articles/v1"
-	rss "miniboard.app/proto/users/rss/v1"
+	feeds "miniboard.app/proto/users/feeds/v1"
 	sources "miniboard.app/proto/users/sources/v1"
 )
 
@@ -37,7 +37,7 @@ func Test_sources(t *testing.T) {
 
 	t.Run("With sources service", func(t *testing.T) {
 		articles := &mockArticles{}
-		feeds := &mockRss{}
+		feeds := &mockFeeds{}
 		service := New(articles, feeds)
 
 		t.Run("When creating a source from html page", func(t *testing.T) {
@@ -84,12 +84,12 @@ func Test_sources(t *testing.T) {
 	})
 }
 
-type mockRss struct {
-	feeds []*rss.Feed
+type mockFeeds struct {
+	feeds []*feeds.Feed
 }
 
-func (s *mockRss) CreateFeed(context.Context, io.Reader, *url.URL) (*rss.Feed, error) {
-	feed := &rss.Feed{}
+func (s *mockFeeds) CreateFeed(context.Context, io.Reader, *url.URL) (*feeds.Feed, error) {
+	feed := &feeds.Feed{}
 	s.feeds = append(s.feeds, feed)
 	return feed, nil
 }

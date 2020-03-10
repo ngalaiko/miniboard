@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	articles "miniboard.app/proto/users/articles/v1"
-	rss "miniboard.app/proto/users/rss/v1"
+	feeds "miniboard.app/proto/users/feeds/v1"
 	sources "miniboard.app/proto/users/sources/v1"
 	"miniboard.app/reader"
 )
@@ -22,23 +22,23 @@ type articlesService interface {
 	CreateArticle(context.Context, io.Reader, *url.URL, *time.Time) (*articles.Article, error)
 }
 
-type rssService interface {
-	CreateFeed(context.Context, io.Reader, *url.URL) (*rss.Feed, error)
+type feedsService interface {
+	CreateFeed(context.Context, io.Reader, *url.URL) (*feeds.Feed, error)
 }
 
 // Service allows to add new article's sources.
-// For example, a single article, or an RSS feed.
+// For example, a single article, or a feed.
 type Service struct {
-	rssService      rssService
+	feedsService    feedsService
 	articlesService articlesService
 	client          reader.GetClient
 }
 
 // New returns new sources instance.
-func New(articlesService articlesService, rssService rssService) *Service {
+func New(articlesService articlesService, feedsService feedsService) *Service {
 	return &Service{
 		articlesService: articlesService,
-		rssService:      rssService,
+		feedsService:    feedsService,
 		client:          &http.Client{},
 	}
 }
@@ -70,7 +70,7 @@ func (s *Service) CreateSource(ctx context.Context, request *sources.CreateSourc
 	case strings.HasPrefix(ct, "application/rss+xml"),
 		strings.HasPrefix(ct, "application/atom+xml"),
 		strings.HasPrefix(ct, "text/xm"):
-		feed, err := s.rssService.CreateFeed(ctx, resp.Body, url)
+		feed, err := s.feedsService.CreateFeed(ctx, resp.Body, url)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create feed from source: %w", err)
 		}

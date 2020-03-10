@@ -15,6 +15,7 @@ import (
 	articlesservice "miniboard.app/articles"
 	codesservice "miniboard.app/codes"
 	"miniboard.app/email"
+	feedsservice "miniboard.app/feeds"
 	"miniboard.app/images"
 	"miniboard.app/jwt"
 	codes "miniboard.app/proto/codes/v1"
@@ -22,7 +23,6 @@ import (
 	articles "miniboard.app/proto/users/articles/v1"
 	sources "miniboard.app/proto/users/sources/v1"
 	users "miniboard.app/proto/users/v1"
-	rssservice "miniboard.app/rss"
 	sourcesservice "miniboard.app/sources"
 	"miniboard.app/storage"
 	tokensservice "miniboard.app/tokens"
@@ -51,11 +51,11 @@ func NewServer(
 	imagesService := images.New(db)
 	jwtService := jwt.NewService(ctx, db)
 	articlesService := articlesservice.New(db, imagesService)
-	rssService := rssservice.New(ctx, db, articlesService)
+	feedsService := feedsservice.New(ctx, db, articlesService)
 	usersService := usersservice.New()
 	codesService := codesservice.New(domain, emailClient, jwtService)
 	tokensService := tokensservice.New(jwtService)
-	sourcesService := sourcesservice.New(articlesService, rssService)
+	sourcesService := sourcesservice.New(articlesService, feedsService)
 
 	gwMux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
