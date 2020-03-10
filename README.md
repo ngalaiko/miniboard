@@ -6,7 +6,6 @@
 | Command line            | Default                  | Description                                      |
 | ----------------------- | ------------------------ | ------------------------------------------------ |
 | addr                    | :8080                    | Address to listen for connections.               |
-| bolt-path               | ./bolt.db                | Path to the bolt storage.                        |
 | redis-uri               |                          | Redis URI to connect to.                         |
 | domain                  | http://localhost:8080    | Service domain.                                  |
 | smtp-host               |                          | SMTP server host.                                |

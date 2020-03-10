@@ -2,10 +2,12 @@ package jwt
 
 import (
 	"context"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"miniboard.app/storage/redis"
 	"miniboard.app/storage/resource"
 )
 
@@ -14,7 +16,15 @@ func Test_Service(t *testing.T) {
 	defer cancel()
 
 	t.Run("With new service", func(t *testing.T) {
-		service := NewService(ctx, testDB(ctx, t))
+		host := os.Getenv("REDIS_HOST")
+		if host == "" {
+			t.Skip("REDIS_HOST is not set")
+		}
+
+		db, err := redis.New(ctx, host)
+		assert.NoError(t, err)
+
+		service := NewService(ctx, db)
 
 		t.Run("When creating a token", func(t *testing.T) {
 			testSubject := resource.NewName("test", "test subject")

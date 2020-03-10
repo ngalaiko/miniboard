@@ -3,33 +3,27 @@ package jwt
 import (
 	"context"
 	"errors"
-	"io/ioutil"
 	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/storage"
-	"miniboard.app/storage/bolt"
+	"miniboard.app/storage/redis"
 )
 
-func Test_keyStorage_Create__should_create_new_key(t *testing.T) {
+func Test_keyStorage(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	service := newKeyStorage(testDB(ctx, t))
+	host := os.Getenv("REDIS_HOST")
+	if host == "" {
+		t.Skip("REDIS_HOST is not set")
+	}
 
-	key, err := service.Create(ctx)
+	db, err := redis.New(ctx, host)
 	assert.NoError(t, err)
-	assert.NotNil(t, key)
-	assert.NotNil(t, key.Private)
-	assert.NotNil(t, key.Public)
-}
 
-func Test_keyStorage_Get(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	service := newKeyStorage(testDB(ctx, t))
+	service := newKeyStorage(db)
 
 	t.Run("When a key doesn't exist", func(t *testing.T) {
 		t.Run("Then error should be not found", func(t *testing.T) {
@@ -79,21 +73,4 @@ func Test_keyStorage_Get(t *testing.T) {
 			})
 		})
 	})
-}
-
-func testDB(ctx context.Context, t *testing.T) storage.Storage {
-	tmpfile, err := ioutil.TempFile("", "bolt")
-	if err != nil {
-		t.Fatalf("failed to create database: %s", err)
-	}
-	go func() {
-		<-ctx.Done()
-		defer os.Remove(tmpfile.Name()) // clean up
-	}()
-
-	db, err := bolt.New(ctx, tmpfile.Name())
-	if err != nil {
-		t.Fatalf("failed to create database: %s", err)
-	}
-	return db
 }

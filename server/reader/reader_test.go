@@ -2,7 +2,6 @@ package reader
 
 import (
 	"context"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -10,8 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/images"
-	"miniboard.app/storage"
-	"miniboard.app/storage/bolt"
+	"miniboard.app/storage/redis"
 )
 
 func Test(t *testing.T) {
@@ -20,7 +18,15 @@ func Test(t *testing.T) {
 
 	url, _ := url.Parse("http://example.com")
 
-	r, err := NewFromReader(ctx, &http.Client{}, images.New(testDB(ctx, t)), testData(t), url)
+	host := os.Getenv("REDIS_HOST")
+	if host == "" {
+		t.Skip("REDIS_HOST is not set")
+	}
+
+	db, err := redis.New(ctx, host)
+	assert.NoError(t, err)
+
+	r, err := NewFromReader(ctx, &http.Client{}, images.New(db), testData(t), url)
 	assert.NoError(t, err)
 
 	title := r.Title()
@@ -29,23 +35,6 @@ func Test(t *testing.T) {
 
 	content := r.Content()
 	assert.NotEmpty(t, content)
-}
-
-func testDB(ctx context.Context, t *testing.T) storage.Storage {
-	tmpfile, err := ioutil.TempFile("", "bolt")
-	if err != nil {
-		t.Fatalf("failed to create database: %s", err)
-	}
-	go func() {
-		<-ctx.Done()
-		defer os.Remove(tmpfile.Name()) // clean up
-	}()
-
-	db, err := bolt.New(ctx, tmpfile.Name())
-	if err != nil {
-		t.Fatalf("failed to create database: %s", err)
-	}
-	return db
 }
 
 func testData(t *testing.T) *os.File {

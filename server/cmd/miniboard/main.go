@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"flag"
 	"net"
 	"os"
@@ -12,16 +11,12 @@ import (
 	"miniboard.app/email"
 	"miniboard.app/email/disabled"
 	"miniboard.app/email/smtp"
-	"miniboard.app/storage"
-	"miniboard.app/storage/bolt"
 	"miniboard.app/storage/redis"
 )
 
 func main() {
 	domain := flag.String("domain", "http://localhost:8080", "Service domain.")
 	addr := flag.String("addr", ":8080", "Address to listen for connections.")
-
-	boltPath := flag.String("bolt-path", "./bolt.db", "Path to the bolt storage.")
 
 	redisURI := flag.String("redis-uri", "", "Redis URI to connect to.")
 
@@ -39,7 +34,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	db, err := initStorage(ctx, *redisURI, *boltPath)
+	db, err := redis.New(ctx, *redisURI)
 	if err != nil {
 		logrus.Fatalf("failed to connect to database: %s", err)
 	}
@@ -59,17 +54,6 @@ func main() {
 		KeyPath:  *sslKey,
 	}); err != nil {
 		logrus.Fatalf("failed to start the server: %s", err)
-	}
-}
-
-func initStorage(ctx context.Context, redisURI, boltPath string) (storage.Storage, error) {
-	switch {
-	case redisURI != "":
-		return redis.New(ctx, redisURI)
-	case boltPath != "":
-		return bolt.New(ctx, boltPath)
-	default:
-		return nil, errors.New("one of redis-uri or bolt-path must be provided")
 	}
 }
 
