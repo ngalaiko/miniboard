@@ -12,9 +12,11 @@ import (
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/assert"
+	"miniboard.app/api/actor"
 	articles "miniboard.app/proto/users/articles/v1"
 	feeds "miniboard.app/proto/users/feeds/v1"
 	sources "miniboard.app/proto/users/sources/v1"
+	"miniboard.app/storage/resource"
 )
 
 type testClient struct {
@@ -35,6 +37,8 @@ func Test_sources(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	ctx = actor.NewContext(ctx, resource.NewName("users", "test"))
+
 	t.Run("With sources service", func(t *testing.T) {
 		articles := &mockArticles{}
 		feeds := &mockFeeds{}
@@ -47,11 +51,12 @@ func Test_sources(t *testing.T) {
 					Url: "http://example.com",
 				},
 			})
-			assert.NoError(t, err)
-			assert.Equal(t, "http://example.com", source.Url)
 
 			t.Run("Should create an article", func(t *testing.T) {
-				assert.Equal(t, len(articles.articles), 1)
+				if assert.NoError(t, err) {
+					assert.Equal(t, len(articles.articles), 1)
+					assert.Equal(t, "http://example.com", source.Url)
+				}
 			})
 		})
 
@@ -63,12 +68,29 @@ func Test_sources(t *testing.T) {
 				},
 			})
 
-			if assert.NoError(t, err) {
-				assert.Equal(t, "http://example.com", source.Url)
-			}
+			t.Run("Should create a feed", func(t *testing.T) {
+				if assert.NoError(t, err) {
+					assert.Equal(t, "http://example.com", source.Url)
+					assert.Equal(t, len(feeds.feeds), 1)
+				}
+			})
+		})
+
+		t.Run("When creating a source from opml content", func(t *testing.T) {
+			feeds.feeds = nil
+
+			content, err := ioutil.ReadFile("./testdata/feeds.opml")
+			assert.NoError(t, err)
+			_, err = service.CreateSource(ctx, &sources.CreateSourceRequest{
+				Source: &sources.Source{
+					Raw: content,
+				},
+			})
 
 			t.Run("Should create a feed", func(t *testing.T) {
-				assert.Equal(t, len(feeds.feeds), 1)
+				if assert.NoError(t, err) {
+					assert.Equal(t, len(feeds.feeds), 84)
+				}
 			})
 		})
 
@@ -79,7 +101,19 @@ func Test_sources(t *testing.T) {
 					Url: "http://example.com",
 				},
 			})
-			assert.Error(t, err)
+			t.Run("Should create return an error", func(t *testing.T) {
+				assert.Error(t, err)
+			})
+		})
+
+		t.Run("When creating a source with empty request", func(t *testing.T) {
+			service.client = &testClient{typ: "something else"}
+			_, err := service.CreateSource(ctx, &sources.CreateSourceRequest{
+				Source: &sources.Source{},
+			})
+			t.Run("Should create return an error", func(t *testing.T) {
+				assert.Error(t, err)
+			})
 		})
 	})
 }

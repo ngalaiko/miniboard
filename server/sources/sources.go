@@ -2,15 +2,17 @@ package sources
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
+	"github.com/segmentio/ksuid"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"miniboard.app/api/actor"
 	articles "miniboard.app/proto/users/articles/v1"
 	feeds "miniboard.app/proto/users/feeds/v1"
 	sources "miniboard.app/proto/users/sources/v1"
@@ -45,14 +47,56 @@ func New(articlesService articlesService, feedsService feedsService) *Service {
 
 // CreateSource creates a new source.
 func (s *Service) CreateSource(ctx context.Context, request *sources.CreateSourceRequest) (*sources.Source, error) {
-	url, err := url.ParseRequestURI(request.Source.Url)
+	switch {
+	case request.Source.Url != "":
+		return s.createSourceFromURL(ctx, request.Source)
+	case request.Source.Raw != nil:
+		return s.createSourceFromRaw(ctx, request.Source)
+	default:
+		return nil, status.Errorf(codes.InvalidArgument, "you need to provide either url or raw data")
+	}
+}
+
+func (s *Service) createSourceFromRaw(ctx context.Context, source *sources.Source) (*sources.Source, error) {
+	if !strings.HasPrefix(http.DetectContentType(source.Raw), "text/xml") {
+		return nil, status.Errorf(codes.InvalidArgument, "only raw xml files supported")
+	}
+
+	sources, err := parseOPML(source.Raw)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "only raw opml files supported")
+	}
+
+	wg, ctx := errgroup.WithContext(ctx)
+	for _, source := range sources {
+		source := source
+		wg.Go(func() error {
+			_, err := s.createSourceFromURL(ctx, source)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+	}
+	if err := wg.Wait(); err != nil {
+		return nil, err
+	}
+
+	actor, _ := actor.FromContext(ctx)
+
+	source.Name = actor.Child("opml", ksuid.New().String()).String()
+	return source, nil
+}
+
+func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Source) (*sources.Source, error) {
+	url, err := url.ParseRequestURI(source.Url)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "url is invalid")
 	}
 
-	resp, err := s.client.Get(request.Source.Url)
+	resp, err := s.client.Get(source.Url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch url: %w", err)
+		return nil, status.Errorf(codes.InvalidArgument, "failed to fetch url: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -63,19 +107,19 @@ func (s *Service) CreateSource(ctx context.Context, request *sources.CreateSourc
 		now := time.Now()
 		article, err := s.articlesService.CreateArticle(ctx, resp.Body, url, &now)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create article from source: %w", err)
+			return nil, status.Errorf(codes.Internal, "failed to create article from source: %w", err)
 		}
-		request.Source.Name = article.Name
-		return request.Source, nil
+		source.Name = article.Name
+		return source, nil
 	case strings.HasPrefix(ct, "application/rss+xml"),
 		strings.HasPrefix(ct, "application/atom+xml"),
 		strings.HasPrefix(ct, "text/xm"):
 		feed, err := s.feedsService.CreateFeed(ctx, resp.Body, url)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create feed from source: %w", err)
+			return nil, status.Errorf(codes.Internal, "failed to create feed from source: %w", err)
 		}
-		request.Source.Name = feed.Name
-		return request.Source, nil
+		source.Name = feed.Name
+		return source, nil
 	default:
 		return nil, status.Errorf(codes.InvalidArgument, "unsupported format %s", ct)
 	}

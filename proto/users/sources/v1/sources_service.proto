@@ -27,5 +27,9 @@ message Source {
     // Name of the source. For example "users/<id>/sources/<1>"
     string name = 1;
 
+    // Url of an article or feed.
     string url = 2;
+
+    // Raw is a base64 encoded raw source data.
+    bytes raw = 3;
 }
