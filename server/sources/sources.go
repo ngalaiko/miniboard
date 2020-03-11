@@ -104,7 +104,8 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Sourc
 		return source, nil
 	case strings.HasPrefix(ct, "application/rss+xml"),
 		strings.HasPrefix(ct, "application/atom+xml"),
-		strings.HasPrefix(ct, "text/xm"):
+		strings.HasPrefix(ct, "application/xml"),
+		strings.HasPrefix(ct, "text/xml"):
 		feed, err := s.feedsService.CreateFeed(ctx, resp.Body, url)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to create feed from source: %s", err)
@@ -112,6 +113,6 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Sourc
 		source.Name = feed.Name
 		return source, nil
 	default:
-		return nil, status.Errorf(codes.InvalidArgument, "unsupported format %s", ct)
+		return nil, status.Errorf(codes.InvalidArgument, "unsupported source content type '%s'", ct)
 	}
 }
