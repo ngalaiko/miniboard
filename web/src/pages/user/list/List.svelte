@@ -7,7 +7,7 @@
   import ArticleView from './article/Article.svelte'
   import { createEventDispatcher, onMount } from 'svelte'
   import { PlusIcon } from 'svelte-feather-icons'
-	import Modal from './Modal.svelte'
+	import AddModal from './AddModal.svelte'
   import Selector from './Selector.svelte'
   // @ts-ignore
   import { Category, Categories } from './Category.ts'
@@ -114,7 +114,7 @@
 </div>
 
 {#if showModal}
-  <Modal 
+  <AddModal
     on:close={() => showModal = false} 
     on:add={(e) => onAdd(e.detail)}
   />
