@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/segmentio/ksuid"
-	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
@@ -67,19 +66,11 @@ func (s *Service) createSourceFromRaw(ctx context.Context, source *sources.Sourc
 		return nil, status.Errorf(codes.InvalidArgument, "only raw opml files supported")
 	}
 
-	wg, ctx := errgroup.WithContext(ctx)
 	for _, source := range sources {
-		source := source
-		wg.Go(func() error {
-			_, err := s.createSourceFromURL(ctx, source)
-			if err != nil {
-				return err
-			}
-			return nil
-		})
-	}
-	if err := wg.Wait(); err != nil {
-		return nil, err
+		_, err := s.createSourceFromURL(ctx, source)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	actor, _ := actor.FromContext(ctx)
@@ -96,7 +87,7 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Sourc
 
 	resp, err := s.client.Get(source.Url)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "failed to fetch url: %w", err)
+		return nil, status.Errorf(codes.InvalidArgument, "failed to fetch url: %s", err)
 	}
 	defer resp.Body.Close()
 
@@ -107,7 +98,7 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Sourc
 		now := time.Now()
 		article, err := s.articlesService.CreateArticle(ctx, resp.Body, url, &now)
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "failed to create article from source: %w", err)
+			return nil, status.Errorf(codes.Internal, "failed to create article from source: %s", err)
 		}
 		source.Name = article.Name
 		return source, nil
@@ -116,7 +107,7 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Sourc
 		strings.HasPrefix(ct, "text/xm"):
 		feed, err := s.feedsService.CreateFeed(ctx, resp.Body, url)
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "failed to create feed from source: %w", err)
+			return nil, status.Errorf(codes.Internal, "failed to create feed from source: %s", err)
 		}
 		source.Name = feed.Name
 		return source, nil

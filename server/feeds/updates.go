@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	pollInterval   = time.Minute
+	pollInterval   = 5 * time.Minute
 	updateInterval = 5 * time.Minute
 )
 

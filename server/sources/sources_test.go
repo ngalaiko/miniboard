@@ -89,7 +89,7 @@ func Test_sources(t *testing.T) {
 
 			t.Run("Should create a feed", func(t *testing.T) {
 				if assert.NoError(t, err) {
-					assert.Equal(t, len(feeds.feeds), 84)
+					assert.Equal(t, 88, len(feeds.feeds))
 				}
 			})
 		})
