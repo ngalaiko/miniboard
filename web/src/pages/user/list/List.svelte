@@ -60,8 +60,23 @@
   }
 
   let inputElement: HTMLElement
-  const onAdd = async (url: string) => {
-    await sourcesClient.create(username, url)
+  const onAddLink = async (url: string) => {
+    await sourcesClient.addLink(username, url)
+    refresh()
+  }
+
+  const onAddFile = async (file: File) => {
+    await new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsBinaryString(file)
+      reader.onload = e => {
+        if (e.target === null) return
+        resolve(e.target.result)
+      }
+      reader.onerror = () => reject(new Error('failed to read file'))
+    }).then(content => {
+      return sourcesClient.addFile(username, btoa(content))
+    })
     refresh()
   }
 
@@ -116,7 +131,8 @@
 {#if showModal}
   <AddModal
     on:close={() => showModal = false} 
-    on:add={(e) => onAdd(e.detail)}
+    on:link={(e) => onAddLink(e.detail)}
+    on:file={(e) => onAddFile(e.detail)}
   />
 {/if}
 

@@ -1,5 +1,6 @@
 <script>
 	import { createEventDispatcher, onMount } from 'svelte'
+  import { UploadIcon } from 'svelte-feather-icons'
 
 	const dispatch = createEventDispatcher()
 	const close = () => dispatch('close')
@@ -9,10 +10,19 @@
 
   onMount(() => { inputElement.focus() })
 
-	const handle_keydown = e => {
+  const onFile = e => {
+    const files = e.target.files
+
+    if (files.length === 0) return
+
+    dispatch('file', files[0])
+    close()
+  }
+
+	const handleKeydown = e => {
     switch (e.key) {
       case 'Enter':
-        dispatch('add', inputElement.value)
+        dispatch('link', inputElement.value)
         close()
         break
       case 'Escape':
@@ -36,7 +46,7 @@
 	}
 </script>
 
-<svelte:window on:keydown={handle_keydown}/>
+<svelte:window on:keydown={handleKeydown}/>
 
 <div class="modal-background" on:click={close}></div>
 
@@ -46,6 +56,10 @@
     class="input-url"
     placeholder="Link, RSS"
   />
+  <input type="file" id="file" on:change={onFile} />
+  <label for="file" class="input-file">
+    <UploadIcon size="30" />
+  </label>
 </div>
 
 <style>
@@ -59,6 +73,7 @@
 	}
 
 	.modal {
+    display: inline-flex;
 		position: absolute;
 		left: 50%;
 		top: 50%;
@@ -68,9 +83,17 @@
 		overflow: auto;
 		transform: translate(-50%,-50%);
 		padding: 1em;
-		border-radius: 0.2em;
+		border-radius: 0.3em;
 		background: white;
 	}
+
+  input[type="file"] {
+    display: none;
+  }
+
+  .input-file {
+    cursor: pointer;
+  }
 
   .input-url {
     font: inherit;
@@ -78,6 +101,7 @@
     border: 0;
     width: 100%;
     padding: 0;
+    margin: 0;
   }
 
   .input-url:focus {
