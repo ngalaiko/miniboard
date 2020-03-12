@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"runtime/debug"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -76,6 +77,11 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 	}
 
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log().Panicf("%s: %s", r, debug.Stack())
+			}
+		}()
 		if err := s.parse(actor.NewContext(context.Background(), a), reader, f); err != nil {
 			log().Errorf("failed to parse feed: %s", err)
 		}
