@@ -8,9 +8,11 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/segmentio/ksuid"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
@@ -71,12 +73,22 @@ func (s *Service) createSourceFromRaw(ctx context.Context, source *sources.Sourc
 		return nil, status.Errorf(codes.InvalidArgument, "only raw opml files supported")
 	}
 
+	wg := &sync.WaitGroup{}
 	for _, source := range sources {
-		_, err := s.createSourceFromURL(ctx, source)
-		if err != nil {
-			return nil, err
-		}
+		source := source
+
+		wg.Add(1)
+		go func() {
+			_, err := s.createSourceFromURL(ctx, source)
+			if err != nil {
+				log().Errorf("failed to create source from '%s': %s", source.Url, err)
+			}
+
+			wg.Done()
+		}()
 	}
+
+	wg.Wait()
 
 	actor, _ := actor.FromContext(ctx)
 
@@ -104,7 +116,7 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Sourc
 	ct := resp.Header.Get("Content-Type")
 
 	switch {
-	case strings.HasPrefix(ct, "text/html"):
+	case strings.Contains(ct, "text/html"):
 		now := time.Now()
 		article, err := s.articlesService.CreateArticle(ctx, bytes.NewBuffer(body), url, &now)
 		if err != nil {
@@ -112,10 +124,10 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Sourc
 		}
 		source.Name = article.Name
 		return source, nil
-	case strings.HasPrefix(ct, "application/rss+xml"),
-		strings.HasPrefix(ct, "application/atom+xml"),
-		strings.HasPrefix(ct, "application/xml"),
-		strings.HasPrefix(ct, "text/xml"):
+	case strings.Contains(ct, "application/rss+xml"),
+		strings.Contains(ct, "application/atom+xml"),
+		strings.Contains(ct, "application/xml"),
+		strings.Contains(ct, "text/xml"):
 		feed, err := s.feedsService.CreateFeed(ctx, bytes.NewBuffer(body), url)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to create feed from source: %s", err)
@@ -125,4 +137,10 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Sourc
 	default:
 		return nil, status.Errorf(codes.InvalidArgument, "unsupported source content type '%s'", ct)
 	}
+}
+
+func log() *logrus.Entry {
+	return logrus.WithFields(logrus.Fields{
+		"source": "sources",
+	})
 }
