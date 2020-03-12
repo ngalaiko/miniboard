@@ -47,7 +47,9 @@ func New(articlesService articlesService, feedsService feedsService) *Service {
 	return &Service{
 		articlesService: articlesService,
 		feedsService:    feedsService,
-		client:          &http.Client{},
+		client: &http.Client{
+			Timeout: 5 * time.Second,
+		},
 	}
 }
 
