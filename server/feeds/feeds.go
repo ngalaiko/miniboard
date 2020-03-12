@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
@@ -13,20 +14,24 @@ import (
 	"github.com/spaolacci/murmur3"
 	"golang.org/x/sync/errgroup"
 	"miniboard.app/api/actor"
-	"miniboard.app/articles"
+	articles "miniboard.app/proto/users/articles/v1"
 	feeds "miniboard.app/proto/users/feeds/v1"
 	"miniboard.app/storage"
 )
 
+type articlesService interface {
+	CreateArticle(context.Context, io.Reader, *url.URL, *time.Time) (*articles.Article, error)
+}
+
 // Service is a Feeds service.
 type Service struct {
 	parser          *gofeed.Parser
-	articlesService *articles.Service
+	articlesService articlesService
 	storage         storage.Storage
 }
 
 // New creates feeds service.
-func New(ctx context.Context, storage storage.Storage, articlesService *articles.Service) *Service {
+func New(ctx context.Context, storage storage.Storage, articlesService articlesService) *Service {
 	parser := gofeed.NewParser()
 	parser.Client = &http.Client{}
 
