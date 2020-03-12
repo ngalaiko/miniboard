@@ -6,12 +6,10 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/mmcdole/gofeed"
-	"github.com/segmentio/ksuid"
 	"github.com/spaolacci/murmur3"
 	"golang.org/x/sync/errgroup"
 	"miniboard.app/api/actor"
@@ -48,14 +46,7 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 	urlHash := murmur3.New128()
 	_, _ = urlHash.Write([]byte(url.String()))
 
-	// timestamp order == lexicographical order
-	id, err := ksuid.FromParts(time.Now(), urlHash.Sum(nil))
-	if err != nil {
-		return nil, fmt.Errorf("failed to generate id: %w", err)
-	}
-
-	name := a.Child("feeds", fmt.Sprintf("%x", id.String()))
-
+	name := a.Child("feeds", fmt.Sprintf("%x", urlHash.Sum(nil)))
 	if rawExisting, err := s.storage.Load(ctx, name); err == nil {
 		feed := &feeds.Feed{}
 		if err := proto.Unmarshal(rawExisting, feed); err != nil {
