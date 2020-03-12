@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"sync"
 	"testing"
 	"time"
 
@@ -118,10 +119,15 @@ func Test_sources(t *testing.T) {
 }
 
 type mockFeeds struct {
+	sync.RWMutex
+
 	feeds []*feeds.Feed
 }
 
 func (s *mockFeeds) CreateFeed(context.Context, io.Reader, *url.URL) (*feeds.Feed, error) {
+	s.Lock()
+	defer s.Unlock()
+
 	feed := &feeds.Feed{}
 	s.feeds = append(s.feeds, feed)
 	return feed, nil

@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"sync"
 	"testing"
 	"time"
 
@@ -56,9 +57,12 @@ func Test_feeds(t *testing.T) {
 						assert.Len(t, articlesService.articles, 30)
 						return
 					default:
+						articlesService.RLock()
 						if len(articlesService.articles) == 30 {
+							articlesService.RUnlock()
 							return
 						}
+						articlesService.RUnlock()
 					}
 				}
 			})
@@ -77,10 +81,15 @@ func Test_feeds(t *testing.T) {
 }
 
 type mockArticles struct {
+	sync.RWMutex
+
 	articles []*articles.Article
 }
 
 func (s *mockArticles) CreateArticle(ctx context.Context, body io.Reader, url *url.URL, _ *time.Time) (*articles.Article, error) {
+	s.Lock()
+	defer s.Unlock()
+
 	s.articles = append(s.articles, &articles.Article{
 		Url: url.String(),
 	})
