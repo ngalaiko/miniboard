@@ -43,7 +43,7 @@ func New(ctx context.Context, storage storage.Storage, articlesService *articles
 
 // CreateFeed creates a new feeds feed, fetches articles and schedules a next update.
 func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL) (*feeds.Feed, error) {
-	actor, _ := actor.FromContext(ctx)
+	a, _ := actor.FromContext(ctx)
 
 	urlHash := murmur3.New128()
 	_, _ = urlHash.Write([]byte(url.String()))
@@ -54,7 +54,7 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 		return nil, fmt.Errorf("failed to generate id: %w", err)
 	}
 
-	name := actor.Child("feeds", fmt.Sprintf("%x", id.String()))
+	name := a.Child("feeds", fmt.Sprintf("%x", id.String()))
 
 	if rawExisting, err := s.storage.Load(ctx, name); err == nil {
 		feed := &feeds.Feed{}
@@ -80,9 +80,11 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 		return nil, fmt.Errorf("failed to save feed: %w", err)
 	}
 
-	if err := s.parse(ctx, reader); err != nil {
-		return nil, fmt.Errorf("failed to parse feed: %w", err)
-	}
+	go func() {
+		if err := s.parse(actor.NewContext(context.Background(), a), reader); err != nil {
+			log().Errorf("failed to parse feed: %w", err)
+		}
+	}()
 
 	return f, nil
 }

@@ -1,8 +1,10 @@
 package sources
 
 import (
+	"bytes"
 	"context"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -91,12 +93,17 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Sourc
 	}
 	defer resp.Body.Close()
 
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to read source response: %s", err)
+	}
+
 	ct := resp.Header.Get("Content-Type")
 
 	switch {
 	case strings.HasPrefix(ct, "text/html"):
 		now := time.Now()
-		article, err := s.articlesService.CreateArticle(ctx, resp.Body, url, &now)
+		article, err := s.articlesService.CreateArticle(ctx, bytes.NewBuffer(body), url, &now)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to create article from source: %s", err)
 		}
@@ -106,7 +113,7 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Sourc
 		strings.HasPrefix(ct, "application/atom+xml"),
 		strings.HasPrefix(ct, "application/xml"),
 		strings.HasPrefix(ct, "text/xml"):
-		feed, err := s.feedsService.CreateFeed(ctx, resp.Body, url)
+		feed, err := s.feedsService.CreateFeed(ctx, bytes.NewBuffer(body), url)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to create feed from source: %s", err)
 		}
