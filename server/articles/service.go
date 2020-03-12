@@ -110,10 +110,19 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 
 // CreateArticle creates a new article.
 func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL *url.URL, published *time.Time) (*articles.Article, error) {
+	// before that date ksuid is no longer lexicographicaly sortable
+	// https://github.com/segmentio/ksuid#how-do-they-work
+	var timeLimit = time.Unix(1400000000, 0)
+
 	createTime := time.Now()
 	if published != nil {
 		createTime = *published
 	}
+
+	if createTime.Before(timeLimit) {
+		return nil, status.Errorf(codes.InvalidArgument, "articles written before %s not supported, sorry", timeLimit)
+	}
+
 	article := &articles.Article{
 		Url: articleURL.String(),
 	}
