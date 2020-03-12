@@ -44,14 +44,23 @@ func Test_feeds(t *testing.T) {
 			t.Run("It should be added", func(t *testing.T) {
 				if assert.NoError(t, err) {
 					assert.NotEmpty(t, feed.Name)
-					assert.NotEmpty(t, feed.LastFetched)
+					assert.Empty(t, feed.LastFetched)
 					assert.NotEmpty(t, feed.Url)
 				}
 			})
 
 			t.Run("Eventually, articles must be fetched", func(t *testing.T) {
-				<-time.Tick(500 * time.Millisecond)
-				assert.Len(t, articlesService.articles, 30)
+				for {
+					select {
+					case <-time.Tick(time.Second):
+						assert.Len(t, articlesService.articles, 30)
+						return
+					default:
+						if len(articlesService.articles) == 30 {
+							return
+						}
+					}
+				}
 			})
 
 			t.Run("When adding the same feed again", func(t *testing.T) {

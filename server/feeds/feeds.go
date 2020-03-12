@@ -17,6 +17,7 @@ import (
 	articles "miniboard.app/proto/users/articles/v1"
 	feeds "miniboard.app/proto/users/feeds/v1"
 	"miniboard.app/storage"
+	"miniboard.app/storage/resource"
 )
 
 type articlesService interface {
@@ -62,9 +63,8 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 	}
 
 	f := &feeds.Feed{
-		Name:        name.String(),
-		LastFetched: ptypes.TimestampNow(),
-		Url:         url.String(),
+		Name: name.String(),
+		Url:  url.String(),
 	}
 
 	raw, err := proto.Marshal(f)
@@ -77,23 +77,39 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 	}
 
 	go func() {
-		if err := s.parse(actor.NewContext(context.Background(), a), reader); err != nil {
-			log().Errorf("failed to parse feed: %w", err)
+		if err := s.parse(actor.NewContext(context.Background(), a), reader, f); err != nil {
+			log().Errorf("failed to parse feed: %s", err)
 		}
 	}()
 
 	return f, nil
 }
 
-func (s *Service) parse(ctx context.Context, reader io.Reader) error {
+func (s *Service) parse(ctx context.Context, reader io.Reader, f *feeds.Feed) error {
 	feed, err := s.parser.Parse(reader)
 	if err != nil {
 		return fmt.Errorf("failed to parse feed: %w", err)
 	}
 
+	lastFetched := time.Time{}
+	if f.LastFetched != nil {
+		lastFetched, err = ptypes.Timestamp(f.LastFetched)
+		if err != nil {
+			return fmt.Errorf("failed to parse timestamp: %w", err)
+		}
+	}
+
 	wg, ctx := errgroup.WithContext(ctx)
 	for _, item := range feed.Items {
 		item := item
+
+		if item.UpdatedParsed != nil && item.UpdatedParsed.Before(lastFetched) {
+			continue
+		}
+
+		if item.PublishedParsed != nil && item.PublishedParsed.Before(lastFetched) {
+			continue
+		}
 
 		wg.Go(func() error {
 			if err := s.saveItem(ctx, item); err != nil {
@@ -105,6 +121,16 @@ func (s *Service) parse(ctx context.Context, reader io.Reader) error {
 	if err := wg.Wait(); err != nil {
 		return fmt.Errorf("failed to add feed: %w", err)
 	}
+
+	raw, err := proto.Marshal(f)
+	if err != nil {
+		return fmt.Errorf("failed to marshal feed: %w", err)
+	}
+
+	if err := s.storage.Store(ctx, resource.ParseName(f.Name), raw); err != nil {
+		return fmt.Errorf("failed to save feed: %w", err)
+	}
+
 	return nil
 }
 

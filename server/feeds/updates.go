@@ -75,9 +75,13 @@ func (s *Service) updateFeed(ctx context.Context, feed *feeds.Feed) error {
 
 	ctx = actor.NewContext(ctx, name.Parent())
 
-	lastFetched, err := ptypes.Timestamp(feed.LastFetched)
-	if err != nil {
-		return fmt.Errorf("failed to unmarshal last_fetched: %w", err)
+	lastFetched := time.Time{}
+	if feed.LastFetched != nil {
+		var err error
+		lastFetched, err = ptypes.Timestamp(feed.LastFetched)
+		if err != nil {
+			return fmt.Errorf("failed to unmarshal last_fetched: %w", err)
+		}
 	}
 
 	if lastFetched.Add(updateInterval).After(time.Now()) {
@@ -92,19 +96,8 @@ func (s *Service) updateFeed(ctx context.Context, feed *feeds.Feed) error {
 
 	log().Infof("updating %s", feed.Name)
 
-	if err := s.parse(ctx, resp.Body); err != nil {
+	if err := s.parse(ctx, resp.Body, feed); err != nil {
 		return fmt.Errorf("failed to parse %s: %w", feed.Url, err)
-	}
-
-	feed.LastFetched = ptypes.TimestampNow()
-
-	raw, err := proto.Marshal(feed)
-	if err != nil {
-		return fmt.Errorf("failed to marshal feed: %w", err)
-	}
-
-	if err := s.storage.Store(ctx, name, raw); err != nil {
-		return fmt.Errorf("failed to save feed: %w", err)
 	}
 
 	return nil
