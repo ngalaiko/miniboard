@@ -1,19 +1,14 @@
 package images
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"image"
 	"io"
+	"io/ioutil"
 	"net/http"
 
-	"image/jpeg"
-	// supported image formats
-	_ "image/png"
-
-	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
+	"github.com/spaolacci/murmur3"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
 )
@@ -32,18 +27,17 @@ func New(storage storage.Storage) *Service {
 
 // Save saves an image.
 func (s *Service) Save(ctx context.Context, reader io.Reader) (*resource.Name, error) {
-	imageData, _, err := image.Decode(reader)
+	imageData, err := ioutil.ReadAll(reader)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode image: %w", err)
 	}
 
-	jpegImage := &bytes.Buffer{}
-	if err := jpeg.Encode(jpegImage, imageData, nil); err != nil {
-		return nil, fmt.Errorf("failed to encode jpeg: %w", err)
-	}
+	hash := murmur3.New128()
+	_, _ = hash.Write(imageData)
 
-	name := resource.NewName("images", ksuid.New().String())
-	if err := s.storage.Store(ctx, name, jpegImage.Bytes()); err != nil {
+	name := resource.NewName("images", fmt.Sprintf("%x", hash.Sum(nil)))
+
+	if err := s.storage.Store(ctx, name, imageData); err != nil {
 		return nil, fmt.Errorf("failed to save image: %w", err)
 	}
 
