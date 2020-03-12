@@ -28,11 +28,15 @@ import (
 	"miniboard.app/storage/resource"
 )
 
+type getClient interface {
+	Get(string) (*http.Response, error)
+}
+
 // Service controls articles resource.
 type Service struct {
 	storage storage.Storage
 
-	client reader.GetClient
+	client getClient
 	images *images.Service
 }
 

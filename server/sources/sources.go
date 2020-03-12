@@ -17,7 +17,6 @@ import (
 	articles "miniboard.app/proto/users/articles/v1"
 	feeds "miniboard.app/proto/users/feeds/v1"
 	sources "miniboard.app/proto/users/sources/v1"
-	"miniboard.app/reader"
 )
 
 type articlesService interface {
@@ -29,12 +28,16 @@ type feedsService interface {
 	CreateFeed(context.Context, io.Reader, *url.URL) (*feeds.Feed, error)
 }
 
+type getClient interface {
+	Get(string) (*http.Response, error)
+}
+
 // Service allows to add new article's sources.
 // For example, a single article, or a feed.
 type Service struct {
 	feedsService    feedsService
 	articlesService articlesService
-	client          reader.GetClient
+	client          getClient
 }
 
 // New returns new sources instance.
