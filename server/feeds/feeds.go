@@ -12,7 +12,6 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/mmcdole/gofeed"
 	"github.com/spaolacci/murmur3"
-	"golang.org/x/sync/errgroup"
 	"miniboard.app/api/actor"
 	articles "miniboard.app/proto/users/articles/v1"
 	feeds "miniboard.app/proto/users/feeds/v1"
@@ -99,7 +98,6 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, f *feeds.Feed) er
 		}
 	}
 
-	wg, ctx := errgroup.WithContext(ctx)
 	for _, item := range feed.Items {
 		item := item
 
@@ -111,15 +109,10 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, f *feeds.Feed) er
 			continue
 		}
 
-		wg.Go(func() error {
-			if err := s.saveItem(ctx, item); err != nil {
-				return fmt.Errorf("failed to save item %s: %w", item.Link, err)
-			}
-			return nil
-		})
-	}
-	if err := wg.Wait(); err != nil {
-		return fmt.Errorf("failed to add feed: %w", err)
+		if err := s.saveItem(ctx, item); err != nil {
+			log().Errorf("failed to save item %s: %s", item.Link, err)
+			continue
+		}
 	}
 
 	raw, err := proto.Marshal(f)
