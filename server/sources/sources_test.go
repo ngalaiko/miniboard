@@ -41,12 +41,12 @@ func Test_sources(t *testing.T) {
 	ctx = actor.NewContext(ctx, resource.NewName("users", "test"))
 
 	t.Run("With sources service", func(t *testing.T) {
-		articles := &mockArticles{}
-		feeds := &mockFeeds{}
-		service := New(articles, feeds)
-
 		t.Run("When creating a source from html page", func(t *testing.T) {
+			articles := &mockArticles{}
+			feeds := &mockFeeds{}
+			service := New(articles, feeds)
 			service.client = &testClient{typ: "text/html"}
+
 			source, err := service.CreateSource(ctx, &sources.CreateSourceRequest{
 				Source: &sources.Source{
 					Url: "http://example.com",
@@ -62,7 +62,11 @@ func Test_sources(t *testing.T) {
 		})
 
 		t.Run("When creating a source from rss page", func(t *testing.T) {
+			articles := &mockArticles{}
+			feeds := &mockFeeds{}
+			service := New(articles, feeds)
 			service.client = &testClient{typ: "application/rss+xml"}
+
 			source, err := service.CreateSource(ctx, &sources.CreateSourceRequest{
 				Source: &sources.Source{
 					Url: "http://example.com",
@@ -78,7 +82,10 @@ func Test_sources(t *testing.T) {
 		})
 
 		t.Run("When creating a source from opml content", func(t *testing.T) {
-			feeds.feeds = nil
+			articles := &mockArticles{}
+			feeds := &mockFeeds{}
+			service := New(articles, feeds)
+			service.client = &testClient{typ: "application/rss+xml"}
 
 			content, err := ioutil.ReadFile("./testdata/feeds.opml")
 			assert.NoError(t, err)
@@ -89,13 +96,20 @@ func Test_sources(t *testing.T) {
 			})
 
 			t.Run("Should eventually create a feed", func(t *testing.T) {
+				time.Sleep(100 * time.Millisecond)
 				assert.NoError(t, err)
+				feeds.RLock()
 				assert.True(t, len(feeds.feeds) > 0)
+				feeds.RUnlock()
 			})
 		})
 
 		t.Run("When creating a source from unknown page", func(t *testing.T) {
+			articles := &mockArticles{}
+			feeds := &mockFeeds{}
+			service := New(articles, feeds)
 			service.client = &testClient{typ: "something else"}
+
 			_, err := service.CreateSource(ctx, &sources.CreateSourceRequest{
 				Source: &sources.Source{
 					Url: "http://example.com",
@@ -107,7 +121,11 @@ func Test_sources(t *testing.T) {
 		})
 
 		t.Run("When creating a source with empty request", func(t *testing.T) {
+			articles := &mockArticles{}
+			feeds := &mockFeeds{}
+			service := New(articles, feeds)
 			service.client = &testClient{typ: "something else"}
+
 			_, err := service.CreateSource(ctx, &sources.CreateSourceRequest{
 				Source: &sources.Source{},
 			})

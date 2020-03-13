@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"runtime/debug"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/segmentio/ksuid"
@@ -75,22 +75,22 @@ func (s *Service) createSourceFromRaw(ctx context.Context, source *sources.Sourc
 		return nil, status.Errorf(codes.InvalidArgument, "only raw opml files supported")
 	}
 
-	wg := &sync.WaitGroup{}
-	for _, source := range sources {
-		source := source
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log().Panicf("%s: %s", r, debug.Stack())
+			}
+		}()
 
-		wg.Add(1)
-		go func() {
+		for _, source := range sources {
+			source := source
+
 			_, err := s.createSourceFromURL(ctx, source)
 			if err != nil {
 				log().Errorf("failed to create source from '%s': %s", source.Url, err)
 			}
-
-			wg.Done()
-		}()
-	}
-
-	wg.Wait()
+		}
+	}()
 
 	actor, _ := actor.FromContext(ctx)
 
