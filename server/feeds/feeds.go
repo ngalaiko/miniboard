@@ -1,9 +1,11 @@
 package feeds
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"runtime/debug"
@@ -140,13 +142,18 @@ func (s *Service) saveItem(ctx context.Context, item *gofeed.Item) error {
 	}
 	defer resp.Body.Close()
 
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response: %w", err)
+	}
+
 	published := item.UpdatedParsed
 	if item.PublishedParsed != nil {
 		published = item.PublishedParsed
 	}
 
 	link, _ := url.Parse(item.Link)
-	if _, err := s.articlesService.CreateArticle(ctx, resp.Body, link, published); err != nil {
+	if _, err := s.articlesService.CreateArticle(ctx, bytes.NewReader(body), link, published); err != nil {
 		return fmt.Errorf("failed to create article: %w", err)
 	}
 	return nil
