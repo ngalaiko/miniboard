@@ -45,7 +45,7 @@ func NewService(ctx context.Context, db storage.Storage) *Service {
 	}
 
 	if err := s.newSigner(ctx); err != nil {
-		log().Panicf("failed to generate encryption key: %s", err)
+		log().Errorf("failed to generate encryption key: %s", err)
 	}
 
 	go s.rotateKeys(ctx)

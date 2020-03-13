@@ -67,7 +67,7 @@ func (s *Service) updateFeeds(ctx context.Context) error {
 func (s *Service) updateFeed(ctx context.Context, feed *feeds.Feed) error {
 	defer func() {
 		if r := recover(); r != nil {
-			log().Panicf("%s: %s", r, debug.Stack())
+			log().Errorf("%s: %s", r, debug.Stack())
 		}
 	}()
 

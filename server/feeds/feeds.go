@@ -81,7 +81,7 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
-				log().Panicf("%s: %s", r, debug.Stack())
+				log().Errorf("%s: %s", r, debug.Stack())
 			}
 		}()
 		if err := s.parse(actor.NewContext(context.Background(), a), reader, f); err != nil {

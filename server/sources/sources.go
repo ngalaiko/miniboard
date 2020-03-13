@@ -78,7 +78,7 @@ func (s *Service) createSourceFromRaw(ctx context.Context, source *sources.Sourc
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
-				log().Panicf("%s: %s", r, debug.Stack())
+				log().Errorf("%s: %s", r, debug.Stack())
 			}
 		}()
 
