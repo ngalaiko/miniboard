@@ -1,7 +1,9 @@
 package reader
 
 import (
+	"bytes"
 	"context"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -12,6 +14,15 @@ import (
 	"miniboard.app/images"
 	"miniboard.app/storage/redis"
 )
+
+type testClient struct{}
+
+func (tc *testClient) Fetch(ctx context.Context, url string) (*http.Response, error) {
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       ioutil.NopCloser(bytes.NewBuffer([]byte{})),
+	}, nil
+}
 
 func Test(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
@@ -26,7 +37,7 @@ func Test(t *testing.T) {
 	db, err := redis.New(ctx, s.Addr())
 	assert.NoError(t, err)
 
-	r, err := NewFromReader(ctx, &http.Client{}, images.New(db), testData(t), url)
+	r, err := NewFromReader(ctx, &testClient{}, images.New(db), testData(t), url)
 	assert.NoError(t, err)
 
 	title := r.Title()

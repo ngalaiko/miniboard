@@ -12,12 +12,9 @@ import (
 	"github.com/go-shiori/go-readability"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
+	"miniboard.app/fetch"
 	"miniboard.app/images"
 )
-
-type getClient interface {
-	Get(string) (*http.Response, error)
-}
 
 // Reader returns simplified HTML content.
 type Reader struct {
@@ -28,7 +25,7 @@ type Reader struct {
 
 // NewFromReader returns new reader from io.Reader.
 // URL is needed to form complete links to images.
-func NewFromReader(ctx context.Context, client getClient, images *images.Service, raw io.Reader, url *url.URL) (*Reader, error) {
+func NewFromReader(ctx context.Context, client fetch.Fetcher, images *images.Service, raw io.Reader, url *url.URL) (*Reader, error) {
 	article, err := readability.FromReader(raw, url.String())
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse document: %w", err)
@@ -62,13 +59,13 @@ func NewFromReader(ctx context.Context, client getClient, images *images.Service
 	}, nil
 }
 
-func inlineImage(ctx context.Context, client getClient, images *images.Service, n *html.Node) {
+func inlineImage(ctx context.Context, client fetch.Fetcher, images *images.Service, n *html.Node) {
 	for _, attr := range n.Attr {
 		if attr.Key != "src" {
 			continue
 		}
 
-		resp, err := client.Get(attr.Val)
+		resp, err := client.Fetch(ctx, attr.Val)
 		if err != nil {
 			return
 		}

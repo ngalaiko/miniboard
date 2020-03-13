@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -21,6 +20,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
+	"miniboard.app/fetch"
 	"miniboard.app/images"
 	articles "miniboard.app/proto/users/articles/v1"
 	"miniboard.app/reader"
@@ -28,23 +28,19 @@ import (
 	"miniboard.app/storage/resource"
 )
 
-type getClient interface {
-	Get(string) (*http.Response, error)
-}
-
 // Service controls articles resource.
 type Service struct {
 	storage storage.Storage
 
-	client getClient
+	client fetch.Fetcher
 	images *images.Service
 }
 
 // New returns a new articles service instance.
-func New(storage storage.Storage, images *images.Service) *Service {
+func New(storage storage.Storage, images *images.Service, fetcher fetch.Fetcher) *Service {
 	return &Service{
 		storage: storage,
-		client:  &http.Client{},
+		client:  fetcher,
 		images:  images,
 	}
 }

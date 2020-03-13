@@ -16,6 +16,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
+	"miniboard.app/fetch"
 	articles "miniboard.app/proto/users/articles/v1"
 	feeds "miniboard.app/proto/users/feeds/v1"
 	sources "miniboard.app/proto/users/sources/v1"
@@ -30,26 +31,20 @@ type feedsService interface {
 	CreateFeed(context.Context, io.Reader, *url.URL) (*feeds.Feed, error)
 }
 
-type getClient interface {
-	Get(string) (*http.Response, error)
-}
-
 // Service allows to add new article's sources.
 // For example, a single article, or a feed.
 type Service struct {
 	feedsService    feedsService
 	articlesService articlesService
-	client          getClient
+	client          fetch.Fetcher
 }
 
 // New returns new sources instance.
-func New(articlesService articlesService, feedsService feedsService) *Service {
+func New(articlesService articlesService, feedsService feedsService, fetch fetch.Fetcher) *Service {
 	return &Service{
 		articlesService: articlesService,
 		feedsService:    feedsService,
-		client: &http.Client{
-			Timeout: 5 * time.Second,
-		},
+		client:          fetch,
 	}
 }
 
@@ -108,11 +103,15 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Sourc
 		return nil, status.Errorf(codes.InvalidArgument, "url is invalid")
 	}
 
-	resp, err := s.client.Get(source.Url)
+	resp, err := s.client.Fetch(ctx, source.Url)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "failed to fetch url: %s", err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, status.Errorf(codes.InvalidArgument, "failde to fetch source: response code %d", resp.StatusCode)
+	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

@@ -16,6 +16,7 @@ import (
 	codesservice "miniboard.app/codes"
 	"miniboard.app/email"
 	feedsservice "miniboard.app/feeds"
+	"miniboard.app/fetch"
 	"miniboard.app/images"
 	"miniboard.app/jwt"
 	codes "miniboard.app/proto/codes/v1"
@@ -48,14 +49,16 @@ func NewServer(
 ) (*Server, error) {
 	log("server").Infof("using domain: %s", domain)
 
+	fetcher := fetch.New()
+
 	imagesService := images.New(db)
 	jwtService := jwt.NewService(ctx, db)
-	articlesService := articlesservice.New(db, imagesService)
+	articlesService := articlesservice.New(db, imagesService, fetcher)
 	feedsService := feedsservice.New(ctx, db, articlesService)
 	usersService := usersservice.New()
 	codesService := codesservice.New(domain, emailClient, jwtService)
 	tokensService := tokensservice.New(jwtService)
-	sourcesService := sourcesservice.New(articlesService, feedsService)
+	sourcesService := sourcesservice.New(articlesService, feedsService, fetcher)
 
 	gwMux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{

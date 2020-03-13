@@ -42,7 +42,7 @@ func testArticle(replacement string) io.ReadCloser {
 
 type testClient struct{}
 
-func (tc *testClient) Get(url string) (*http.Response, error) {
+func (tc *testClient) Fetch(ctx context.Context, url string) (*http.Response, error) {
 	return &http.Response{
 		StatusCode: http.StatusOK,
 		Body:       testArticle(url),
@@ -62,9 +62,10 @@ func Test_articles(t *testing.T) {
 		t.Fatalf("failed to create database: %s", err)
 	}
 
+	testClient := &testClient{}
+
 	t.Run("With articles service", func(t *testing.T) {
-		service := New(db, images.New(db))
-		service.client = &testClient{}
+		service := New(db, images.New(db), testClient)
 
 		t.Run("When creating an article", func(t *testing.T) {
 			ctx = actor.NewContext(ctx, resource.NewName("users", "test"))
