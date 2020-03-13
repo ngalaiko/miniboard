@@ -169,9 +169,9 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 			}
 			existingArticle.ContentSha256Sum = article.ContentSha256Sum
 			article = existingArticle
-			log().Infof("updating %s", name)
+			log().Infof("updating %s from '%s'", existingArticle.Name, existingArticle.Url)
 		} else {
-			log().Infof("creating %s", name)
+			log().Infof("creating %s from '%s'", name, existingArticle.Url)
 		}
 	}
 
