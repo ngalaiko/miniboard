@@ -66,17 +66,18 @@
   }
 
   const onAddFile = async (file: File) => {
-    await new Promise((resolve, reject) => {
+    const content = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader()
       reader.readAsBinaryString(file)
       reader.onload = e => {
         if (e.target === null) return
-        resolve(e.target.result)
+        resolve(e.target.result as string)
       }
       reader.onerror = () => reject(new Error('failed to read file'))
-    }).then(content => {
-      return sourcesClient.addFile(username, btoa(content))
     })
+
+    await sourcesClient.addFile(username, btoa(content))
+
     refresh()
   }
 
