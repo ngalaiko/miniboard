@@ -84,6 +84,11 @@
     height: auto;
   }
 
+  :global(iframe) {
+    max-width: 100%;
+    height: auto;
+  }
+
   :global(blockquote) {
     font-style: italic;
     border-left: 3px solid #ccc;
