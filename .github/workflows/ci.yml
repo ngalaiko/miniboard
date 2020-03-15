@@ -70,7 +70,7 @@ jobs:
 
   deploy:
     name: Deploy
-    if: false # github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     needs: build
     runs-on: ubuntu-latest
     steps:
