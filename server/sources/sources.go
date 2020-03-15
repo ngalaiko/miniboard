@@ -17,8 +17,8 @@ import (
 	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
 	"miniboard.app/articles"
+	"miniboard.app/feeds"
 	"miniboard.app/fetch"
-	feeds "miniboard.app/proto/users/feeds/v1"
 	sources "miniboard.app/proto/users/sources/v1"
 )
 

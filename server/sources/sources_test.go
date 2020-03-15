@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/api/actor"
 	"miniboard.app/articles"
-	feeds "miniboard.app/proto/users/feeds/v1"
+	"miniboard.app/feeds"
 	sources "miniboard.app/proto/users/sources/v1"
 	"miniboard.app/storage/resource"
 )

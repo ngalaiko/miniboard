@@ -12,7 +12,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 	"miniboard.app/api/actor"
-	feeds "miniboard.app/proto/users/feeds/v1"
 	"miniboard.app/storage/resource"
 )
 
@@ -48,7 +47,7 @@ func (s *Service) updateFeeds(ctx context.Context) error {
 
 	wg, ctx := errgroup.WithContext(ctx)
 	for _, r := range raw {
-		feed := &feeds.Feed{}
+		feed := &Feed{}
 		if err := proto.Unmarshal(r.Data, feed); err != nil {
 			return fmt.Errorf("failed to unmarshal feed: %w", err)
 		}
@@ -64,7 +63,7 @@ func (s *Service) updateFeeds(ctx context.Context) error {
 	return wg.Wait()
 }
 
-func (s *Service) updateFeed(ctx context.Context, feed *feeds.Feed) error {
+func (s *Service) updateFeed(ctx context.Context, feed *Feed) error {
 	defer func() {
 		if r := recover(); r != nil {
 			log().Errorf("%s: %s", r, debug.Stack())
