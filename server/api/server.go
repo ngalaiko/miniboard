@@ -12,16 +12,15 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
-	articles "miniboard.app/articles"
-	codes "miniboard.app/codes"
+	"miniboard.app/articles"
+	"miniboard.app/codes"
 	"miniboard.app/email"
-	feedsservice "miniboard.app/feeds"
+	"miniboard.app/feeds"
 	"miniboard.app/fetch"
 	"miniboard.app/images"
 	"miniboard.app/jwt"
-	sources "miniboard.app/proto/users/sources/v1"
 	users "miniboard.app/proto/users/v1"
-	sourcesservice "miniboard.app/sources"
+	"miniboard.app/sources"
 	"miniboard.app/storage"
 	tokens "miniboard.app/tokens"
 	usersservice "miniboard.app/users"
@@ -51,11 +50,11 @@ func NewServer(
 	imagesService := images.New(db)
 	jwtService := jwt.NewService(ctx, db)
 	articlesService := articles.New(db, imagesService, fetcher)
-	feedsService := feedsservice.New(ctx, db, articlesService)
+	feedsService := feeds.New(ctx, db, articlesService)
 	usersService := usersservice.New()
 	codesService := codes.New(domain, emailClient, jwtService)
 	tokensService := tokens.New(jwtService)
-	sourcesService := sourcesservice.New(articlesService, feedsService, fetcher)
+	sourcesService := sources.New(articlesService, feedsService, fetcher)
 
 	gwMux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{

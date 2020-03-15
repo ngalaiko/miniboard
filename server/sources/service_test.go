@@ -15,7 +15,6 @@ import (
 	"miniboard.app/api/actor"
 	"miniboard.app/articles"
 	"miniboard.app/feeds"
-	sources "miniboard.app/proto/users/sources/v1"
 	"miniboard.app/storage/resource"
 )
 
@@ -45,8 +44,8 @@ func Test_sources(t *testing.T) {
 			feeds := &mockFeeds{}
 			service := New(articles, feeds, &testClient{typ: "text/html"})
 
-			source, err := service.CreateSource(ctx, &sources.CreateSourceRequest{
-				Source: &sources.Source{
+			source, err := service.CreateSource(ctx, &CreateSourceRequest{
+				Source: &Source{
 					Url: "http://example.com",
 				},
 			})
@@ -64,8 +63,8 @@ func Test_sources(t *testing.T) {
 			feeds := &mockFeeds{}
 			service := New(articles, feeds, &testClient{typ: "application/rss+xml"})
 
-			source, err := service.CreateSource(ctx, &sources.CreateSourceRequest{
-				Source: &sources.Source{
+			source, err := service.CreateSource(ctx, &CreateSourceRequest{
+				Source: &Source{
 					Url: "http://example.com",
 				},
 			})
@@ -85,8 +84,8 @@ func Test_sources(t *testing.T) {
 
 			content, err := ioutil.ReadFile("./testdata/feeds.opml")
 			assert.NoError(t, err)
-			_, err = service.CreateSource(ctx, &sources.CreateSourceRequest{
-				Source: &sources.Source{
+			_, err = service.CreateSource(ctx, &CreateSourceRequest{
+				Source: &Source{
 					Raw: content,
 				},
 			})
@@ -105,8 +104,8 @@ func Test_sources(t *testing.T) {
 			feeds := &mockFeeds{}
 			service := New(articles, feeds, &testClient{typ: "something else"})
 
-			_, err := service.CreateSource(ctx, &sources.CreateSourceRequest{
-				Source: &sources.Source{
+			_, err := service.CreateSource(ctx, &CreateSourceRequest{
+				Source: &Source{
 					Url: "http://example.com",
 				},
 			})
@@ -120,8 +119,8 @@ func Test_sources(t *testing.T) {
 			feeds := &mockFeeds{}
 			service := New(articles, feeds, &testClient{typ: "something else"})
 
-			_, err := service.CreateSource(ctx, &sources.CreateSourceRequest{
-				Source: &sources.Source{},
+			_, err := service.CreateSource(ctx, &CreateSourceRequest{
+				Source: &Source{},
 			})
 			t.Run("Should create return an error", func(t *testing.T) {
 				assert.Error(t, err)
