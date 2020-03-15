@@ -23,7 +23,7 @@ func Test_Save__should_save_jpeg_image(t *testing.T) {
 	db, err := redis.New(ctx, h.Addr())
 	assert.NoError(t, err)
 
-	s := New(db)
+	s := NewService(db)
 
 	file, err := os.Open("./testdata/image.jpeg")
 	assert.NoError(t, err)
@@ -43,7 +43,7 @@ func Test_Save__should_save_png_image(t *testing.T) {
 	db, err := redis.New(ctx, h.Addr())
 	assert.NoError(t, err)
 
-	s := New(db)
+	s := NewService(db)
 
 	file, err := os.Open("./testdata/image.png")
 	assert.NoError(t, err)
@@ -63,7 +63,7 @@ func Test_Save__should_not_save_the_same_image_twice(t *testing.T) {
 	db, err := redis.New(ctx, h.Addr())
 	assert.NoError(t, err)
 
-	s := New(db)
+	s := NewService(db)
 
 	file, err := ioutil.ReadFile("./testdata/image.jpeg")
 	assert.NoError(t, err)

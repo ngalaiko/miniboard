@@ -19,8 +19,8 @@ type Service struct {
 	jwtService *jwt.Service
 }
 
-// New returns new serice instance.
-func New(jwt *jwt.Service) *Service {
+// NewService returns new serice instance.
+func NewService(jwt *jwt.Service) *Service {
 	return &Service{
 		jwtService: jwt,
 	}

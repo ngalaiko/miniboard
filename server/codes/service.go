@@ -22,8 +22,8 @@ type Service struct {
 	emailClient email.Client
 }
 
-// New returns new serice instance.
-func New(
+// NewService returns new serice instance.
+func NewService(
 	domain string,
 	emailClient email.Client,
 	jwt *jwt.Service,

@@ -37,7 +37,7 @@ func Test(t *testing.T) {
 	db, err := redis.New(ctx, s.Addr())
 	assert.NoError(t, err)
 
-	r, err := NewFromReader(ctx, &testClient{}, images.New(db), testData(t), url)
+	r, err := NewFromReader(ctx, &testClient{}, images.NewService(db), testData(t), url)
 	assert.NoError(t, err)
 
 	title := r.Title()

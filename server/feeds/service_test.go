@@ -38,7 +38,7 @@ func Test_feeds(t *testing.T) {
 
 	t.Run("With feeds service", func(t *testing.T) {
 		articlesService := &mockArticles{}
-		service := New(ctx, db, articlesService)
+		service := NewService(ctx, db, articlesService)
 
 		t.Run("When adding a feed", func(t *testing.T) {
 			feed, err := service.CreateFeed(ctx, testFeed, testURL)

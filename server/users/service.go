@@ -12,8 +12,8 @@ import (
 type Service struct {
 }
 
-// New returns new users storage instance.
-func New() *Service {
+// NewService returns new users storage instance.
+func NewService() *Service {
 	return &Service{}
 }
 

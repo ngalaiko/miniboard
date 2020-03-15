@@ -46,14 +46,14 @@ func NewServer(
 
 	fetcher := fetch.New()
 
-	imagesService := images.New(db)
+	imagesService := images.NewService(db)
 	jwtService := jwt.NewService(ctx, db)
-	articlesService := articles.New(db, imagesService, fetcher)
-	feedsService := feeds.New(ctx, db, articlesService)
-	usersService := users.New()
-	codesService := codes.New(domain, emailClient, jwtService)
-	tokensService := tokens.New(jwtService)
-	sourcesService := sources.New(articlesService, feedsService, fetcher)
+	articlesService := articles.NewService(db, imagesService, fetcher)
+	feedsService := feeds.NewService(ctx, db, articlesService)
+	usersService := users.NewService()
+	codesService := codes.NewService(domain, emailClient, jwtService)
+	tokensService := tokens.NewService(jwtService)
+	sourcesService := sources.NewService(articlesService, feedsService, fetcher)
 
 	gwMux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{

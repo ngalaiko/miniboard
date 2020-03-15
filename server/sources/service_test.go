@@ -42,7 +42,7 @@ func Test_sources(t *testing.T) {
 		t.Run("When creating a source from html page", func(t *testing.T) {
 			articles := &mockArticles{}
 			feeds := &mockFeeds{}
-			service := New(articles, feeds, &testClient{typ: "text/html"})
+			service := NewService(articles, feeds, &testClient{typ: "text/html"})
 
 			source, err := service.CreateSource(ctx, &CreateSourceRequest{
 				Source: &Source{
@@ -61,7 +61,7 @@ func Test_sources(t *testing.T) {
 		t.Run("When creating a source from rss page", func(t *testing.T) {
 			articles := &mockArticles{}
 			feeds := &mockFeeds{}
-			service := New(articles, feeds, &testClient{typ: "application/rss+xml"})
+			service := NewService(articles, feeds, &testClient{typ: "application/rss+xml"})
 
 			source, err := service.CreateSource(ctx, &CreateSourceRequest{
 				Source: &Source{
@@ -80,7 +80,7 @@ func Test_sources(t *testing.T) {
 		t.Run("When creating a source from opml content", func(t *testing.T) {
 			articles := &mockArticles{}
 			feeds := &mockFeeds{}
-			service := New(articles, feeds, &testClient{typ: "application/rss+xml"})
+			service := NewService(articles, feeds, &testClient{typ: "application/rss+xml"})
 
 			content, err := ioutil.ReadFile("./testdata/feeds.opml")
 			assert.NoError(t, err)
@@ -102,7 +102,7 @@ func Test_sources(t *testing.T) {
 		t.Run("When creating a source from unknown page", func(t *testing.T) {
 			articles := &mockArticles{}
 			feeds := &mockFeeds{}
-			service := New(articles, feeds, &testClient{typ: "something else"})
+			service := NewService(articles, feeds, &testClient{typ: "something else"})
 
 			_, err := service.CreateSource(ctx, &CreateSourceRequest{
 				Source: &Source{
@@ -117,7 +117,7 @@ func Test_sources(t *testing.T) {
 		t.Run("When creating a source with empty request", func(t *testing.T) {
 			articles := &mockArticles{}
 			feeds := &mockFeeds{}
-			service := New(articles, feeds, &testClient{typ: "something else"})
+			service := NewService(articles, feeds, &testClient{typ: "something else"})
 
 			_, err := service.CreateSource(ctx, &CreateSourceRequest{
 				Source: &Source{},

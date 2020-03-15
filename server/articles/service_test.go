@@ -64,7 +64,7 @@ func Test_articles(t *testing.T) {
 	testClient := &testClient{}
 
 	t.Run("With articles service", func(t *testing.T) {
-		service := New(db, images.New(db), testClient)
+		service := NewService(db, images.NewService(db), testClient)
 
 		t.Run("When creating an article", func(t *testing.T) {
 			ctx = actor.NewContext(ctx, resource.NewName("users", "test"))

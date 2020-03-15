@@ -14,7 +14,7 @@ func Test_UsersService(t *testing.T) {
 	defer cancel()
 
 	t.Run("With new service", func(t *testing.T) {
-		service := New()
+		service := NewService()
 		t.Run("When getting user", func(t *testing.T) {
 			ctx = actor.NewContext(ctx, resource.NewName("users", "name"))
 			user, err := service.GetMe(ctx, &GetMeRequest{})

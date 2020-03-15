@@ -35,8 +35,8 @@ type Service struct {
 	images *images.Service
 }
 
-// New returns a new articles service instance.
-func New(storage storage.Storage, images *images.Service, fetcher fetch.Fetcher) *Service {
+// NewService returns a new articles service instance.
+func NewService(storage storage.Storage, images *images.Service, fetcher fetch.Fetcher) *Service {
 	return &Service{
 		storage: storage,
 		client:  fetcher,

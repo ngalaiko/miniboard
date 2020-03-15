@@ -37,8 +37,8 @@ type Service struct {
 	client          fetch.Fetcher
 }
 
-// New returns new sources instance.
-func New(articlesService articlesService, feedsService feedsService, fetch fetch.Fetcher) *Service {
+// NewService returns new sources instance.
+func NewService(articlesService articlesService, feedsService feedsService, fetch fetch.Fetcher) *Service {
 	return &Service{
 		articlesService: articlesService,
 		feedsService:    feedsService,

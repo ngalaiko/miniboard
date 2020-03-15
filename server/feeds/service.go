@@ -32,8 +32,8 @@ type Service struct {
 	storage         storage.Storage
 }
 
-// New creates feeds service.
-func New(ctx context.Context, storage storage.Storage, articlesService articlesService) *Service {
+// NewService creates feeds service.
+func NewService(ctx context.Context, storage storage.Storage, articlesService articlesService) *Service {
 	parser := gofeed.NewParser()
 	parser.Client = &http.Client{}
 

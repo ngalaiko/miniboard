@@ -18,8 +18,8 @@ type Service struct {
 	storage storage.Storage
 }
 
-// New returns new service instance.
-func New(storage storage.Storage) *Service {
+// NewService returns new service instance.
+func NewService(storage storage.Storage) *Service {
 	return &Service{
 		storage: storage,
 	}
