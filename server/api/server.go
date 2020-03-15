@@ -19,13 +19,12 @@ import (
 	"miniboard.app/fetch"
 	"miniboard.app/images"
 	"miniboard.app/jwt"
-	tokens "miniboard.app/proto/tokens/v1"
 	articles "miniboard.app/proto/users/articles/v1"
 	sources "miniboard.app/proto/users/sources/v1"
 	users "miniboard.app/proto/users/v1"
 	sourcesservice "miniboard.app/sources"
 	"miniboard.app/storage"
-	tokensservice "miniboard.app/tokens"
+	tokens "miniboard.app/tokens"
 	usersservice "miniboard.app/users"
 	"miniboard.app/web"
 )
@@ -56,7 +55,7 @@ func NewServer(
 	feedsService := feedsservice.New(ctx, db, articlesService)
 	usersService := usersservice.New()
 	codesService := codes.New(domain, emailClient, jwtService)
-	tokensService := tokensservice.New(jwtService)
+	tokensService := tokens.New(jwtService)
 	sourcesService := sourcesservice.New(articlesService, feedsService, fetcher)
 
 	gwMux := runtime.NewServeMux(

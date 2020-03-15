@@ -9,7 +9,6 @@ import (
 	"google.golang.org/grpc/status"
 
 	"miniboard.app/jwt"
-	"miniboard.app/proto/tokens/v1"
 )
 
 // todo: make it shorter
@@ -28,7 +27,7 @@ func New(jwt *jwt.Service) *Service {
 }
 
 // CreateToken creates new authorization token from a code.
-func (s *Service) CreateToken(ctx context.Context, request *tokens.CreateTokenRequest) (*tokens.Token, error) {
+func (s *Service) CreateToken(ctx context.Context, request *CreateTokenRequest) (*Token, error) {
 	subject, err := s.jwtService.Validate(ctx, request.Code, "authorization_code")
 	if err != nil {
 		return nil, status.New(codes.InvalidArgument, "authorization code not valid").Err()
@@ -40,7 +39,7 @@ func (s *Service) CreateToken(ctx context.Context, request *tokens.CreateTokenRe
 		return nil, status.New(codes.InvalidArgument, "failed to generate token").Err()
 	}
 
-	return &tokens.Token{
+	return &Token{
 		Token: token,
 	}, nil
 }
