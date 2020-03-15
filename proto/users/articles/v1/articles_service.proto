@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package app.miniboard.users.articles.api.v1;
+package app.miniboard.users.articles.v1;
 
 import "google/api/annotations.proto";
 
