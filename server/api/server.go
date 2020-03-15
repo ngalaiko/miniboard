@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"regexp"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -17,7 +16,6 @@ import (
 	"miniboard.app/email"
 	"miniboard.app/feeds"
 	"miniboard.app/fetch"
-	"miniboard.app/images"
 	"miniboard.app/jwt"
 	"miniboard.app/sources"
 	"miniboard.app/storage"
@@ -46,9 +44,8 @@ func NewServer(
 
 	fetcher := fetch.New()
 
-	imagesService := images.NewService(db)
 	jwtService := jwt.NewService(ctx, db)
-	articlesService := articles.NewService(db, imagesService, fetcher)
+	articlesService := articles.NewService(db, fetcher)
 	feedsService := feeds.NewService(ctx, db, articlesService)
 	usersService := users.NewService()
 	codesService := codes.NewService(domain, emailClient, jwtService)
@@ -105,20 +102,7 @@ func NewServer(
 	}))
 
 	mux.Handle("/api/", authorize(gwMux, jwtService))
-
-	imagesHandler := imagesService.Handler()
-	webHandler := web.Handler(filePath)
-
-	imageRegExp := regexp.MustCompile("images/.+")
-
-	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if imageRegExp.MatchString(r.RequestURI) {
-			imagesHandler.ServeHTTP(w, r)
-			return
-		}
-
-		webHandler.ServeHTTP(w, r)
-	}))
+	mux.Handle("/", web.Handler(filePath))
 
 	handler := http.Handler(mux)
 	handler = withAccessLogs(handler)

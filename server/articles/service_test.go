@@ -18,7 +18,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
-	"miniboard.app/images"
 	"miniboard.app/storage/redis"
 	"miniboard.app/storage/resource"
 )
@@ -64,7 +63,7 @@ func Test_articles(t *testing.T) {
 	testClient := &testClient{}
 
 	t.Run("With articles service", func(t *testing.T) {
-		service := NewService(db, images.NewService(db), testClient)
+		service := NewService(db, testClient)
 
 		t.Run("When creating an article", func(t *testing.T) {
 			ctx = actor.NewContext(ctx, resource.NewName("users", "test"))

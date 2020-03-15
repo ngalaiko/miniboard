@@ -21,7 +21,6 @@ import (
 	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
 	"miniboard.app/fetch"
-	"miniboard.app/images"
 	"miniboard.app/reader"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
@@ -32,15 +31,13 @@ type Service struct {
 	storage storage.Storage
 
 	client fetch.Fetcher
-	images *images.Service
 }
 
 // NewService returns a new articles service instance.
-func NewService(storage storage.Storage, images *images.Service, fetcher fetch.Fetcher) *Service {
+func NewService(storage storage.Storage, fetcher fetch.Fetcher) *Service {
 	return &Service{
 		storage: storage,
 		client:  fetcher,
-		images:  images,
 	}
 }
 
@@ -129,7 +126,7 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 
 	var content []byte
 
-	r, err := reader.NewFromReader(ctx, s.client, s.images, body, articleURL)
+	r, err := reader.NewFromReader(ctx, s.client, body, articleURL)
 	if err == nil {
 		article.Title = r.Title()
 		article.SiteName = r.SiteName()
