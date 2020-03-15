@@ -20,5 +20,5 @@ type Storage interface {
 	// Iterates over the resource children. Stops, if _okFunc_ returns false or an error.
 	// If from provided, starts from that element.
 	// NOTE: sorted lexicographically by keys DESC.
-	ForEach(ctx context.Context, name *resource.Name, from *resource.Name, limit int64, okFunc func(*resource.Resource) (bool, error)) error
+	ForEach(ctx context.Context, name *resource.Name, from *resource.Name, okFunc func(*resource.Resource) (bool, error)) error
 }

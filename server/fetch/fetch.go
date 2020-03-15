@@ -5,10 +5,12 @@ import (
 	"net/http"
 )
 
+// Fetcher downloads content from the internet.
 type Fetcher interface {
 	Fetch(context.Context, string) (*http.Response, error)
 }
 
+// HTTPFetcher downloads content from the internet.
 type HTTPFetcher struct {
 	client *http.Client
 }
@@ -20,6 +22,12 @@ func New() *HTTPFetcher {
 	}
 }
 
+// Fetch returns http response by url.
 func (hf *HTTPFetcher) Fetch(ctx context.Context, url string) (*http.Response, error) {
-	return hf.client.Get(url)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return hf.client.Do(req)
 }

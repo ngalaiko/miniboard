@@ -59,6 +59,8 @@ func (s *Service) CreateSource(ctx context.Context, request *CreateSourceRequest
 }
 
 func (s *Service) createSourceFromRaw(ctx context.Context, source *Source) (*Source, error) {
+	a, _ := actor.FromContext(ctx)
+
 	if !strings.HasPrefix(http.DetectContentType(source.Raw), "text/xml") {
 		return nil, status.Errorf(codes.InvalidArgument, "only raw xml files supported")
 	}
@@ -77,6 +79,8 @@ func (s *Service) createSourceFromRaw(ctx context.Context, source *Source) (*Sou
 
 		start := time.Now()
 		log().Infof("adding %d sources from opml", len(sources))
+
+		ctx = actor.NewContext(context.Background(), a)
 
 		for _, source := range sources {
 			source := source
