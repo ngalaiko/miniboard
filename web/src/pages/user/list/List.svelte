@@ -187,8 +187,7 @@
     display: none;
   }
 
-  .select {
-    max-width: 18em;
-    width: 100%;
+  .selected {
+    background: gainsboro;
   }
 </style>
