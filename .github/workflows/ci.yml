@@ -70,7 +70,7 @@ jobs:
 
   deploy:
     name: Deploy
-    if: false # github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -109,9 +109,11 @@ jobs:
         clusterName: k8s-0
         expirationTime: 300
 
-    - name: Apply Chart
+    - name: Apply Charts
       run: |
         cd .charts
-        helm template miniboard \
-          --set "Version=$(git rev-parse HEAD)" \
-          | kubectl apply -f-
+        for APP in $(ls); do
+          helm template "$APP" \
+            --set "Version=$(git rev-parse HEAD)" \
+            | kubectl apply -f-
+        done
