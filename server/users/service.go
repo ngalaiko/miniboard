@@ -6,7 +6,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
-	"miniboard.app/proto/users/v1"
 )
 
 // Service controls users resource.
@@ -21,13 +20,13 @@ func New() *Service {
 // GetMe returns authenticated user.
 func (s *Service) GetMe(
 	ctx context.Context,
-	request *users.GetMeRequest,
-) (*users.User, error) {
+	request *GetMeRequest,
+) (*User, error) {
 	actor, ok := actor.FromContext(ctx)
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "not authenticated")
 	}
-	return &users.User{
+	return &User{
 		Name: actor.String(),
 	}, nil
 }

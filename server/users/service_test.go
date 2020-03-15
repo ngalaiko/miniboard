@@ -6,7 +6,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/api/actor"
-	"miniboard.app/proto/users/v1"
 	"miniboard.app/storage/resource"
 )
 
@@ -18,7 +17,7 @@ func Test_UsersService(t *testing.T) {
 		service := New()
 		t.Run("When getting user", func(t *testing.T) {
 			ctx = actor.NewContext(ctx, resource.NewName("users", "name"))
-			user, err := service.GetMe(ctx, &users.GetMeRequest{})
+			user, err := service.GetMe(ctx, &GetMeRequest{})
 			t.Run("Should response with the user struct", func(t *testing.T) {
 				assert.NoError(t, err)
 				user.Name = "users/name"

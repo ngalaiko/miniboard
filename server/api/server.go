@@ -19,11 +19,10 @@ import (
 	"miniboard.app/fetch"
 	"miniboard.app/images"
 	"miniboard.app/jwt"
-	users "miniboard.app/proto/users/v1"
 	"miniboard.app/sources"
 	"miniboard.app/storage"
-	tokens "miniboard.app/tokens"
-	usersservice "miniboard.app/users"
+	"miniboard.app/tokens"
+	"miniboard.app/users"
 	"miniboard.app/web"
 )
 
@@ -51,7 +50,7 @@ func NewServer(
 	jwtService := jwt.NewService(ctx, db)
 	articlesService := articles.New(db, imagesService, fetcher)
 	feedsService := feeds.New(ctx, db, articlesService)
-	usersService := usersservice.New()
+	usersService := users.New()
 	codesService := codes.New(domain, emailClient, jwtService)
 	tokensService := tokens.New(jwtService)
 	sourcesService := sources.New(articlesService, feedsService, fetcher)
