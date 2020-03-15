@@ -144,8 +144,6 @@ func (s *Storage) LoadAll(ctx context.Context, name *resource.Name) ([]*resource
 
 // ForEach implements storage.Storage.
 func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resource.Name, okFunc func(*resource.Resource) (bool, error)) error {
-	var limit int64 = 50
-
 	collection, _ := name.Split()
 
 	fromName := "+"
@@ -157,20 +155,20 @@ func (s *Storage) ForEach(ctx context.Context, name *resource.Name, from *resour
 		Max: fromName,
 	}).Result()
 	if err != nil {
-		return fmt.Errorf("failed: ZREVRANGEBYLEX %s %s + LIMIT %d: %w", collection, fromName, limit, err)
+		return fmt.Errorf("failed: ZREVRANGEBYLEX %s %s : %w", collection, fromName, err)
 	}
 
-	l := int64(len(keys))
-	if l < limit {
-		limit = l
-	}
-
-	return s.loadBatch(ctx, keys, limit, okFunc)
+	return s.loadBatch(ctx, keys, 50, okFunc)
 }
 
 func (s *Storage) loadBatch(ctx context.Context, names []string, size int64, okFunc func(*resource.Resource) (bool, error)) error {
 	if len(names) == 0 {
 		return nil
+	}
+
+	l := int64(len(names))
+	if l < size {
+		size = l
 	}
 
 	rr, err := s.loadMany(ctx, names[:size]...)
