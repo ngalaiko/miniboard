@@ -12,14 +12,13 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
-	articlesservice "miniboard.app/articles"
+	articles "miniboard.app/articles"
 	codes "miniboard.app/codes"
 	"miniboard.app/email"
 	feedsservice "miniboard.app/feeds"
 	"miniboard.app/fetch"
 	"miniboard.app/images"
 	"miniboard.app/jwt"
-	articles "miniboard.app/proto/users/articles/v1"
 	sources "miniboard.app/proto/users/sources/v1"
 	users "miniboard.app/proto/users/v1"
 	sourcesservice "miniboard.app/sources"
@@ -51,7 +50,7 @@ func NewServer(
 
 	imagesService := images.New(db)
 	jwtService := jwt.NewService(ctx, db)
-	articlesService := articlesservice.New(db, imagesService, fetcher)
+	articlesService := articles.New(db, imagesService, fetcher)
 	feedsService := feedsservice.New(ctx, db, articlesService)
 	usersService := usersservice.New()
 	codesService := codes.New(domain, emailClient, jwtService)

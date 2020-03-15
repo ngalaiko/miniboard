@@ -22,7 +22,6 @@ import (
 	"miniboard.app/api/actor"
 	"miniboard.app/fetch"
 	"miniboard.app/images"
-	articles "miniboard.app/proto/users/articles/v1"
 	"miniboard.app/reader"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
@@ -46,7 +45,7 @@ func New(storage storage.Storage, images *images.Service, fetcher fetch.Fetcher)
 }
 
 // ListArticles returns a list of articles.
-func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticlesRequest) (*articles.ListArticlesResponse, error) {
+func (s *Service) ListArticles(ctx context.Context, request *ListArticlesRequest) (*ListArticlesResponse, error) {
 	actor, _ := actor.FromContext(ctx)
 	lookFor := actor.Child("articles", "*")
 
@@ -59,9 +58,9 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 		from = resource.ParseName(string(decoded))
 	}
 
-	aa := []*articles.Article{}
+	aa := []*Article{}
 	err := s.storage.ForEach(ctx, lookFor, from, request.PageSize+1, func(r *resource.Resource) (bool, error) {
-		a := &articles.Article{}
+		a := &Article{}
 		if err := proto.Unmarshal(r.Data, a); err != nil {
 			return false, status.Errorf(codes.Internal, "failed to unmarshal article")
 		}
@@ -94,7 +93,7 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 
 	switch err {
 	case nil, storage.ErrNotFound:
-		return &articles.ListArticlesResponse{
+		return &ListArticlesResponse{
 			Articles:      aa,
 			NextPageToken: nextPageToken,
 		}, nil
@@ -105,7 +104,7 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 }
 
 // CreateArticle creates a new article.
-func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL *url.URL, published *time.Time) (*articles.Article, error) {
+func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL *url.URL, published *time.Time) (*Article, error) {
 	// before that date ksuid is no longer lexicographicaly sortable
 	// https://github.com/segmentio/ksuid#how-do-they-work
 	var timeLimit = time.Unix(1400000000, 0)
@@ -119,7 +118,7 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 		return nil, status.Errorf(codes.InvalidArgument, "articles written before %s not supported, sorry", timeLimit)
 	}
 
-	article := &articles.Article{
+	article := &Article{
 		Url: articleURL.String(),
 	}
 	var err error
@@ -189,7 +188,7 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 }
 
 // UpdateArticle updates the article.
-func (s *Service) UpdateArticle(ctx context.Context, request *articles.UpdateArticleRequest) (*articles.Article, error) {
+func (s *Service) UpdateArticle(ctx context.Context, request *UpdateArticleRequest) (*Article, error) {
 	name := resource.ParseName(request.Article.Name)
 
 	if !actor.Owns(ctx, name) {
@@ -238,7 +237,7 @@ func (s *Service) UpdateArticle(ctx context.Context, request *articles.UpdateArt
 }
 
 // GetArticle returns an article.
-func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRequest) (*articles.Article, error) {
+func (s *Service) GetArticle(ctx context.Context, request *GetArticleRequest) (*Article, error) {
 	name := resource.ParseName(request.Name)
 
 	if !actor.Owns(ctx, name) {
@@ -249,7 +248,7 @@ func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRe
 	if err != nil {
 		return nil, err
 	}
-	if request.View != articles.ArticleView_ARTICLE_VIEW_FULL {
+	if request.View != ArticleView_ARTICLE_VIEW_FULL {
 		return article, nil
 	}
 
@@ -268,7 +267,7 @@ func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRe
 	return article, nil
 }
 
-func (s *Service) getArticle(ctx context.Context, name *resource.Name) (*articles.Article, error) {
+func (s *Service) getArticle(ctx context.Context, name *resource.Name) (*Article, error) {
 	raw, err := s.storage.Load(ctx, name)
 	switch {
 	case err == nil:
@@ -278,7 +277,7 @@ func (s *Service) getArticle(ctx context.Context, name *resource.Name) (*article
 		return nil, status.Errorf(codes.Internal, "failed to load the article")
 	}
 
-	article := &articles.Article{}
+	article := &Article{}
 	if err := proto.Unmarshal(raw, article); err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to unmarshal the article")
 	}
@@ -287,7 +286,7 @@ func (s *Service) getArticle(ctx context.Context, name *resource.Name) (*article
 }
 
 // DeleteArticle removes an article.
-func (s *Service) DeleteArticle(ctx context.Context, request *articles.DeleteArticleRequest) (*empty.Empty, error) {
+func (s *Service) DeleteArticle(ctx context.Context, request *DeleteArticleRequest) (*empty.Empty, error) {
 	name := resource.ParseName(request.Name)
 
 	if !actor.Owns(ctx, name) {

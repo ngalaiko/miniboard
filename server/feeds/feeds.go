@@ -16,7 +16,7 @@ import (
 	"github.com/mmcdole/gofeed"
 	"github.com/spaolacci/murmur3"
 	"miniboard.app/api/actor"
-	articles "miniboard.app/proto/users/articles/v1"
+	"miniboard.app/articles"
 	feeds "miniboard.app/proto/users/feeds/v1"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"

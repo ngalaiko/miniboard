@@ -11,10 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/api/actor"
-	articles "miniboard.app/proto/users/articles/v1"
+	"miniboard.app/articles"
 	feeds "miniboard.app/proto/users/feeds/v1"
 	sources "miniboard.app/proto/users/sources/v1"
 	"miniboard.app/storage/resource"
@@ -155,20 +154,4 @@ func (s *mockArticles) CreateArticle(ctx context.Context, body io.Reader, url *u
 		Url: url.String(),
 	})
 	return &articles.Article{}, nil
-}
-
-func (s *mockArticles) ListArticles(ctx context.Context, request *articles.ListArticlesRequest) (*articles.ListArticlesResponse, error) {
-	return nil, nil
-}
-
-func (s *mockArticles) UpdateArticle(ctx context.Context, request *articles.UpdateArticleRequest) (*articles.Article, error) {
-	return nil, nil
-}
-
-func (s *mockArticles) GetArticle(ctx context.Context, request *articles.GetArticleRequest) (*articles.Article, error) {
-	return nil, nil
-}
-
-func (s *mockArticles) DeleteArticle(ctx context.Context, request *articles.DeleteArticleRequest) (*empty.Empty, error) {
-	return nil, nil
 }

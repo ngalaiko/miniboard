@@ -12,7 +12,7 @@ import (
 	miniredis "github.com/alicebob/miniredis/v2"
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/api/actor"
-	articles "miniboard.app/proto/users/articles/v1"
+	"miniboard.app/articles"
 	"miniboard.app/storage/redis"
 	"miniboard.app/storage/resource"
 )

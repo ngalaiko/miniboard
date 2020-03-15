@@ -19,7 +19,6 @@ import (
 	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
 	"miniboard.app/images"
-	articles "miniboard.app/proto/users/articles/v1"
 	"miniboard.app/storage/redis"
 	"miniboard.app/storage/resource"
 )
@@ -107,9 +106,9 @@ func Test_articles(t *testing.T) {
 				})
 			})
 			t.Run("When getting the article with full view", func(t *testing.T) {
-				resp, err := service.GetArticle(ctx, &articles.GetArticleRequest{
+				resp, err := service.GetArticle(ctx, &GetArticleRequest{
 					Name: resp.Name,
-					View: articles.ArticleView_ARTICLE_VIEW_FULL,
+					View: ArticleView_ARTICLE_VIEW_FULL,
 				})
 				t.Run("It should be returned", func(t *testing.T) {
 					assert.NoError(t, err)
@@ -122,7 +121,7 @@ func Test_articles(t *testing.T) {
 				})
 			})
 			t.Run("When getting the article with basic view", func(t *testing.T) {
-				resp, err := service.GetArticle(ctx, &articles.GetArticleRequest{
+				resp, err := service.GetArticle(ctx, &GetArticleRequest{
 					Name: resp.Name,
 				})
 				t.Run("It should be returned", func(t *testing.T) {
@@ -136,12 +135,12 @@ func Test_articles(t *testing.T) {
 				})
 			})
 			t.Run("When deleting the article", func(t *testing.T) {
-				_, err = service.DeleteArticle(ctx, &articles.DeleteArticleRequest{
+				_, err = service.DeleteArticle(ctx, &DeleteArticleRequest{
 					Name: resp.Name,
 				})
 				assert.NoError(t, err)
 				t.Run("It should be deleted", func(t *testing.T) {
-					_, err = service.GetArticle(ctx, &articles.GetArticleRequest{
+					_, err = service.GetArticle(ctx, &GetArticleRequest{
 						Name: resp.Name,
 					})
 					assert.Error(t, err)
@@ -172,7 +171,7 @@ func Test_articles(t *testing.T) {
 			t.Run("It should be possible to get then page by page", func(t *testing.T) {
 				pageToken := ""
 				for i := 0; i < 10; i++ {
-					resp, err := service.ListArticles(ctx, &articles.ListArticlesRequest{
+					resp, err := service.ListArticles(ctx, &ListArticlesRequest{
 						PageSize:  5,
 						PageToken: pageToken,
 					})
@@ -189,7 +188,7 @@ func Test_articles(t *testing.T) {
 			})
 
 			t.Run("It should be possible filter for article by title", func(t *testing.T) {
-				resp, err := service.ListArticles(ctx, &articles.ListArticlesRequest{
+				resp, err := service.ListArticles(ctx, &ListArticlesRequest{
 					Title:    &wrappers.StringValue{Value: "Building"},
 					PageSize: 10,
 				})

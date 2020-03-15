@@ -16,14 +16,13 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
+	"miniboard.app/articles"
 	"miniboard.app/fetch"
-	articles "miniboard.app/proto/users/articles/v1"
 	feeds "miniboard.app/proto/users/feeds/v1"
 	sources "miniboard.app/proto/users/sources/v1"
 )
 
 type articlesService interface {
-	articles.ArticlesServiceServer
 	CreateArticle(context.Context, io.Reader, *url.URL, *time.Time) (*articles.Article, error)
 }
 
