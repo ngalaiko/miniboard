@@ -93,9 +93,7 @@ func (s *Service) createSourceFromRaw(ctx context.Context, source *Source) (*Sou
 		log().Infof("added %d sources from opml in %s", len(sources), time.Since(start))
 	}()
 
-	actor, _ := actor.FromContext(ctx)
-
-	source.Name = actor.Child("opml", ksuid.New().String()).String()
+	source.Name = a.Child("opml", ksuid.New().String()).String()
 	return source, nil
 }
 
