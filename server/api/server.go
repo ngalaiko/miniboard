@@ -13,13 +13,12 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
 	articlesservice "miniboard.app/articles"
-	codesservice "miniboard.app/codes"
+	codes "miniboard.app/codes"
 	"miniboard.app/email"
 	feedsservice "miniboard.app/feeds"
 	"miniboard.app/fetch"
 	"miniboard.app/images"
 	"miniboard.app/jwt"
-	codes "miniboard.app/proto/codes/v1"
 	tokens "miniboard.app/proto/tokens/v1"
 	articles "miniboard.app/proto/users/articles/v1"
 	sources "miniboard.app/proto/users/sources/v1"
@@ -56,7 +55,7 @@ func NewServer(
 	articlesService := articlesservice.New(db, imagesService, fetcher)
 	feedsService := feedsservice.New(ctx, db, articlesService)
 	usersService := usersservice.New()
-	codesService := codesservice.New(domain, emailClient, jwtService)
+	codesService := codes.New(domain, emailClient, jwtService)
 	tokensService := tokensservice.New(jwtService)
 	sourcesService := sourcesservice.New(articlesService, feedsService, fetcher)
 

@@ -70,7 +70,7 @@ type Source struct {
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Url of an article or feed.
 	Url string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
-	// Raw is a raw source data.
+	// Raw is a base64 encoded raw source data.
 	Raw                  []byte   `protobuf:"bytes,3,opt,name=raw,proto3" json:"raw,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

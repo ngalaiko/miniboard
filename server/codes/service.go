@@ -12,7 +12,6 @@ import (
 	"google.golang.org/grpc/status"
 	"miniboard.app/email"
 	"miniboard.app/jwt"
-	"miniboard.app/proto/codes/v1"
 	"miniboard.app/storage/resource"
 )
 
@@ -37,7 +36,7 @@ func New(
 }
 
 // CreateCode creates new authorization code.
-func (s *Service) CreateCode(ctx context.Context, request *codes.CreateCodeRequest) (*codes.Code, error) {
+func (s *Service) CreateCode(ctx context.Context, request *CreateCodeRequest) (*Code, error) {
 	h := murmur3.New128()
 	_, _ = io.WriteString(h, request.Email)
 	hashedEmail := fmt.Sprintf("%x", h.Sum(nil))
@@ -63,7 +62,7 @@ Link: %s
 		}
 	}(msg)
 
-	return &codes.Code{}, nil
+	return &Code{}, nil
 }
 
 func log(src string) *logrus.Entry {
