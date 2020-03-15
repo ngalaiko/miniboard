@@ -12,22 +12,21 @@
 
   const timeAgo = (seconds: number) =>  {
     let minutes = ~~(seconds / 60)
-    if (minutes == 0) {
-        return `${seconds}s`
-    }
+    if (minutes == 0) return `${seconds}s`
+
     let hours = ~~(minutes / 60)
-    if (hours == 0) {
-        return `${minutes}m`
-    }
+    if (hours == 0) return `${minutes}m`
+
     let days = ~~(hours / 24)
-    if (days == 0) {
-        return `${hours}h`
-    }
+    if (days == 0) return `${hours}h`
+
     let weeks = ~~(days / 7)
-    if (weeks == 0) {
-        return `${days}d`
-    }
-    return `${weeks}w`
+    if (weeks == 0) return `${days}d`
+
+    let years = ~~(days / 365)
+    if (years == 0) return `${weeks}w`
+
+    return `${years}y`
   }
 
   (function update() {
