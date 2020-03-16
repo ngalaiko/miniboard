@@ -8,11 +8,11 @@
 
 <div class="article" class:read={article.isRead} on:click>
   <div class="header">
-    <div class="meta">
-      <img class="header-icon" src="{article.iconUrl}" alt=""/>
-      <div class="header-title">{article.siteName !== '' ? article.siteName : new URL(article.url).hostname}</div>
+    <img class="header-icon" src="{article.iconUrl}" alt=""/>
+    <div class="header-title">{article.siteName !== '' ? article.siteName : new URL(article.url).hostname}</div>
+    <div style="margin-left: auto;">
+      <TimeAgo date={new Date(article.createTime)} />
     </div>
-    <TimeAgo date={new Date(article.createTime)} />
   </div>
   <div class="title">{article.title}</div>
 </div>
@@ -20,15 +20,10 @@
 <style>
   .header {
     display: flex;
-    justify-content: space-between;
-    opacity: 70%;
-    margin-bottom: 0.1em;
-    font-size: 0.8em;
-  }
-
-  .meta {
-    display: flex;
     align-items: center;
+    opacity: 70%;
+    margin-bottom: 0.2em;
+    font-size: 0.8em;
   }
 
   .header-icon {

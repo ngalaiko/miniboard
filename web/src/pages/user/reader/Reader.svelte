@@ -39,10 +39,14 @@
     max-height: 100%;
     overflow-y: scroll;
     padding: 0.5em;
+    word-wrap: break-word;
+    text-align: start;
+    line-height: 1.4em;
   }
 
   h1 {
-    margin: 0.2em;
+    margin: 0;
+    line-height: 1.2em;
   }
 
   a {
