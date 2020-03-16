@@ -8,7 +8,9 @@
 
 <div class="article" class:read={article.isRead} on:click>
   <div class="header">
-    <img class="header-icon" src="{article.iconUrl}" alt=""/>
+    {#if article.iconUrl !== ""}
+      <img class="header-icon" src="{article.iconUrl}" alt=""/>
+    {/if}
     <div class="header-title">{article.siteName !== '' ? article.siteName : new URL(article.url).hostname}</div>
     <div style="margin-left: auto;">
       <TimeAgo date={new Date(article.createTime)} />
