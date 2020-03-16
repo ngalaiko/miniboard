@@ -8,7 +8,10 @@
 
 <div class="article" class:read={article.isRead} on:click>
   <div class="header">
-    <div class="meta">{article.siteName !== '' ? article.siteName : new URL(article.url).hostname}</div>
+    <div class="meta">
+      <img class="header-icon" src="{article.iconUrl}" alt=""/>
+      <div class="header-title">{article.siteName !== '' ? article.siteName : new URL(article.url).hostname}</div>
+    </div>
     <TimeAgo date={new Date(article.createTime)} />
   </div>
   <div class="title">{article.title}</div>
@@ -24,6 +27,17 @@
   }
 
   .meta {
+    display: flex;
+    align-items: center;
+  }
+
+  .header-icon {
+    height: 1em;
+    width: auto;
+    padding-right: 0.3em;
+  }
+
+  .header-title {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
