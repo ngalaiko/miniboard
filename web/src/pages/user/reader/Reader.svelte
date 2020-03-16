@@ -64,23 +64,12 @@
     display: none;
   }
 
-  @media screen and (max-width: 414px) {
-    .navigation-bar {
-      display: flex;
-      width: 100%;
-      padding: 0;
-      font: inherit;
-      border: 0;
-      background: inherit;
-    }
+  .page {
+    max-width: 660px;
   }
 
   :global(pre) {
       overflow: auto;
-  }
-
-  :global(.page) {
-    max-width: 660px;
   }
 
   :global(img) {
@@ -111,6 +100,22 @@
 
     .page video {
       height: auto;
+    }
+  }
+
+  @media screen and (max-width: 414px) {
+    .navigation-bar {
+      display: flex;
+      width: 100%;
+      font: inherit;
+      border: 0;
+      background: inherit;
+    }
+    .reader {
+      padding: 1em;
+    }
+    .page {
+      padding-top: 0;
     }
   }
 
