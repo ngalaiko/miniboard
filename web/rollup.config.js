@@ -6,9 +6,11 @@ import html from 'rollup-plugin-bundle-html'
 import typescript from 'rollup-plugin-typescript2'
 import typescriptCompiler from 'typescript'
 import sveltePreprocessor from 'svelte-preprocess'
+import replace from '@rollup/plugin-replace'
 
 const mode = process.env.NODE_ENV 
 const isDevelopment = mode === "development"
+const version = process.env.VERSION
 
 const name = isDevelopment ? 'app' : 'app-[hash]'
 
@@ -31,6 +33,9 @@ const appPlugins = [
 ]
 
 const swPlugins = [
+    replace({
+        __VERSION__: version,
+    }),
     typescript({ typescript: typescriptCompiler }),
     commonjs(),
     !isDevelopment && terser(),

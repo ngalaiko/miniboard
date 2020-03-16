@@ -58,7 +58,7 @@ jobs:
 
     - name: Build image
       run: |
-        docker build . -t "${IMAGE_NAME}:${GITHUB_SHA}"
+        docker build . --build-arg VERSION=$(git rev-parse HEAD) -t "${IMAGE_NAME}:${GITHUB_SHA}"
         docker save -o app.tar "${IMAGE_NAME}:${GITHUB_SHA}"
 
     - name: Upload app.tar
