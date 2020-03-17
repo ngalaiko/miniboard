@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"sync"
 
 	"github.com/go-shiori/go-readability"
 	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 	"miniboard.app/fetch"
 )
 
@@ -26,6 +28,23 @@ func NewFromReader(ctx context.Context, client fetch.Fetcher, raw io.Reader, url
 		return nil, fmt.Errorf("failed to parse document: %w", err)
 	}
 
+	wg := &sync.WaitGroup{}
+	bfs(article.Node, func(n *html.Node) bool {
+		if n.DataAtom != atom.A {
+			return true
+		}
+
+		// open links on a new page
+		n.Attr = append(n.Attr, html.Attribute{
+			Key: "target",
+			Val: "_blank",
+		})
+
+		return true
+	})
+
+	wg.Wait()
+
 	b := &bytes.Buffer{}
 	if err := html.Render(b, article.Node); err != nil {
 		return nil, err
@@ -36,6 +55,20 @@ func NewFromReader(ctx context.Context, client fetch.Fetcher, raw io.Reader, url
 		url:     url,
 		content: b.Bytes(),
 	}, nil
+}
+
+func bfs(node *html.Node, forEach func(*html.Node) bool) {
+	if node == nil {
+		return
+	}
+	if !forEach(node) {
+		return
+	}
+	n := node.FirstChild
+	for n != nil {
+		bfs(n, forEach)
+		n = n.NextSibling
+	}
 }
 
 // Title returns the page title.
