@@ -103,6 +103,21 @@ func Test_articles(t *testing.T) {
 						assert.NotEqual(t, resp2.ContentSha256Sum, resp.ContentSha256Sum)
 					}
 				})
+
+				t.Run("When listing articles", func(t *testing.T) {
+					resp, err := service.ListArticles(ctx, &ListArticlesRequest{
+						PageSize: 10,
+					})
+					t.Run("It should not be duplicated", func(t *testing.T) {
+						if assert.NoError(t, err) {
+							seen := map[string]bool{}
+							for _, a := range resp.Articles {
+								assert.False(t, seen[a.Name])
+								seen[a.Name] = true
+							}
+						}
+					})
+				})
 			})
 			t.Run("When getting the article with full view", func(t *testing.T) {
 				resp, err := service.GetArticle(ctx, &GetArticleRequest{

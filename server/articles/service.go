@@ -85,7 +85,6 @@ func (s *Service) ListArticles(ctx context.Context, request *ListArticlesRequest
 
 		return true, nil
 	})
-
 	var nextPageToken string
 	if len(aa) == int(request.PageSize+1) {
 		nextPageToken = base64.StdEncoding.EncodeToString([]byte(aa[len(aa)-1].Name))
@@ -165,6 +164,7 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 			}
 			existingArticle.ContentSha256Sum = article.ContentSha256Sum
 			article = existingArticle
+			name = resource.ParseName(existingArticle.Name)
 			log().Infof("updating %s from '%s'", existingArticle.Name, existingArticle.Url)
 		} else {
 			log().Infof("creating %s from '%s'", name, existingArticle.Url)

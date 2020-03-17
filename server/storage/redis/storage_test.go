@@ -164,10 +164,20 @@ func Test_DB(t *testing.T) {
 			t.Run("When it's updated", func(t *testing.T) {
 				assert.NoError(t, db.Store(ctx, name, []byte("updated")))
 
-				t.Run("Data should not be found", func(t *testing.T) {
+				t.Run("Data should be updated", func(t *testing.T) {
 					d, err := db.Load(ctx, name)
 					assert.NoError(t, err)
 					assert.Equal(t, []byte("updated"), d)
+				})
+
+				t.Run("Data should not be duplicated", func(t *testing.T) {
+					seen := map[string]bool{}
+					err := db.ForEach(ctx, resource.NewName("noroot", "*"), nil, func(r *resource.Resource) (bool, error) {
+						assert.False(t, seen[r.Name.String()])
+						seen[r.Name.String()] = true
+						return true, nil
+					})
+					assert.NoError(t, err)
 				})
 			})
 		})
