@@ -11,23 +11,23 @@
   export let sourcesClient: SourcesClient
 </script>
 
-<div class="user">
+<div class="articles">
   <Router>
-    <Route path="*articleName" let:params>
-      <div class="list column { params.articleName === '' ? 'full-screen' : 'hidden' }">
+    <Route path="*articleid" let:params>
+      <div class="list column { params.articleid === '' ? 'full-screen' : 'hidden' }">
         <List
-          selectedArticleName="users/{params.userid}/{params.articleName}"
+          selectedArticleName="users/{params.userid}/articles/{params.articleid}"
           username="users/{params.userid}"
           articlesClient={articlesClient}
           sourcesClient={sourcesClient}
           on:select={(e) => navigate(`/${e.detail}${location.search}`, { replace: true })}
         />
       </div>
-      <div class="reader column { params.articleName === '' ? 'hidden' : 'full-screen' }">
+      <div class="reader column { params.articleid === '' ? 'hidden' : 'full-screen' }">
         <Reader
-          articleName="users/{params.userid}/{params.articleName}"
+          articleName="users/{params.userid}/articles/{params.articleid}"
           articlesClient={articlesClient}
-          on:close={() => navigate(`/users/${params.userid}${location.search}`, { replace: true })}
+          on:close={() => navigate(`/users/${params.userid}/articles${location.search}`, { replace: true })}
         />
       </div>
     </Route>
@@ -35,7 +35,7 @@
 </div>
 
 <style>
-  .user {
+  .articles {
     display: flex;
     max-width: 100%;
     min-width: 100%;

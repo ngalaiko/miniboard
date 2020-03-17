@@ -22,7 +22,7 @@
   }).then((token: string) => {
     return parseJwt(token).sub
   }).then((subject: string) => {
-    navigate(`/${subject}`)
+    navigate(`/${subject}/articles`)
   }).catch((e: Error) => {
     navigate(`/?error=${e.message}`)
   })

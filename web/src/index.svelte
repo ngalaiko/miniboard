@@ -1,5 +1,5 @@
 <script lang="ts">
-  import User  from './pages/user/User.svelte'
+  import Articles  from './pages/articles/Articles.svelte'
   import Codes from './pages/codes/Codes.svelte'
   import Login from './pages/login/Login.svelte'
   import NotFound from './pages/notfound/NotFound.svelte'
@@ -12,7 +12,7 @@
   // @ts-ignore
   import { CodesClient } from './clients/codes.ts'
   // @ts-ignore
-  import { UsersClient } from './clients/users.ts'
+  import { UsersClient, User } from './clients/users.ts'
   // @ts-ignore
   import { TokensClient } from './clients/tokens.ts'
   // @ts-ignore
@@ -39,7 +39,7 @@
 
   if (location.pathname == "/") {
     usersClient.me()
-      .then((user: User) => navigate(`/${user.name}`))
+      .then((user: User) => navigate(`/${user.name}/articles`))
       .catch(() => { /* ignore */ })
   }
 </script>
@@ -53,8 +53,8 @@
     <Route path="/codes/:code" let:params>
       <Codes tokensClient={tokensClient} code="{params.code}" />
     </Route>
-    <Route path="/users/:userid/*" let:params>
-      <User
+    <Route path="/users/:userid/articles/*" let:params>
+      <Articles
         articlesClient={articlesClient}
         sourcesClient={sourcesClient}
       />
