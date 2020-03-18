@@ -36,6 +36,7 @@
     border: 0;
     margin: 0;
     background: inherit;
+    padding-left: 0.2em;
     width: 100%;
   }
 
