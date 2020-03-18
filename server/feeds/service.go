@@ -173,6 +173,8 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, f *Feed) error {
 		}
 	}
 
+	f.LastFetched = ptypes.TimestampNow()
+
 	raw, err := proto.Marshal(f)
 	if err != nil {
 		return fmt.Errorf("failed to marshal feed: %w", err)
