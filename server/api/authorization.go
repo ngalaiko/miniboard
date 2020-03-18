@@ -1,7 +1,9 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 
 	"miniboard.app/api/actor"
 	"miniboard.app/jwt"
@@ -29,6 +31,12 @@ func authorize(handler http.Handler, jwtService *jwt.Service) http.Handler {
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
 				_, _ = w.Write([]byte(`{"error":"invalid auth token"}`))
+				return
+			}
+
+			if r.URL.Path != "/api/v1/users/me" && !strings.HasPrefix(r.URL.Path, fmt.Sprintf("/api/v1/%s", subject)) {
+				w.WriteHeader(http.StatusForbidden)
+				_, _ = w.Write([]byte(`{"error":"you are not allowed to access the resource"}`))
 				return
 			}
 
