@@ -84,11 +84,15 @@ func NewServer(
 	}
 
 	if err := sources.RegisterSourcesServiceHandlerServer(ctx, gwMux, sourcesService); err != nil {
-		return nil, fmt.Errorf("failed to register tokens http handler: %w", err)
+		return nil, fmt.Errorf("failed to register sources http handler: %w", err)
+	}
+
+	if err := feeds.RegisterFeedsServiceHandlerServer(ctx, gwMux, feedsService); err != nil {
+		return nil, fmt.Errorf("failed to register feeds http handler: %w", err)
 	}
 
 	if err := users.RegisterUsersServiceHandlerServer(ctx, gwMux, usersService); err != nil {
-		return nil, fmt.Errorf("failed to register tokens http handler: %w", err)
+		return nil, fmt.Errorf("failed to register users http handler: %w", err)
 	}
 
 	mux := http.NewServeMux()

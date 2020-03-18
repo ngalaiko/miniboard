@@ -2,9 +2,35 @@ syntax = "proto3";
 
 package app.miniboard.users.feeds.v1;
 
+import "google/api/annotations.proto";
+
 import "google/protobuf/timestamp.proto";
 
 option go_package = "feeds";
+
+service FeedsService {
+    rpc ListFeeds(ListFeedsRequest) returns (ListFeedsResponse) {
+        option (google.api.http) = {
+            get: "/api/v1/users/*/feeds"
+        };
+    }
+}
+
+message ListFeedsRequest {
+    // The maximum number of feeds to return.
+    int64 page_size = 1;
+
+    // The next_page_token value returned from a previous List request, if any.
+    string page_token = 2;
+}
+
+message ListFeedsResponse {
+    // There will be a maximum number of feeds returned based on the page_size field int the request.
+    repeated Feed feeds = 1;
+
+    // Token to retrieve the next page of results, or empty if there are no more results in the list.
+    string next_page_token = 2;
+}
 
 message Feed {
     // Name of the resource, for example "users/user1/feeds/feed1".

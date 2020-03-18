@@ -3,6 +3,7 @@ package feeds
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -15,6 +16,8 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/mmcdole/gofeed"
 	"github.com/spaolacci/murmur3"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
 	"miniboard.app/articles"
 	"miniboard.app/storage"
@@ -44,6 +47,54 @@ func NewService(ctx context.Context, storage storage.Storage, articlesService ar
 	}
 	go s.listenToUpdates(ctx)
 	return s
+}
+
+// ListFeeds returns a list of feeds.
+func (s *Service) ListFeeds(ctx context.Context, request *ListFeedsRequest) (*ListFeedsResponse, error) {
+	actor, _ := actor.FromContext(ctx)
+	lookFor := actor.Child("feeds", "*")
+
+	var from *resource.Name
+	if request.PageToken != "" {
+		decoded, err := base64.StdEncoding.DecodeString(request.PageToken)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "invalid page token")
+		}
+		from = resource.ParseName(string(decoded))
+	}
+
+	ff := []*Feed{}
+	err := s.storage.ForEach(ctx, lookFor, from, func(r *resource.Resource) (bool, error) {
+		f := &Feed{}
+		if err := proto.Unmarshal(r.Data, f); err != nil {
+			return false, status.Errorf(codes.Internal, "failed to unmarshal feed")
+		}
+
+		ff = append(ff, f)
+
+		if len(ff) == int(request.PageSize+1) {
+			return false, nil
+		}
+
+		return true, nil
+	})
+
+	var nextPageToken string
+	if len(ff) == int(request.PageSize+1) {
+		nextPageToken = base64.StdEncoding.EncodeToString([]byte(ff[len(ff)-1].Name))
+		ff = ff[:request.PageSize]
+	}
+
+	switch err {
+	case nil, storage.ErrNotFound:
+		return &ListFeedsResponse{
+			Feeds:         ff,
+			NextPageToken: nextPageToken,
+		}, nil
+	default:
+		log().Error(err)
+		return nil, status.Errorf(codes.Internal, "failed to list feeds")
+	}
 }
 
 // CreateFeed creates a new feeds feed, fetches articles and schedules a next update.

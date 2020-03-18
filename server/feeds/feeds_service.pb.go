@@ -4,9 +4,14 @@
 package feeds
 
 import (
+	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -20,6 +25,104 @@ var _ = math.Inf
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
+
+type ListFeedsRequest struct {
+	// The maximum number of feeds to return.
+	PageSize int64 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	// The next_page_token value returned from a previous List request, if any.
+	PageToken            string   `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ListFeedsRequest) Reset()         { *m = ListFeedsRequest{} }
+func (m *ListFeedsRequest) String() string { return proto.CompactTextString(m) }
+func (*ListFeedsRequest) ProtoMessage()    {}
+func (*ListFeedsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_31efcc759eeb2667, []int{0}
+}
+
+func (m *ListFeedsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListFeedsRequest.Unmarshal(m, b)
+}
+func (m *ListFeedsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListFeedsRequest.Marshal(b, m, deterministic)
+}
+func (m *ListFeedsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListFeedsRequest.Merge(m, src)
+}
+func (m *ListFeedsRequest) XXX_Size() int {
+	return xxx_messageInfo_ListFeedsRequest.Size(m)
+}
+func (m *ListFeedsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListFeedsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListFeedsRequest proto.InternalMessageInfo
+
+func (m *ListFeedsRequest) GetPageSize() int64 {
+	if m != nil {
+		return m.PageSize
+	}
+	return 0
+}
+
+func (m *ListFeedsRequest) GetPageToken() string {
+	if m != nil {
+		return m.PageToken
+	}
+	return ""
+}
+
+type ListFeedsResponse struct {
+	// There will be a maximum number of feeds returned based on the page_size field int the request.
+	Feeds []*Feed `protobuf:"bytes,1,rep,name=feeds,proto3" json:"feeds,omitempty"`
+	// Token to retrieve the next page of results, or empty if there are no more results in the list.
+	NextPageToken        string   `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3" json:"next_page_token,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ListFeedsResponse) Reset()         { *m = ListFeedsResponse{} }
+func (m *ListFeedsResponse) String() string { return proto.CompactTextString(m) }
+func (*ListFeedsResponse) ProtoMessage()    {}
+func (*ListFeedsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_31efcc759eeb2667, []int{1}
+}
+
+func (m *ListFeedsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListFeedsResponse.Unmarshal(m, b)
+}
+func (m *ListFeedsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListFeedsResponse.Marshal(b, m, deterministic)
+}
+func (m *ListFeedsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListFeedsResponse.Merge(m, src)
+}
+func (m *ListFeedsResponse) XXX_Size() int {
+	return xxx_messageInfo_ListFeedsResponse.Size(m)
+}
+func (m *ListFeedsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListFeedsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListFeedsResponse proto.InternalMessageInfo
+
+func (m *ListFeedsResponse) GetFeeds() []*Feed {
+	if m != nil {
+		return m.Feeds
+	}
+	return nil
+}
+
+func (m *ListFeedsResponse) GetNextPageToken() string {
+	if m != nil {
+		return m.NextPageToken
+	}
+	return ""
+}
 
 type Feed struct {
 	// Name of the resource, for example "users/user1/feeds/feed1".
@@ -37,7 +140,7 @@ func (m *Feed) Reset()         { *m = Feed{} }
 func (m *Feed) String() string { return proto.CompactTextString(m) }
 func (*Feed) ProtoMessage()    {}
 func (*Feed) Descriptor() ([]byte, []int) {
-	return fileDescriptor_31efcc759eeb2667, []int{0}
+	return fileDescriptor_31efcc759eeb2667, []int{2}
 }
 
 func (m *Feed) XXX_Unmarshal(b []byte) error {
@@ -80,23 +183,116 @@ func (m *Feed) GetUrl() string {
 }
 
 func init() {
+	proto.RegisterType((*ListFeedsRequest)(nil), "app.miniboard.users.feeds.v1.ListFeedsRequest")
+	proto.RegisterType((*ListFeedsResponse)(nil), "app.miniboard.users.feeds.v1.ListFeedsResponse")
 	proto.RegisterType((*Feed)(nil), "app.miniboard.users.feeds.v1.Feed")
 }
 
 func init() { proto.RegisterFile("feeds_service.proto", fileDescriptor_31efcc759eeb2667) }
 
 var fileDescriptor_31efcc759eeb2667 = []byte{
-	// 186 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x34, 0x8e, 0x31, 0x8b, 0x83, 0x30,
-	0x18, 0x86, 0xf1, 0xf4, 0xee, 0xb8, 0x78, 0x43, 0x49, 0x17, 0x91, 0x42, 0xa5, 0x93, 0xd3, 0x27,
-	0x6d, 0xe7, 0x2e, 0x1d, 0xfc, 0x01, 0xd2, 0xa9, 0x8b, 0x44, 0xf3, 0x69, 0x43, 0x8d, 0x09, 0x49,
-	0xf4, 0xf7, 0x17, 0x23, 0x6e, 0xef, 0xf0, 0x3c, 0x0f, 0x2f, 0xd9, 0x77, 0x88, 0xdc, 0xd6, 0x16,
-	0xcd, 0x2c, 0x5a, 0x04, 0x6d, 0x94, 0x53, 0xf4, 0xc0, 0xb4, 0x06, 0x29, 0x46, 0xd1, 0x28, 0x66,
-	0x38, 0x4c, 0x16, 0x8d, 0x05, 0x0f, 0xc2, 0x7c, 0x4e, 0x8f, 0xbd, 0x52, 0xfd, 0x80, 0x85, 0x67,
-	0x9b, 0xa9, 0x2b, 0x9c, 0x90, 0x68, 0x1d, 0x93, 0x7a, 0xd5, 0x4f, 0x6f, 0x12, 0x95, 0x88, 0x9c,
-	0x52, 0x12, 0x8d, 0x4c, 0x62, 0x12, 0x64, 0x41, 0xfe, 0x57, 0xf9, 0x4d, 0x6f, 0xe4, 0x7f, 0x60,
-	0xd6, 0xd5, 0x1d, 0xba, 0xf6, 0x85, 0x3c, 0xf9, 0xca, 0x82, 0x3c, 0xbe, 0xa4, 0xb0, 0x36, 0x61,
-	0x6b, 0xc2, 0x63, 0x6b, 0x56, 0xf1, 0xc2, 0x97, 0x2b, 0x4e, 0x77, 0x24, 0x9c, 0xcc, 0x90, 0x84,
-	0xbe, 0xb8, 0xcc, 0xfb, 0xef, 0xf3, 0xdb, 0x3f, 0x6b, 0x7e, 0xbc, 0x7b, 0xfd, 0x04, 0x00, 0x00,
-	0xff, 0xff, 0x0d, 0x61, 0x7d, 0x51, 0xd2, 0x00, 0x00, 0x00,
+	// 359 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x51, 0x41, 0x4f, 0x32, 0x31,
+	0x10, 0xcd, 0xb2, 0x7c, 0x9f, 0x6e, 0xc1, 0x88, 0x35, 0xc6, 0xcd, 0x0a, 0x91, 0xec, 0xc1, 0x10,
+	0x0f, 0xdd, 0x80, 0x17, 0x2f, 0x5e, 0x3c, 0x70, 0x32, 0xc6, 0x2c, 0x9c, 0xbc, 0x6c, 0x0a, 0x0c,
+	0xd8, 0xc0, 0xb6, 0x75, 0xdb, 0x25, 0x86, 0xa3, 0x57, 0x8f, 0x5e, 0xfd, 0x57, 0xfe, 0x05, 0x7f,
+	0x88, 0x69, 0x2b, 0xc4, 0x68, 0x42, 0xbc, 0xb5, 0x33, 0xef, 0xbd, 0x99, 0xf7, 0x06, 0x1d, 0x4e,
+	0x01, 0x26, 0x2a, 0x53, 0x50, 0x2c, 0xd9, 0x18, 0x88, 0x2c, 0x84, 0x16, 0xb8, 0x49, 0xa5, 0x24,
+	0x39, 0xe3, 0x6c, 0x24, 0x68, 0x31, 0x21, 0xa5, 0x82, 0x42, 0x11, 0x0b, 0x24, 0xcb, 0x6e, 0xd4,
+	0x9c, 0x09, 0x31, 0x5b, 0x40, 0x42, 0x25, 0x4b, 0x28, 0xe7, 0x42, 0x53, 0xcd, 0x04, 0x57, 0x8e,
+	0x1b, 0x9d, 0x7e, 0x75, 0xed, 0x6f, 0x54, 0x4e, 0x13, 0xcd, 0x72, 0x50, 0x9a, 0xe6, 0xd2, 0x01,
+	0xe2, 0x5b, 0xd4, 0xb8, 0x61, 0x4a, 0xf7, 0x8d, 0x5c, 0x0a, 0x8f, 0x25, 0x28, 0x8d, 0x4f, 0x50,
+	0x20, 0xe9, 0x0c, 0x32, 0xc5, 0x56, 0x10, 0x7a, 0x6d, 0xaf, 0xe3, 0xa7, 0xbb, 0xa6, 0x30, 0x60,
+	0x2b, 0xc0, 0x2d, 0x84, 0x6c, 0x53, 0x8b, 0x39, 0xf0, 0xb0, 0xd2, 0xf6, 0x3a, 0x41, 0x6a, 0xe1,
+	0x43, 0x53, 0x88, 0x4b, 0x74, 0xf0, 0x4d, 0x4f, 0x49, 0xc1, 0x15, 0xe0, 0x4b, 0xf4, 0xcf, 0xee,
+	0x1b, 0x7a, 0x6d, 0xbf, 0x53, 0xeb, 0xc5, 0x64, 0x9b, 0x23, 0x62, 0xb8, 0xa9, 0x23, 0xe0, 0x33,
+	0xb4, 0xcf, 0xe1, 0x49, 0x67, 0xbf, 0x46, 0xee, 0x99, 0xf2, 0xdd, 0x66, 0xec, 0x1c, 0x55, 0x0d,
+	0x0d, 0x63, 0x54, 0xe5, 0x34, 0x77, 0x5b, 0x07, 0xa9, 0x7d, 0xe3, 0x2b, 0x54, 0x5f, 0x50, 0xa5,
+	0xb3, 0x29, 0xe8, 0xf1, 0x03, 0x4c, 0xac, 0x40, 0xad, 0x17, 0x11, 0x17, 0x0d, 0x59, 0x47, 0x43,
+	0x86, 0xeb, 0x68, 0xd2, 0x9a, 0xc1, 0xf7, 0x1d, 0x1c, 0x37, 0x90, 0x5f, 0x16, 0x8b, 0xd0, 0xb7,
+	0x8a, 0xe6, 0xd9, 0x7b, 0xf3, 0x50, 0xdd, 0x1a, 0x1c, 0xb8, 0x3b, 0xe1, 0x17, 0x0f, 0x05, 0x1b,
+	0xd7, 0x98, 0x6c, 0xb7, 0xf7, 0x33, 0xee, 0x28, 0xf9, 0x33, 0xde, 0xc5, 0x19, 0xb7, 0x9e, 0xdf,
+	0x3f, 0x5e, 0x2b, 0xc7, 0xf8, 0xc8, 0x1e, 0x7d, 0xd9, 0x4d, 0x2c, 0x23, 0x39, 0x4f, 0x2c, 0xe7,
+	0x7a, 0xe7, 0xde, 0x85, 0x37, 0xfa, 0x6f, 0xad, 0x5d, 0x7c, 0x06, 0x00, 0x00, 0xff, 0xff, 0x63,
+	0x4e, 0x8c, 0x0d, 0x56, 0x02, 0x00, 0x00,
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConnInterface
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion6
+
+// FeedsServiceClient is the client API for FeedsService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type FeedsServiceClient interface {
+	ListFeeds(ctx context.Context, in *ListFeedsRequest, opts ...grpc.CallOption) (*ListFeedsResponse, error)
+}
+
+type feedsServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewFeedsServiceClient(cc grpc.ClientConnInterface) FeedsServiceClient {
+	return &feedsServiceClient{cc}
+}
+
+func (c *feedsServiceClient) ListFeeds(ctx context.Context, in *ListFeedsRequest, opts ...grpc.CallOption) (*ListFeedsResponse, error) {
+	out := new(ListFeedsResponse)
+	err := c.cc.Invoke(ctx, "/app.miniboard.users.feeds.v1.FeedsService/ListFeeds", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// FeedsServiceServer is the server API for FeedsService service.
+type FeedsServiceServer interface {
+	ListFeeds(context.Context, *ListFeedsRequest) (*ListFeedsResponse, error)
+}
+
+// UnimplementedFeedsServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedFeedsServiceServer struct {
+}
+
+func (*UnimplementedFeedsServiceServer) ListFeeds(ctx context.Context, req *ListFeedsRequest) (*ListFeedsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListFeeds not implemented")
+}
+
+func RegisterFeedsServiceServer(s *grpc.Server, srv FeedsServiceServer) {
+	s.RegisterService(&_FeedsService_serviceDesc, srv)
+}
+
+func _FeedsService_ListFeeds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListFeedsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FeedsServiceServer).ListFeeds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/app.miniboard.users.feeds.v1.FeedsService/ListFeeds",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FeedsServiceServer).ListFeeds(ctx, req.(*ListFeedsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _FeedsService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "app.miniboard.users.feeds.v1.FeedsService",
+	HandlerType: (*FeedsServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListFeeds",
+			Handler:    _FeedsService_ListFeeds_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "feeds_service.proto",
 }
