@@ -110,8 +110,10 @@
         <ArticleView
           article={article}
           on:click={(e) => {
-            article.isRead = true
-            articlesClient.update(article.name, { isRead: true })
+            if (!article.isRead) {
+              article.isRead = true
+              articlesClient.update(article.name, { isRead: true })
+            }
             dispatch('select', article.name)
           }}
         />
