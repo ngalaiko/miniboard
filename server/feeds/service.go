@@ -156,6 +156,7 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, f *Feed) error {
 		}
 	}
 
+	updated := false
 	for _, item := range feed.Items {
 		item := item
 
@@ -167,10 +168,16 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, f *Feed) error {
 			continue
 		}
 
+		updated = true
+
 		if err := s.saveItem(ctx, item); err != nil {
 			log().Errorf("failed to save item %s: %s", item.Link, err)
 			continue
 		}
+	}
+
+	if !updated {
+		return nil
 	}
 
 	f.LastFetched = ptypes.TimestampNow()
