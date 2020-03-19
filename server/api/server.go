@@ -46,7 +46,7 @@ func NewServer(
 
 	jwtService := jwt.NewService(ctx, db)
 	articlesService := articles.NewService(db, fetcher)
-	feedsService := feeds.NewService(ctx, db, articlesService)
+	feedsService := feeds.NewService(ctx, db, fetcher, articlesService)
 	usersService := users.NewService()
 	codesService := codes.NewService(domain, emailClient, jwtService)
 	tokensService := tokens.NewService(jwtService)

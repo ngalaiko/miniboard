@@ -1,8 +1,11 @@
 package feeds
 
 import (
+	"bytes"
 	"context"
 	"io"
+	"io/ioutil"
+	"net/http"
 	"net/url"
 	"os"
 	"sync"
@@ -16,6 +19,15 @@ import (
 	"miniboard.app/storage/redis"
 	"miniboard.app/storage/resource"
 )
+
+type testClient struct{}
+
+func (tc *testClient) Fetch(ctx context.Context, url string) (*http.Response, error) {
+	return &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       ioutil.NopCloser(&bytes.Buffer{}),
+	}, nil
+}
 
 func Test_feeds(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
@@ -38,7 +50,7 @@ func Test_feeds(t *testing.T) {
 
 	t.Run("With feeds service", func(t *testing.T) {
 		articlesService := &mockArticles{}
-		service := NewService(ctx, db, articlesService)
+		service := NewService(ctx, db, &testClient{}, articlesService)
 
 		t.Run("When adding a feed", func(t *testing.T) {
 			feed, err := service.CreateFeed(ctx, testFeed, testURL)
@@ -51,20 +63,12 @@ func Test_feeds(t *testing.T) {
 			})
 
 			t.Run("Eventually, articles must be fetched", func(t *testing.T) {
-				for {
-					select {
-					case <-time.Tick(time.Second):
-						assert.Len(t, articlesService.articles, 30)
-						return
-					default:
-						articlesService.RLock()
-						if len(articlesService.articles) == 30 {
-							articlesService.RUnlock()
-							return
-						}
-						articlesService.RUnlock()
-					}
-				}
+				time.Sleep(100 * time.Millisecond)
+
+				articlesService.RLock()
+				defer articlesService.RUnlock()
+
+				assert.Len(t, articlesService.articles, 30)
 			})
 
 			t.Run("When adding the same feed again", func(t *testing.T) {

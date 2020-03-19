@@ -3,7 +3,6 @@ package feeds
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"runtime/debug"
 	"time"
 
@@ -87,7 +86,7 @@ func (s *Service) updateFeed(ctx context.Context, feed *Feed) error {
 		return nil
 	}
 
-	resp, err := http.Get(feed.Url)
+	resp, err := s.fetcher.Fetch(ctx, feed.Url)
 	if err != nil {
 		return fmt.Errorf("failed to fetch %s: %w", feed.Url, err)
 	}

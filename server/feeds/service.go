@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"net/http"
 	"net/url"
 	"runtime/debug"
 	"time"
@@ -20,6 +19,7 @@ import (
 	status "google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
 	"miniboard.app/articles"
+	"miniboard.app/fetch"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
 )
@@ -33,17 +33,18 @@ type Service struct {
 	parser          *gofeed.Parser
 	articlesService articlesService
 	storage         storage.Storage
+	fetcher         fetch.Fetcher
 }
 
 // NewService creates feeds service.
-func NewService(ctx context.Context, storage storage.Storage, articlesService articlesService) *Service {
+func NewService(ctx context.Context, storage storage.Storage, fetcher fetch.Fetcher, articlesService articlesService) *Service {
 	parser := gofeed.NewParser()
-	parser.Client = &http.Client{}
 
 	s := &Service{
 		articlesService: articlesService,
 		parser:          parser,
 		storage:         storage,
+		fetcher:         fetcher,
 	}
 	go s.listenToUpdates(ctx)
 	return s
@@ -208,7 +209,7 @@ func latestTimestamp(ts ...*time.Time) time.Time {
 }
 
 func (s *Service) saveItem(ctx context.Context, item *gofeed.Item) error {
-	resp, err := s.parser.Client.Get(item.Link)
+	resp, err := s.fetcher.Fetch(ctx, item.Link)
 	if err != nil {
 		return fmt.Errorf("failed to fetch: %w", err)
 	}
