@@ -154,6 +154,7 @@
     flex-direction: column;
     max-height: 100%;
     overflow-y: scroll;
+    margin-bottom: auto;
   }
 
   .list-li {
@@ -170,7 +171,6 @@
     background: none;
     border-top: 1px solid;
     cursor: pointer;
-    margin-top: auto;
     margin-right: 0;
     margin-left: 0;
     margin-bottom: 0;
