@@ -143,6 +143,8 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 }
 
 func (s *Service) parse(ctx context.Context, reader io.Reader, f *Feed) error {
+	var updateLeeway = 24 * time.Hour
+
 	feed, err := s.parser.Parse(reader)
 	if err != nil {
 		return fmt.Errorf("failed to parse feed: %w", err)
@@ -160,11 +162,7 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, f *Feed) error {
 	for _, item := range feed.Items {
 		item := item
 
-		if item.UpdatedParsed != nil && item.UpdatedParsed.Before(lastFetched) {
-			continue
-		}
-
-		if item.PublishedParsed != nil && item.PublishedParsed.Before(lastFetched) {
+		if latestTimestamp(item.UpdatedParsed, item.PublishedParsed).Before(lastFetched.Add(-1 * updateLeeway)) {
 			continue
 		}
 
@@ -193,6 +191,20 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, f *Feed) error {
 	}
 
 	return nil
+}
+
+func latestTimestamp(ts ...*time.Time) time.Time {
+	latest := time.Time{}
+	for _, t := range ts {
+		if t == nil {
+			continue
+		}
+
+		if latest.Before(*t) {
+			latest = *t
+		}
+	}
+	return latest
 }
 
 func (s *Service) saveItem(ctx context.Context, item *gofeed.Item) error {
