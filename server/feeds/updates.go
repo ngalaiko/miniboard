@@ -29,9 +29,11 @@ func (s *Service) listenToUpdates(ctx context.Context) {
 	for {
 		select {
 		case <-ticker.C:
+			ctx, cancel := context.WithCancel(context.Background())
 			if err := s.updateFeeds(ctx); err != nil {
 				log().Errorf("failed to update feeds: %s", err)
 			}
+			cancel()
 		case <-ctx.Done():
 			return
 		}
@@ -83,6 +85,7 @@ func (s *Service) updateFeed(ctx context.Context, feed *Feed) error {
 	}
 
 	if lastFetched.Add(updateInterval).After(time.Now()) {
+		log().Infof("no need to update %s (%s): lastFetched at %s", feed.Name, feed.Url, lastFetched)
 		return nil
 	}
 

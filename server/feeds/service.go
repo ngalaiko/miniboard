@@ -163,7 +163,9 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, f *Feed) error {
 	for _, item := range feed.Items {
 		item := item
 
-		if latestTimestamp(item.UpdatedParsed, item.PublishedParsed).Before(lastFetched.Add(-1 * updateLeeway)) {
+		updatedTime := latestTimestamp(item.UpdatedParsed, item.PublishedParsed)
+		if updatedTime.Before(lastFetched.Add(-1 * updateLeeway)) {
+			log().Infof("skipping item %s from %s: updated at %s", item.Link, f.Name, updatedTime)
 			continue
 		}
 
@@ -190,6 +192,8 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, f *Feed) error {
 	if err := s.storage.Store(ctx, resource.ParseName(f.Name), raw); err != nil {
 		return fmt.Errorf("failed to save feed: %w", err)
 	}
+
+	log().Infof("feed %s updated", f.Name)
 
 	return nil
 }
