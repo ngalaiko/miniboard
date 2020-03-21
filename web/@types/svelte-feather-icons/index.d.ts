@@ -6,4 +6,5 @@ declare module 'svelte-feather-icons' {
     export interface PlusIcon extends Base {}
     export interface SearchIcon extends Base {}
     export interface ChevronLeftIcon extends Base {}
+    export interface XIcon extends Base {}
 }
