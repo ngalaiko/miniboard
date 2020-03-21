@@ -45,12 +45,12 @@
 
   .border-left {
     border-left: 1px solid black;
-    border-radius: 0.25em 0 0 0.25em;
+    border-radius: 0.3em 0 0 0.3em;
   }
 
   .border-right {
     border-right: 1px solid black;
-    border-radius: 0 0.25em 0.25em 0;
+    border-radius: 0 0.3em 0.3em 0;
   }
 
   .selected {
