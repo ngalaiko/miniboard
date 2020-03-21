@@ -120,7 +120,7 @@
       </li>
     {/each}
     <SvelteInfiniteScroll
-      threshold={100}
+      threshold={250}
       hasMore={hasMore}
       on:loadMore={loadMore}
     />
