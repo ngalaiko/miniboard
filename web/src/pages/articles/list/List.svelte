@@ -184,6 +184,10 @@
     outline: none;
   }
 
+  .button-add:active {
+    color: inherit;
+  }
+
   .button-add:hover {
     background: gainsboro;
   }
