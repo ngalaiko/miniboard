@@ -27,8 +27,11 @@
 <style>
   .search {
     display: flex;
-    padding: 0.2em;
+    padding: 0 0.2em;
     align-items: center;
+    border: 1px solid black;
+    border-radius: 0.3em;
+    margin-top: 0.2em;
   }
 
   .icon {

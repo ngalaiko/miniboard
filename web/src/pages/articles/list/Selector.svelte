@@ -28,7 +28,6 @@
   .select {
     display: flex;
     justify-content: center;
-    padding: 0.3em;
   }
 
   .option {

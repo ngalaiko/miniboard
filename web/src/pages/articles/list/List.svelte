@@ -90,7 +90,7 @@
 </script>
 
 <div class="list">
-  <div>
+  <div class="list-header">
     <Selector
       selectedValue={category}
       on:select={(e) => onCalegorySelect(Categories[e.detail])}
@@ -147,6 +147,10 @@
     min-height: 100%;
   }
 
+  .list-header {
+    margin: 0.2em;
+  }
+
   .list-ul {
     margin: 0;
     padding: 0;
@@ -158,7 +162,6 @@
   }
 
   .list-li {
-    border-top: 1px solid;
     padding-right: 0.4em;
   }
 
