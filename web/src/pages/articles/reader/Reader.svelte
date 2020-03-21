@@ -19,7 +19,7 @@
 <button class="navigation-bar" on:click={() => {
   dispatch('close')
 }}>
-  <ChevronLeftIcon size="24" />
+  <ChevronLeftIcon size="30" />
 </button>
 <div class='reader'>
   {#if /users\/.+\/articles\/.+/.test(articleName)}
@@ -110,6 +110,8 @@
       font: inherit;
       border: 0;
       background: inherit;
+      padding: 0;
+      margin: 0;
     }
     .reader {
       padding: 1em;
