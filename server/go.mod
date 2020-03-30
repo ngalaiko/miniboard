@@ -17,7 +17,7 @@ require (
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/onsi/gomega v1.9.0 // indirect
 	github.com/segmentio/ksuid v1.0.2
-	github.com/sirupsen/logrus v1.4.2
+	github.com/sirupsen/logrus v1.5.0
 	github.com/spaolacci/murmur3 v1.1.0
 	github.com/stretchr/testify v1.5.1
 	golang.org/x/net v0.0.0-20191002035440-2ec189313ef0
