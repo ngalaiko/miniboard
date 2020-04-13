@@ -24,6 +24,6 @@ require (
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	google.golang.org/genproto v0.0.0-20200207204624-4f3edf09f4f6
 	google.golang.org/grpc v1.27.0
-	gopkg.in/square/go-jose.v2 v2.4.1
+	gopkg.in/square/go-jose.v2 v2.5.0
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
