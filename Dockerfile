@@ -8,7 +8,7 @@ WORKDIR /server
 RUN go build -o miniboard ./cmd/miniboard/main.go
 
 
-FROM node:13.8.0-alpine as node_builder
+FROM node:13.13.0-alpine as node_builder
 
 ARG VERSION=development
 ENV VERSION=$VERSION
@@ -20,7 +20,7 @@ RUN npm install --global rollup
 RUN yarn install && yarn build
 
 
-FROM alpine:3.11.3
+FROM alpine:3.11.6
 
 COPY --from=go_builder /server/miniboard /app/miniboard
 COPY --from=node_builder /web/dist /app/dist
