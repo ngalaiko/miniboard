@@ -8,7 +8,7 @@ WORKDIR /server
 RUN go build -o miniboard ./cmd/miniboard/main.go
 
 
-FROM node:13.13.0-alpine as node_builder
+FROM node:14.2.0-alpine as node_builder
 
 ARG VERSION=development
 ENV VERSION=$VERSION
