@@ -10,7 +10,7 @@ require (
 	github.com/gogo/protobuf v1.2.1
 	github.com/golang/protobuf v1.3.4
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
-	github.com/grpc-ecosystem/grpc-gateway v1.14.5
+	github.com/grpc-ecosystem/grpc-gateway v1.14.6
 	github.com/mmcdole/gofeed v1.0.0
 	github.com/onsi/ginkgo v1.12.0 // indirect
 	github.com/onsi/gomega v1.9.0 // indirect
@@ -20,7 +20,7 @@ require (
 	github.com/stretchr/testify v1.5.1
 	golang.org/x/net v0.0.0-20191002035440-2ec189313ef0
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
-	google.golang.org/genproto v0.0.0-20200207204624-4f3edf09f4f6
+	google.golang.org/genproto v0.0.0-20200513103714-09dca8ec2884
 	google.golang.org/grpc v1.29.1
 	gopkg.in/square/go-jose.v2 v2.5.1
 	gopkg.in/yaml.v2 v2.2.8 // indirect
