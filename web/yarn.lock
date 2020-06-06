@@ -595,10 +595,10 @@ svelte-infinite-scroll@^1.0.0:
   resolved "https://registry.yarnpkg.com/svelte-infinite-scroll/-/svelte-infinite-scroll-1.0.0.tgz#7b027affe41ee80cb03b1bc4b1472e9487bf86c9"
   integrity sha512-XUKTeuvVXqriaVVOnJMdP22B1arys8qqgTOl64xEIUBAbzfYHrN1icOMFDWplcFfbVooU4uT5vHAh73K9Ijczw==
 
-svelte-preprocess@^3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/svelte-preprocess/-/svelte-preprocess-3.4.0.tgz#bd21f2a26113b53a7d1ef5f1939a2d5b2e74a4af"
-  integrity sha512-XujaaZP777ivvlE+Oy8CnDySJRSWtWO2Okqa+gt93Xq92SLR0KwE9hLDPe0UzTwWEuMfIUi7xqAj9hAoub01tQ==
+svelte-preprocess@^3.9.3:
+  version "3.9.3"
+  resolved "https://registry.yarnpkg.com/svelte-preprocess/-/svelte-preprocess-3.9.3.tgz#43c8b793805d6fe20d3abc2bae0aade6a56fdc7d"
+  integrity sha512-Qi/hAp8ejBwEE+rNjD13a0wsTlVUXleZ/0omJL3ZcxJmb1f7s/4XRq33rkMCH7jMibfeRlPtXY43Ws50kOAy3w==
   dependencies:
     "@types/pug" "^2.0.4"
     "@types/sass" "^1.16.0"
