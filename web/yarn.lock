@@ -610,10 +610,10 @@ svelte-routing@^1.4.0:
   resolved "https://registry.yarnpkg.com/svelte-routing/-/svelte-routing-1.4.0.tgz#09285f3c7b19f509dfb1289fbc1235b348aa7d80"
   integrity sha512-09ypn0/vD2PcuyZEEocUHFgi7kvLOxSoUUuJZ4j3p4Y4sT/kMIWtHIRpnLdsr8bQ+sGo77sbEkO+av6yd1RjPg==
 
-svelte@^3.19.1:
-  version "3.19.1"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.19.1.tgz#2455e443f8ca67b98f3b7eb58285eaeb8af0c4b9"
-  integrity sha512-MGBh6LiWwwOfzlH9epQ8mP5DNWsuc6fWsZpLy47beqNG8wSkrQ/ez7TxaV+8VZ5KOwJJnfesj5gqgGjM2NcWVw==
+svelte@^3.23.0:
+  version "3.23.0"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.23.0.tgz#bbcd6887cf588c24a975b14467455abfff9acd3f"
+  integrity sha512-cnyd96bK/Nw5DnYuB1hzm5cl6+I1fpmdKOteA7KLzU9KGLsLmvWsSkSKbcntzODCLmSySN3HjcgTHRo6/rJNTw==
 
 terser@^4.6.2:
   version "4.6.3"
