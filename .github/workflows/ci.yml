@@ -115,3 +115,7 @@ jobs:
         helm template miniboard \
           --set "Version=$(git rev-parse HEAD)" \
           | kubectl apply -f-
+
+    - name: Wait for deployment
+      run: |
+         kubectl -n miniboard rollout status --watch --timeout 10m deployment miniboard
