@@ -12,7 +12,7 @@ metadata:
     service.beta.kubernetes.io/do-loadbalancer-protocol: "http"
     service.beta.kubernetes.io/do-loadbalancer-tls-ports: "443"
     service.beta.kubernetes.io/do-loadbalancer-algorithm: "least_connections"
-    service.beta.kubernetes.io/do-loadbalancer-certificate-id: "835cd38e-a2c8-427c-baab-a9e55b850ac0"
+    service.beta.kubernetes.io/do-loadbalancer-certificate-id: "d922f0a6-1d34-4a96-9b65-902a22e7fd47"
     service.beta.kubernetes.io/do-loadbalancer-redirect-http-to-https: "true"
 spec:
   type: LoadBalancer
