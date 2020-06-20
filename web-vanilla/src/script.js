@@ -32,7 +32,18 @@ const handleCodeClick = async (e) => {
     document.location = `/codes?code=${codeInput.value}`
 }
 
+const init = async () => {
+    let response = await fetch('/api/v1/users/me')
+    if (response.status != 200) {
+        return
+    }
+
+    document.location = '/users'
+}
+
 emailButton.addEventListener('click', handleEmailClick)
 codeButton.addEventListener('click', handleCodeClick)
 
 emailInput.addEventListener('input', handleEmailInput)
+
+init()
