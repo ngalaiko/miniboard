@@ -28,13 +28,22 @@
 </head>
 
 <body>
-    <div id="feeds-container">
-        loading...
+    <div id="header">
+        <form id="add-form" class="hidden">
+            <input id="add-form-input" placeholder="Save a URL https://"/>
+            <button id="add-form-button"></button>
+        </form>
+        <input id="add-toggle" type="checkbox"></button>
     </div>
-    <div id="articles-container">
-        loading...
+    <div id="body">
+        <ul id="feeds-list">
+            loading...
+        </ul>
+        <ul id="articles-list">
+            loading...
+        </ul>
+        <div id="reader-container"></div>
     </div>
-    <div id="reader-container"></div>
 
     <script src="script.js"></script>
 </body>

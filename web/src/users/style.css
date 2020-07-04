@@ -1,9 +1,39 @@
-#feeds-container {
+body {
+    flex-direction: column;
+}
+
+#header {
+    display: flex;
+    justify-content: flex-end;
+}
+
+#add-toggle {
+    cursor: pointer;
+}
+
+#add-form {
+    display: flex;
+}
+
+.hidden {
+    width: 0;
+    height: 0;
+    opacity: 0;
+}
+
+#body {
+    width: 100%;
+    display: flex;
+}
+
+#feeds-list {
+    display: flex;
+    flex-direction: column;
     height: 100%;
     width: 20%;
 }
 
-#articles-container {
+#articles-list {
     height: 100%;
     width: 20%;
 }
