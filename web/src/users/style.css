@@ -1,0 +1,14 @@
+#feeds-container {
+    height: 100%;
+    width: 20%;
+}
+
+#articles-container {
+    height: 100%;
+    width: 20%;
+}
+
+#reader-container {
+    height: 100%;
+    width: 60%;
+}
