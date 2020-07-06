@@ -9,11 +9,21 @@ import "google/protobuf/timestamp.proto";
 option go_package = "feeds";
 
 service FeedsService {
+    rpc GetFeed(GetFeedRequest) returns (Feed) {
+        option (google.api.http) = {
+            get: "/api/v1/{name=users/*/feeds/*}"
+        };
+    }
+
     rpc ListFeeds(ListFeedsRequest) returns (ListFeedsResponse) {
         option (google.api.http) = {
             get: "/api/v1/users/*/feeds"
         };
     }
+}
+
+message GetFeedRequest {
+    string name = 1;
 }
 
 message ListFeedsRequest {

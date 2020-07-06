@@ -72,12 +72,10 @@ func Test_feeds(t *testing.T) {
 			})
 
 			t.Run("When adding the same feed again", func(t *testing.T) {
-				feed2, err := service.CreateFeed(ctx, testFeed, testURL)
+				_, err := service.CreateFeed(ctx, testFeed, testURL)
 
 				t.Run("It must not be duplicated", func(t *testing.T) {
-					if assert.NoError(t, err) {
-						assert.Equal(t, feed.Name, feed2.Name)
-					}
+					assert.Equal(t, err, ErrAlreadyExists)
 				})
 			})
 		})

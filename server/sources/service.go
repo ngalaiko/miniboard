@@ -138,6 +138,9 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *Source) (*Sou
 		strings.Contains(ct, "application/xml"),
 		strings.Contains(ct, "text/xml"):
 		feed, err := s.feedsService.CreateFeed(ctx, bytes.NewBuffer(body), url)
+		if errors.Is(err, feeds.ErrAlreadyExists) {
+			return nil, status.Error(codes.AlreadyExists, "article already exists")
+		}
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to create feed from source: %s", err)
 		}

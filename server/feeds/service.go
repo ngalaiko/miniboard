@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -22,6 +23,11 @@ import (
 	"miniboard.app/fetch"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"
+)
+
+// Known errors.
+var (
+	ErrAlreadyExists = errors.New("article already exists")
 )
 
 type articlesService interface {
@@ -48,6 +54,31 @@ func NewService(ctx context.Context, storage storage.Storage, fetcher fetch.Fetc
 	}
 	go s.listenToUpdates(ctx)
 	return s
+}
+
+// GetFeed returns a feed.
+func (s *Service) GetFeed(ctx context.Context, request *GetFeedRequest) (*Feed, error) {
+	name := resource.ParseName(request.Name)
+
+	if !actor.Owns(ctx, name) {
+		return nil, status.Errorf(codes.PermissionDenied, "forbidden")
+	}
+
+	raw, err := s.storage.Load(ctx, name)
+	switch {
+	case err == nil:
+	case errors.Is(err, storage.ErrNotFound):
+		return nil, status.Errorf(codes.NotFound, "not found")
+	default:
+		return nil, status.Errorf(codes.Internal, "failed to load the feed")
+	}
+
+	feed := &Feed{}
+	if err := proto.Unmarshal(raw, feed); err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to unmarshal the feed")
+	}
+
+	return feed, nil
 }
 
 // ListFeeds returns a list of feeds.
@@ -106,13 +137,8 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 	_, _ = urlHash.Write([]byte(url.String()))
 
 	name := a.Child("feeds", fmt.Sprintf("%x", urlHash.Sum(nil)))
-	if rawExisting, err := s.storage.Load(ctx, name); err == nil {
-		feed := &Feed{}
-		if err := proto.Unmarshal(rawExisting, feed); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal the article: %w", err)
-		}
-
-		return feed, err
+	if _, err := s.storage.Load(ctx, name); err == nil {
+		return nil, ErrAlreadyExists
 	}
 
 	f := &Feed{
@@ -171,7 +197,7 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, f *Feed) error {
 
 		updated = true
 
-		if err := s.saveItem(ctx, item); err != nil {
+		if err := s.saveItem(ctx, item); err != nil && !errors.Is(err, articles.ErrAlreadyExists) {
 			log().Errorf("failed to save item %s: %s", item.Link, err)
 			continue
 		}

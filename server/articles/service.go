@@ -26,6 +26,7 @@ import (
 	"miniboard.app/storage/resource"
 )
 
+// Known errors.
 var (
 	ErrAlreadyExists = errors.New("article already exists")
 )

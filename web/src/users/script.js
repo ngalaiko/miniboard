@@ -55,6 +55,7 @@ const handleAdd = async (url) => {
                     addArticle(resource)
                     break
                 case "feeds":
+                    addFeed(resource)
                     break
             }
             break
@@ -73,7 +74,7 @@ addFormButton.addEventListener('click', handleAddFormButton)
 const feedsList = document.getElementById('feeds-list')
 
 const loadFeeds = async () => {
-    let response = await fetch(`/api/v1/${username}/feeds`)
+    let response = await fetch(`/api/v1/${username}/feeds?page_size=10`)
     if (response.status !== 200) {
         alert(`Error: ${(await response.json()).message}`)
         return
@@ -87,6 +88,30 @@ const loadFeeds = async () => {
         feedsList.innerText = 'Empty'
         return
     }
+
+    feedsList.innerText = ''
+    feeds.forEach(addFeed)
+}
+
+const addFeed = (feed) => {
+    let li = document.createElement('li')
+    li.id = `$feedarticle.name}-container`
+    li.innerHTML = `
+    <div id="${feed.name}">
+        ${feed.title}
+    </div>`
+
+    let child = feedsList.firstChild
+    if (child === null) {
+        feedsList.appendChild(li)
+        return
+    }
+
+    while (child && li.id < child.firstElementChild.id) {
+        child = child.nextSibling
+    }
+
+    feedsList.insertBefore(li, child)
 }
 
 //
