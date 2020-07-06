@@ -26,6 +26,10 @@ import (
 	"miniboard.app/storage/resource"
 )
 
+var (
+	ErrAlreadyExists = errors.New("article already exists")
+)
+
 // Service controls articles resource.
 type Service struct {
 	storage storage.Storage
@@ -160,7 +164,7 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 		// compare content
 		if existingArticle, err := s.getArticle(ctx, cc[0].Name.Parent()); err == nil {
 			if existingArticle.ContentSha256Sum == article.ContentSha256Sum {
-				return existingArticle, nil
+				return nil, ErrAlreadyExists
 			}
 			existingArticle.ContentSha256Sum = article.ContentSha256Sum
 			article = existingArticle

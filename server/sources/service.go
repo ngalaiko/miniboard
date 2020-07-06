@@ -3,6 +3,7 @@ package sources
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -124,6 +125,9 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *Source) (*Sou
 	case strings.Contains(ct, "text/html"):
 		now := time.Now()
 		article, err := s.articlesService.CreateArticle(ctx, bytes.NewBuffer(body), url, &now)
+		if errors.Is(err, articles.ErrAlreadyExists) {
+			return nil, status.Error(codes.AlreadyExists, "article already exists")
+		}
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to create article from source: %s", err)
 		}

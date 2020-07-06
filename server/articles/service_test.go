@@ -83,12 +83,9 @@ func Test_articles(t *testing.T) {
 			t.Run("When adding the same article twice", func(t *testing.T) {
 				body = testArticle(url.String())
 				ts := time.Now().Add(time.Second)
-				resp2, err := service.CreateArticle(ctx, body, url, &ts)
+				_, err := service.CreateArticle(ctx, body, url, &ts)
 				t.Run("It should return the same article with the same content", func(t *testing.T) {
-					if assert.NoError(t, err) {
-						assert.Equal(t, resp2.Name, resp.Name)
-						assert.Equal(t, resp2.ContentSha256Sum, resp.ContentSha256Sum)
-					}
+					assert.Equal(t, err, ErrAlreadyExists)
 				})
 			})
 			t.Run("When adding the same article with different content", func(t *testing.T) {

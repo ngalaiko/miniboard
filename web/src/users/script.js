@@ -58,6 +58,8 @@ const handleAdd = async (url) => {
                     break
             }
             break
+        case 409:
+            break
         default:
             alert(`Error: ${(await response.json()).message}`)
             break
