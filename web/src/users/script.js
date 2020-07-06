@@ -191,10 +191,15 @@ const loadArticles = async () => {
 const addArticle = (article) => {
     let li = document.createElement('li')
     li.id = `${article.name}-container`
-    li.innerHTML = `
-    <div id="${article.name}">
+
+    let div = document.createElement('div')
+    div.id = article.name
+    div.innerHTML = `
         ${article.title}
-    </div>`
+    `
+    div.addEventListener('click', handleSelectArticle)
+
+    li.appendChild(div)
 
     let child = articlesList.firstChild
     if (child === null) {
@@ -213,10 +218,56 @@ articlesList.addEventListener('scroll', handleScroll(loadArticles))
 
 //
 
+const loadReader = async () => {
+    const urlParams = new URLSearchParams(window.location.search.slice(1))
+
+    const selectedArticleName = urlParams.get('article')
+
+    if (selectedArticleName == '') return
+
+    await displayArticle(selectedArticleName)
+}
+
+const handleSelectArticle = async (e) => {
+    const urlParams = new URLSearchParams(window.location.search.slice(1))
+
+    if (urlParams.get('article') === e.target.id) return
+
+    urlParams.set('article', e.target.id)
+
+    let refresh = window.location.protocol +
+        "//" + window.location.host + window.location.pathname +
+        `?${urlParams.toString()}`
+    window.history.pushState({ path: refresh }, '', refresh)
+
+    await displayArticle(e.target.id)
+}
+
+const readerContainer = document.getElementById('reader-container')
+
+const displayArticle = async (articleName) => {
+    let response = await fetch(`/api/v1/${articleName}?view=ARTICLE_VIEW_FULL`)
+    if (response.status !== 200) {
+        alert(`Error: ${(await response.json()).message}`)
+        return
+    }
+
+    let article = await response.json()
+
+    let decodedContent = decodeURIComponent(atob(article.content).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    }).join(''))
+
+    readerContainer.innerHTML = decodedContent
+}
+
+//
+
 const init = async () => {
     await setCurrentUser()
     loadFeeds()
     loadArticles()
+    loadReader()
 }
 
 init()
