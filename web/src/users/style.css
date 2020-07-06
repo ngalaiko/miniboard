@@ -9,8 +9,25 @@ body {
     height: 5%;
 }
 
+#add {
+    display: flex;
+}
+
 #add-toggle {
     display: none;
+}
+
+#add-form {
+    border: 1px solid;
+}
+
+#add-form-input {
+    border: none;
+    background: inherit;
+}
+
+#add-form-input:focus {
+    outline: none;
 }
 
 #add-toggle-label {
