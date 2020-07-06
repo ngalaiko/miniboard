@@ -5,14 +5,29 @@ body {
 #header {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
 }
 
 #add-toggle {
-    cursor: pointer;
+    display: none;
+}
+
+#add-toggle + label + #add-form {
+    display: none;
+}
+
+#add-toggle:checked + label + #add-form {
+    display: flex;
 }
 
 #add-form {
     display: flex;
+}
+
+#add-form-button {
+    padding-left: 0; padding-right: 0;
+    border: 0;
+    background: inherit;
 }
 
 .hidden {

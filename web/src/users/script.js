@@ -15,19 +15,6 @@ const setCurrentUser = async () => {
 
 //
 
-const addToggle = document.getElementById('add-toggle')
-const addForm = document.getElementById('add-form')
-
-const handleAddToggle = async (e) => {
-    e.target.checked
-        ? addForm.classList.remove("hidden")
-        : addForm.classList.add("hidden")
-}
-
-addToggle.addEventListener('click', handleAddToggle)
-
-//
-
 const addFormButton = document.getElementById('add-form-button')
 const addFormInput = document.getElementById('add-form-input')
 
