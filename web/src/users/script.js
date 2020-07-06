@@ -58,6 +58,38 @@ addFormButton.addEventListener('click', handleAddFormButton)
 
 //
 
+const addFormFile = document.getElementById('add-form-file')
+
+const handleAddFormFile = async (e) => {
+    if (e.target.files.length === 0) return
+
+    const file = e.target.files[0]
+
+    const content = await new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsBinaryString(file)
+        reader.onload = e => {
+            if (e.target === null) return
+            resolve(e.target.result)
+        }
+        reader.onerror = () => reject(new Error('failed to read file'))
+    })
+
+    let response = await fetch(`/api/v1/${username}/sources`, {
+        method: 'POST',
+        body: JSON.stringify({
+            raw: btoa(content)
+        })
+    })
+    if (response.status !== 200) {
+        alert(`Error: ${(await response.json()).message}`)
+    }
+}
+
+addFormFile.addEventListener('change', handleAddFormFile)
+
+//
+
 const feedsList = document.getElementById('feeds-list')
 
 const loadFeeds = async () => {

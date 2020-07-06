@@ -12,6 +12,10 @@ body {
     display: none;
 }
 
+#add-toggle-label {
+    cursor: pointer;
+}
+
 #add-toggle + label + #add-form {
     display: none;
 }
@@ -28,6 +32,14 @@ body {
     padding-left: 0; padding-right: 0;
     border: 0;
     background: inherit;
+}
+
+#add-form-file {
+    display: none;
+}
+
+#add-form-file-label {
+    cursor: pointer;
 }
 
 .hidden {
