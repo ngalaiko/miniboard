@@ -90,26 +90,49 @@ addFormFile.addEventListener('change', handleAddFormFile)
 
 //
 
+const handleScroll = (loadMore) => {
+    return async (e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target
+
+        if (scrollTop + clientHeight >= scrollHeight - 25) {
+            if (e.target.lastElementChild.style.visibility == 'visible') return
+
+            e.target.lastElementChild.style.visibility = 'visible'
+
+            await loadMore()
+
+            e.target.lastElementChild.style.visibility = 'hidden'
+        }
+    }
+}
+
+//
+
 const feedsList = document.getElementById('feeds-list')
 
+let feedsPageToken = undefined
+
 const loadFeeds = async () => {
-    let response = await fetch(`/api/v1/${username}/feeds?page_size=10`)
+    if (feedsPageToken === "") return
+    if (feedsPageToken === undefined) feedsPageToken = ""
+
+    let response = await fetch(`/api/v1/${username}/feeds?page_size=10&page_token=${feedsPageToken}`)
     if (response.status !== 200) {
         alert(`Error: ${(await response.json()).message}`)
         return
     }
 
     let body = (await response.json())
-    let nextPageToken = body.nextPageToken
+    feedsPageToken = body.nextPageToken
     let feeds = body.feeds
 
-    if (nextPageToken === '' && feeds.length == 0) {
-        feedsList.innerText = 'Empty'
-        return
-    }
-
-    feedsList.innerText = ''
+    feedsList.lastElementChild.style.visibility = 'hidden'
     feeds.forEach(addFeed)
+
+    const { scrollTop, scrollHeight, clientHeight } = feedsList
+    let isListFull = (scrollTop + clientHeight >= scrollHeight)
+
+    if (isListFull && feedsPageToken !== '') await loadFeeds()
 }
 
 const addFeed = (feed) => {
@@ -126,35 +149,43 @@ const addFeed = (feed) => {
         return
     }
 
-    while (child && li.id < child.firstElementChild.id) {
+    while (child && child.firstElementChild && li.id < child.firstElementChild.id) {
         child = child.nextSibling
     }
 
     feedsList.insertBefore(li, child)
 }
 
+feedsList.addEventListener('scroll', handleScroll(loadFeeds))
+
 //
 
 const articlesList = document.getElementById('articles-list')
 
+let articlesPageToken = undefined
+
 const loadArticles = async () => {
-    let response = await fetch(`/api/v1/${username}/articles?page_size=10`)
+    if (articlesPageToken === "") return
+    if (articlesPageToken === undefined) articlesPageToken = ""
+
+    let response = await fetch(`/api/v1/${username}/articles?page_size=10&page_token=${articlesPageToken}`)
     if (response.status !== 200) {
         alert(`Error: ${(await response.json()).message}`)
         return
     }
 
     let body = (await response.json())
-    let nextPageToken = body.nextPageToken
+    articlesPageToken = body.nextPageToken
     let articles = body.articles
 
-    if (nextPageToken === '' && articles.length == 0) {
-        articlesList.innerText = 'Empty'
-        return
-    }
-
-    articlesList.innerText = ''
+    articlesList.lastElementChild.hidden = true
     articles.forEach(addArticle)
+
+    const { scrollTop, scrollHeight, clientHeight } = articlesList
+
+    let isListFull = (scrollTop + clientHeight >= scrollHeight)
+
+    if (isListFull && articlesPageToken !== '') await loadArticles()
 }
 
 const addArticle = (article) => {
@@ -171,12 +202,14 @@ const addArticle = (article) => {
         return
     }
 
-    while (child && li.id < child.firstElementChild.id) {
+    while (child && child.firstElementChild && li.id < child.firstElementChild.id) {
         child = child.nextSibling
     }
 
     articlesList.insertBefore(li, child)
 }
+
+articlesList.addEventListener('scroll', handleScroll(loadArticles))
 
 //
 
