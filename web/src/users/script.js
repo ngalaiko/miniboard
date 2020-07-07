@@ -92,6 +92,7 @@ addFormFile.addEventListener('change', handleAddFormFile)
 
 const handleScroll = (loadMore) => {
     return async (e) => {
+        console.log('test')
         const { scrollTop, scrollHeight, clientHeight } = e.target
 
         if (scrollTop + clientHeight >= scrollHeight - 25) {
@@ -137,7 +138,7 @@ const loadFeeds = async () => {
 
 const addFeed = (feed) => {
     let li = document.createElement('li')
-    li.id = `$feedarticle.name}-container`
+    li.id = `${feed.name}-container`
     li.innerHTML = `
     <div id="${feed.name}">
         ${feed.title}
@@ -223,7 +224,7 @@ const loadReader = async () => {
 
     const selectedArticleName = urlParams.get('article')
 
-    if (selectedArticleName == '') return
+    if (!selectedArticleName) return
 
     await displayArticle(selectedArticleName)
 }
