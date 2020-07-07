@@ -243,7 +243,9 @@ const handleSelectArticle = async (e) => {
     await displayArticle(e.target.id)
 }
 
-const readerContainer = document.getElementById('reader-container')
+const readerContent = document.getElementById('reader-content')
+const readerLink = document.getElementById('reader-link')
+const readerTitle = document.getElementById('reader-title')
 
 const displayArticle = async (articleName) => {
     let response = await fetch(`/api/v1/${articleName}?view=ARTICLE_VIEW_FULL`)
@@ -258,7 +260,9 @@ const displayArticle = async (articleName) => {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
     }).join(''))
 
-    readerContainer.innerHTML = decodedContent
+    readerTitle.innerText = article.title
+    readerLink.href = article.url
+    readerContent.innerHTML = decodedContent
 }
 
 //
