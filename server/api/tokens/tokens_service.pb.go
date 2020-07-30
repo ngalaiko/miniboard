@@ -130,11 +130,11 @@ var fileDescriptor_dd6f19eda647de0b = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConnInterface
+var _ grpc.ClientConn
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+const _ = grpc.SupportPackageIsVersion4
 
 // TokensServiceClient is the client API for TokensService service.
 //
@@ -147,10 +147,10 @@ type TokensServiceClient interface {
 }
 
 type tokensServiceClient struct {
-	cc grpc.ClientConnInterface
+	cc *grpc.ClientConn
 }
 
-func NewTokensServiceClient(cc grpc.ClientConnInterface) TokensServiceClient {
+func NewTokensServiceClient(cc *grpc.ClientConn) TokensServiceClient {
 	return &tokensServiceClient{cc}
 }
 
