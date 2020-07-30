@@ -11,7 +11,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
-	"miniboard.app/articles"
+	"miniboard.app/api/articles"
 	"miniboard.app/codes"
 	"miniboard.app/email"
 	"miniboard.app/feeds"

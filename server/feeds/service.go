@@ -19,7 +19,7 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	"miniboard.app/api/actor"
-	"miniboard.app/articles"
+	"miniboard.app/api/articles"
 	"miniboard.app/fetch"
 	"miniboard.app/storage"
 	"miniboard.app/storage/resource"

@@ -13,7 +13,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/api/actor"
-	"miniboard.app/articles"
+	"miniboard.app/api/articles"
 	"miniboard.app/feeds"
 	"miniboard.app/storage/resource"
 )

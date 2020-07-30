@@ -15,7 +15,7 @@ import (
 	miniredis "github.com/alicebob/miniredis/v2"
 	"github.com/stretchr/testify/assert"
 	"miniboard.app/api/actor"
-	"miniboard.app/articles"
+	"miniboard.app/api/articles"
 	"miniboard.app/storage/redis"
 	"miniboard.app/storage/resource"
 )
