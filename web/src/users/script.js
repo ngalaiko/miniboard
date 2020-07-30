@@ -110,6 +110,7 @@ const handleScroll = (loadMore) => {
 //
 
 const feedsList = document.getElementById('feeds-list')
+const feedsListPlaceholder = document.getElementById('feeds-list-placeholder')
 
 let feedsPageToken = undefined
 
@@ -137,6 +138,8 @@ const loadFeeds = async () => {
 }
 
 const addFeed = (feed) => {
+    feedsListPlaceholder.hidden = true
+
     let li = document.createElement('li')
     li.id = `${feed.name}-container`
     li.innerHTML = `
