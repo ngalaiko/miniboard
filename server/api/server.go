@@ -12,7 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
 	"miniboard.app/api/articles"
-	"miniboard.app/codes"
+	"miniboard.app/api/codes"
 	"miniboard.app/email"
 	"miniboard.app/feeds"
 	"miniboard.app/fetch"

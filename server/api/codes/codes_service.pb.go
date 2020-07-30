@@ -133,11 +133,11 @@ var fileDescriptor_e5a73e0b96836af0 = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConnInterface
+var _ grpc.ClientConn
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion6
+const _ = grpc.SupportPackageIsVersion4
 
 // CodesServiceClient is the client API for CodesService service.
 //
@@ -150,10 +150,10 @@ type CodesServiceClient interface {
 }
 
 type codesServiceClient struct {
-	cc grpc.ClientConnInterface
+	cc *grpc.ClientConn
 }
 
-func NewCodesServiceClient(cc grpc.ClientConnInterface) CodesServiceClient {
+func NewCodesServiceClient(cc *grpc.ClientConn) CodesServiceClient {
 	return &codesServiceClient{cc}
 }
 
