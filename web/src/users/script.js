@@ -162,6 +162,7 @@ feedsList.addEventListener('scroll', handleScroll(loadFeeds))
 //
 
 const articlesList = document.getElementById('articles-list')
+const articlesListPlaceholder = document.getElementById('articles-list-placeholder')
 
 let articlesPageToken = undefined
 
@@ -190,6 +191,8 @@ const loadArticles = async () => {
 }
 
 const addArticle = (article) => {
+    articlesListPlaceholder.hidden = true
+
     let li = document.createElement('li')
     li.id = `${article.name}-container`
 
