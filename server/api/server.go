@@ -15,12 +15,12 @@ import (
 	"miniboard.app/api/codes"
 	"miniboard.app/api/feeds"
 	"miniboard.app/api/sources"
+	"miniboard.app/api/users"
 	"miniboard.app/email"
 	"miniboard.app/fetch"
 	"miniboard.app/jwt"
 	"miniboard.app/storage"
 	"miniboard.app/tokens"
-	"miniboard.app/users"
 	"miniboard.app/web"
 )
 
