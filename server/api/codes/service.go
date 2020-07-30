@@ -46,7 +46,7 @@ func (s *Service) CreateCode(ctx context.Context, request *CreateCodeRequest) (*
 		return nil, status.New(responsecodes.Internal, "failed to generate token").Err()
 	}
 
-	link := fmt.Sprintf("%s/codes/%s", s.domain, token)
+	link := fmt.Sprintf("%s/codes?code=%s", s.domain, token)
 
 	msg := fmt.Sprintf(`
 Follow the link or copy code to the login form.
