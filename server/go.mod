@@ -1,4 +1,4 @@
-module miniboard.app
+module github.com/ngalaiko/miniboard/server
 
 go 1.14
 

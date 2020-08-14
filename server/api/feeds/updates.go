@@ -8,10 +8,10 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/ngalaiko/miniboard/server/api/actor"
+	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
-	"miniboard.app/api/actor"
-	"miniboard.app/storage/resource"
 )
 
 const (

@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"github.com/ngalaiko/miniboard/server/api/actor"
+	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/stretchr/testify/assert"
-	"miniboard.app/api/actor"
-	"miniboard.app/storage/resource"
 )
 
 func Test_UsersService(t *testing.T) {

@@ -6,9 +6,9 @@ import (
 	"time"
 
 	redis "github.com/go-redis/redis/v7"
+	"github.com/ngalaiko/miniboard/server/storage"
+	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/sirupsen/logrus"
-	"miniboard.app/storage"
-	"miniboard.app/storage/resource"
 )
 
 // Storage used to store key value data.

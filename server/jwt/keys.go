@@ -9,9 +9,9 @@ import (
 	"crypto/x509"
 	"fmt"
 
+	"github.com/ngalaiko/miniboard/server/storage"
+	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/segmentio/ksuid"
-	"miniboard.app/storage"
-	"miniboard.app/storage/resource"
 )
 
 // key is an encryption key.

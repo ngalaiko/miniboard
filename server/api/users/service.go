@@ -3,9 +3,9 @@ package users
 import (
 	"context"
 
+	"github.com/ngalaiko/miniboard/server/api/actor"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"miniboard.app/api/actor"
 )
 
 // Service controls users resource.

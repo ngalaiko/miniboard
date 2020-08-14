@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"miniboard.app/api/actor"
-	"miniboard.app/jwt"
+	"github.com/ngalaiko/miniboard/server/api/actor"
+	"github.com/ngalaiko/miniboard/server/jwt"
 )
 
 const authCookie = "auth"

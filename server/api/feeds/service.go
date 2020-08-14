@@ -15,14 +15,14 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/mmcdole/gofeed"
+	"github.com/ngalaiko/miniboard/server/api/actor"
+	"github.com/ngalaiko/miniboard/server/api/articles"
+	"github.com/ngalaiko/miniboard/server/fetch"
+	"github.com/ngalaiko/miniboard/server/storage"
+	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/spaolacci/murmur3"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	"miniboard.app/api/actor"
-	"miniboard.app/api/articles"
-	"miniboard.app/fetch"
-	"miniboard.app/storage"
-	"miniboard.app/storage/resource"
 )
 
 // Known errors.

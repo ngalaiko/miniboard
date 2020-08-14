@@ -12,14 +12,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ngalaiko/miniboard/server/api/actor"
+	"github.com/ngalaiko/miniboard/server/api/articles"
+	"github.com/ngalaiko/miniboard/server/api/feeds"
+	"github.com/ngalaiko/miniboard/server/fetch"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"miniboard.app/api/actor"
-	"miniboard.app/api/articles"
-	"miniboard.app/api/feeds"
-	"miniboard.app/fetch"
 )
 
 type articlesService interface {

@@ -13,11 +13,11 @@ import (
 	"time"
 
 	miniredis "github.com/alicebob/miniredis/v2"
+	"github.com/ngalaiko/miniboard/server/api/actor"
+	"github.com/ngalaiko/miniboard/server/api/articles"
+	"github.com/ngalaiko/miniboard/server/storage/redis"
+	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/stretchr/testify/assert"
-	"miniboard.app/api/actor"
-	"miniboard.app/api/articles"
-	"miniboard.app/storage/redis"
-	"miniboard.app/storage/resource"
 )
 
 type testClient struct{}

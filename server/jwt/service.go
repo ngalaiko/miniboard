@@ -6,16 +6,16 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ngalaiko/miniboard/server/storage"
+	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 	jose "gopkg.in/square/go-jose.v2"
 	"gopkg.in/square/go-jose.v2/jwt"
-	"miniboard.app/storage"
-	"miniboard.app/storage/resource"
 )
 
 const (
-	defaultIssuer = "miniboard.app"
+	defaultIssuer = "github.com/ngalaiko/miniboard/server"
 )
 
 // Service issues and validates jwt tokens.

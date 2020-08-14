@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"miniboard.app/storage/resource"
+	"github.com/ngalaiko/miniboard/server/storage/resource"
 )
 
 type actorCtxKeyType struct{}

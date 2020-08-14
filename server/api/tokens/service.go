@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"miniboard.app/jwt"
+	"github.com/ngalaiko/miniboard/server/jwt"
 )
 
 // todo: make it shorter

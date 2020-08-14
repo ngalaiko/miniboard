@@ -6,13 +6,13 @@ import (
 	"io"
 	"time"
 
+	"github.com/ngalaiko/miniboard/server/email"
+	"github.com/ngalaiko/miniboard/server/jwt"
+	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/sirupsen/logrus"
 	"github.com/spaolacci/murmur3"
 	responsecodes "google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"miniboard.app/email"
-	"miniboard.app/jwt"
-	"miniboard.app/storage/resource"
 )
 
 // Service implements codes service.

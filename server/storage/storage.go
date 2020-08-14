@@ -3,7 +3,7 @@ package storage
 import (
 	"context"
 
-	"miniboard.app/storage/resource"
+	"github.com/ngalaiko/miniboard/server/storage/resource"
 )
 
 // Storage used to store key value data.

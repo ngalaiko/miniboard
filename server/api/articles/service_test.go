@@ -14,12 +14,12 @@ import (
 
 	miniredis "github.com/alicebob/miniredis/v2"
 	"github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/ngalaiko/miniboard/server/api/actor"
+	"github.com/ngalaiko/miniboard/server/storage/redis"
+	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"miniboard.app/api/actor"
-	"miniboard.app/storage/redis"
-	"miniboard.app/storage/resource"
 )
 
 func testArticle(replacement string) io.ReadCloser {
