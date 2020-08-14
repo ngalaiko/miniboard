@@ -49,16 +49,17 @@ func New(ctx context.Context, addr string) (*Storage, error) {
 
 // Store implements storage.Storage.
 func (s *Storage) Store(ctx context.Context, name *resource.Name, data []byte) error {
-	if err := s.db.Set(name.String(), data, 0).Err(); err != nil {
-		return fmt.Errorf("failed to SET %s: %w", name, err)
-	}
+	pipe := s.db.TxPipeline()
 
+	pipe.Set(name.String(), data, 0)
 	collection, _ := name.Split()
 
-	if _, err := s.db.ZAdd(collection, &redis.Z{
+	pipe.ZAdd(collection, &redis.Z{
 		Member: name.String(),
-	}).Result(); err != nil {
-		return fmt.Errorf("failed to ZADD %s 0 %s: %w", collection, name, err)
+	})
+
+	if _, err := pipe.ExecContext(ctx); err != nil {
+		return fmt.Errorf("failed to store %s: %w", name, err)
 	}
 
 	return nil
@@ -116,13 +117,17 @@ func (s *Storage) loadMany(_ context.Context, names ...string) ([]*resource.Reso
 
 // Delete implements storage.Storage.
 func (s *Storage) Delete(ctx context.Context, name *resource.Name) error {
-	if _, err := s.db.Del(name.String()).Result(); err != nil {
-		return fmt.Errorf("failed to DEL %s: %w", name, err)
-	}
+	pipe := s.db.TxPipeline()
+
+	pipe.Del(name.String())
 	collection, _ := name.Split()
-	if _, err := s.db.ZRem(collection, name.String()).Result(); err != nil {
-		return fmt.Errorf("failed to ZREM %s %s: %w", collection, name, err)
+
+	pipe.ZRem(collection, name.String())
+
+	if _, err := pipe.Exec(); err != nil {
+		return fmt.Errorf("failed to delete %s: %w", name, err)
 	}
+
 	return nil
 }
 
