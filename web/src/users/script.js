@@ -137,6 +137,21 @@ const loadFeeds = async () => {
     if (isListFull && feedsPageToken !== '') await loadFeeds()
 }
 
+const handleSelectFeed = async (e) => {
+    const urlParams = new URLSearchParams(window.location.search.slice(1))
+
+    if (urlParams.get('source') === e.target.id) return
+
+    urlParams.set('source', e.target.id)
+
+    let refresh = window.location.protocol +
+        "//" + window.location.host + window.location.pathname +
+        `?${urlParams.toString()}`
+    window.history.pushState({ path: refresh }, '', refresh)
+
+    await reloadArticles()
+}
+
 const addFeed = (feed) => {
     feedsListPlaceholder.hidden = true
 
@@ -146,6 +161,8 @@ const addFeed = (feed) => {
     <div id="${feed.name}">
         ${feed.title}
     </div>`
+
+    li.addEventListener('click', handleSelectFeed)
 
     let child = feedsList.firstChild
     if (child === null) {
@@ -173,7 +190,17 @@ const loadArticles = async () => {
     if (articlesPageToken === "") return
     if (articlesPageToken === undefined) articlesPageToken = ""
 
-    let response = await fetch(`/api/v1/${username}/articles?page_size=10&page_token=${articlesPageToken}`)
+    const urlParams = new URLSearchParams(window.location.search.slice(1))
+
+    let articlesUrl = `/api/v1/${username}/articles?`
+        + `page_size=10`
+        + `&page_token=${articlesPageToken}`
+
+    if (urlParams.get('source')) {
+        articlesUrl += `&source_name=${urlParams.get('source')}`
+    }
+
+    let response = await fetch(articlesUrl)
     if (response.status !== 200) {
         alert(`Error: ${(await response.json()).message}`)
         return
@@ -193,11 +220,22 @@ const loadArticles = async () => {
     if (isListFull && articlesPageToken !== '') await loadArticles()
 }
 
+const reloadArticles = async () => {
+    document.querySelectorAll('.article').forEach(n => n.remove())
+    articlesList.lastElementChild.style.visibility = 'visible'
+
+    articlesPageToken = undefined
+    await loadArticles()
+
+    articlesList.lastElementChild.style.visibility = 'hidden'
+}
+
 const addArticle = (article) => {
     articlesListPlaceholder.hidden = true
 
     let li = document.createElement('li')
     li.id = `${article.name}-container`
+    li.classList.add('article')
 
     let div = document.createElement('div')
     div.id = article.name
