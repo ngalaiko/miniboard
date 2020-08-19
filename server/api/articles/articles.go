@@ -75,6 +75,10 @@ func (s *Service) ListArticles(ctx context.Context, request *ListArticlesRequest
 			return true, nil
 		}
 
+		if request.SourceName != nil && a.SourceName != request.SourceName.GetValue() {
+			return true, nil
+		}
+
 		if request.Title != nil && !strings.Contains(
 			strings.ToLower(a.Title),
 			strings.ToLower(request.Title.GetValue()),
