@@ -73,7 +73,7 @@ func Test_articles(t *testing.T) {
 
 			body := testArticle(url.String())
 
-			resp, err := service.CreateArticle(ctx, body, url, nil)
+			resp, err := service.CreateArticle(ctx, body, url, nil, nil)
 			t.Run("It should be created", func(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotEmpty(t, resp.Name)
@@ -83,7 +83,7 @@ func Test_articles(t *testing.T) {
 			t.Run("When adding the same article twice", func(t *testing.T) {
 				body = testArticle(url.String())
 				ts := time.Now().Add(time.Second)
-				_, err := service.CreateArticle(ctx, body, url, &ts)
+				_, err := service.CreateArticle(ctx, body, url, &ts, nil)
 				t.Run("It should return the same article with the same content", func(t *testing.T) {
 					assert.Equal(t, err, ErrAlreadyExists)
 				})
@@ -91,7 +91,7 @@ func Test_articles(t *testing.T) {
 			t.Run("When adding the same article with different content", func(t *testing.T) {
 				body = testArticle("new content here")
 				ts := time.Now().Add(time.Hour)
-				resp2, err := service.CreateArticle(ctx, body, url, &ts)
+				resp2, err := service.CreateArticle(ctx, body, url, &ts, nil)
 
 				t.Run("It should return the same article with different content", func(t *testing.T) {
 					if assert.NoError(t, err) {
@@ -173,7 +173,7 @@ func Test_articles(t *testing.T) {
 
 				body := testArticle(url.String())
 
-				resp, err := service.CreateArticle(ctx, body, url, nil)
+				resp, err := service.CreateArticle(ctx, body, url, nil, nil)
 				assert.NoError(t, err)
 				assert.NotEmpty(t, resp.Name)
 				assert.Equal(t, resp.Url, fmt.Sprintf("http://localhost.com/%d", i))

@@ -109,7 +109,13 @@ func (s *Service) ListArticles(ctx context.Context, request *ListArticlesRequest
 }
 
 // CreateArticle creates a new article.
-func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL *url.URL, published *time.Time) (*Article, error) {
+func (s *Service) CreateArticle(
+	ctx context.Context,
+	body io.Reader,
+	articleURL *url.URL,
+	published *time.Time,
+	sourceName *resource.Name,
+) (*Article, error) {
 	// before that date ksuid is no longer lexicographicaly sortable
 	// https://github.com/segmentio/ksuid#how-do-they-work
 	var timeLimit = time.Unix(1400000000, 0)
@@ -126,6 +132,11 @@ func (s *Service) CreateArticle(ctx context.Context, body io.Reader, articleURL 
 	article := &Article{
 		Url: articleURL.String(),
 	}
+
+	if sourceName != nil {
+		article.SourceName = sourceName.String()
+	}
+
 	var err error
 	article.CreateTime, err = ptypes.TimestampProto(createTime)
 	if err != nil {

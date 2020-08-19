@@ -31,7 +31,7 @@ var (
 )
 
 type articlesService interface {
-	CreateArticle(context.Context, io.Reader, *url.URL, *time.Time) (*articles.Article, error)
+	CreateArticle(context.Context, io.Reader, *url.URL, *time.Time, *resource.Name) (*articles.Article, error)
 }
 
 // Service is a Feeds service.
@@ -197,7 +197,7 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, f *Feed) error {
 
 		updated = true
 
-		if err := s.saveItem(ctx, item); err != nil && !errors.Is(err, articles.ErrAlreadyExists) {
+		if err := s.saveItem(ctx, item, f); err != nil && !errors.Is(err, articles.ErrAlreadyExists) {
 			log().Errorf("failed to save item %s: %s", item.Link, err)
 			continue
 		}
@@ -238,7 +238,7 @@ func latestTimestamp(ts ...*time.Time) time.Time {
 	return latest
 }
 
-func (s *Service) saveItem(ctx context.Context, item *gofeed.Item) error {
+func (s *Service) saveItem(ctx context.Context, item *gofeed.Item, feed *Feed) error {
 	resp, err := s.fetcher.Fetch(ctx, item.Link)
 	if err != nil {
 		return fmt.Errorf("failed to fetch: %w", err)
@@ -256,7 +256,7 @@ func (s *Service) saveItem(ctx context.Context, item *gofeed.Item) error {
 	}
 
 	link, _ := url.Parse(item.Link)
-	if _, err := s.articlesService.CreateArticle(ctx, bytes.NewReader(body), link, published); err != nil {
+	if _, err := s.articlesService.CreateArticle(ctx, bytes.NewReader(body), link, published, resource.ParseName(feed.Name)); err != nil {
 		return fmt.Errorf("failed to create article: %w", err)
 	}
 	return nil

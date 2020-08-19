@@ -16,6 +16,7 @@ import (
 	"github.com/ngalaiko/miniboard/server/api/articles"
 	"github.com/ngalaiko/miniboard/server/api/feeds"
 	"github.com/ngalaiko/miniboard/server/fetch"
+	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -23,7 +24,7 @@ import (
 )
 
 type articlesService interface {
-	CreateArticle(context.Context, io.Reader, *url.URL, *time.Time) (*articles.Article, error)
+	CreateArticle(context.Context, io.Reader, *url.URL, *time.Time, *resource.Name) (*articles.Article, error)
 }
 
 type feedsService interface {
@@ -124,7 +125,7 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *Source) (*Sou
 	switch {
 	case strings.Contains(ct, "text/html"):
 		now := time.Now()
-		article, err := s.articlesService.CreateArticle(ctx, bytes.NewBuffer(body), url, &now)
+		article, err := s.articlesService.CreateArticle(ctx, bytes.NewBuffer(body), url, &now, nil)
 		if errors.Is(err, articles.ErrAlreadyExists) {
 			return nil, status.Error(codes.AlreadyExists, "article already exists")
 		}
