@@ -19,7 +19,7 @@
     "svelte": "^3.19.1",
     "svelte-feather-icons": "^3.2.2",
     "svelte-preprocess": "^3.4.0",
-    "typescript": "^3.8.2"
+    "typescript": "^4.0.2"
   },
   "dependencies": {
     "svelte-infinite-scroll": "^1.0.0",
