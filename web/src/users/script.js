@@ -15,7 +15,11 @@ const setCurrentUser = async () => {
 
 //
 
-const setVisible = (e, visible)  => {
+const isVisible = (e) => {
+    return e.style.display !== 'none'
+}
+
+const setVisible = (e, visible) => {
     e.style.display = visible ? '' : 'none'
 }
 
@@ -101,13 +105,13 @@ const handleScroll = (loadMore) => {
         const { scrollTop, scrollHeight, clientHeight } = e.target
 
         if (scrollTop + clientHeight >= scrollHeight - 25) {
-            if (e.target.lastElementChild.style.visibility == 'visible') return
+            if (isVisible(e.target.lastElementChild)) return
 
-            e.target.lastElementChild.style.visibility = 'visible'
+            setVisible(e.target.lastElementChild, true)
 
             await loadMore()
 
-            e.target.lastElementChild.style.visibility = 'hidden'
+            setVisible(e.target.lastElementChild, false)
         }
     }
 }
@@ -228,12 +232,12 @@ const loadArticles = async () => {
 
 const reloadArticles = async () => {
     document.querySelectorAll('.article').forEach(n => n.remove())
-    articlesList.lastElementChild.style.visibility = 'visible'
+    setVisible(articlesList.lastElementChild, true)
 
     articlesPageToken = undefined
     await loadArticles()
 
-    articlesList.lastElementChild.style.visibility = 'hidden'
+    setVisible(articlesList.lastElementChild, false)
 }
 
 const addArticle = (article) => {
