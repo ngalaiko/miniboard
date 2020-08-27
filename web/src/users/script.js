@@ -334,6 +334,8 @@ const updateVisibility = async () => {
     }
 }
 
+window.addEventListener('popstate', updateVisibility)
+
 //
 
 const init = async () => {
