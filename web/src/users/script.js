@@ -15,6 +15,12 @@ const setCurrentUser = async () => {
 
 //
 
+const setVisible = (e, visible)  => {
+    e.style.display = visible ? '' : 'none'
+}
+
+//
+
 const addFormButton = document.getElementById('add-form-button')
 const addFormInput = document.getElementById('add-form-input')
 
@@ -92,7 +98,6 @@ addFormFile.addEventListener('change', handleAddFormFile)
 
 const handleScroll = (loadMore) => {
     return async (e) => {
-        console.log('test')
         const { scrollTop, scrollHeight, clientHeight } = e.target
 
         if (scrollTop + clientHeight >= scrollHeight - 25) {
@@ -149,6 +154,7 @@ const handleSelectFeed = async (e) => {
         `?${urlParams.toString()}`
     window.history.pushState({ path: refresh }, '', refresh)
 
+    updateVisibility()
     await reloadArticles()
 }
 
@@ -312,11 +318,26 @@ const displayArticle = async (articleName) => {
 
 //
 
+const updateVisibility = async () => {
+    const urlParams = new URLSearchParams(window.location.search.slice(1))
+
+    if (urlParams.get('source')) {
+        setVisible(articlesList, true)
+        setVisible(feedsList, false)
+    } else {
+        setVisible(articlesList, false)
+        setVisible(feedsList, true)
+    }
+}
+
+//
+
 const init = async () => {
     await setCurrentUser()
     loadFeeds()
     loadArticles()
     loadReader()
+    updateVisibility()
 }
 
 init()
