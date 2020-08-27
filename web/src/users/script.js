@@ -293,16 +293,21 @@ const handleSelectArticle = async (e) => {
     let refresh = window.location.protocol +
         "//" + window.location.host + window.location.pathname +
         `?${urlParams.toString()}`
+
     window.history.pushState({ path: refresh }, '', refresh)
+    updateVisibility()
 
     await displayArticle(e.target.id)
 }
 
+const readerContainer = document.getElementById('reader-container')
 const readerContent = document.getElementById('reader-content')
 const readerLink = document.getElementById('reader-link')
 const readerTitle = document.getElementById('reader-title')
 
 const displayArticle = async (articleName) => {
+    if (readerContent.name === articleName) return
+
     let response = await fetch(`/api/v1/${articleName}?view=ARTICLE_VIEW_FULL`)
     if (response.status !== 200) {
         alert(`Error: ${(await response.json()).message}`)
@@ -318,6 +323,7 @@ const displayArticle = async (articleName) => {
     readerTitle.innerText = article.title
     readerLink.href = article.url
     readerContent.innerHTML = decodedContent
+    readerContent.name = articleName
 }
 
 //
@@ -332,9 +338,12 @@ const updateVisibility = async () => {
         setVisible(articlesList, false)
         setVisible(feedsList, true)
     }
+
+    setVisible(readerContainer, urlParams.get('article'))
 }
 
 window.addEventListener('popstate', updateVisibility)
+window.addEventListener('popstate', loadReader)
 
 //
 
