@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	miniredis "github.com/alicebob/miniredis/v2"
+	"github.com/ngalaiko/miniboard/server/storage"
+	"github.com/ngalaiko/miniboard/server/storage/redis"
 	"github.com/stretchr/testify/assert"
-	"miniboard.app/storage"
-	"miniboard.app/storage/redis"
 )
 
 func Test_keyStorage(t *testing.T) {

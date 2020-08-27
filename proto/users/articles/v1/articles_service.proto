@@ -65,6 +65,9 @@ message ListArticlesRequest {
 
     // Filter by title field.
     google.protobuf.StringValue title = 5;
+
+    // Name of source of the article.
+    google.protobuf.StringValue source_name = 6;
 }
 
 message ListArticlesResponse {
@@ -128,6 +131,9 @@ message Article {
 
     // SHA256 sum of the content.
     string content_sha256_sum = 10;
+
+    // Name of source of the article.
+    string source_name = 11;
 }
 
 enum ArticleView {

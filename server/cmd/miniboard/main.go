@@ -6,12 +6,12 @@ import (
 	"net"
 	"os"
 
+	"github.com/ngalaiko/miniboard/server/api"
+	"github.com/ngalaiko/miniboard/server/email"
+	"github.com/ngalaiko/miniboard/server/email/disabled"
+	"github.com/ngalaiko/miniboard/server/email/smtp"
+	"github.com/ngalaiko/miniboard/server/storage/redis"
 	"github.com/sirupsen/logrus"
-	"miniboard.app/api"
-	"miniboard.app/email"
-	"miniboard.app/email/disabled"
-	"miniboard.app/email/smtp"
-	"miniboard.app/storage/redis"
 )
 
 func main() {

@@ -7,10 +7,10 @@ import (
 	"testing"
 
 	miniredis "github.com/alicebob/miniredis/v2"
+	"github.com/ngalaiko/miniboard/server/storage"
+	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/segmentio/ksuid"
 	"github.com/stretchr/testify/assert"
-	"miniboard.app/storage"
-	"miniboard.app/storage/resource"
 )
 
 func Test_DB(t *testing.T) {

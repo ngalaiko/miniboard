@@ -9,9 +9,9 @@ import (
 	"sync"
 
 	"github.com/go-shiori/go-readability"
+	"github.com/ngalaiko/miniboard/server/fetch"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
-	"miniboard.app/fetch"
 )
 
 // Reader returns simplified HTML content.
