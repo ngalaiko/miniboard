@@ -28,21 +28,15 @@
 
 ## Development
 
-1. Watch front changes:
-
-```
-$ cd ./web && yarn watch
-```
-
-2. Run server: 
+1. Run server: 
 
 ```
 $ cd ./server && go run \ 
     cmd/miniboard/main.go \
-    --static-path=../web/dist
+    --static-path=../web/src
 ```
 
-3. Open browser
+2. Open browser
 
 ```
 $ open http://localhost:8080
