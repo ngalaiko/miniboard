@@ -7,7 +7,7 @@ require (
 	github.com/andybalholm/brotli v1.0.0
 	github.com/go-redis/redis/v7 v7.4.0
 	github.com/go-shiori/go-readability v0.0.0-20190829113304-8630e8f6e148
-	github.com/gogo/protobuf v1.2.1
+	github.com/gogo/protobuf v1.3.1
 	github.com/golang/protobuf v1.3.4
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.14.7
