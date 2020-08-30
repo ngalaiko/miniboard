@@ -293,7 +293,7 @@ const addArticle = (article) => {
         return
     }
 
-    while (child && child.firstElementChild && li.id < child.firstElementChild.id) {
+    while (child && li.id < child.id) {
         child = child.nextSibling
     }
 
