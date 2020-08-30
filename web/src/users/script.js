@@ -119,6 +119,7 @@ const handleScroll = (loadMore) => {
 //
 
 const feedsList = document.getElementById('feeds-list')
+const feedsContainer = document.getElementById('feeds-container')
 const feedsListPlaceholder = document.getElementById('feeds-list-placeholder')
 
 let feedsPageToken = undefined
@@ -166,8 +167,9 @@ const addFeed = (feed) => {
     feedsListPlaceholder.hidden = true
 
     let li = document.createElement('li')
-    li.id = `${feed.name}`
-    li.innerHTML = `${feed.title}`
+    li.id = feed.name
+    li.innerHTML = feed.title
+    li.title = feed.title
 
     li.addEventListener('click', handleSelectFeed)
 
@@ -188,10 +190,47 @@ feedsList.addEventListener('scroll', handleScroll(loadFeeds))
 
 //
 
+const articlesContainer = document.getElementById('articles-container')
+const articlesTitle = document.getElementById('articles-title')
 const articlesList = document.getElementById('articles-list')
 const articlesListPlaceholder = document.getElementById('articles-list-placeholder')
+const articlesBackButton = document.getElementById('articles-back-button')
 
 let articlesPageToken = undefined
+
+const handleArticlesBackButton = async (e) => {
+    e.preventDefault()
+
+    const urlParams = new URLSearchParams(window.location.search.slice(1))
+
+    urlParams.delete('source')
+
+    let refresh = window.location.protocol +
+        "//" + window.location.host + window.location.pathname +
+        `?${urlParams.toString()}`
+
+    window.history.pushState({ path: refresh }, '', refresh)
+    updateVisibility()
+}
+
+articlesBackButton.addEventListener('click', handleArticlesBackButton)
+
+const updateArticlesTitle = async (sourceName) => {
+    let sourceElement = document.getElementById(sourceName)
+    if (sourceElement) {
+        articlesTitle.innerText = sourceElement.title
+        return
+    }
+
+    let response = await fetch(`/api/v1/${sourceName}`)
+    if (response.status !== 200)  {
+        alert(`Error: ${await response.json().message}`)
+        return
+    }
+
+    let body = await response.json()
+    articlesTitle.innerText = body.title
+}
 
 const loadArticles = async () => {
     if (articlesPageToken === "") return
@@ -204,7 +243,9 @@ const loadArticles = async () => {
         + `&page_token=${articlesPageToken}`
 
     if (urlParams.get('source')) {
-        articlesUrl += `&source_name=${urlParams.get('source')}`
+        let sourceName = urlParams.get('source')
+        articlesUrl += `&source_name=${sourceName}`
+        updateArticlesTitle(sourceName)
     }
 
     let response = await fetch(articlesUrl)
@@ -213,7 +254,7 @@ const loadArticles = async () => {
         return
     }
 
-    let body = (await response.json())
+    let body = await response.json()
     articlesPageToken = body.nextPageToken
     let articles = body.articles
 
@@ -322,11 +363,11 @@ const updateVisibility = async () => {
     const urlParams = new URLSearchParams(window.location.search.slice(1))
 
     if (urlParams.get('source')) {
-        setVisible(articlesList, true)
-        setVisible(feedsList, false)
+        setVisible(articlesContainer, true)
+        setVisible(feedsContainer, false)
     } else {
-        setVisible(articlesList, false)
-        setVisible(feedsList, true)
+        setVisible(articlesContainer, false)
+        setVisible(feedsContainer, true)
     }
 
     setVisible(readerContainer, urlParams.get('article'))

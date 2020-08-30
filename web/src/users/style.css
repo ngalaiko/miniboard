@@ -72,18 +72,44 @@ body {
     height: 95%;
 }
 
+#feeds-container {
+    display: flex;
+    flex-direction: column;
+    width: 25%;
+}
+
 #feeds-list {
     display: flex;
     flex-direction: column;
-    width: 10%;
     overflow-y: scroll;
+}
+
+#articles-head {
+    display: flex;
+    align-items: center;
+}
+
+#articles-back-button {
+    padding-left: 0; padding-right: 0;
+    border: 0;
+    background: inherit;
+}
+
+#articles-back-button:active {
+    color: inherit;
+}
+
+#articles-container {
+    display: flex;
+    flex-direction: column;
+    width: 25%;
 }
 
 #articles-list {
     display: flex;
     flex-direction: column;
-    width: 15%;
     overflow-y: scroll;
+    height: 100%;
 }
 
 #reader-container {
