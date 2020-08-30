@@ -241,17 +241,10 @@ const addArticle = (article) => {
     articlesListPlaceholder.hidden = true
 
     let li = document.createElement('li')
-    li.id = `${article.name}-container`
+    li.id = `${article.name}`
     li.classList.add('article')
-
-    let div = document.createElement('div')
-    div.id = article.name
-    div.innerHTML = `
-        ${article.title}
-    `
-    div.addEventListener('click', handleSelectArticle)
-
-    li.appendChild(div)
+    li.innerHTML = `${article.title}`
+    li.addEventListener('click', handleSelectArticle)
 
     let child = articlesList.firstChild
     if (child === null) {
