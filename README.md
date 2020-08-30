@@ -28,9 +28,15 @@
 
 ## Development
 
+0. Run redis:
+
+```bash
+$ docker run -d -p 6379:6379 --name redis redis
+```
+
 1. Run server: 
 
-```
+```bash
 $ cd ./server && go run \ 
     cmd/miniboard/main.go \
     --static-path=../web/src
@@ -38,6 +44,6 @@ $ cd ./server && go run \
 
 2. Open browser
 
-```
+```bash
 $ open http://localhost:8080
 ```
