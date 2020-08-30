@@ -27,6 +27,10 @@
     background: gainsboro;
 }
 
+img {
+    width: 100%;
+    height: 100%;
+}
 
 @media screen {
     #reader-page {
