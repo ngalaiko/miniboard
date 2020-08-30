@@ -168,7 +168,7 @@ const addFeed = (feed) => {
 
     let li = document.createElement('li')
     li.id = feed.name
-    li.innerHTML = feed.title
+    li.innerText = feed.title
     li.title = feed.title
 
     li.addEventListener('click', handleSelectFeed)
@@ -282,9 +282,9 @@ const addArticle = (article) => {
     articlesListPlaceholder.hidden = true
 
     let li = document.createElement('li')
-    li.id = `${article.name}`
+    li.id = article.name
     li.classList.add('article')
-    li.innerHTML = `${article.title}`
+    li.innerText = article.title
     li.addEventListener('click', handleSelectArticle)
 
     let child = articlesList.firstChild
