@@ -166,11 +166,8 @@ const addFeed = (feed) => {
     feedsListPlaceholder.hidden = true
 
     let li = document.createElement('li')
-    li.id = `${feed.name}-container`
-    li.innerHTML = `
-    <div id="${feed.name}">
-        ${feed.title}
-    </div>`
+    li.id = `${feed.name}`
+    li.innerHTML = `${feed.title}`
 
     li.addEventListener('click', handleSelectFeed)
 
@@ -180,7 +177,7 @@ const addFeed = (feed) => {
         return
     }
 
-    while (child && child.firstElementChild && li.id < child.firstElementChild.id) {
+    while (child && child && li.id < child.id) {
         child = child.nextSibling
     }
 
