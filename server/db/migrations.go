@@ -8,11 +8,11 @@ type migration struct {
 func migrations() []*migration {
 	return []*migration{
 		{
-			Name: "create jwt_public_keys",
+			Name: "create public_keys",
 			Query: `
-			CREATE TABLE jwt_public_keys (
-				id             TEXT NOT NULL,
-				public_key_der BLOB NOT NULL,
+			CREATE TABLE public_keys (
+				id         TEXT NOT NULL,
+				der_base64 TEXT NOT NULL,
 				PRIMARY KEY (id)
 			)
 			`,

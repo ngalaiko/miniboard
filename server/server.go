@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net"
 	"net/http"
@@ -47,6 +48,7 @@ type Server struct {
 func New(
 	ctx context.Context,
 	db storage.Storage,
+	sqldb *sql.DB,
 	emailClient email.Client,
 	filePath string,
 	domain string,
@@ -55,7 +57,7 @@ func New(
 
 	fetcher := fetch.New()
 
-	jwtService := jwt.NewService(ctx, db)
+	jwtService := jwt.NewService(ctx, sqldb)
 	articlesService := articles.NewService(db, fetcher)
 	feedsService := feeds.NewService(ctx, db, fetcher, articlesService)
 	usersService := users.NewService()

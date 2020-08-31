@@ -37,11 +37,13 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	if *psqlURI != "" {
-		_, err := db.NewPostgres(*psqlURI)
-		if err != nil {
-			logrus.Fatalf("failed to connect to postgres: %s", err)
-		}
+	postgres, err := db.NewPostgres(*psqlURI)
+	if err != nil {
+		logrus.Fatalf("failed to connect to postgres: %s", err)
+	}
+
+	if err := db.Migrate(ctx, postgres); err != nil {
+		logrus.Fatalf("failed to migrate postgres: %s", err)
 	}
 
 	redis, err := redis.New(ctx, *redisURI)
@@ -54,7 +56,7 @@ func main() {
 		logrus.Fatalf("failed to open a connection: %s", err)
 	}
 
-	srv, err := server.New(ctx, redis, emailClient(*smtpHost, *smtpPort, *smtpSender), *filePath, *domain)
+	srv, err := server.New(ctx, redis, postgres, emailClient(*smtpHost, *smtpPort, *smtpSender), *filePath, *domain)
 	if err != nil {
 		logrus.Fatalf("failed to create server: %s", err)
 	}

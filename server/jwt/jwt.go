@@ -2,11 +2,17 @@ package jwt
 
 import (
 	"context"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
+	"crypto/x509"
+	"database/sql"
+	"encoding/base64"
 	"fmt"
 	"sync"
 	"time"
 
-	"github.com/ngalaiko/miniboard/server/storage"
+	"github.com/ngalaiko/miniboard/server/jwt/db"
 	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
@@ -20,7 +26,7 @@ const (
 
 // Service issues and validates jwt tokens.
 type Service struct {
-	keyStorage *keyStorage
+	keyStorage *db.DB
 
 	rotationInterval time.Duration
 	expiryInterval   time.Duration
@@ -34,11 +40,9 @@ type customClaims struct {
 }
 
 // NewService creates new jwt service instance.
-func NewService(ctx context.Context, db storage.Storage) *Service {
-	keyStorage := newKeyStorage(db)
-
+func NewService(ctx context.Context, sqldb *sql.DB) *Service {
 	s := &Service{
-		keyStorage:       keyStorage,
+		keyStorage:       db.New(sqldb),
 		signerGuard:      &sync.RWMutex{},
 		rotationInterval: 2 * time.Hour,
 		expiryInterval:   72 * 3 * time.Hour,
@@ -55,19 +59,33 @@ func NewService(ctx context.Context, db storage.Storage) *Service {
 }
 
 func (s *Service) newSigner(ctx context.Context) error {
-	key, err := s.keyStorage.Create(ctx)
+	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
+		return fmt.Errorf("failed to generate encryption key: %w", err)
+	}
+
+	der, err := x509.MarshalPKIXPublicKey(privateKey.Public())
+	if err != nil {
+		return fmt.Errorf("failed to marshal encryption key: %w", err)
+	}
+
+	publicKey := &db.PublicKey{
+		ID:        ksuid.New().String(),
+		DerBase64: base64.StdEncoding.EncodeToString(der),
+	}
+
+	if err := s.keyStorage.Create(ctx, publicKey); err != nil {
 		return err
 	}
-	log().Infof("%s: new encryption key", key.ID)
+	log().Infof("%s: new encryption key", publicKey.ID)
 
 	options := (&jose.SignerOptions{}).
-		WithHeader("kid", key.ID).
+		WithHeader("kid", publicKey.ID).
 		WithType("JWT")
 
 	sng, err := jose.NewSigner(jose.SigningKey{
 		Algorithm: jose.ES256,
-		Key:       key.Private,
+		Key:       privateKey,
 	}, options)
 	if err != nil {
 		return err
@@ -113,14 +131,14 @@ func (s *Service) Validate(ctx context.Context, raw string, typ string) (*resour
 
 	id := token.Headers[0].KeyID
 
-	key, err := s.keyStorage.Get(ctx, id)
+	pubicKey, err := s.get(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find key '%s': %w", id, err)
 	}
 
 	claims := &jwt.Claims{}
 	custom := &customClaims{}
-	if err := token.Claims(key.Public, claims, custom); err != nil {
+	if err := token.Claims(pubicKey, claims, custom); err != nil {
 		return nil, fmt.Errorf("failed to parse claims: %w", err)
 	}
 
@@ -136,6 +154,30 @@ func (s *Service) Validate(ctx context.Context, raw string, typ string) (*resour
 	}
 
 	return resource.ParseName(claims.Subject), nil
+}
+
+func (s *Service) get(ctx context.Context, id string) (*ecdsa.PublicKey, error) {
+	key, err := s.keyStorage.Get(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find key '%s': %w", id, err)
+	}
+
+	der, err := base64.StdEncoding.DecodeString(key.DerBase64)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode public key: %w", err)
+	}
+
+	untypedResult, err := x509.ParsePKIXPublicKey(der)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse PKIX public key: %w", err)
+	}
+
+	switch v := untypedResult.(type) {
+	case *ecdsa.PublicKey:
+		return v, nil
+	default:
+		return nil, fmt.Errorf("unknown public key type: %T", v)
+	}
 }
 
 func (s *Service) rotateKeys(ctx context.Context) {
