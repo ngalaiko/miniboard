@@ -169,6 +169,7 @@ const addFeed = (feed) => {
     let li = document.createElement('li')
     li.id = feed.name
     li.innerText = feed.title
+    li.classList.add('feed')
     li.title = feed.title
 
     li.addEventListener('click', handleSelectFeed)

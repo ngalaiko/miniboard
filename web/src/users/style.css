@@ -78,7 +78,15 @@ body {
     width: 25%;
 }
 
+.feed {
+    padding: 0.3em;
+}
+
 #feeds-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.5em;
+
     display: flex;
     flex-direction: column;
     overflow-y: scroll;
