@@ -3,7 +3,7 @@ package users
 import (
 	"context"
 
-	"github.com/ngalaiko/miniboard/server/api/actor"
+	"github.com/ngalaiko/miniboard/server/actor"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

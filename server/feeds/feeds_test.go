@@ -13,8 +13,8 @@ import (
 	"time"
 
 	miniredis "github.com/alicebob/miniredis/v2"
-	"github.com/ngalaiko/miniboard/server/api/actor"
-	"github.com/ngalaiko/miniboard/server/api/articles"
+	"github.com/ngalaiko/miniboard/server/actor"
+	"github.com/ngalaiko/miniboard/server/articles"
 	"github.com/ngalaiko/miniboard/server/storage/redis"
 	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/stretchr/testify/assert"
