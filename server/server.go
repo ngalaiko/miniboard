@@ -1,4 +1,4 @@
-package api
+package server
 
 import (
 	"context"
@@ -27,13 +27,23 @@ import (
 // todo: make it shorter
 const authDuration = 28 * 24 * time.Hour
 
+// TLSConfig contains ssl certificates.
+type TLSConfig struct {
+	CertPath string
+	KeyPath  string
+}
+
+func (cfg *TLSConfig) valid() bool {
+	return cfg.CertPath != "" || cfg.KeyPath != ""
+}
+
 // Server is the api server.
 type Server struct {
 	httpServer *http.Server
 }
 
-// NewServer creates new api server.
-func NewServer(
+// New creates new api server.
+func New(
 	ctx context.Context,
 	db storage.Storage,
 	emailClient email.Client,

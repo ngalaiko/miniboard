@@ -6,7 +6,7 @@ import (
 	"net"
 	"os"
 
-	"github.com/ngalaiko/miniboard/server/api"
+	"github.com/ngalaiko/miniboard/server"
 	"github.com/ngalaiko/miniboard/server/email"
 	"github.com/ngalaiko/miniboard/server/email/disabled"
 	"github.com/ngalaiko/miniboard/server/email/smtp"
@@ -44,12 +44,12 @@ func main() {
 		logrus.Fatalf("failed to open a connection: %s", err)
 	}
 
-	server, err := api.NewServer(ctx, db, emailClient(*smtpHost, *smtpPort, *smtpSender), *filePath, *domain)
+	srv, err := server.New(ctx, db, emailClient(*smtpHost, *smtpPort, *smtpSender), *filePath, *domain)
 	if err != nil {
 		logrus.Fatalf("failed to create server: %s", err)
 	}
 
-	if err := server.Serve(ctx, lis, &api.TLSConfig{
+	if err := srv.Serve(ctx, lis, &server.TLSConfig{
 		CertPath: *sslCert,
 		KeyPath:  *sslKey,
 	}); err != nil {
