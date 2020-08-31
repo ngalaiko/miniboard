@@ -18,6 +18,7 @@ import (
 	"github.com/ngalaiko/miniboard/server/email"
 	"github.com/ngalaiko/miniboard/server/fetch"
 	"github.com/ngalaiko/miniboard/server/jwt"
+	"github.com/ngalaiko/miniboard/server/middleware"
 	"github.com/ngalaiko/miniboard/server/storage"
 	"github.com/ngalaiko/miniboard/server/web"
 	"github.com/sirupsen/logrus"
@@ -70,7 +71,7 @@ func New(
 		runtime.WithForwardResponseOption(func(ctx context.Context, rw http.ResponseWriter, msg proto.Message) error {
 			if token, ok := msg.(*tokens.Token); ok {
 				http.SetCookie(rw, &http.Cookie{
-					Name:     authCookie,
+					Name:     middleware.AuthCookie,
 					Value:    token.Token,
 					Path:     "/",
 					Expires:  time.Now().Add(authDuration),
@@ -108,19 +109,21 @@ func New(
 	mux := http.NewServeMux()
 	mux.Handle("/logout", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, &http.Cookie{
-			Name:     authCookie,
+			Name:     middleware.AuthCookie,
 			Path:     "/",
 			MaxAge:   -1,
 			HttpOnly: true,
 		})
 	}))
 
-	mux.Handle("/api/", authorize(gwMux, jwtService))
+	mux.Handle("/api/v1/tokens", gwMux)
+	mux.Handle("/api/v1/codes", gwMux)
+	mux.Handle("/api/", middleware.Authorized(gwMux, jwtService))
 	mux.Handle("/", web.Handler(filePath))
 
 	handler := http.Handler(mux)
-	handler = withAccessLogs(handler)
-	handler = withCompression(handler)
+	handler = middleware.WithAccessLogs(handler)
+	handler = middleware.WithCompression(handler)
 	httpServer := &http.Server{
 		Handler: handler,
 	}

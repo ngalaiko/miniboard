@@ -1,4 +1,4 @@
-package server
+package middleware
 
 import (
 	"fmt"
@@ -9,21 +9,14 @@ import (
 	"github.com/ngalaiko/miniboard/server/jwt"
 )
 
-const authCookie = "auth"
+// AuthCookie is the name of authorization cookie
+const AuthCookie = "auth"
 
-func authorize(handler http.Handler, jwtService *jwt.Service) http.Handler {
-	whitelisted := map[string]bool{
-		"/api/v1/codes":  true,
-		"/api/v1/tokens": true,
-	}
+// Authorized adds authorization check.
+func Authorized(handler http.Handler, jwtService *jwt.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if whitelisted[r.URL.Path] {
-			handler.ServeHTTP(w, r)
-			return
-		}
-
 		for _, cookie := range r.Cookies() {
-			if cookie.Name != authCookie {
+			if cookie.Name != AuthCookie {
 				continue
 			}
 

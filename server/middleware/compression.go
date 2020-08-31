@@ -1,4 +1,4 @@
-package server
+package middleware
 
 import (
 	"compress/gzip"
@@ -24,7 +24,8 @@ func (w *compressedResponseWriter) Flush() {
 	}
 }
 
-func withCompression(h http.Handler) http.Handler {
+// WithCompression adds compression.
+func WithCompression(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case strings.Contains(r.Header.Get("Accept-Encoding"), "br"):

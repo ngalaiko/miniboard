@@ -1,4 +1,4 @@
-package server
+package middleware
 
 import (
 	"net/http"
@@ -21,7 +21,8 @@ func (lrw *loggingResponseWriter) WriteHeader(code int) {
 	lrw.ResponseWriter.WriteHeader(code)
 }
 
-func withAccessLogs(h http.Handler) http.Handler {
+// WithAccessLogs adds access logging.
+func WithAccessLogs(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -36,5 +37,11 @@ func withAccessLogs(h http.Handler) http.Handler {
 			"duration": time.Since(start),
 			"status":   wl.statusCode,
 		}).Info()
+	})
+}
+
+func log(src string) *logrus.Entry {
+	return logrus.WithFields(logrus.Fields{
+		"source": src,
 	})
 }
