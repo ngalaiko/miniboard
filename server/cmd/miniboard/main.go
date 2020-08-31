@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/ngalaiko/miniboard/server"
+	"github.com/ngalaiko/miniboard/server/db"
 	"github.com/ngalaiko/miniboard/server/email"
 	"github.com/ngalaiko/miniboard/server/email/disabled"
 	"github.com/ngalaiko/miniboard/server/email/smtp"
@@ -19,6 +20,8 @@ func main() {
 	addr := flag.String("addr", ":8080", "Address to listen for connections.")
 
 	redisURI := flag.String("redis-uri", "", "Redis URI to connect to.")
+
+	psqlURI := flag.String("psql-uri", "", "Postgres URI to connect to.")
 
 	sslCert := flag.String("ssl-cert", "", "Path to ssl certificate.")
 	sslKey := flag.String("ssl-key", "", "Path to ssl key.")
@@ -34,7 +37,14 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	db, err := redis.New(ctx, *redisURI)
+	if *psqlURI != "" {
+		_, err := db.NewPostgres(*psqlURI)
+		if err != nil {
+			logrus.Fatalf("failed to connect to postgres: %s", err)
+		}
+	}
+
+	redis, err := redis.New(ctx, *redisURI)
 	if err != nil {
 		logrus.Fatalf("failed to connect to database: %s", err)
 	}
@@ -44,7 +54,7 @@ func main() {
 		logrus.Fatalf("failed to open a connection: %s", err)
 	}
 
-	srv, err := server.New(ctx, db, emailClient(*smtpHost, *smtpPort, *smtpSender), *filePath, *domain)
+	srv, err := server.New(ctx, redis, emailClient(*smtpHost, *smtpPort, *smtpSender), *filePath, *domain)
 	if err != nil {
 		logrus.Fatalf("failed to create server: %s", err)
 	}

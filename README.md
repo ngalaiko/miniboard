@@ -32,6 +32,7 @@
 
 ```bash
 $ docker run -d -p 6379:6379 --name redis redis
+$ docker run --name postgres -e POSTGRES_PASSWORD=miniboard -e POSTGRES_DB=miniboard -e POSTGRES_USER=miniboard -p 5432:5432 -d postgres
 ```
 
 1. Run server: 
@@ -39,7 +40,8 @@ $ docker run -d -p 6379:6379 --name redis redis
 ```bash
 $ cd ./server && go run \ 
     cmd/miniboard/main.go \
-    --static-path=../web/src
+    --static-path=../web/src \
+    --psql-uri "postgres://miniboard:miniboard@localhost/miniboard?sslmode=disable"
 ```
 
 2. Open browser
