@@ -17,7 +17,7 @@ require (
 	github.com/segmentio/ksuid v1.0.3
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spaolacci/murmur3 v1.1.0
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.1
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	golang.org/x/sys v0.0.0-20200826173525-f9321e4c35a6 // indirect
