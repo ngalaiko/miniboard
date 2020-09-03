@@ -126,13 +126,10 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *Source) (*Sou
 	case strings.Contains(ct, "text/html"):
 		now := time.Now()
 		article, err := s.articlesService.CreateArticle(ctx, bytes.NewBuffer(body), url, &now, nil)
-		if errors.Is(err, articles.ErrAlreadyExists) {
-			return nil, status.Error(codes.AlreadyExists, "article already exists")
-		}
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to create article from source: %s", err)
 		}
-		source.Name = article.Name
+		source.Name = article.Id
 		return source, nil
 	case strings.Contains(ct, "application/rss+xml"),
 		strings.Contains(ct, "application/atom+xml"),

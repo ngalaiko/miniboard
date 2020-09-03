@@ -17,7 +17,7 @@ service ArticlesService {
     // An endpoint to list the user's articles.
     rpc ListArticles(ListArticlesRequest) returns (ListArticlesResponse) {
         option (google.api.http) = {
-            get: "/api/v1/users/*/articles"
+            get: "/api/v1/users/{user_id=*}/articles"
         };
     }
 
@@ -26,8 +26,8 @@ service ArticlesService {
     // An endpoint to update the article.
     rpc UpdateArticle(UpdateArticleRequest) returns (Article) {
         option (google.api.http) = {
-            patch: "/api/v1/{article.name=users/*/articles/*}"
-            body: 'article'
+            patch: "/api/v1/users/{article.user_id=*}/articles/{article.id=*}"
+            body: "article"
         };
     }
 
@@ -36,7 +36,7 @@ service ArticlesService {
     // An endpoint to get an article by id.
     rpc GetArticle(GetArticleRequest) returns (Article) {
         option (google.api.http) = {
-            get: "/api/v1/{name=users/*/articles/*}"
+            get: "/api/v1/users/{user_id=*}/articles/{id=*}"
         };
     }
 
@@ -45,29 +45,28 @@ service ArticlesService {
     // An endpoint to delete an article by id.
     rpc DeleteArticle(DeleteArticleRequest) returns (google.protobuf.Empty) {
         option (google.api.http) = {
-            delete: "/api/v1/{name=users/*/articles/*}"
+            delete: "/api/v1/users/{user_id=*}/articles/{id=*}"
         };
     }
 }
 
 message ListArticlesRequest {
+    string user_id = 1;
+
     // The maximum number of articles to return.
-    int64 page_size = 1;
+    int64 page_size = 2;
 
     // The next_page_token value returned from a previous List request, if any.
-    string page_token = 2;
+    string page_token = 3;
 
     // Filter by is_read field.
-    google.protobuf.BoolValue is_read = 3;
-
-    // Filter by is_favorite field.
-    google.protobuf.BoolValue is_favorite = 4;
+    google.protobuf.BoolValue is_read_eq = 4;
 
     // Filter by title field.
-    google.protobuf.StringValue title = 5;
+    google.protobuf.StringValue title_contains = 5;
 
-    // Name of source of the article.
-    google.protobuf.StringValue source_name = 6;
+    // Id of feed of the article.
+    google.protobuf.StringValue feed_id_eq = 6;
 }
 
 message ListArticlesResponse {
@@ -88,31 +87,33 @@ message UpdateArticleRequest {
 }
 
 message GetArticleRequest {
-    // Name of the resource.
-    string name = 1;
+    string id = 1;
+
+    string user_id = 2;
 
     // Specifies which parts of the article resource should be returned
     // in the response.
-    ArticleView view = 2;
+    ArticleView view = 3;
 }
 
 message DeleteArticleRequest {
-    // Name of the resource to delete.
-    string name = 1;
+    string id = 1;
+
+    string user_id = 2;
 }
 
 message Article {
-    // Name of the resource, for example "users/user1/articles/article1".
-    string name = 1;
+    // Id of the article.
+    string id = 1;
+
+    // Id of the user who owns the article.
+    string user_id = 2;
 
     // Url of the article.
-    string url = 2;
+    string url = 3;
 
     // Title of the article.
-    string title = 3;
-
-    // Icon url.
-    string icon_url = 4;
+    string title = 4;
 
     // Time when article was added.
     google.protobuf.Timestamp create_time = 5;
@@ -120,20 +121,14 @@ message Article {
     // Readable content of the article.
     bytes content = 6;
 
-    // Mark the article as read.
-    bool is_read = 7;
-
-    // Mark the article as favorite.
-    bool is_favorite = 8;
-
-    // Name of source website.
-    string site_name = 9;
-
     // SHA256 sum of the content.
-    string content_sha256_sum = 10;
+    string content_sha256 = 7;
 
-    // Name of source of the article.
-    string source_name = 11;
+    // Mark the article as read.
+    bool is_read = 8;
+
+    // Id of feed of the article.
+    string feed_id = 9;
 }
 
 enum ArticleView {

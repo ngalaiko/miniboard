@@ -32,12 +32,30 @@ var _ = utilities.NewDoubleArray
 var _ = descriptor.ForMessage
 
 var (
-	filter_ArticlesService_ListArticles_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+	filter_ArticlesService_ListArticles_0 = &utilities.DoubleArray{Encoding: map[string]int{"user_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 )
 
 func request_ArticlesService_ListArticles_0(ctx context.Context, marshaler runtime.Marshaler, client ArticlesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListArticlesRequest
 	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["user_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "user_id")
+	}
+
+	protoReq.UserId, err = runtime.String(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
+	}
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -55,6 +73,24 @@ func local_request_ArticlesService_ListArticles_0(ctx context.Context, marshaler
 	var protoReq ListArticlesRequest
 	var metadata runtime.ServerMetadata
 
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["user_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "user_id")
+	}
+
+	protoReq.UserId, err = runtime.String(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
+	}
+
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
@@ -68,7 +104,7 @@ func local_request_ArticlesService_ListArticles_0(ctx context.Context, marshaler
 }
 
 var (
-	filter_ArticlesService_UpdateArticle_0 = &utilities.DoubleArray{Encoding: map[string]int{"article": 0, "name": 1}, Base: []int{1, 2, 1, 0, 0}, Check: []int{0, 1, 2, 3, 2}}
+	filter_ArticlesService_UpdateArticle_0 = &utilities.DoubleArray{Encoding: map[string]int{"article": 0, "user_id": 1, "id": 2}, Base: []int{1, 3, 1, 2, 0, 0, 0}, Check: []int{0, 1, 2, 2, 3, 4, 2}}
 )
 
 func request_ArticlesService_UpdateArticle_0(ctx context.Context, marshaler runtime.Marshaler, client ArticlesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -98,15 +134,26 @@ func request_ArticlesService_UpdateArticle_0(ctx context.Context, marshaler runt
 		_   = err
 	)
 
-	val, ok = pathParams["article.name"]
+	val, ok = pathParams["article.user_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "article.name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "article.user_id")
 	}
 
-	err = runtime.PopulateFieldFromPath(&protoReq, "article.name", val)
+	err = runtime.PopulateFieldFromPath(&protoReq, "article.user_id", val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "article.name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "article.user_id", err)
+	}
+
+	val, ok = pathParams["article.id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "article.id")
+	}
+
+	err = runtime.PopulateFieldFromPath(&protoReq, "article.id", val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "article.id", err)
 	}
 
 	if err := req.ParseForm(); err != nil {
@@ -148,15 +195,26 @@ func local_request_ArticlesService_UpdateArticle_0(ctx context.Context, marshale
 		_   = err
 	)
 
-	val, ok = pathParams["article.name"]
+	val, ok = pathParams["article.user_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "article.name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "article.user_id")
 	}
 
-	err = runtime.PopulateFieldFromPath(&protoReq, "article.name", val)
+	err = runtime.PopulateFieldFromPath(&protoReq, "article.user_id", val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "article.name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "article.user_id", err)
+	}
+
+	val, ok = pathParams["article.id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "article.id")
+	}
+
+	err = runtime.PopulateFieldFromPath(&protoReq, "article.id", val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "article.id", err)
 	}
 
 	if err := req.ParseForm(); err != nil {
@@ -172,7 +230,7 @@ func local_request_ArticlesService_UpdateArticle_0(ctx context.Context, marshale
 }
 
 var (
-	filter_ArticlesService_GetArticle_0 = &utilities.DoubleArray{Encoding: map[string]int{"name": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+	filter_ArticlesService_GetArticle_0 = &utilities.DoubleArray{Encoding: map[string]int{"user_id": 0, "id": 1}, Base: []int{1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 2, 3}}
 )
 
 func request_ArticlesService_GetArticle_0(ctx context.Context, marshaler runtime.Marshaler, client ArticlesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -186,15 +244,26 @@ func request_ArticlesService_GetArticle_0(ctx context.Context, marshaler runtime
 		_   = err
 	)
 
-	val, ok = pathParams["name"]
+	val, ok = pathParams["user_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "user_id")
 	}
 
-	protoReq.Name, err = runtime.String(val)
+	protoReq.UserId, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
+	}
+
+	val, ok = pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+
+	protoReq.Id, err = runtime.String(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
 	if err := req.ParseForm(); err != nil {
@@ -220,15 +289,26 @@ func local_request_ArticlesService_GetArticle_0(ctx context.Context, marshaler r
 		_   = err
 	)
 
-	val, ok = pathParams["name"]
+	val, ok = pathParams["user_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "user_id")
 	}
 
-	protoReq.Name, err = runtime.String(val)
+	protoReq.UserId, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
+	}
+
+	val, ok = pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+
+	protoReq.Id, err = runtime.String(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
 	if err := req.ParseForm(); err != nil {
@@ -254,15 +334,26 @@ func request_ArticlesService_DeleteArticle_0(ctx context.Context, marshaler runt
 		_   = err
 	)
 
-	val, ok = pathParams["name"]
+	val, ok = pathParams["user_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "user_id")
 	}
 
-	protoReq.Name, err = runtime.String(val)
+	protoReq.UserId, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
+	}
+
+	val, ok = pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+
+	protoReq.Id, err = runtime.String(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
 	msg, err := client.DeleteArticle(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -281,15 +372,26 @@ func local_request_ArticlesService_DeleteArticle_0(ctx context.Context, marshale
 		_   = err
 	)
 
-	val, ok = pathParams["name"]
+	val, ok = pathParams["user_id"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "name")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "user_id")
 	}
 
-	protoReq.Name, err = runtime.String(val)
+	protoReq.UserId, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "name", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
+	}
+
+	val, ok = pathParams["id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
+	}
+
+	protoReq.Id, err = runtime.String(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
 	}
 
 	msg, err := server.DeleteArticle(ctx, &protoReq)
@@ -507,13 +609,13 @@ func RegisterArticlesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 }
 
 var (
-	pattern_ArticlesService_ListArticles_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 2, 3}, []string{"api", "v1", "users", "articles"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_ArticlesService_ListArticles_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "users", "user_id", "articles"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_ArticlesService_UpdateArticle_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 2, 3, 1, 0, 4, 4, 5, 4}, []string{"api", "v1", "users", "articles", "article.name"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_ArticlesService_UpdateArticle_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "users", "article.user_id", "articles", "article.id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_ArticlesService_GetArticle_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 2, 3, 1, 0, 4, 4, 5, 4}, []string{"api", "v1", "users", "articles", "name"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_ArticlesService_GetArticle_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "users", "user_id", "articles", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_ArticlesService_DeleteArticle_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 2, 3, 1, 0, 4, 4, 5, 4}, []string{"api", "v1", "users", "articles", "name"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_ArticlesService_DeleteArticle_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "users", "user_id", "articles", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

@@ -197,7 +197,7 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, f *Feed) error {
 
 		updated = true
 
-		if err := s.saveItem(ctx, item, f); err != nil && !errors.Is(err, articles.ErrAlreadyExists) {
+		if err := s.saveItem(ctx, item, f); err != nil {
 			log().Errorf("failed to save item %s: %s", item.Link, err)
 			continue
 		}

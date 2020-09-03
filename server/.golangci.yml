@@ -11,7 +11,7 @@ linters:
     - deadcode
     - depguard
     - dogsled
-    - dupl
+    # - dupl
     - errcheck
     - gochecknoinits
     - goconst
