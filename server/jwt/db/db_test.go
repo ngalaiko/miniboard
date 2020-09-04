@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -14,12 +15,8 @@ import (
 func Test_Create(t *testing.T) {
 	ctx := context.Background()
 
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
-	assert.NoError(t, err)
-	defer os.Remove(tmpFile.Name())
+	sqlite := testDB(t)
 
-	sqlite, err := db.NewSQLite(tmpFile.Name())
-	assert.NoError(t, err)
 	assert.NoError(t, db.Migrate(ctx, sqlite))
 
 	database := New(sqlite)
@@ -35,12 +32,8 @@ func Test_Create(t *testing.T) {
 func Test_Create_twice(t *testing.T) {
 	ctx := context.Background()
 
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
-	assert.NoError(t, err)
-	defer os.Remove(tmpFile.Name())
+	sqlite := testDB(t)
 
-	sqlite, err := db.NewSQLite(tmpFile.Name())
-	assert.NoError(t, err)
 	assert.NoError(t, db.Migrate(ctx, sqlite))
 
 	database := New(sqlite)
@@ -57,12 +50,8 @@ func Test_Create_twice(t *testing.T) {
 func Test_Get(t *testing.T) {
 	ctx := context.Background()
 
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
-	assert.NoError(t, err)
-	defer os.Remove(tmpFile.Name())
+	sqlite := testDB(t)
 
-	sqlite, err := db.NewSQLite(tmpFile.Name())
-	assert.NoError(t, err)
 	assert.NoError(t, db.Migrate(ctx, sqlite))
 
 	database := New(sqlite)
@@ -84,12 +73,8 @@ func Test_Get(t *testing.T) {
 func Test_Get_not_exists(t *testing.T) {
 	ctx := context.Background()
 
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
-	assert.NoError(t, err)
-	defer os.Remove(tmpFile.Name())
+	sqlite := testDB(t)
 
-	sqlite, err := db.NewSQLite(tmpFile.Name())
-	assert.NoError(t, err)
 	assert.NoError(t, db.Migrate(ctx, sqlite))
 
 	database := New(sqlite)
@@ -106,12 +91,8 @@ func Test_Get_not_exists(t *testing.T) {
 func Test_Delete(t *testing.T) {
 	ctx := context.Background()
 
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
-	assert.NoError(t, err)
-	defer os.Remove(tmpFile.Name())
+	sqlite := testDB(t)
 
-	sqlite, err := db.NewSQLite(tmpFile.Name())
-	assert.NoError(t, err)
 	assert.NoError(t, db.Migrate(ctx, sqlite))
 
 	database := New(sqlite)
@@ -135,12 +116,8 @@ func Test_Delete(t *testing.T) {
 func Test_Delete_not_existing(t *testing.T) {
 	ctx := context.Background()
 
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
-	assert.NoError(t, err)
-	defer os.Remove(tmpFile.Name())
+	sqlite := testDB(t)
 
-	sqlite, err := db.NewSQLite(tmpFile.Name())
-	assert.NoError(t, err)
 	assert.NoError(t, db.Migrate(ctx, sqlite))
 
 	database := New(sqlite)
@@ -159,12 +136,8 @@ func Test_Delete_not_existing(t *testing.T) {
 func Test_List(t *testing.T) {
 	ctx := context.Background()
 
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
-	assert.NoError(t, err)
-	defer os.Remove(tmpFile.Name())
+	sqlite := testDB(t)
 
-	sqlite, err := db.NewSQLite(tmpFile.Name())
-	assert.NoError(t, err)
 	assert.NoError(t, db.Migrate(ctx, sqlite))
 
 	database := New(sqlite)
@@ -184,4 +157,14 @@ func Test_List(t *testing.T) {
 	kk, listError := database.List(ctx)
 	assert.NoError(t, listError)
 	assert.Equal(t, 10, len(kk))
+}
+
+func testDB(t *testing.T) *sql.DB {
+	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
+	assert.NoError(t, err)
+	defer os.Remove(tmpFile.Name())
+
+	db, err := db.NewSQLite(tmpFile.Name())
+	assert.NoError(t, err)
+	return db
 }
