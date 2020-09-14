@@ -11,19 +11,21 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/wrappers"
+	"github.com/ngalaiko/miniboard/server/actor"
 	"github.com/ngalaiko/miniboard/server/db"
+	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/stretchr/testify/assert"
 )
 
 func Test_db_Create(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 	testArticle := article()
 	assert.NoError(t, database.Create(ctx, testArticle))
 }
 
 func Test_db_Create_twice(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	testArticle := article()
@@ -33,31 +35,31 @@ func Test_db_Create_twice(t *testing.T) {
 }
 
 func Test_db_Get(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	testArticle := article()
 
 	assert.NoError(t, database.Create(ctx, testArticle))
 
-	article, err := database.Get(ctx, testArticle.Id)
+	article, err := database.Get(ctx, testArticle.Id, testArticle.UserId)
 	assert.NoError(t, err)
 	assert.Equal(t, testArticle, article)
 }
 
 func Test_db_Get_not_exists(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	testArticle := article()
 
-	article, err := database.Get(ctx, testArticle.Id)
+	article, err := database.Get(ctx, testArticle.Id, testArticle.UserId)
 	assert.Error(t, err)
 	assert.Nil(t, article)
 }
 
 func Test_db_GetByUserIDUrl(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	testArticle := article()
@@ -71,7 +73,7 @@ func Test_db_GetByUserIDUrl(t *testing.T) {
 }
 
 func Test_db_GetByUserIDUrl_not_exists(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	testArticle := article()
@@ -82,55 +84,55 @@ func Test_db_GetByUserIDUrl_not_exists(t *testing.T) {
 }
 
 func Test_db_Delete(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	testArticle := article()
 
 	assert.NoError(t, database.Create(ctx, testArticle))
 
-	article, err := database.Get(ctx, testArticle.Id)
+	article, err := database.Get(ctx, testArticle.Id, testArticle.UserId)
 	assert.NoError(t, err)
 	assert.Equal(t, testArticle, article)
 
-	assert.NoError(t, database.Delete(ctx, testArticle.Id))
+	assert.NoError(t, database.Delete(ctx, testArticle.Id, testArticle.UserId))
 
-	article, err = database.Get(ctx, testArticle.Id)
+	article, err = database.Get(ctx, testArticle.Id, testArticle.UserId)
 	assert.Error(t, err)
 	assert.Nil(t, article)
 }
 
 func Test_db_Delete_not_existing(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	testArticle := article()
 
-	assert.NoError(t, database.Delete(ctx, testArticle.Id))
+	assert.NoError(t, database.Delete(ctx, testArticle.Id, testArticle.UserId))
 }
 
 func Test_db_Update_is_read(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	testArticle := article()
 
 	assert.NoError(t, database.Create(ctx, testArticle))
 
-	article, err := database.Get(ctx, testArticle.Id)
+	article, err := database.Get(ctx, testArticle.Id, testArticle.UserId)
 	assert.NoError(t, err)
 	assert.Equal(t, testArticle, article)
 
 	testArticle.IsRead = false
-	assert.NoError(t, database.Update(ctx, testArticle))
+	assert.NoError(t, database.Update(ctx, testArticle, testArticle.UserId))
 
-	article, err = database.Get(ctx, testArticle.Id)
+	article, err = database.Get(ctx, testArticle.Id, testArticle.UserId)
 	assert.NoError(t, err)
 	assert.Equal(t, testArticle, article)
 }
 
 func Test_db_List_all(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	saved := []*Article{}
@@ -145,7 +147,6 @@ func Test_db_List_all(t *testing.T) {
 	}
 
 	aa, err := database.List(ctx, &ListArticlesRequest{
-		UserId:   saved[0].UserId,
 		PageSize: 100,
 	})
 	assert.NoError(t, err)
@@ -155,7 +156,7 @@ func Test_db_List_all(t *testing.T) {
 }
 
 func Test_db_List_with_limit(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	saved := []*Article{}
@@ -170,7 +171,6 @@ func Test_db_List_with_limit(t *testing.T) {
 	}
 
 	aa, err := database.List(ctx, &ListArticlesRequest{
-		UserId:   saved[0].UserId,
 		PageSize: 5,
 	})
 	assert.NoError(t, err)
@@ -180,7 +180,7 @@ func Test_db_List_with_limit(t *testing.T) {
 }
 
 func Test_db_List_with_from(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	saved := []*Article{}
@@ -195,7 +195,6 @@ func Test_db_List_with_from(t *testing.T) {
 	}
 
 	aa, err := database.List(ctx, &ListArticlesRequest{
-		UserId:    saved[0].UserId,
 		PageToken: base64.StdEncoding.EncodeToString([]byte(saved[4].Id)),
 		PageSize:  100,
 	})
@@ -206,7 +205,7 @@ func Test_db_List_with_from(t *testing.T) {
 }
 
 func Test_db_List_with_is_read(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	saved := []*Article{}
@@ -222,7 +221,6 @@ func Test_db_List_with_is_read(t *testing.T) {
 	}
 
 	aa, err := database.List(ctx, &ListArticlesRequest{
-		UserId:   saved[0].UserId,
 		PageSize: 100,
 		IsReadEq: &wrappers.BoolValue{
 			Value: true,
@@ -236,7 +234,7 @@ func Test_db_List_with_is_read(t *testing.T) {
 }
 
 func Test_db_List_with_feed_id(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	saved := []*Article{}
@@ -254,7 +252,6 @@ func Test_db_List_with_feed_id(t *testing.T) {
 	}
 
 	aa, err := database.List(ctx, &ListArticlesRequest{
-		UserId:   saved[0].UserId,
 		PageSize: 100,
 		FeedIdEq: &wrappers.StringValue{
 			Value: "test",
@@ -268,7 +265,7 @@ func Test_db_List_with_feed_id(t *testing.T) {
 }
 
 func Test_db_List_with_title_contains(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	saved := []*Article{}
@@ -286,7 +283,6 @@ func Test_db_List_with_title_contains(t *testing.T) {
 	}
 
 	aa, err := database.List(ctx, &ListArticlesRequest{
-		UserId:   saved[0].UserId,
 		PageSize: 100,
 		TitleContains: &wrappers.StringValue{
 			Value: "contains the",
@@ -300,7 +296,7 @@ func Test_db_List_with_title_contains(t *testing.T) {
 }
 
 func Test_db_List_with_title_contains_and_is_read(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	saved := []*Article{}
@@ -319,7 +315,6 @@ func Test_db_List_with_title_contains_and_is_read(t *testing.T) {
 	}
 
 	aa, err := database.List(ctx, &ListArticlesRequest{
-		UserId:   saved[0].UserId,
 		PageSize: 100,
 		TitleContains: &wrappers.StringValue{
 			Value: "contains the",
@@ -337,7 +332,7 @@ func Test_db_List_with_title_contains_and_is_read(t *testing.T) {
 }
 
 func testDB(t *testing.T) *sql.DB {
-	ctx := context.Background()
+	ctx := testContext()
 
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
 	assert.NoError(t, err)
@@ -364,4 +359,9 @@ func article() *Article {
 		ContentSha256: "shasum",
 		IsRead:        true,
 	}
+}
+
+func testContext() context.Context {
+	userName := resource.NewName("users", "user_id")
+	return actor.NewContext(context.Background(), userName)
 }

@@ -57,7 +57,6 @@ func Test_service_Create(t *testing.T) {
 	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, "")
 	assert.NoError(t, err)
 	assert.NotEmpty(t, resp.Id)
-	assert.NotEmpty(t, resp.UserId)
 	assert.Equal(t, resp.Url, "http://localhost")
 	assert.NotEmpty(t, resp.Content)
 }
@@ -119,8 +118,7 @@ func Test_service_Get_basic_view(t *testing.T) {
 	assert.NoError(t, err)
 
 	article, err := service.GetArticle(ctx, &GetArticleRequest{
-		Id:     resp.Id,
-		UserId: userName.ID(),
+		Id: resp.Id,
 	})
 	assert.NoError(t, err)
 	assert.Nil(t, article.Content)
@@ -141,9 +139,8 @@ func Test_service_Get_full_view(t *testing.T) {
 	assert.NoError(t, err)
 
 	article, err := service.GetArticle(ctx, &GetArticleRequest{
-		Id:     resp.Id,
-		UserId: userName.ID(),
-		View:   ArticleView_ARTICLE_VIEW_FULL,
+		Id:   resp.Id,
+		View: ArticleView_ARTICLE_VIEW_FULL,
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, resp, article)
@@ -159,8 +156,7 @@ func Test_service_Get_not_exists(t *testing.T) {
 	service := NewService(testDB(t), &testClient{})
 
 	article, err := service.GetArticle(ctx, &GetArticleRequest{
-		Id:     "404",
-		UserId: userName.ID(),
+		Id: "404",
 	})
 	assert.Nil(t, article)
 
@@ -184,14 +180,12 @@ func Test_service_Delete(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, deleteErr := service.DeleteArticle(ctx, &DeleteArticleRequest{
-		Id:     resp.Id,
-		UserId: userName.ID(),
+		Id: resp.Id,
 	})
 	assert.NoError(t, deleteErr)
 
 	_, getErr := service.GetArticle(ctx, &GetArticleRequest{
-		Id:     resp.Id,
-		UserId: userName.ID(),
+		Id: resp.Id,
 	})
 
 	status, ok := status.FromError(getErr)
@@ -215,7 +209,6 @@ func Test_service_List_all(t *testing.T) {
 	}
 
 	response, err := service.ListArticles(ctx, &ListArticlesRequest{
-		UserId:   userName.ID(),
 		PageSize: 100,
 	})
 	assert.NoError(t, err)
@@ -241,7 +234,6 @@ func Test_service_List_pagination(t *testing.T) {
 	pageToken := ""
 	for i := 0; i < 10; i++ {
 		response, err := service.ListArticles(ctx, &ListArticlesRequest{
-			UserId:    userName.ID(),
 			PageSize:  5,
 			PageToken: pageToken,
 		})

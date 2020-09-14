@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/ngalaiko/miniboard/server/actor"
 )
 
 type dbArticle struct {
@@ -61,7 +62,7 @@ func (db *articlesDB) Create(ctx context.Context, article *Article) error {
 }
 
 // Get returns article by id.
-func (db *articlesDB) Get(ctx context.Context, id string) (*Article, error) {
+func (db *articlesDB) Get(ctx context.Context, id string, userID string) (*Article, error) {
 	row := db.db.QueryRowContext(ctx, `
 	SELECT
 		id,
@@ -77,7 +78,8 @@ func (db *articlesDB) Get(ctx context.Context, id string) (*Article, error) {
 		articles
 	WHERE
 		id = $1
-	`, id)
+		AND user_id = $2
+	`, id, userID)
 
 	return db.scanRow(row)
 }
@@ -139,15 +141,17 @@ func (db *articlesDB) scanRow(row scannable) (*Article, error) {
 }
 
 // Delete deletes an article by id.
-func (db *articlesDB) Delete(ctx context.Context, id string) error {
+func (db *articlesDB) Delete(ctx context.Context, id string, userID string) error {
 	_, err := db.db.ExecContext(ctx, `
 	DELETE FROM articles
-	WHERE id = $1
-	`, id)
+	WHERE
+		id = $1
+		AND user_id = $2
+	`, id, userID)
 	return err
 }
 
-func (db *articlesDB) Update(ctx context.Context, article *Article) error {
+func (db *articlesDB) Update(ctx context.Context, article *Article, userID string) error {
 	_, err := db.db.ExecContext(ctx, `
 	UPDATE articles
 	SET
@@ -156,12 +160,15 @@ func (db *articlesDB) Update(ctx context.Context, article *Article) error {
 		content_sha256 = $3
 	WHERE
 		id = $4
-	`, article.IsRead, article.Content, article.ContentSha256, article.Id)
+		AND user_id = $5
+	`, article.IsRead, article.Content, article.ContentSha256, article.Id, userID)
 	return err
 }
 
 // List returns all articles.
 func (db *articlesDB) List(ctx context.Context, request *ListArticlesRequest) ([]*Article, error) {
+	a, _ := actor.FromContext(ctx)
+
 	q := &strings.Builder{}
 	q.WriteString(`
 		SELECT
@@ -186,7 +193,7 @@ func (db *articlesDB) List(ctx context.Context, request *ListArticlesRequest) ([
 	}
 
 	args := []interface{}{
-		request.UserId, from,
+		a.ID(), from,
 	}
 
 	if request.IsReadEq != nil {

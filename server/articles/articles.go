@@ -137,7 +137,7 @@ func (s *Service) CreateArticle(
 		existing.ContentSha256 = article.ContentSha256
 		existing.Content = article.Content
 
-		if err := s.storage.Update(ctx, existing); err != nil {
+		if err := s.storage.Update(ctx, existing, actor.ID()); err != nil {
 			log().Error(err)
 			return nil, status.Errorf(codes.Internal, "failed to store the article")
 		}
@@ -155,7 +155,9 @@ func (s *Service) CreateArticle(
 
 // UpdateArticle updates the article.
 func (s *Service) UpdateArticle(ctx context.Context, request *UpdateArticleRequest) (*Article, error) {
-	article, err := s.getArticle(ctx, request.Article.Id)
+	a, _ := actor.FromContext(ctx)
+
+	article, err := s.getArticle(ctx, request.Article.Id, a.ID())
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +180,7 @@ func (s *Service) UpdateArticle(ctx context.Context, request *UpdateArticleReque
 		return article, nil
 	}
 
-	if err := s.storage.Update(ctx, article); err != nil {
+	if err := s.storage.Update(ctx, article, a.ID()); err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to store the article")
 	}
 
@@ -187,7 +189,9 @@ func (s *Service) UpdateArticle(ctx context.Context, request *UpdateArticleReque
 
 // GetArticle returns an article.
 func (s *Service) GetArticle(ctx context.Context, request *GetArticleRequest) (*Article, error) {
-	article, err := s.getArticle(ctx, request.Id)
+	a, _ := actor.FromContext(ctx)
+
+	article, err := s.getArticle(ctx, request.Id, a.ID())
 	if err != nil {
 		return nil, err
 	}
@@ -199,8 +203,8 @@ func (s *Service) GetArticle(ctx context.Context, request *GetArticleRequest) (*
 	return article, nil
 }
 
-func (s *Service) getArticle(ctx context.Context, id string) (*Article, error) {
-	article, err := s.storage.Get(ctx, id)
+func (s *Service) getArticle(ctx context.Context, id string, userID string) (*Article, error) {
+	article, err := s.storage.Get(ctx, id, userID)
 	switch {
 	case err == nil:
 		return article, nil
@@ -213,7 +217,8 @@ func (s *Service) getArticle(ctx context.Context, id string) (*Article, error) {
 
 // DeleteArticle removes an article.
 func (s *Service) DeleteArticle(ctx context.Context, request *DeleteArticleRequest) (*empty.Empty, error) {
-	if err := s.storage.Delete(ctx, request.Id); err != nil {
+	a, _ := actor.FromContext(ctx)
+	if err := s.storage.Delete(ctx, request.Id, a.ID()); err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to delete the article")
 	}
 

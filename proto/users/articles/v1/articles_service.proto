@@ -17,7 +17,7 @@ service ArticlesService {
     // An endpoint to list the user's articles.
     rpc ListArticles(ListArticlesRequest) returns (ListArticlesResponse) {
         option (google.api.http) = {
-            get: "/api/v1/users/{user_id=*}/articles"
+            get: "/api/v1/articles"
         };
     }
 
@@ -26,7 +26,7 @@ service ArticlesService {
     // An endpoint to update the article.
     rpc UpdateArticle(UpdateArticleRequest) returns (Article) {
         option (google.api.http) = {
-            patch: "/api/v1/users/{article.user_id=*}/articles/{article.id=*}"
+            patch: "/api/v1/articles/{article.id=*}"
             body: "article"
         };
     }
@@ -36,7 +36,7 @@ service ArticlesService {
     // An endpoint to get an article by id.
     rpc GetArticle(GetArticleRequest) returns (Article) {
         option (google.api.http) = {
-            get: "/api/v1/users/{user_id=*}/articles/{id=*}"
+            get: "/api/v1/articles/{id=*}"
         };
     }
 
@@ -45,28 +45,26 @@ service ArticlesService {
     // An endpoint to delete an article by id.
     rpc DeleteArticle(DeleteArticleRequest) returns (google.protobuf.Empty) {
         option (google.api.http) = {
-            delete: "/api/v1/users/{user_id=*}/articles/{id=*}"
+            delete: "/api/v1/articles/{id=*}"
         };
     }
 }
 
 message ListArticlesRequest {
-    string user_id = 1;
-
     // The maximum number of articles to return.
-    int64 page_size = 2;
+    int64 page_size = 1;
 
     // The next_page_token value returned from a previous List request, if any.
-    string page_token = 3;
+    string page_token = 2;
 
     // Filter by is_read field.
-    google.protobuf.BoolValue is_read_eq = 4;
+    google.protobuf.BoolValue is_read_eq = 3;
 
     // Filter by title field.
-    google.protobuf.StringValue title_contains = 5;
+    google.protobuf.StringValue title_contains = 4;
 
     // Id of feed of the article.
-    google.protobuf.StringValue feed_id_eq = 6;
+    google.protobuf.StringValue feed_id_eq = 5;
 }
 
 message ListArticlesResponse {
@@ -89,17 +87,13 @@ message UpdateArticleRequest {
 message GetArticleRequest {
     string id = 1;
 
-    string user_id = 2;
-
     // Specifies which parts of the article resource should be returned
     // in the response.
-    ArticleView view = 3;
+    ArticleView view = 2;
 }
 
 message DeleteArticleRequest {
     string id = 1;
-
-    string user_id = 2;
 }
 
 message Article {
