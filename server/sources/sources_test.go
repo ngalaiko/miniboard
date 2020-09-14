@@ -147,7 +147,7 @@ type mockArticles struct {
 	articles []*articles.Article
 }
 
-func (s *mockArticles) CreateArticle(ctx context.Context, body io.Reader, url *url.URL, _ *time.Time, _ string) (*articles.Article, error) {
+func (s *mockArticles) CreateArticle(ctx context.Context, body io.Reader, url *url.URL, _ *time.Time, _ *string) (*articles.Article, error) {
 	s.articles = append(s.articles, &articles.Article{
 		Url: url.String(),
 	})

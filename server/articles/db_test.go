@@ -239,7 +239,9 @@ func Test_db_List_with_feed_id(t *testing.T) {
 		a.Id += fmt.Sprint(i)
 		a.ContentSha256 += fmt.Sprint(i)
 		if i%2 == 0 {
-			a.FeedId = "test"
+			a.FeedId = &wrappers.StringValue{
+				Value: "test",
+			}
 		}
 		assert.NoError(t, database.Create(ctx, a))
 
@@ -255,7 +257,7 @@ func Test_db_List_with_feed_id(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 5, len(aa))
 	for _, a := range aa {
-		assert.Equal(t, "test", a.FeedId)
+		assert.Equal(t, "test", a.FeedId.GetValue())
 	}
 }
 

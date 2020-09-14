@@ -8,12 +8,14 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/ngalaiko/miniboard/server/actor"
 )
 
 type dbArticle struct {
 	Article         *Article
 	CreateTimestamp int64
+	FeedID          *string
 }
 
 type articlesDB struct {
@@ -31,6 +33,12 @@ func (db *articlesDB) Create(ctx context.Context, article *Article) error {
 	createTime, err := ptypes.Timestamp(article.CreateTime)
 	if err != nil {
 		return fmt.Errorf("failed to convret create_time: %w", err)
+	}
+
+	var feedID *string
+	if article.FeedId != nil {
+		feedID = new(string)
+		*feedID = article.FeedId.GetValue()
 	}
 
 	_, createErr := db.db.ExecContext(ctx, `
@@ -56,7 +64,7 @@ func (db *articlesDB) Create(ctx context.Context, article *Article) error {
 		article.Content,
 		article.ContentSha256,
 		article.IsRead,
-		article.FeedId,
+		feedID,
 	)
 	return createErr
 }
@@ -124,7 +132,7 @@ func (db *articlesDB) scanRow(row scannable) (*Article, error) {
 		&article.Article.Content,
 		&article.Article.ContentSha256,
 		&article.Article.IsRead,
-		&article.Article.FeedId,
+		&article.FeedID,
 	)
 
 	if err != nil {
@@ -135,6 +143,12 @@ func (db *articlesDB) scanRow(row scannable) (*Article, error) {
 	article.Article.CreateTime, convertTimeErr = ptypes.TimestampProto(time.Unix(0, article.CreateTimestamp))
 	if convertTimeErr != nil {
 		return nil, fmt.Errorf("failed to convert create time: %w", convertTimeErr)
+	}
+
+	if article.FeedID != nil {
+		article.Article.FeedId = &wrappers.StringValue{
+			Value: *article.FeedID,
+		}
 	}
 
 	return article.Article, nil

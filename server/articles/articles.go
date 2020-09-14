@@ -13,6 +13,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	empty "github.com/golang/protobuf/ptypes/empty"
+	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/ngalaiko/miniboard/server/actor"
 	"github.com/ngalaiko/miniboard/server/fetch"
 	"github.com/ngalaiko/miniboard/server/reader"
@@ -75,7 +76,7 @@ func (s *Service) CreateArticle(
 	body io.Reader,
 	articleURL *url.URL,
 	published *time.Time,
-	sourceID string,
+	sourceID *string,
 ) (*Article, error) {
 	// before that date ksuid is no longer lexicographicaly sortable
 	// https://github.com/segmentio/ksuid#how-do-they-work
@@ -97,7 +98,11 @@ func (s *Service) CreateArticle(
 		UserId: actor.ID,
 	}
 
-	article.FeedId = sourceID
+	if sourceID != nil {
+		article.FeedId = &wrappers.StringValue{
+			Value: *sourceID,
+		}
+	}
 
 	var err error
 	article.CreateTime, err = ptypes.TimestampProto(createTime)

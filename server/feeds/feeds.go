@@ -38,7 +38,7 @@ var (
 )
 
 type articlesService interface {
-	CreateArticle(context.Context, io.Reader, *url.URL, *time.Time, string) (*articles.Article, error)
+	CreateArticle(context.Context, io.Reader, *url.URL, *time.Time, *string) (*articles.Article, error)
 }
 
 // Service is a Feeds service.
@@ -224,7 +224,7 @@ func (s *Service) saveItem(ctx context.Context, item *gofeed.Item, feed *Feed) e
 	}
 
 	link, _ := url.Parse(item.Link)
-	if _, err := s.articlesService.CreateArticle(ctx, bytes.NewReader(body), link, published, feed.Id); err != nil {
+	if _, err := s.articlesService.CreateArticle(ctx, bytes.NewReader(body), link, published, &feed.Id); err != nil {
 		return fmt.Errorf("failed to create article: %w", err)
 	}
 	return nil

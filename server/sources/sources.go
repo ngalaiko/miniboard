@@ -23,7 +23,7 @@ import (
 )
 
 type articlesService interface {
-	CreateArticle(context.Context, io.Reader, *url.URL, *time.Time, string) (*articles.Article, error)
+	CreateArticle(context.Context, io.Reader, *url.URL, *time.Time, *string) (*articles.Article, error)
 }
 
 type feedsService interface {
@@ -124,7 +124,7 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *Source) (*Sou
 	switch {
 	case strings.Contains(ct, "text/html"):
 		now := time.Now()
-		article, err := s.articlesService.CreateArticle(ctx, bytes.NewBuffer(body), url, &now, "")
+		article, err := s.articlesService.CreateArticle(ctx, bytes.NewBuffer(body), url, &now, nil)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to create article from source: %s", err)
 		}

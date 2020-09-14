@@ -48,7 +48,7 @@ func Test_service_Create(t *testing.T) {
 
 	testURL, _ := url.Parse("http://localhost")
 
-	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, "")
+	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, resp.Id)
 	assert.Equal(t, resp.Url, "http://localhost")
@@ -62,10 +62,10 @@ func Test_service_Create_twice_with_same_content(t *testing.T) {
 
 	testURL, _ := url.Parse("http://localhost")
 
-	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, "")
+	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
 	assert.NoError(t, err)
 
-	secondResponse, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, "")
+	secondResponse, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, resp.CreateTime, secondResponse.CreateTime)
 }
@@ -77,10 +77,10 @@ func Test_service_Create_twice_with_different_content(t *testing.T) {
 
 	testURL, _ := url.Parse("http://localhost")
 
-	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, "")
+	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
 	assert.NoError(t, err)
 
-	secondResponse, err := service.CreateArticle(ctx, testArticle("new content"), testURL, nil, "")
+	secondResponse, err := service.CreateArticle(ctx, testArticle("new content"), testURL, nil, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, resp.CreateTime, secondResponse.CreateTime)
 	assert.Equal(t, resp.Id, secondResponse.Id)
@@ -96,7 +96,7 @@ func Test_service_Get_basic_view(t *testing.T) {
 
 	testURL, _ := url.Parse("http://localhost")
 
-	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, "")
+	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
 	assert.NoError(t, err)
 
 	article, err := service.GetArticle(ctx, &GetArticleRequest{
@@ -113,7 +113,7 @@ func Test_service_Get_full_view(t *testing.T) {
 
 	testURL, _ := url.Parse("http://localhost")
 
-	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, "")
+	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
 	assert.NoError(t, err)
 
 	article, err := service.GetArticle(ctx, &GetArticleRequest{
@@ -146,7 +146,7 @@ func Test_service_Delete(t *testing.T) {
 
 	testURL, _ := url.Parse("http://localhost")
 
-	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, "")
+	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
 	assert.NoError(t, err)
 
 	_, deleteErr := service.DeleteArticle(ctx, &DeleteArticleRequest{
@@ -170,7 +170,7 @@ func Test_service_List_all(t *testing.T) {
 
 	for i := 0; i < 50; i++ {
 		testURL, _ := url.Parse(fmt.Sprintf("http://localhost-%d", i))
-		_, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, "")
+		_, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
 		assert.NoError(t, err)
 	}
 
@@ -189,7 +189,7 @@ func Test_service_List_pagination(t *testing.T) {
 
 	for i := 0; i < 50; i++ {
 		testURL, _ := url.Parse(fmt.Sprintf("http://localhost-%d", i))
-		_, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, "")
+		_, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
 		assert.NoError(t, err)
 	}
 

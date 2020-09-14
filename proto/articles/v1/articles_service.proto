@@ -121,8 +121,8 @@ message Article {
     // Mark the article as read.
     bool is_read = 8;
 
-    // Id of feed of the article.
-    string feed_id = 9;
+    // Feed id, if article belogs to a feed.
+    google.protobuf.StringValue feed_id = 9;
 }
 
 enum ArticleView {
