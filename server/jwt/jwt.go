@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/ngalaiko/miniboard/server/jwt/db"
-	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 	jose "gopkg.in/square/go-jose.v2"
@@ -99,12 +98,12 @@ func (s *Service) newSigner(ctx context.Context) error {
 }
 
 // NewToken returns new authorization.
-func (s *Service) NewToken(subject *resource.Name, validFor time.Duration, typ string) (string, error) {
+func (s *Service) NewToken(subject string, validFor time.Duration, typ string) (string, error) {
 	now := time.Now()
 	claims := &jwt.Claims{
 		ID:       ksuid.New().String(),
 		Issuer:   defaultIssuer,
-		Subject:  subject.String(),
+		Subject:  subject,
 		IssuedAt: jwt.NewNumericDate(now),
 		Expiry:   jwt.NewNumericDate(now.Add(validFor)),
 	}
@@ -119,41 +118,41 @@ func (s *Service) NewToken(subject *resource.Name, validFor time.Duration, typ s
 }
 
 // Validate returns token subject if a token is valid.
-func (s *Service) Validate(ctx context.Context, raw string, typ string) (*resource.Name, error) {
+func (s *Service) Validate(ctx context.Context, raw string, typ string) (string, error) {
 	token, err := jwt.ParseSigned(raw)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse token: %w", err)
+		return "", fmt.Errorf("failed to parse token: %w", err)
 	}
 
 	if len(token.Headers) == 0 {
-		return nil, fmt.Errorf("headers missing from the token: %w", err)
+		return "", fmt.Errorf("headers missing from the token: %w", err)
 	}
 
 	id := token.Headers[0].KeyID
 
 	pubicKey, err := s.get(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find key '%s': %w", id, err)
+		return "", fmt.Errorf("failed to find key '%s': %w", id, err)
 	}
 
 	claims := &jwt.Claims{}
 	custom := &customClaims{}
 	if err := token.Claims(pubicKey, claims, custom); err != nil {
-		return nil, fmt.Errorf("failed to parse claims: %w", err)
+		return "", fmt.Errorf("failed to parse claims: %w", err)
 	}
 
 	if custom.Type != typ {
-		return nil, fmt.Errorf("wrong token type, expected '%s': %w", typ, err)
+		return "", fmt.Errorf("wrong token type, expected '%s': %w", typ, err)
 	}
 
 	if err := claims.Validate(jwt.Expected{
 		Issuer: defaultIssuer,
 		Time:   time.Now(),
 	}); err != nil {
-		return nil, fmt.Errorf("token is invalid: %w", err)
+		return "", fmt.Errorf("token is invalid: %w", err)
 	}
 
-	return resource.ParseName(claims.Subject), nil
+	return claims.Subject, nil
 }
 
 func (s *Service) get(ctx context.Context, id string) (*ecdsa.PublicKey, error) {

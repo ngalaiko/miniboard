@@ -8,7 +8,6 @@ import (
 
 	"github.com/ngalaiko/miniboard/server/email"
 	"github.com/ngalaiko/miniboard/server/jwt"
-	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/sirupsen/logrus"
 	"github.com/spaolacci/murmur3"
 	responsecodes "google.golang.org/grpc/codes"
@@ -41,7 +40,7 @@ func (s *Service) CreateCode(ctx context.Context, request *CreateCodeRequest) (*
 	_, _ = io.WriteString(h, request.Email)
 	hashedEmail := fmt.Sprintf("%x", h.Sum(nil))
 
-	token, err := s.jwt.NewToken(resource.NewName("users", hashedEmail), 10*time.Minute, "authorization_code")
+	token, err := s.jwt.NewToken(hashedEmail, 10*time.Minute, "authorization_code")
 	if err != nil {
 		return nil, status.New(responsecodes.Internal, "failed to generate token").Err()
 	}

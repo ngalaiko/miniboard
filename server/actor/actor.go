@@ -2,29 +2,24 @@ package actor
 
 import (
 	"context"
-	"strings"
-
-	"github.com/ngalaiko/miniboard/server/storage/resource"
 )
 
 type actorCtxKeyType struct{}
 
+// Actor contains id of a user performing a request.
+type Actor struct {
+	ID string
+}
+
 // NewContext returns context with actor name set.
-func NewContext(ctx context.Context, actor *resource.Name) context.Context {
-	return context.WithValue(ctx, actorCtxKeyType{}, actor)
+func NewContext(ctx context.Context, id string) context.Context {
+	return context.WithValue(ctx, actorCtxKeyType{}, id)
 }
 
 // FromContext returns actor from context.
-func FromContext(ctx context.Context) (*resource.Name, bool) {
-	actor, ok := ctx.Value(actorCtxKeyType{}).(*resource.Name)
-	return actor, ok
-}
-
-// Owns returns true if actor from context owns the resource.
-func Owns(ctx context.Context, res *resource.Name) bool {
-	actor, ok := ctx.Value(actorCtxKeyType{}).(*resource.Name)
-	if !ok {
-		return false
-	}
-	return strings.HasPrefix(res.String(), actor.String())
+func FromContext(ctx context.Context) (*Actor, bool) {
+	id, ok := ctx.Value(actorCtxKeyType{}).(string)
+	return &Actor{
+		ID: id,
+	}, ok
 }

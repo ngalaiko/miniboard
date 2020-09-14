@@ -175,7 +175,7 @@ func (db *feedsDB) List(ctx context.Context, request *ListFeedsRequest) ([]*Feed
 			AND id >= $2
 		ORDER BY id ASC
 		LIMIT $3
-	`, a.ID(), from, request.PageSize)
+	`, a.ID, from, request.PageSize)
 	if err != nil {
 		return nil, err
 	}

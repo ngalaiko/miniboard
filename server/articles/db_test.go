@@ -13,7 +13,6 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/ngalaiko/miniboard/server/actor"
 	"github.com/ngalaiko/miniboard/server/db"
-	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -362,6 +361,5 @@ func article() *Article {
 }
 
 func testContext() context.Context {
-	userName := resource.NewName("users", "user_id")
-	return actor.NewContext(context.Background(), userName)
+	return actor.NewContext(context.Background(), "user_id")
 }

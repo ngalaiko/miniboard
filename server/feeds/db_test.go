@@ -12,19 +12,18 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/ngalaiko/miniboard/server/actor"
 	"github.com/ngalaiko/miniboard/server/db"
-	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/stretchr/testify/assert"
 )
 
 func Test_db_Create(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 	testFeed := feed()
 	assert.NoError(t, database.Create(ctx, testFeed))
 }
 
 func Test_db_Create_twice(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 	testFeed := feed()
 	assert.NoError(t, database.Create(ctx, testFeed))
@@ -32,7 +31,7 @@ func Test_db_Create_twice(t *testing.T) {
 }
 
 func Test_db_Get(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 	testFeed := feed()
 	assert.NoError(t, database.Create(ctx, testFeed))
@@ -43,7 +42,7 @@ func Test_db_Get(t *testing.T) {
 }
 
 func Test_db_Get_not_exists(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 	testFeed := feed()
 
@@ -53,7 +52,7 @@ func Test_db_Get_not_exists(t *testing.T) {
 }
 
 func Test_db_Update_timestamp(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 	testFeed := feed()
 	assert.NoError(t, database.Create(ctx, testFeed))
@@ -68,9 +67,7 @@ func Test_db_Update_timestamp(t *testing.T) {
 }
 
 func Test_db_List_all(t *testing.T) {
-	ctx := context.Background()
-	userName := resource.NewName("users", "test")
-	ctx = actor.NewContext(ctx, userName)
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	saved := []*Feed{}
@@ -92,9 +89,7 @@ func Test_db_List_all(t *testing.T) {
 }
 
 func Test_db_List_with_limit(t *testing.T) {
-	ctx := context.Background()
-	userName := resource.NewName("users", "test")
-	ctx = actor.NewContext(ctx, userName)
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	saved := []*Feed{}
@@ -116,9 +111,7 @@ func Test_db_List_with_limit(t *testing.T) {
 }
 
 func Test_db_List_with_from(t *testing.T) {
-	ctx := context.Background()
-	userName := resource.NewName("users", "test")
-	ctx = actor.NewContext(ctx, userName)
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	saved := []*Feed{}
@@ -141,7 +134,7 @@ func Test_db_List_with_from(t *testing.T) {
 }
 
 func Test_db_ListAll(t *testing.T) {
-	ctx := context.Background()
+	ctx := testContext()
 	database := newDB(testDB(t))
 
 	saved := []*Feed{}
@@ -171,7 +164,7 @@ func feed() *Feed {
 }
 
 func testDB(t *testing.T) *sql.DB {
-	ctx := context.Background()
+	ctx := testContext()
 
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
 	assert.NoError(t, err)
@@ -185,4 +178,8 @@ func testDB(t *testing.T) *sql.DB {
 	assert.NoError(t, db.Migrate(ctx, sqlite))
 
 	return sqlite
+}
+
+func testContext() context.Context {
+	return actor.NewContext(context.Background(), "test")
 }

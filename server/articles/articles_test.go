@@ -11,8 +11,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ngalaiko/miniboard/server/actor"
-	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -44,11 +42,7 @@ func (tc *testClient) Fetch(ctx context.Context, url string) (*http.Response, er
 }
 
 func Test_service_Create(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	userName := resource.NewName("users", "test")
-	ctx = actor.NewContext(ctx, userName)
+	ctx := testContext()
 
 	service := NewService(testDB(t), &testClient{})
 
@@ -62,11 +56,7 @@ func Test_service_Create(t *testing.T) {
 }
 
 func Test_service_Create_twice_with_same_content(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	userName := resource.NewName("users", "test")
-	ctx = actor.NewContext(ctx, userName)
+	ctx := testContext()
 
 	service := NewService(testDB(t), &testClient{})
 
@@ -81,11 +71,7 @@ func Test_service_Create_twice_with_same_content(t *testing.T) {
 }
 
 func Test_service_Create_twice_with_different_content(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	userName := resource.NewName("users", "test")
-	ctx = actor.NewContext(ctx, userName)
+	ctx := testContext()
 
 	service := NewService(testDB(t), &testClient{})
 
@@ -104,11 +90,7 @@ func Test_service_Create_twice_with_different_content(t *testing.T) {
 }
 
 func Test_service_Get_basic_view(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	userName := resource.NewName("users", "test")
-	ctx = actor.NewContext(ctx, userName)
+	ctx := testContext()
 
 	service := NewService(testDB(t), &testClient{})
 
@@ -125,11 +107,7 @@ func Test_service_Get_basic_view(t *testing.T) {
 }
 
 func Test_service_Get_full_view(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	userName := resource.NewName("users", "test")
-	ctx = actor.NewContext(ctx, userName)
+	ctx := testContext()
 
 	service := NewService(testDB(t), &testClient{})
 
@@ -147,11 +125,7 @@ func Test_service_Get_full_view(t *testing.T) {
 }
 
 func Test_service_Get_not_exists(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	userName := resource.NewName("users", "test")
-	ctx = actor.NewContext(ctx, userName)
+	ctx := testContext()
 
 	service := NewService(testDB(t), &testClient{})
 
@@ -166,11 +140,7 @@ func Test_service_Get_not_exists(t *testing.T) {
 }
 
 func Test_service_Delete(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	userName := resource.NewName("users", "test")
-	ctx = actor.NewContext(ctx, userName)
+	ctx := testContext()
 
 	service := NewService(testDB(t), &testClient{})
 
@@ -194,11 +164,7 @@ func Test_service_Delete(t *testing.T) {
 }
 
 func Test_service_List_all(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	userName := resource.NewName("users", "test")
-	ctx = actor.NewContext(ctx, userName)
+	ctx := testContext()
 
 	service := NewService(testDB(t), &testClient{})
 
@@ -217,11 +183,7 @@ func Test_service_List_all(t *testing.T) {
 }
 
 func Test_service_List_pagination(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	userName := resource.NewName("users", "test")
-	ctx = actor.NewContext(ctx, userName)
+	ctx := testContext()
 
 	service := NewService(testDB(t), &testClient{})
 

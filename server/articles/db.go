@@ -193,7 +193,7 @@ func (db *articlesDB) List(ctx context.Context, request *ListArticlesRequest) ([
 	}
 
 	args := []interface{}{
-		a.ID(), from,
+		a.ID, from,
 	}
 
 	if request.IsReadEq != nil {

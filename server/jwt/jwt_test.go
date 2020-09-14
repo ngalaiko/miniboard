@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/ngalaiko/miniboard/server/db"
-	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,7 +26,7 @@ func Test_Service(t *testing.T) {
 	service := NewService(ctx, sqlite)
 
 	t.Run("When creating a token", func(t *testing.T) {
-		testSubject := resource.NewName("test", "test subject")
+		testSubject := "test subject"
 		token, err := service.NewToken(testSubject, time.Hour, "token")
 
 		t.Run("It should return a token", func(t *testing.T) {

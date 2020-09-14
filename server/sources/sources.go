@@ -81,7 +81,7 @@ func (s *Service) createSourceFromRaw(ctx context.Context, source *Source) (*Sou
 		start := time.Now()
 		log().Infof("adding %d sources from opml", len(sources))
 
-		ctx = actor.NewContext(context.Background(), a)
+		ctx = actor.NewContext(context.Background(), a.ID)
 
 		for _, source := range sources {
 			source := source
@@ -94,7 +94,7 @@ func (s *Service) createSourceFromRaw(ctx context.Context, source *Source) (*Sou
 		log().Infof("added %d sources from opml in %s", len(sources), time.Since(start))
 	}()
 
-	source.Id = a.Child("opml", ksuid.New().String()).String()
+	source.Id = ksuid.New().String()
 	return source, nil
 }
 

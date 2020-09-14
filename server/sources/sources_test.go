@@ -14,7 +14,6 @@ import (
 	"github.com/ngalaiko/miniboard/server/actor"
 	"github.com/ngalaiko/miniboard/server/articles"
 	"github.com/ngalaiko/miniboard/server/feeds"
-	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -36,7 +35,7 @@ func Test_sources(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	ctx = actor.NewContext(ctx, resource.NewName("users", "test"))
+	ctx = actor.NewContext(ctx, "test")
 
 	t.Run("With sources service", func(t *testing.T) {
 		t.Run("When creating a source from html page", func(t *testing.T) {
