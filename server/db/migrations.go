@@ -18,6 +18,20 @@ func migrations() []*migration {
 			`,
 		},
 		{
+			Name: "create feeds table",
+			Query: `
+			CREATE TABLE feeds (
+				id           TEXT   NOT NULL,
+				user_id      TEXT   NOT NULL,
+				url          TEXT   NOT NULL,
+				title        TEXT   NOT NULL,
+				last_fetched BIGINT NOT NULL,
+				PRIMARY KEY (id),
+				UNIQUE (user_id, url)
+			)
+			`,
+		},
+		{
 			Name: "create articles table",
 			Query: `
 			CREATE TABLE articles (
@@ -29,7 +43,7 @@ func migrations() []*migration {
 				content        TEXT    NOT NULL,
 				content_sha256 TEXT    NOT NULL,
 				is_read        BOOLEAN NOT NULL,
-				feed_id        TEXT    NULL,
+				feed_id        TEXT    NULL     REFERENCES feeds(id),
 				PRIMARY KEY (id),
 				UNIQUE (user_id, content_sha256)
 			)

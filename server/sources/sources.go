@@ -16,7 +16,6 @@ import (
 	"github.com/ngalaiko/miniboard/server/articles"
 	"github.com/ngalaiko/miniboard/server/feeds"
 	"github.com/ngalaiko/miniboard/server/fetch"
-	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -24,7 +23,7 @@ import (
 )
 
 type articlesService interface {
-	CreateArticle(context.Context, io.Reader, *url.URL, *time.Time, *resource.Name) (*articles.Article, error)
+	CreateArticle(context.Context, io.Reader, *url.URL, *time.Time, string) (*articles.Article, error)
 }
 
 type feedsService interface {
@@ -125,7 +124,7 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *Source) (*Sou
 	switch {
 	case strings.Contains(ct, "text/html"):
 		now := time.Now()
-		article, err := s.articlesService.CreateArticle(ctx, bytes.NewBuffer(body), url, &now, nil)
+		article, err := s.articlesService.CreateArticle(ctx, bytes.NewBuffer(body), url, &now, "")
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to create article from source: %s", err)
 		}
@@ -142,7 +141,7 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *Source) (*Sou
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to create feed from source: %s", err)
 		}
-		source.Name = feed.Name
+		source.Name = feed.Id
 		return source, nil
 	default:
 		return nil, status.Errorf(codes.InvalidArgument, "unsupported source content type '%s'", ct)

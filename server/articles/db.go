@@ -105,7 +105,11 @@ func (db *articlesDB) GetByUserIDUrl(ctx context.Context, userID string, url str
 	return db.scanRow(row)
 }
 
-func (db *articlesDB) scanRow(row *sql.Row) (*Article, error) {
+type scannable interface {
+	Scan(...interface{}) error
+}
+
+func (db *articlesDB) scanRow(row scannable) (*Article, error) {
 	article := &dbArticle{
 		Article: &Article{},
 	}
@@ -166,6 +170,7 @@ func (db *articlesDB) List(ctx context.Context, request *ListArticlesRequest) ([
 			url,
 			title,
 			create_time,
+			content,
 			content_sha256,
 			is_read,
 			feed_id
@@ -218,32 +223,12 @@ func (db *articlesDB) List(ctx context.Context, request *ListArticlesRequest) ([
 	defer rows.Close()
 	articles := []*Article{}
 	for rows.Next() {
-		article := &dbArticle{
-			Article: &Article{},
-		}
-
-		err := rows.Scan(
-			&article.Article.Id,
-			&article.Article.UserId,
-			&article.Article.Url,
-			&article.Article.Title,
-			&article.CreateTimestamp,
-			&article.Article.ContentSha256,
-			&article.Article.IsRead,
-			&article.Article.FeedId,
-		)
-
+		article, err := db.scanRow(rows)
 		if err != nil {
 			return nil, err
 		}
-
-		var convertTimeErr error
-		article.Article.CreateTime, convertTimeErr = ptypes.TimestampProto(time.Unix(0, article.CreateTimestamp))
-		if convertTimeErr != nil {
-			return nil, fmt.Errorf("failed to convert create time: %w", convertTimeErr)
-		}
-
-		articles = append(articles, article.Article)
+		article.Content = nil
+		articles = append(articles, article)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

@@ -6,10 +6,7 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
-	"github.com/ngalaiko/miniboard/server/actor"
-	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
@@ -41,18 +38,13 @@ func (s *Service) listenToUpdates(ctx context.Context) {
 }
 
 func (s *Service) updateFeeds(ctx context.Context) error {
-	raw, err := s.storage.LoadAll(ctx, resource.ParseName("users/*/feeds/*"))
+	feeds, err := s.storage.ListAll(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to load feeds: %w", err)
 	}
 
 	wg, ctx := errgroup.WithContext(ctx)
-	for _, r := range raw {
-		feed := &Feed{}
-		if err := proto.Unmarshal(r.Data, feed); err != nil {
-			return fmt.Errorf("failed to unmarshal feed: %w", err)
-		}
-
+	for _, feed := range feeds {
 		wg.Go(func() error {
 			if err := s.updateFeed(ctx, feed); err != nil {
 				return fmt.Errorf("failed to update feed: %w", err)
@@ -71,10 +63,6 @@ func (s *Service) updateFeed(ctx context.Context, feed *Feed) error {
 		}
 	}()
 
-	name := resource.ParseName(feed.Name)
-
-	ctx = actor.NewContext(ctx, name.Parent())
-
 	lastFetched := time.Time{}
 	if feed.LastFetched != nil {
 		var err error
@@ -85,7 +73,7 @@ func (s *Service) updateFeed(ctx context.Context, feed *Feed) error {
 	}
 
 	if lastFetched.Add(updateInterval).After(time.Now()) {
-		log().Infof("no need to update %s (%s): lastFetched at %s", feed.Name, feed.Url, lastFetched)
+		log().Infof("no need to update %s (%s): lastFetched at %s", feed.Id, feed.Url, lastFetched)
 		return nil
 	}
 
@@ -95,7 +83,7 @@ func (s *Service) updateFeed(ctx context.Context, feed *Feed) error {
 	}
 	defer resp.Body.Close()
 
-	log().Infof("updating %s", feed.Name)
+	log().Infof("updating %s", feed.Id)
 
 	if err := s.parse(ctx, resp.Body, feed); err != nil {
 		return fmt.Errorf("failed to parse %s: %w", feed.Url, err)

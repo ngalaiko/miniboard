@@ -17,7 +17,6 @@ import (
 	"github.com/ngalaiko/miniboard/server/fetch"
 	"github.com/ngalaiko/miniboard/server/reader"
 	"github.com/ngalaiko/miniboard/server/storage"
-	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spaolacci/murmur3"
@@ -77,7 +76,7 @@ func (s *Service) CreateArticle(
 	body io.Reader,
 	articleURL *url.URL,
 	published *time.Time,
-	sourceName *resource.Name,
+	sourceID string,
 ) (*Article, error) {
 	// before that date ksuid is no longer lexicographicaly sortable
 	// https://github.com/segmentio/ksuid#how-do-they-work
@@ -99,9 +98,7 @@ func (s *Service) CreateArticle(
 		UserId: actor.ID(),
 	}
 
-	if sourceName != nil {
-		article.FeedId = sourceName.String()
-	}
+	article.FeedId = sourceID
 
 	var err error
 	article.CreateTime, err = ptypes.TimestampProto(createTime)

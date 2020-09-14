@@ -3,7 +3,16 @@ package feeds
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"time"
+
+	"github.com/golang/protobuf/ptypes"
 )
+
+type dbFeed struct {
+	Feed        *Feed
+	LastFetched int64
+}
 
 type feedsDB struct {
 	db *sql.DB
@@ -16,209 +25,170 @@ func newDB(sqldb *sql.DB) *feedsDB {
 }
 
 // Create adds a new articles to the database.
-func (db *feedsDB) Create(ctx context.Context, article *Feed) error {
-	return nil
-	//createTime, err := ptypes.Timestamp(article.CreateTime)
-	//if err != nil {
-	//return fmt.Errorf("failed to convret create_time: %w", err)
-	//}
+func (db *feedsDB) Create(ctx context.Context, feed *Feed) error {
+	lastFetched, err := ptypes.Timestamp(feed.LastFetched)
+	if err != nil {
+		return fmt.Errorf("failed to convret last_fetched: %w", err)
+	}
 
-	//_, createErr := db.db.ExecContext(ctx, `
-	//INSERT INTO articles (
-	//id,
-	//user_id,
-	//url,
-	//title,
-	//create_time,
-	//content,
-	//content_sha256,
-	//is_read,
-	//source_id
-	//) VALUES (
-	//$1, $2, $3, $4, $5, $6, $7, $8, $9
-	//)
-	//`,
-	//article.Id,
-	//article.UserId,
-	//article.Url,
-	//article.Title,
-	//createTime.UnixNano(),
-	//article.Content,
-	//article.ContentSha256,
-	//article.IsRead,
-	//article.SourceId,
-	//)
-	//return createErr
+	_, createErr := db.db.ExecContext(ctx, `
+	INSERT INTO feeds (
+		id,
+		user_id,
+		url,
+		title,
+		last_fetched
+	) VALUES (
+		$1, $2, $3, $4, $5
+	)
+	`,
+		feed.Id,
+		feed.UserId,
+		feed.Url,
+		feed.Title,
+		lastFetched.UnixNano(),
+	)
+	return createErr
 }
 
 // Get returns article by id.
 func (db *feedsDB) Get(ctx context.Context, id string) (*Feed, error) {
-	return nil, nil
-	//row := db.db.QueryRowContext(ctx, `
-	//SELECT
-	//id,
-	//user_id,
-	//url,
-	//title,
-	//create_time,
-	//content,
-	//content_sha256,
-	//is_read,
-	//source_id
-	//FROM
-	//articles
-	//WHERE
-	//id = $1
-	//`, id)
+	row := db.db.QueryRowContext(ctx, `
+	SELECT
+		id,
+		user_id,
+		url,
+		title,
+		last_fetched
+	FROM
+		feeds
+	WHERE
+		id = $1
+	`, id)
 
-	//return db.scanRow(row)
+	return db.scanRow(row)
 }
 
-//func (db *feedsDB) scanRow(row *sql.Row) (*Feed, error) {
-//err := row.Scan(
-//&article.Article.Id,
-//&article.Article.UserId,
-//&article.Article.Url,
-//&article.Article.Title,
-//&article.CreateTimestamp,
-//&article.Article.Content,
-//&article.Article.ContentSha256,
-//&article.Article.IsRead,
-//&article.Article.SourceId,
-//)
-
-//if err != nil {
-//return nil, err
-//}
-
-//var convertTimeErr error
-//article.Article.CreateTime, convertTimeErr = ptypes.TimestampProto(time.Unix(0, article.CreateTimestamp))
-//if convertTimeErr != nil {
-//return nil, fmt.Errorf("failed to convert create time: %w", convertTimeErr)
-//}
-
-//return article.Article, nil
-//}
-
-// Delete deletes an article by id.
-func (db *feedsDB) Delete(ctx context.Context, id string) error {
-	return nil
-	//_, err := db.db.ExecContext(ctx, `
-	//DELETE FROM feeds
-	//WHERE id = $1
-	//`, id)
-	//return err
+type scannable interface {
+	Scan(...interface{}) error
 }
 
-func (db *feedsDB) Update(ctx context.Context, article *Article) error {
-	return nil
-	//_, err := db.db.ExecContext(ctx, `
-	//UPDATE articles
-	//SET
-	//is_read = $1,
-	//content = $2,
-	//content_sha256 = $3
-	//WHERE
-	//id = $4
-	//`, article.IsRead, article.Content, article.ContentSha256, article.Id)
-	//return err
+func (db *feedsDB) scanRow(row scannable) (*Feed, error) {
+	feed := &dbFeed{
+		Feed: &Feed{},
+	}
+	err := row.Scan(
+		&feed.Feed.Id,
+		&feed.Feed.UserId,
+		&feed.Feed.Url,
+		&feed.Feed.Title,
+		&feed.LastFetched,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var convertTimeErr error
+	feed.Feed.LastFetched, convertTimeErr = ptypes.TimestampProto(time.Unix(0, feed.LastFetched))
+	if convertTimeErr != nil {
+		return nil, fmt.Errorf("failed to convert create time: %w", convertTimeErr)
+	}
+
+	return feed.Feed, nil
 }
 
-// List returns all articles.
-func (db *feedsDB) List(ctx context.Context, request *ListArticlesRequest) ([]*Article, error) {
-	return nil, nil
-	//q := &strings.Builder{}
-	//q.WriteString(`
-	//SELECT
-	//id,
-	//user_id,
-	//url,
-	//title,
-	//create_time,
-	//content_sha256,
-	//is_read,
-	//source_id
-	//FROM articles
-	//WHERE
-	//user_id = $1
-	//AND id >= $2
-	//`)
+func (db *feedsDB) Update(ctx context.Context, feed *Feed) error {
+	lastFetched, err := ptypes.Timestamp(feed.LastFetched)
+	if err != nil {
+		return fmt.Errorf("failed to convret last_fetched: %w", err)
+	}
 
-	//from, err := request.FromID()
-	//if err != nil {
-	//return nil, err
-	//}
+	_, updateError := db.db.ExecContext(ctx, `
+	UPDATE feeds
+	SET
+		last_fetched = $1
+	WHERE
+		id = $2
+	`, lastFetched.UnixNano(), feed.Id)
+	return updateError
+}
 
-	//args := []interface{}{
-	//request.UserId, from,
-	//}
+// ListAll returns all articles.
+func (db *feedsDB) ListAll(ctx context.Context) ([]*Feed, error) {
+	rows, err := db.db.QueryContext(ctx, `
+		SELECT
+			id,
+			user_id,
+			url,
+			title,
+			last_fetched
+		FROM
+			feeds
+		ORDER BY id ASC
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	feeds := []*Feed{}
+	for rows.Next() {
+		feed, err := db.scanRow(rows)
+		if err != nil {
+			return nil, err
+		}
 
-	//if request.IsReadEq != nil {
-	//args = append(args, request.GetIsReadEq().GetValue())
-	//q.WriteString(fmt.Sprintf(`
-	//AND is_read = $%d
-	//`, len(args)))
-	//}
+		feeds = append(feeds, feed)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return feeds, nil
+}
 
-	//if request.GetSourceIdEq() != nil {
-	//args = append(args, request.GetSourceIdEq().GetValue())
-	//q.WriteString(fmt.Sprintf(`
-	//AND source_id = $%d
-	//`, len(args)))
-	//}
+// List returns articles for a user.
+func (db *feedsDB) List(ctx context.Context, request *ListFeedsRequest) ([]*Feed, error) {
+	from, err := request.FromID()
+	if err != nil {
+		return nil, err
+	}
 
-	//if request.GetTitleContains() != nil {
-	//args = append(args, fmt.Sprintf("%%%s%%", request.GetTitleContains().GetValue()))
-	//q.WriteString(fmt.Sprintf(`
-	//AND title LIKE $%d
-	//`, len(args)))
-	//}
+	rows, err := db.db.QueryContext(ctx, `
+		SELECT
+			id,
+			user_id,
+			url,
+			title,
+			last_fetched
+		FROM
+			feeds
+		WHERE
+			user_id = $1
+			AND id >= $2
+		ORDER BY id ASC
+		LIMIT $3
+	`, request.UserId, from, request.PageSize)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	feeds := []*Feed{}
+	for rows.Next() {
+		feed, err := db.scanRow(rows)
+		if err != nil {
+			return nil, err
+		}
 
-	//args = append(args, request.PageSize)
-	//q.WriteString(fmt.Sprintf(`
-	//ORDER BY id ASC
-	//LIMIT $%d
-	//`, len(args)))
-
-	//rows, err := db.db.QueryContext(ctx, q.String(), args...)
-	//if err != nil {
-	//return nil, err
-	//}
-	//defer rows.Close()
-	//articles := []*Article{}
-	//for rows.Next() {
-	//article := &dbArticle{
-	//Article: &Article{},
-	//}
-
-	//err := rows.Scan(
-	//&article.Article.Id,
-	//&article.Article.UserId,
-	//&article.Article.Url,
-	//&article.Article.Title,
-	//&article.CreateTimestamp,
-	//&article.Article.ContentSha256,
-	//&article.Article.IsRead,
-	//&article.Article.SourceId,
-	//)
-
-	//if err != nil {
-	//return nil, err
-	//}
-
-	//var convertTimeErr error
-	//article.Article.CreateTime, convertTimeErr = ptypes.TimestampProto(time.Unix(0, article.CreateTimestamp))
-	//if convertTimeErr != nil {
-	//return nil, fmt.Errorf("failed to convert create time: %w", convertTimeErr)
-	//}
-
-	//articles = append(articles, article.Article)
-	//}
-	//if err := rows.Close(); err != nil {
-	//return nil, err
-	//}
-	//if err := rows.Err(); err != nil {
-	//return nil, err
-	//}
-	//return articles, nil
+		feeds = append(feeds, feed)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return feeds, nil
 }
