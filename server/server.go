@@ -19,7 +19,6 @@ import (
 	"github.com/ngalaiko/miniboard/server/middleware"
 	"github.com/ngalaiko/miniboard/server/sources"
 	"github.com/ngalaiko/miniboard/server/tokens"
-	"github.com/ngalaiko/miniboard/server/users"
 	"github.com/ngalaiko/miniboard/server/web"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
@@ -58,7 +57,6 @@ func New(
 	jwtService := jwt.NewService(ctx, sqldb)
 	articlesService := articles.NewService(sqldb, fetcher)
 	feedsService := feeds.NewService(ctx, sqldb, fetcher, articlesService)
-	usersService := users.NewService()
 	codesService := codes.NewService(domain, emailClient, jwtService)
 	tokensService := tokens.NewService(jwtService)
 	sourcesService := sources.NewService(articlesService, feedsService, fetcher)
@@ -100,10 +98,6 @@ func New(
 
 	if err := feeds.RegisterFeedsServiceHandlerServer(ctx, gwMux, feedsService); err != nil {
 		return nil, fmt.Errorf("failed to register feeds http handler: %w", err)
-	}
-
-	if err := users.RegisterUsersServiceHandlerServer(ctx, gwMux, usersService); err != nil {
-		return nil, fmt.Errorf("failed to register users http handler: %w", err)
 	}
 
 	mux := http.NewServeMux()
