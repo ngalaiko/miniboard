@@ -207,13 +207,11 @@ func Test_db_List_with_is_read(t *testing.T) {
 	ctx := testContext()
 	database := newDB(testDB(t))
 
-	saved := []*Article{}
 	for i := 0; i < 10; i++ {
 		a := article()
 		a.Id += fmt.Sprint(i)
 		a.IsRead = i%2 == 0
 		a.ContentSha256 += fmt.Sprint(i)
-		saved = append(saved, a)
 		assert.NoError(t, database.Create(ctx, a))
 
 		a.Content = nil
@@ -236,7 +234,6 @@ func Test_db_List_with_feed_id(t *testing.T) {
 	ctx := testContext()
 	database := newDB(testDB(t))
 
-	saved := []*Article{}
 	for i := 0; i < 10; i++ {
 		a := article()
 		a.Id += fmt.Sprint(i)
@@ -244,7 +241,6 @@ func Test_db_List_with_feed_id(t *testing.T) {
 		if i%2 == 0 {
 			a.FeedId = "test"
 		}
-		saved = append(saved, a)
 		assert.NoError(t, database.Create(ctx, a))
 
 		a.Content = nil
@@ -267,7 +263,6 @@ func Test_db_List_with_title_contains(t *testing.T) {
 	ctx := testContext()
 	database := newDB(testDB(t))
 
-	saved := []*Article{}
 	for i := 0; i < 10; i++ {
 		a := article()
 		a.Id += fmt.Sprint(i)
@@ -275,7 +270,6 @@ func Test_db_List_with_title_contains(t *testing.T) {
 		if i%2 == 0 {
 			a.Title = "it contains the query"
 		}
-		saved = append(saved, a)
 		assert.NoError(t, database.Create(ctx, a))
 
 		a.Content = nil
@@ -298,7 +292,6 @@ func Test_db_List_with_title_contains_and_is_read(t *testing.T) {
 	ctx := testContext()
 	database := newDB(testDB(t))
 
-	saved := []*Article{}
 	for i := 0; i < 10; i++ {
 		a := article()
 		a.Id += fmt.Sprint(i)
@@ -307,7 +300,6 @@ func Test_db_List_with_title_contains_and_is_read(t *testing.T) {
 			a.Title = "it contains the query"
 			a.IsRead = true
 		}
-		saved = append(saved, a)
 		assert.NoError(t, database.Create(ctx, a))
 
 		a.Content = nil
