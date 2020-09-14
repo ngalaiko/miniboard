@@ -18,7 +18,6 @@ import (
 	"github.com/ngalaiko/miniboard/server/actor"
 	"github.com/ngalaiko/miniboard/server/articles"
 	"github.com/ngalaiko/miniboard/server/fetch"
-	"github.com/ngalaiko/miniboard/server/storage"
 	"github.com/spaolacci/murmur3"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -91,7 +90,7 @@ func (s *Service) ListFeeds(ctx context.Context, request *ListFeedsRequest) (*Li
 	}
 
 	switch err {
-	case nil, storage.ErrNotFound:
+	case nil, sql.ErrNoRows:
 		return &ListFeedsResponse{
 			Feeds:         ff,
 			NextPageToken: nextPageToken,

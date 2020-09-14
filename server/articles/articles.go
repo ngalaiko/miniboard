@@ -16,7 +16,6 @@ import (
 	"github.com/ngalaiko/miniboard/server/actor"
 	"github.com/ngalaiko/miniboard/server/fetch"
 	"github.com/ngalaiko/miniboard/server/reader"
-	"github.com/ngalaiko/miniboard/server/storage"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 	"github.com/spaolacci/murmur3"
@@ -59,7 +58,7 @@ func (s *Service) ListArticles(ctx context.Context, request *ListArticlesRequest
 	}
 
 	switch err {
-	case nil, storage.ErrNotFound:
+	case nil, sql.ErrNoRows:
 		return &ListArticlesResponse{
 			Articles:      aa,
 			NextPageToken: nextPageToken,

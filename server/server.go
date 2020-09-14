@@ -18,7 +18,6 @@ import (
 	"github.com/ngalaiko/miniboard/server/jwt"
 	"github.com/ngalaiko/miniboard/server/middleware"
 	"github.com/ngalaiko/miniboard/server/sources"
-	"github.com/ngalaiko/miniboard/server/storage"
 	"github.com/ngalaiko/miniboard/server/tokens"
 	"github.com/ngalaiko/miniboard/server/users"
 	"github.com/ngalaiko/miniboard/server/web"
@@ -47,7 +46,6 @@ type Server struct {
 // New creates new api server.
 func New(
 	ctx context.Context,
-	db storage.Storage,
 	sqldb *sql.DB,
 	emailClient email.Client,
 	filePath string,

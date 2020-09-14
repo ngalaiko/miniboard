@@ -1,16 +1,11 @@
 [![CI Status](https://github.com/ngalaiko/miniboard/workflows/CI/badge.svg)](https://github.com/ngalaiko/miniboard/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ngalaiko/miniboard)](https://goreportcard.com/report/github.com/ngalaiko/miniboard)
 
-### Requirements
-
-* [Redis](https://redis.io)
-
 ### Command line arguments
 
 | Command line            | Default                  | Description                                      |
 | ----------------------- | ------------------------ | ------------------------------------------------ |
 | addr                    | :8080                    | Address to listen for connections.               |
-| redis-uri               |                          | Redis URI to connect to.                         |
 | domain                  | http://localhost:8080    | Service domain.                                  |
 | smtp-host               |                          | SMTP server host.                                |
 | smtp-port               |                          | SMTP server port.                                |
@@ -28,10 +23,9 @@
 
 ## Development
 
-0. Run redis:
+0. Run datababse:
 
 ```bash
-$ docker run -d -p 6379:6379 --name redis redis
 $ docker run --name postgres -e POSTGRES_PASSWORD=miniboard -e POSTGRES_DB=miniboard -e POSTGRES_USER=miniboard -p 5432:5432 -d postgres
 ```
 

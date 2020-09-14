@@ -11,15 +11,12 @@ import (
 	"github.com/ngalaiko/miniboard/server/email"
 	"github.com/ngalaiko/miniboard/server/email/disabled"
 	"github.com/ngalaiko/miniboard/server/email/smtp"
-	"github.com/ngalaiko/miniboard/server/storage/redis"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
 	domain := flag.String("domain", "http://localhost:8080", "Service domain.")
 	addr := flag.String("addr", ":8080", "Address to listen for connections.")
-
-	redisURI := flag.String("redis-uri", "", "Redis URI to connect to.")
 
 	psqlURI := flag.String("psql-uri", "", "Postgres URI to connect to.")
 
@@ -46,17 +43,12 @@ func main() {
 		logrus.Fatalf("failed to migrate postgres: %s", err)
 	}
 
-	redis, err := redis.New(ctx, *redisURI)
-	if err != nil {
-		logrus.Fatalf("failed to connect to database: %s", err)
-	}
-
 	lis, err := net.Listen("tcp", *addr)
 	if err != nil {
 		logrus.Fatalf("failed to open a connection: %s", err)
 	}
 
-	srv, err := server.New(ctx, redis, postgres, emailClient(*smtpHost, *smtpPort, *smtpSender), *filePath, *domain)
+	srv, err := server.New(ctx, postgres, emailClient(*smtpHost, *smtpPort, *smtpSender), *filePath, *domain)
 	if err != nil {
 		logrus.Fatalf("failed to create server: %s", err)
 	}
