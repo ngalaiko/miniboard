@@ -66,7 +66,8 @@ func NewService(ctx context.Context, sqldb *sql.DB, fetcher fetch.Fetcher, artic
 
 // GetFeed returns a feed.
 func (s *Service) GetFeed(ctx context.Context, request *GetFeedRequest) (*Feed, error) {
-	feed, err := s.storage.Get(ctx, request.Id)
+	a, _ := actor.FromContext(ctx)
+	feed, err := s.storage.Get(ctx, request.Id, a.ID())
 	switch {
 	case err == nil:
 	case errors.Is(err, sql.ErrNoRows):
@@ -112,7 +113,7 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 
 	id := fmt.Sprintf("%x", urlHash.Sum(nil))
 
-	if _, err := s.storage.Get(ctx, id); err == nil {
+	if _, err := s.storage.Get(ctx, id, a.ID()); err == nil {
 		return nil, ErrAlreadyExists
 	}
 
@@ -141,6 +142,8 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 }
 
 func (s *Service) parse(ctx context.Context, reader io.Reader, feed *Feed) error {
+	a, _ := actor.FromContext(ctx)
+
 	var updateLeeway = 24 * time.Hour
 
 	parsedFeed, err := s.parser.Parse(reader)
@@ -180,7 +183,7 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, feed *Feed) error
 
 	feed.LastFetched = ptypes.TimestampNow()
 
-	if err := s.storage.Update(ctx, feed); err != nil {
+	if err := s.storage.Update(ctx, feed, a.ID()); err != nil {
 		return fmt.Errorf("failed to save feed: %w", err)
 	}
 

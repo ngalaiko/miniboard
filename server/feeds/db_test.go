@@ -10,7 +10,9 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/ngalaiko/miniboard/server/actor"
 	"github.com/ngalaiko/miniboard/server/db"
+	"github.com/ngalaiko/miniboard/server/storage/resource"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,7 +37,7 @@ func Test_db_Get(t *testing.T) {
 	testFeed := feed()
 	assert.NoError(t, database.Create(ctx, testFeed))
 
-	feed, err := database.Get(ctx, testFeed.Id)
+	feed, err := database.Get(ctx, testFeed.Id, testFeed.UserId)
 	assert.NoError(t, err)
 	assert.Equal(t, testFeed, feed)
 }
@@ -45,7 +47,7 @@ func Test_db_Get_not_exists(t *testing.T) {
 	database := newDB(testDB(t))
 	testFeed := feed()
 
-	feed, err := database.Get(ctx, testFeed.Id)
+	feed, err := database.Get(ctx, testFeed.Id, testFeed.UserId)
 	assert.Equal(t, sql.ErrNoRows, err)
 	assert.Nil(t, feed)
 }
@@ -58,15 +60,17 @@ func Test_db_Update_timestamp(t *testing.T) {
 
 	testFeed.LastFetched = ptypes.TimestampNow()
 
-	assert.NoError(t, database.Update(ctx, testFeed))
+	assert.NoError(t, database.Update(ctx, testFeed, testFeed.UserId))
 
-	feed, err := database.Get(ctx, testFeed.Id)
+	feed, err := database.Get(ctx, testFeed.Id, testFeed.UserId)
 	assert.NoError(t, err)
 	assert.Equal(t, testFeed, feed)
 }
 
 func Test_db_List_all(t *testing.T) {
 	ctx := context.Background()
+	userName := resource.NewName("users", "test")
+	ctx = actor.NewContext(ctx, userName)
 	database := newDB(testDB(t))
 
 	saved := []*Feed{}
@@ -79,7 +83,6 @@ func Test_db_List_all(t *testing.T) {
 	}
 
 	ff, err := database.List(ctx, &ListFeedsRequest{
-		UserId:   saved[0].UserId,
 		PageSize: 100,
 	})
 	assert.NoError(t, err)
@@ -90,6 +93,8 @@ func Test_db_List_all(t *testing.T) {
 
 func Test_db_List_with_limit(t *testing.T) {
 	ctx := context.Background()
+	userName := resource.NewName("users", "test")
+	ctx = actor.NewContext(ctx, userName)
 	database := newDB(testDB(t))
 
 	saved := []*Feed{}
@@ -102,7 +107,6 @@ func Test_db_List_with_limit(t *testing.T) {
 	}
 
 	ff, err := database.List(ctx, &ListFeedsRequest{
-		UserId:   saved[0].UserId,
 		PageSize: 5,
 	})
 	assert.NoError(t, err)
@@ -113,6 +117,8 @@ func Test_db_List_with_limit(t *testing.T) {
 
 func Test_db_List_with_from(t *testing.T) {
 	ctx := context.Background()
+	userName := resource.NewName("users", "test")
+	ctx = actor.NewContext(ctx, userName)
 	database := newDB(testDB(t))
 
 	saved := []*Feed{}
@@ -125,7 +131,6 @@ func Test_db_List_with_from(t *testing.T) {
 	}
 
 	ff, err := database.List(ctx, &ListFeedsRequest{
-		UserId:    saved[0].UserId,
 		PageToken: base64.StdEncoding.EncodeToString([]byte(saved[4].Id)),
 		PageSize:  100,
 	})
@@ -158,7 +163,7 @@ func Test_db_ListAll(t *testing.T) {
 func feed() *Feed {
 	return &Feed{
 		Id:          "id",
-		UserId:      "user id",
+		UserId:      "test",
 		LastFetched: ptypes.TimestampNow(),
 		Url:         "url",
 		Title:       " title",

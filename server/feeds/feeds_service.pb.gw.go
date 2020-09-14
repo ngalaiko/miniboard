@@ -42,17 +42,6 @@ func request_FeedsService_GetFeed_0(ctx context.Context, marshaler runtime.Marsh
 		_   = err
 	)
 
-	val, ok = pathParams["user_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "user_id")
-	}
-
-	protoReq.UserId, err = runtime.String(val)
-
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
-	}
-
 	val, ok = pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
@@ -80,17 +69,6 @@ func local_request_FeedsService_GetFeed_0(ctx context.Context, marshaler runtime
 		_   = err
 	)
 
-	val, ok = pathParams["user_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "user_id")
-	}
-
-	protoReq.UserId, err = runtime.String(val)
-
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
-	}
-
 	val, ok = pathParams["id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "id")
@@ -108,30 +86,12 @@ func local_request_FeedsService_GetFeed_0(ctx context.Context, marshaler runtime
 }
 
 var (
-	filter_FeedsService_ListFeeds_0 = &utilities.DoubleArray{Encoding: map[string]int{"user_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+	filter_FeedsService_ListFeeds_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 )
 
 func request_FeedsService_ListFeeds_0(ctx context.Context, marshaler runtime.Marshaler, client FeedsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListFeedsRequest
 	var metadata runtime.ServerMetadata
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["user_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "user_id")
-	}
-
-	protoReq.UserId, err = runtime.String(val)
-
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
-	}
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -148,24 +108,6 @@ func request_FeedsService_ListFeeds_0(ctx context.Context, marshaler runtime.Mar
 func local_request_FeedsService_ListFeeds_0(ctx context.Context, marshaler runtime.Marshaler, server FeedsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListFeedsRequest
 	var metadata runtime.ServerMetadata
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["user_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "user_id")
-	}
-
-	protoReq.UserId, err = runtime.String(val)
-
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "user_id", err)
-	}
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
@@ -309,9 +251,9 @@ func RegisterFeedsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 }
 
 var (
-	pattern_FeedsService_GetFeed_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "v1", "users", "user_id", "feeds", "id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_FeedsService_GetFeed_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "v1", "feeds", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_FeedsService_ListFeeds_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"api", "v1", "users", "user_id", "feeds"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_FeedsService_ListFeeds_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "feeds"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

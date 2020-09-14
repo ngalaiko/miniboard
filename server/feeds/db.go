@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/ngalaiko/miniboard/server/actor"
 )
 
 type dbFeed struct {
@@ -52,7 +53,7 @@ func (db *feedsDB) Create(ctx context.Context, feed *Feed) error {
 }
 
 // Get returns article by id.
-func (db *feedsDB) Get(ctx context.Context, id string) (*Feed, error) {
+func (db *feedsDB) Get(ctx context.Context, id string, userID string) (*Feed, error) {
 	row := db.db.QueryRowContext(ctx, `
 	SELECT
 		id,
@@ -64,7 +65,8 @@ func (db *feedsDB) Get(ctx context.Context, id string) (*Feed, error) {
 		feeds
 	WHERE
 		id = $1
-	`, id)
+		AND user_id = $2
+	`, id, userID)
 
 	return db.scanRow(row)
 }
@@ -98,7 +100,7 @@ func (db *feedsDB) scanRow(row scannable) (*Feed, error) {
 	return feed.Feed, nil
 }
 
-func (db *feedsDB) Update(ctx context.Context, feed *Feed) error {
+func (db *feedsDB) Update(ctx context.Context, feed *Feed, userID string) error {
 	lastFetched, err := ptypes.Timestamp(feed.LastFetched)
 	if err != nil {
 		return fmt.Errorf("failed to convret last_fetched: %w", err)
@@ -110,7 +112,8 @@ func (db *feedsDB) Update(ctx context.Context, feed *Feed) error {
 		last_fetched = $1
 	WHERE
 		id = $2
-	`, lastFetched.UnixNano(), feed.Id)
+		AND user_id = $3
+	`, lastFetched.UnixNano(), feed.Id, userID)
 	return updateError
 }
 
@@ -151,6 +154,8 @@ func (db *feedsDB) ListAll(ctx context.Context) ([]*Feed, error) {
 
 // List returns articles for a user.
 func (db *feedsDB) List(ctx context.Context, request *ListFeedsRequest) ([]*Feed, error) {
+	a, _ := actor.FromContext(ctx)
+
 	from, err := request.FromID()
 	if err != nil {
 		return nil, err
@@ -170,7 +175,7 @@ func (db *feedsDB) List(ctx context.Context, request *ListFeedsRequest) ([]*Feed
 			AND id >= $2
 		ORDER BY id ASC
 		LIMIT $3
-	`, request.UserId, from, request.PageSize)
+	`, a.ID(), from, request.PageSize)
 	if err != nil {
 		return nil, err
 	}
