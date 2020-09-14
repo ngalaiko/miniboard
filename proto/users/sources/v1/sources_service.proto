@@ -12,7 +12,7 @@ service SourcesService {
     // Allows to create a new source for a user.
     rpc CreateSource(CreateSourceRequest) returns (Source) {
         option (google.api.http) = {
-            post: "/api/v1/users/*/sources"
+            post: "/api/v1/sources"
             body: 'source'
         };
     }
@@ -20,16 +20,19 @@ service SourcesService {
 
 message CreateSourceRequest {
     // Source to create.
-    Source source = 2;
+    Source source = 1;
 }
 
 message Source {
-    // Name of the source. For example "users/<id>/sources/<1>"
-    string name = 1;
+    // Unique source id.
+    string id = 1;
 
-    // Url of an article or feed.
-    string url = 2;
+    // Owner id.
+    string user_id = 2;
+
+    // Source url.
+    string url = 3;
 
     // Raw is a base64 encoded raw source data.
-    bytes raw = 3;
+    bytes raw = 4;
 }

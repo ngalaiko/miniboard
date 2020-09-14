@@ -94,7 +94,7 @@ func (s *Service) createSourceFromRaw(ctx context.Context, source *Source) (*Sou
 		log().Infof("added %d sources from opml in %s", len(sources), time.Since(start))
 	}()
 
-	source.Name = a.Child("opml", ksuid.New().String()).String()
+	source.Id = a.Child("opml", ksuid.New().String()).String()
 	return source, nil
 }
 
@@ -128,7 +128,7 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *Source) (*Sou
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to create article from source: %s", err)
 		}
-		source.Name = article.Id
+		source.Id = article.Id
 		return source, nil
 	case strings.Contains(ct, "application/rss+xml"),
 		strings.Contains(ct, "application/atom+xml"),
@@ -141,7 +141,7 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *Source) (*Sou
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "failed to create feed from source: %s", err)
 		}
-		source.Name = feed.Id
+		source.Id = feed.Id
 		return source, nil
 	default:
 		return nil, status.Errorf(codes.InvalidArgument, "unsupported source content type '%s'", ct)
