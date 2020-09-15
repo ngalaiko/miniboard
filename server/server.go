@@ -17,11 +17,13 @@ import (
 	"github.com/ngalaiko/miniboard/server/fetch"
 	"github.com/ngalaiko/miniboard/server/jwt"
 	"github.com/ngalaiko/miniboard/server/middleware"
+	"github.com/ngalaiko/miniboard/server/operations"
 	"github.com/ngalaiko/miniboard/server/sources"
 	"github.com/ngalaiko/miniboard/server/tokens"
 	"github.com/ngalaiko/miniboard/server/web"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
+	"google.golang.org/genproto/googleapis/longrunning"
 )
 
 // todo: make it shorter
@@ -60,6 +62,7 @@ func New(
 	codesService := codes.NewService(domain, emailClient, jwtService)
 	tokensService := tokens.NewService(jwtService)
 	sourcesService := sources.NewService(articlesService, feedsService, fetcher)
+	operationsService := operations.New(sqldb)
 
 	gwMux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
@@ -98,6 +101,10 @@ func New(
 
 	if err := feeds.RegisterFeedsServiceHandlerServer(ctx, gwMux, feedsService); err != nil {
 		return nil, fmt.Errorf("failed to register feeds http handler: %w", err)
+	}
+
+	if err := longrunning.RegisterOperationsHandlerServer(ctx, gwMux, operationsService); err != nil {
+		return nil, fmt.Errorf("failed to register operations http handler: %w", err)
 	}
 
 	mux := http.NewServeMux()
