@@ -89,6 +89,10 @@ func (s *Service) updateFeed(ctx context.Context, feed *Feed) error {
 		return fmt.Errorf("failed to parse %s: %w", feed.Url, err)
 	}
 
+	if err := s.storage.Update(ctx, feed, feed.UserId); err != nil {
+		return fmt.Errorf("failed to update feed: %w", err)
+	}
+
 	return nil
 }
 

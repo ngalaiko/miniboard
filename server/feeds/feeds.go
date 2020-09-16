@@ -122,20 +122,18 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 		Url:    url.String(),
 	}
 
-	if err := s.storage.Create(ctx, feed); err != nil {
-		return nil, fmt.Errorf("failed to save feed: %w", err)
+	if err := s.parse(ctx, reader, feed); err != nil {
+		return nil, fmt.Errorf("failed to parse feed: %s", err)
 	}
 
-	if err := s.parse(actor.NewContext(context.Background(), a.ID), reader, feed); err != nil {
-		return nil, fmt.Errorf("failed to parse feed: %s", err)
+	if err := s.storage.Create(ctx, feed); err != nil {
+		return nil, fmt.Errorf("failed to save feed: %w", err)
 	}
 
 	return feed, nil
 }
 
 func (s *Service) parse(ctx context.Context, reader io.Reader, feed *Feed) error {
-	a, _ := actor.FromContext(ctx)
-
 	var updateLeeway = 24 * time.Hour
 
 	parsedFeed, err := s.parser.Parse(reader)
@@ -174,10 +172,7 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, feed *Feed) error
 	}
 
 	feed.LastFetched = ptypes.TimestampNow()
-
-	if err := s.storage.Update(ctx, feed, a.ID); err != nil {
-		return fmt.Errorf("failed to save feed: %w", err)
-	}
+	feed.Title = parsedFeed.Title
 
 	log().Infof("feed %s updated", feed.Id)
 

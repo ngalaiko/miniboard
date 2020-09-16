@@ -13,6 +13,7 @@ import (
 	"github.com/ngalaiko/miniboard/server/db"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/genproto/googleapis/longrunning"
+	"google.golang.org/genproto/googleapis/rpc/status"
 )
 
 func Test_Create(t *testing.T) {
@@ -49,7 +50,7 @@ func Test_Get_not_exists(t *testing.T) {
 	assert.Equal(t, sql.ErrNoRows, err)
 }
 
-func Test_Update(t *testing.T) {
+func Test_Update_result(t *testing.T) {
 	ctx := context.Background()
 	database := New(testDB(t))
 
@@ -59,6 +60,26 @@ func Test_Update(t *testing.T) {
 	m, _ := ptypes.MarshalAny(&longrunning.Operation{})
 	testOperation.Result = &longrunning.Operation_Response{
 		Response: m,
+	}
+
+	assert.NoError(t, database.Update(ctx, "user", testOperation))
+
+	operation, err := database.Get(ctx, strings.Replace(testOperation.Name, "operations/", "", -1), "user")
+	assert.NoError(t, err)
+	assert.True(t, proto.Equal(testOperation, operation))
+}
+
+func Test_Update_error(t *testing.T) {
+	ctx := context.Background()
+	database := New(testDB(t))
+
+	testOperation := operation()
+	assert.NoError(t, database.Create(ctx, "user", testOperation))
+
+	testOperation.Result = &longrunning.Operation_Error{
+		Error: &status.Status{
+			Message: "test",
+		},
 	}
 
 	assert.NoError(t, database.Update(ctx, "user", testOperation))

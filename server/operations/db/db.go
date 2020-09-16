@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"fmt"
 	"strings"
 
@@ -40,7 +41,7 @@ func (db *DB) Create(ctx context.Context, userID string, operation *longrunning.
 	`,
 		strings.Replace(operation.Name, "operations/", "", 1),
 		userID,
-		metadata,
+		base64.StdEncoding.EncodeToString(metadata),
 	)
 	return createErr
 }
@@ -76,8 +77,8 @@ func (db *DB) Update(ctx context.Context, userID string, operation *longrunning.
 		AND user_id = $5
 	`,
 		operation.Done,
-		operationError,
-		operationResponse,
+		base64.StdEncoding.EncodeToString(operationError),
+		base64.StdEncoding.EncodeToString(operationResponse),
 		strings.Replace(operation.Name, "operations/", "", 1),
 		userID,
 	)
@@ -145,29 +146,46 @@ func (db *DB) scanRow(row scannable) (*longrunning.Operation, error) {
 
 	operation.Operation.Name = fmt.Sprintf("operations/%s", operation.ID)
 
-	if operation.Error != nil {
+	if len(operation.Error) != 0 {
+		raw, err := base64.StdEncoding.DecodeString(string(operation.Error))
+		if err != nil {
+			return nil, fmt.Errorf("failed to decode error: %w", err)
+		}
+
 		status := &status.Status{}
-		if err := proto.Unmarshal(operation.Error, status); err != nil {
+		if err := proto.Unmarshal(raw, status); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal error: %w", err)
 		}
+
 		operation.Operation.Result = &longrunning.Operation_Error{
 			Error: status,
 		}
 	}
 
-	if operation.Response != nil {
+	if len(operation.Response) != 0 {
+		raw, err := base64.StdEncoding.DecodeString(string(operation.Response))
+		if err != nil {
+			return nil, fmt.Errorf("failed to decode response: %w", err)
+		}
+
 		operationResponse := &any.Any{}
-		if err := proto.Unmarshal(operation.Response, operationResponse); err != nil {
+		if err := proto.Unmarshal(raw, operationResponse); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal response: %w", err)
 		}
+
 		operation.Operation.Result = &longrunning.Operation_Response{
 			Response: operationResponse,
 		}
 	}
 
-	if operation.Metadata != nil {
+	if len(operation.Metadata) != 0 {
+		raw, err := base64.StdEncoding.DecodeString(string(operation.Metadata))
+		if err != nil {
+			return nil, fmt.Errorf("failed to decode response: %w", err)
+		}
+
 		operation.Operation.Metadata = &any.Any{}
-		if err := proto.Unmarshal(operation.Metadata, operation.Operation.Metadata); err != nil {
+		if err := proto.Unmarshal(raw, operation.Operation.Metadata); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal response: %w", err)
 		}
 	}
