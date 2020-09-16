@@ -66,7 +66,7 @@ service Operations {
   // is the parent resource, without the operations collection id.
   rpc ListOperations(ListOperationsRequest) returns (ListOperationsResponse) {
     option (google.api.http) = {
-      get: "/v1/{name=operations}"
+      get: "/api/v1/{name=operations}"
     };
     option (google.api.method_signature) = "name,filter";
   }
@@ -76,7 +76,7 @@ service Operations {
   // service.
   rpc GetOperation(GetOperationRequest) returns (Operation) {
     option (google.api.http) = {
-      get: "/v1/{name=operations/**}"
+      get: "/api/v1/{name=operations/**}"
     };
     option (google.api.method_signature) = "name";
   }
@@ -87,7 +87,7 @@ service Operations {
   // `google.rpc.Code.UNIMPLEMENTED`.
   rpc DeleteOperation(DeleteOperationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/v1/{name=operations/**}"
+      delete: "/api/v1/{name=operations/**}"
     };
     option (google.api.method_signature) = "name";
   }
@@ -104,7 +104,7 @@ service Operations {
   // corresponding to `Code.CANCELLED`.
   rpc CancelOperation(CancelOperationRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/v1/{name=operations/**}:cancel"
+      post: "/api/v1/{name=operations/**}:cancel"
       body: "*"
     };
     option (google.api.method_signature) = "name";

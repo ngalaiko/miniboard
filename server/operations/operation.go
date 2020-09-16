@@ -46,13 +46,20 @@ func (s *Service) CreateOperation(ctx context.Context, metadata *any.Any, operat
 	}
 
 	// todo: wait for graceful shutdown
-	go s.runOperation(context.Background(), a.ID, operation, operationFunc)
+	go s.runOperation(
+		actor.NewContext(context.Background(), a.ID), a.ID, &longrunning.Operation{
+			Name:     operation.Name,
+			Metadata: operation.Metadata,
+		}, operationFunc)
 
 	return operation, nil
 }
 
 func (s *Service) runOperation(ctx context.Context, userID string, operation *longrunning.Operation, operationFunc Operation) {
-	result, err := operationFunc(ctx, operation)
+	result, err := operationFunc(ctx, &longrunning.Operation{
+		Name:     operation.Name,
+		Metadata: operation.Metadata,
+	})
 	switch {
 	case err == nil && result != nil:
 		operation.Result = &longrunning.Operation_Response{

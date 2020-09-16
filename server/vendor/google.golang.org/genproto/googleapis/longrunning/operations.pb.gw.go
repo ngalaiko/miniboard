@@ -506,13 +506,13 @@ func RegisterOperationsHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 }
 
 var (
-	pattern_Operations_ListOperations_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 4, 1, 5, 2}, []string{"v1", "operations", "name"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Operations_ListOperations_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 4, 1, 5, 3}, []string{"api", "v1", "operations", "name"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Operations_GetOperation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 3, 0, 4, 2, 5, 2}, []string{"v1", "operations", "name"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Operations_GetOperation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 2, 5, 3}, []string{"api", "v1", "operations", "name"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Operations_DeleteOperation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 3, 0, 4, 2, 5, 2}, []string{"v1", "operations", "name"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Operations_DeleteOperation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 2, 5, 3}, []string{"api", "v1", "operations", "name"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Operations_CancelOperation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 3, 0, 4, 2, 5, 2}, []string{"v1", "operations", "name"}, "cancel", runtime.AssumeColonVerbOpt(true)))
+	pattern_Operations_CancelOperation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 3, 0, 4, 2, 5, 3}, []string{"api", "v1", "operations", "name"}, "cancel", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (

@@ -3,6 +3,7 @@ package operations
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -13,6 +14,7 @@ import (
 	"github.com/ngalaiko/miniboard/server/db"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/genproto/googleapis/longrunning"
+	"google.golang.org/protobuf/proto"
 )
 
 func Test_Create(t *testing.T) {
@@ -29,7 +31,7 @@ func Test_Create(t *testing.T) {
 
 	operation, err := o.CreateOperation(ctx, &any.Any{}, f)
 	assert.NoError(t, err)
-	assert.Equal(t, operation, <-runningOperations)
+	assert.True(t, proto.Equal(operation, <-runningOperations))
 }
 
 func Test_Get_done(t *testing.T) {
@@ -51,6 +53,28 @@ func Test_Get_done(t *testing.T) {
 		assert.NoError(t, err)
 
 		return doneOperation.Done
+	}, time.Second, 10*time.Millisecond)
+}
+
+func Test_Get_error(t *testing.T) {
+	ctx, cancel := context.WithCancel(testContext())
+	defer cancel()
+
+	o := New(testDB(ctx, t))
+
+	f := func(ctx context.Context, operation *longrunning.Operation) (*any.Any, error) {
+		return nil, fmt.Errorf("test error")
+	}
+
+	operation, err := o.CreateOperation(ctx, &any.Any{}, f)
+	assert.NoError(t, err)
+	assert.Eventually(t, func() bool {
+		doneOperation, err := o.GetOperation(ctx, &longrunning.GetOperationRequest{
+			Name: operation.Name,
+		})
+		assert.NoError(t, err)
+
+		return doneOperation.GetError() != nil
 	}, time.Second, 10*time.Millisecond)
 }
 
