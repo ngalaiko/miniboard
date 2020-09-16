@@ -1,20 +1,3 @@
-let username = undefined
-
-const setCurrentUser = async () => {
-    let response = await fetch('/api/v1/users/me')
-    switch (response.status / 100) {
-    case 2:
-        username = (await response.json()).name
-        break
-    default:
-        alert(`Error: ${(await response.json()).error}`)
-        document.location = '/'
-        break
-    }
-}
-
-//
-
 const isVisible = (e) => {
     return e.style.display !== 'none'
 }
@@ -37,7 +20,7 @@ const handleAddFormButton = async (e) => {
 }
 
 const handleAdd = async (url) => {
-    let response = await fetch(`/api/v1/${username}/sources`, {
+    let response = await fetch(`/api/v1/sources`, {
         method: 'POST',
         body: JSON.stringify({
             url: url
@@ -85,7 +68,7 @@ const handleAddFormFile = async (e) => {
         reader.onerror = () => reject(new Error('failed to read file'))
     })
 
-    let response = await fetch(`/api/v1/${username}/sources`, {
+    let response = await fetch(`/api/v1/sources`, {
         method: 'POST',
         body: JSON.stringify({
             raw: btoa(content)
@@ -128,7 +111,7 @@ const loadFeeds = async () => {
     if (feedsPageToken === "") return
     if (feedsPageToken === undefined) feedsPageToken = ""
 
-    let response = await fetch(`/api/v1/${username}/feeds?page_size=10&page_token=${feedsPageToken}`)
+    let response = await fetch(`/api/v1/feeds?page_size=10&page_token=${feedsPageToken}`)
     if (response.status !== 200) {
         alert(`Error: ${(await response.json()).message}`)
         return
@@ -150,9 +133,9 @@ const loadFeeds = async () => {
 const handleSelectFeed = async (e) => {
     const urlParams = new URLSearchParams(window.location.search.slice(1))
 
-    if (urlParams.get('source') === e.target.id) return
+    if (urlParams.get('feed') === e.target.id) return
 
-    urlParams.set('source', e.target.id)
+    urlParams.set('feed', e.target.id)
 
     let refresh = window.location.protocol +
         "//" + window.location.host + window.location.pathname +
@@ -167,7 +150,7 @@ const addFeed = (feed) => {
     feedsListPlaceholder.hidden = true
 
     let li = document.createElement('li')
-    li.id = feed.name
+    li.id = feed.id
     li.innerText = feed.title
     li.classList.add('feed')
     li.title = feed.title
@@ -204,7 +187,7 @@ const handleArticlesBackButton = async (e) => {
 
     const urlParams = new URLSearchParams(window.location.search.slice(1))
 
-    urlParams.delete('source')
+    urlParams.delete('feed')
 
     let refresh = window.location.protocol +
         "//" + window.location.host + window.location.pathname +
@@ -216,14 +199,14 @@ const handleArticlesBackButton = async (e) => {
 
 articlesBackButton.addEventListener('click', handleArticlesBackButton)
 
-const updateArticlesTitle = async (sourceName) => {
-    let sourceElement = document.getElementById(sourceName)
-    if (sourceElement) {
-        articlesTitle.innerText = sourceElement.title
+const updateArticlesTitle = async (feedId) => {
+    let feedElement = document.getElementById(feedId)
+    if (feedId) {
+        articlesTitle.innerText = feedElement.title
         return
     }
 
-    let response = await fetch(`/api/v1/${sourceName}`)
+    let response = await fetch(`/api/v1/feeds/${feedId}`)
     if (response.status !== 200)  {
         alert(`Error: ${await response.json().message}`)
         return
@@ -239,14 +222,14 @@ const loadArticles = async () => {
 
     const urlParams = new URLSearchParams(window.location.search.slice(1))
 
-    let articlesUrl = `/api/v1/${username}/articles?`
+    let articlesUrl = `/api/v1/articles?`
         + `page_size=10`
         + `&page_token=${articlesPageToken}`
 
-    if (urlParams.get('source')) {
-        let sourceName = urlParams.get('source')
-        articlesUrl += `&source_name=${sourceName}`
-        updateArticlesTitle(sourceName)
+    if (urlParams.get('feed')) {
+        let feedId = urlParams.get('feed')
+        articlesUrl += `&feed_id_eq=${feedId}`
+        updateArticlesTitle(feedId)
     }
 
     let response = await fetch(articlesUrl)
@@ -283,7 +266,7 @@ const addArticle = (article) => {
     articlesListPlaceholder.hidden = true
 
     let li = document.createElement('li')
-    li.id = article.name
+    li.id = article.id
     li.classList.add('article')
     li.innerText = article.title
     li.addEventListener('click', handleSelectArticle)
@@ -308,11 +291,11 @@ articlesList.addEventListener('scroll', handleScroll(loadArticles))
 const loadReader = async () => {
     const urlParams = new URLSearchParams(window.location.search.slice(1))
 
-    const selectedArticleName = urlParams.get('article')
+    const selectedArticleId = urlParams.get('article')
 
-    if (!selectedArticleName) return
+    if (!selectedArticleId) return
 
-    await displayArticle(selectedArticleName)
+    await displayArticle(selectedArticleId)
 }
 
 const handleSelectArticle = async (e) => {
@@ -337,10 +320,10 @@ const readerContent = document.getElementById('reader-content')
 const readerLink = document.getElementById('reader-link')
 const readerTitle = document.getElementById('reader-title')
 
-const displayArticle = async (articleName) => {
-    if (readerContent.name === articleName) return
+const displayArticle = async (articleId) => {
+    if (readerContent.id === articleId) return
 
-    let response = await fetch(`/api/v1/${articleName}?view=ARTICLE_VIEW_FULL`)
+    let response = await fetch(`/api/v1/articles/${articleId}?view=ARTICLE_VIEW_FULL`)
     if (response.status !== 200) {
         alert(`Error: ${(await response.json()).message}`)
         return
@@ -355,7 +338,7 @@ const displayArticle = async (articleName) => {
     readerTitle.innerText = article.title
     readerLink.href = article.url
     readerContent.innerHTML = decodedContent
-    readerContent.name = articleName
+    readerContent.id = articleId
 }
 
 //
@@ -363,7 +346,7 @@ const displayArticle = async (articleName) => {
 const updateVisibility = async () => {
     const urlParams = new URLSearchParams(window.location.search.slice(1))
 
-    if (urlParams.get('source')) {
+    if (urlParams.get('feed')) {
         setVisible(articlesContainer, true)
         setVisible(feedsContainer, false)
     } else {
@@ -380,7 +363,6 @@ window.addEventListener('popstate', loadReader)
 //
 
 const init = async () => {
-    await setCurrentUser()
     loadFeeds()
     loadArticles()
     loadReader()
