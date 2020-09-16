@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/andybalholm/brotli v1.0.0
 	github.com/go-shiori/go-readability v0.0.0-20190829113304-8630e8f6e148
-	github.com/golang/protobuf v1.4.1
+	github.com/golang/protobuf v1.4.2
 	github.com/grpc-ecosystem/grpc-gateway v1.14.8
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/lib/pq v1.8.0
