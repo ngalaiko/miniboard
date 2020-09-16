@@ -13,7 +13,6 @@ import (
 	"github.com/ngalaiko/miniboard/server/db"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/genproto/googleapis/longrunning"
-	"google.golang.org/genproto/googleapis/rpc/status"
 )
 
 func Test_Create(t *testing.T) {
@@ -23,7 +22,7 @@ func Test_Create(t *testing.T) {
 	o := New(testDB(ctx, t))
 
 	runningOperations := make(chan *longrunning.Operation)
-	f := func(ctx context.Context, operation *longrunning.Operation) (*any.Any, *status.Status) {
+	f := func(ctx context.Context, operation *longrunning.Operation) (*any.Any, error) {
 		runningOperations <- operation
 		return &any.Any{}, nil
 	}
@@ -39,7 +38,7 @@ func Test_Get_done(t *testing.T) {
 
 	o := New(testDB(ctx, t))
 
-	f := func(ctx context.Context, operation *longrunning.Operation) (*any.Any, *status.Status) {
+	f := func(ctx context.Context, operation *longrunning.Operation) (*any.Any, error) {
 		return &any.Any{}, nil
 	}
 

@@ -32,7 +32,7 @@ func New(sqldb *sql.DB) *Service {
 }
 
 // Operation is a single long running operation.
-type Operation func(context.Context, *longrunning.Operation) (*any.Any, *rpcstatus.Status)
+type Operation func(context.Context, *longrunning.Operation) (*any.Any, error)
 
 // CreateOperation creates an operation, and runs it.
 func (s *Service) CreateOperation(ctx context.Context, metadata *any.Any, operationFunc Operation) (*longrunning.Operation, error) {
@@ -53,14 +53,23 @@ func (s *Service) CreateOperation(ctx context.Context, metadata *any.Any, operat
 
 func (s *Service) runOperation(ctx context.Context, userID string, operation *longrunning.Operation, operationFunc Operation) {
 	result, err := operationFunc(ctx, operation)
-	switch err {
-	case nil:
+	switch {
+	case err == nil && result != nil:
 		operation.Result = &longrunning.Operation_Response{
 			Response: result,
 		}
+	case err != nil:
+		operation.Result = &longrunning.Operation_Error{
+			Error: &rpcstatus.Status{
+				Code:    int32(codes.FailedPrecondition),
+				Message: err.Error(),
+			},
+		}
 	default:
 		operation.Result = &longrunning.Operation_Error{
-			Error: err,
+			Error: &rpcstatus.Status{
+				Code: int32(codes.Internal),
+			},
 		}
 	}
 

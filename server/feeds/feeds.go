@@ -10,7 +10,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/url"
-	"runtime/debug"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
@@ -127,16 +126,9 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 		return nil, fmt.Errorf("failed to save feed: %w", err)
 	}
 
-	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				log().Errorf("%s: %s", r, debug.Stack())
-			}
-		}()
-		if err := s.parse(actor.NewContext(context.Background(), a.ID), reader, feed); err != nil {
-			log().Errorf("failed to parse feed: %s", err)
-		}
-	}()
+	if err := s.parse(actor.NewContext(context.Background(), a.ID), reader, feed); err != nil {
+		return nil, fmt.Errorf("failed to parse feed: %s", err)
+	}
 
 	return feed, nil
 }

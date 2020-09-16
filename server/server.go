@@ -61,8 +61,8 @@ func New(
 	feedsService := feeds.NewService(ctx, sqldb, fetcher, articlesService)
 	codesService := codes.NewService(domain, emailClient, jwtService)
 	tokensService := tokens.NewService(jwtService)
-	sourcesService := sources.NewService(articlesService, feedsService, fetcher)
 	operationsService := operations.New(sqldb)
+	sourcesService := sources.NewService(articlesService, feedsService, operationsService, fetcher)
 
 	gwMux := runtime.NewServeMux(
 		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{

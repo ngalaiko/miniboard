@@ -3,6 +3,7 @@ syntax = "proto3";
 package app.miniboard.users.sources.v1;
 
 import "google/api/annotations.proto";
+import "google/longrunning/operations.proto";
 
 option go_package = "sources";
 
@@ -10,7 +11,7 @@ service SourcesService {
     // Create source
     //
     // Allows to create a new source for a user.
-    rpc CreateSource(CreateSourceRequest) returns (Source) {
+    rpc CreateSource(CreateSourceRequest) returns (google.longrunning.Operation) {
         option (google.api.http) = {
             post: "/api/v1/sources"
             body: 'source'
@@ -23,16 +24,14 @@ message CreateSourceRequest {
     Source source = 1;
 }
 
+message SourceList {
+    repeated Source sources = 1;
+}
+
 message Source {
-    // Unique source id.
-    string id = 1;
-
-    // Owner id.
-    string user_id = 2;
-
     // Source url.
-    string url = 3;
+    string url = 1;
 
     // Raw is a base64 encoded raw source data.
-    bytes raw = 4;
+    bytes raw = 2;
 }

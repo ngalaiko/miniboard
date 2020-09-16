@@ -7,15 +7,16 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"sync"
 	"testing"
 	"time"
 
-	"github.com/ngalaiko/miniboard/server/actor"
 	"github.com/ngalaiko/miniboard/server/articles"
 	"github.com/ngalaiko/miniboard/server/feeds"
-	"github.com/stretchr/testify/assert"
 )
+
+func Test_Create(t *testing.T) {
+
+}
 
 type testClient struct {
 	typ string
@@ -31,113 +32,11 @@ func (tc *testClient) Fetch(ctx context.Context, url string) (*http.Response, er
 	}, nil
 }
 
-func Test_sources(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	ctx = actor.NewContext(ctx, "test")
-
-	t.Run("With sources service", func(t *testing.T) {
-		t.Run("When creating a source from html page", func(t *testing.T) {
-			articles := &mockArticles{}
-			feeds := &mockFeeds{}
-			service := NewService(articles, feeds, &testClient{typ: "text/html"})
-
-			source, err := service.CreateSource(ctx, &CreateSourceRequest{
-				Source: &Source{
-					Url: "http://example.com",
-				},
-			})
-
-			t.Run("Should create an article", func(t *testing.T) {
-				if assert.NoError(t, err) {
-					assert.Equal(t, len(articles.articles), 1)
-					assert.Equal(t, "http://example.com", source.Url)
-				}
-			})
-		})
-
-		t.Run("When creating a source from rss page", func(t *testing.T) {
-			articles := &mockArticles{}
-			feeds := &mockFeeds{}
-			service := NewService(articles, feeds, &testClient{typ: "application/rss+xml"})
-
-			source, err := service.CreateSource(ctx, &CreateSourceRequest{
-				Source: &Source{
-					Url: "http://example.com",
-				},
-			})
-
-			t.Run("Should create a feed", func(t *testing.T) {
-				if assert.NoError(t, err) {
-					assert.Equal(t, "http://example.com", source.Url)
-					assert.Equal(t, len(feeds.feeds), 1)
-				}
-			})
-		})
-
-		t.Run("When creating a source from opml content", func(t *testing.T) {
-			articles := &mockArticles{}
-			feeds := &mockFeeds{}
-			service := NewService(articles, feeds, &testClient{typ: "application/rss+xml"})
-
-			content, err := ioutil.ReadFile("./testdata/feeds.opml")
-			assert.NoError(t, err)
-			_, err = service.CreateSource(ctx, &CreateSourceRequest{
-				Source: &Source{
-					Raw: content,
-				},
-			})
-
-			t.Run("Should eventually create a feed", func(t *testing.T) {
-				time.Sleep(100 * time.Millisecond)
-				assert.NoError(t, err)
-				feeds.RLock()
-				assert.True(t, len(feeds.feeds) > 0)
-				feeds.RUnlock()
-			})
-		})
-
-		t.Run("When creating a source from unknown page", func(t *testing.T) {
-			articles := &mockArticles{}
-			feeds := &mockFeeds{}
-			service := NewService(articles, feeds, &testClient{typ: "something else"})
-
-			_, err := service.CreateSource(ctx, &CreateSourceRequest{
-				Source: &Source{
-					Url: "http://example.com",
-				},
-			})
-			t.Run("Should create return an error", func(t *testing.T) {
-				assert.Error(t, err)
-			})
-		})
-
-		t.Run("When creating a source with empty request", func(t *testing.T) {
-			articles := &mockArticles{}
-			feeds := &mockFeeds{}
-			service := NewService(articles, feeds, &testClient{typ: "something else"})
-
-			_, err := service.CreateSource(ctx, &CreateSourceRequest{
-				Source: &Source{},
-			})
-			t.Run("Should create return an error", func(t *testing.T) {
-				assert.Error(t, err)
-			})
-		})
-	})
-}
-
 type mockFeeds struct {
-	sync.RWMutex
-
 	feeds []*feeds.Feed
 }
 
 func (s *mockFeeds) CreateFeed(context.Context, io.Reader, *url.URL) (*feeds.Feed, error) {
-	s.Lock()
-	defer s.Unlock()
-
 	feed := &feeds.Feed{}
 	s.feeds = append(s.feeds, feed)
 	return feed, nil
