@@ -6,6 +6,8 @@ run:
     - ".gw\\.go$"
 
 linters:
+  disable:
+    - staticcheck
   enable:
     - bodyclose
     - deadcode
@@ -27,7 +29,6 @@ linters:
     - misspell
     - nakedret
     - rowserrcheck
-    - staticcheck
     - structcheck
     - stylecheck
     - typecheck
