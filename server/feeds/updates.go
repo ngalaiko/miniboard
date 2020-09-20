@@ -85,8 +85,16 @@ func (s *Service) updateFeed(ctx context.Context, feed *Feed) error {
 
 	log().Infof("updating %s", feed.Id)
 
-	if err := s.parse(ctx, resp.Body, feed); err != nil {
+	items, err := s.parse(resp.Body, feed)
+	if err != nil {
 		return fmt.Errorf("failed to parse %s: %w", feed.Url, err)
+	}
+
+	for _, item := range items {
+		if err := s.saveItem(ctx, item, feed); err != nil {
+			log().Errorf("failed to save item %s: %s", item.Link, err)
+			continue
+		}
 	}
 
 	if err := s.storage.Update(ctx, feed, feed.UserId); err != nil {

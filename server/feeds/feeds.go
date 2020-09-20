@@ -122,7 +122,8 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 		Url:    url.String(),
 	}
 
-	if err := s.parse(ctx, reader, feed); err != nil {
+	items, err := s.parse(reader, feed)
+	if err != nil {
 		return nil, fmt.Errorf("failed to parse feed: %s", err)
 	}
 
@@ -130,29 +131,35 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 		return nil, fmt.Errorf("failed to save feed: %w", err)
 	}
 
+	for _, item := range items {
+		if err := s.saveItem(ctx, item, feed); err != nil {
+			log().Errorf("failed to save item %s: %s", item.Link, err)
+			continue
+		}
+	}
+
 	return feed, nil
 }
 
-func (s *Service) parse(ctx context.Context, reader io.Reader, feed *Feed) error {
+func (s *Service) parse(reader io.Reader, feed *Feed) ([]*gofeed.Item, error) {
 	var updateLeeway = 24 * time.Hour
 
 	parsedFeed, err := s.parser.Parse(reader)
 	if err != nil {
-		return fmt.Errorf("failed to parse feed: %w", err)
+		return nil, fmt.Errorf("failed to parse feed: %w", err)
 	}
 
 	lastFetched := time.Time{}
 	if feed.LastFetched != nil {
 		lastFetched, err = ptypes.Timestamp(feed.LastFetched)
 		if err != nil {
-			return fmt.Errorf("failed to parse timestamp: %w", err)
+			return nil, fmt.Errorf("failed to parse timestamp: %w", err)
 		}
 	}
 
 	updated := false
+	items := make([]*gofeed.Item, 0, len(parsedFeed.Items))
 	for _, item := range parsedFeed.Items {
-		item := item
-
 		updatedTime := latestTimestamp(item.UpdatedParsed, item.PublishedParsed)
 		if updatedTime.Before(lastFetched.Add(-1 * updateLeeway)) {
 			log().Infof("skipping item %s from %s: updated at %s", item.Link, feed.Id, updatedTime)
@@ -160,15 +167,11 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, feed *Feed) error
 		}
 
 		updated = true
-
-		if err := s.saveItem(ctx, item, feed); err != nil {
-			log().Errorf("failed to save item %s: %s", item.Link, err)
-			continue
-		}
+		items = append(items, item)
 	}
 
 	if !updated {
-		return nil
+		return nil, nil
 	}
 
 	feed.LastFetched = ptypes.TimestampNow()
@@ -176,7 +179,7 @@ func (s *Service) parse(ctx context.Context, reader io.Reader, feed *Feed) error
 
 	log().Infof("feed %s updated", feed.Id)
 
-	return nil
+	return items, nil
 }
 
 func latestTimestamp(ts ...*time.Time) time.Time {
