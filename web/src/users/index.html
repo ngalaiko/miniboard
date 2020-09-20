@@ -51,47 +51,10 @@
         </form>
     </div>
     <div id="body">
-        <div id="feeds-container">
-            <ul id="feeds-list">
-                <div id="feeds-list-placeholder">
-                    <p>No feeds added yet</p>
-                </div>
-                <div id="feeds-list-spinner" class="spinner">
-                    <div class="bounce1"></div>
-                    <div class="bounce2"></div>
-                    <div class="bounce3"></div>
-                </div>
-            </ul>
-        </div>
-        <div id="articles-container">
-            <div id="articles-head">
-                <button id='articles-back-button'>
-                    <svg width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                </button>
-                <h3 id="articles-title"></h3>
-            </div>
-            <ul id="articles-list">
-                <div id="articles-list-placeholder">
-                    <p>No articles added yet</p>
-                </div>
-                <div id="articles-list-spinner" class="spinner">
-                    <div class="bounce1"></div>
-                    <div class="bounce2"></div>
-                    <div class="bounce3"></div>
-                </div>
-            </ul>
-        </div>
-        <div id="reader-container">
-            <div id="reader-page">
-                <a id="reader-link" target="_blank">
-                    <h1 id="reader-title"></h1>
-                </a>
-                <div id="reader-content">
-            </div>
-        </div>
+        <user-feed-controller id='user-feed-controller'></user-feed-controller>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 
 </html>
