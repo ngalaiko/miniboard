@@ -1,17 +1,12 @@
 package feeds
 
 import (
-	"context"
 	"database/sql"
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"testing"
 
 	"github.com/golang/protobuf/ptypes"
-	"github.com/ngalaiko/miniboard/server/actor"
-	"github.com/ngalaiko/miniboard/server/db"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -79,7 +74,7 @@ func Test_db_List_all(t *testing.T) {
 		assert.NoError(t, database.Create(ctx, f))
 	}
 
-	ff, err := database.List(ctx, &ListFeedsRequest{
+	ff, err := database.List(ctx, "user_id", &ListFeedsRequest{
 		PageSize: 100,
 	})
 	assert.NoError(t, err)
@@ -101,7 +96,7 @@ func Test_db_List_with_limit(t *testing.T) {
 		assert.NoError(t, database.Create(ctx, f))
 	}
 
-	ff, err := database.List(ctx, &ListFeedsRequest{
+	ff, err := database.List(ctx, "user_id", &ListFeedsRequest{
 		PageSize: 5,
 	})
 	assert.NoError(t, err)
@@ -123,7 +118,7 @@ func Test_db_List_with_from(t *testing.T) {
 		assert.NoError(t, database.Create(ctx, f))
 	}
 
-	ff, err := database.List(ctx, &ListFeedsRequest{
+	ff, err := database.List(ctx, "user_id", &ListFeedsRequest{
 		PageToken: base64.StdEncoding.EncodeToString([]byte(saved[4].Id)),
 		PageSize:  100,
 	})
@@ -156,30 +151,9 @@ func Test_db_ListAll(t *testing.T) {
 func feed() *Feed {
 	return &Feed{
 		Id:          "id",
-		UserId:      "test",
+		UserId:      "user_id",
 		LastFetched: ptypes.TimestampNow(),
 		Url:         "url",
 		Title:       " title",
 	}
-}
-
-func testDB(t *testing.T) *sql.DB {
-	ctx := testContext()
-
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
-	assert.NoError(t, err)
-
-	t.Cleanup(func() {
-		os.Remove(tmpFile.Name())
-	})
-
-	sqlite, err := db.NewSQLite(tmpFile.Name())
-	assert.NoError(t, err)
-	assert.NoError(t, db.Migrate(ctx, sqlite))
-
-	return sqlite
-}
-
-func testContext() context.Context {
-	return actor.NewContext(context.Background(), "test")
 }

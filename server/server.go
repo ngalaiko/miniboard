@@ -10,6 +10,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/mmcdole/gofeed"
 	"github.com/ngalaiko/miniboard/server/articles"
 	"github.com/ngalaiko/miniboard/server/codes"
 	"github.com/ngalaiko/miniboard/server/email"
@@ -58,7 +59,7 @@ func New(
 
 	jwtService := jwt.NewService(ctx, sqldb)
 	articlesService := articles.NewService(sqldb, fetcher)
-	feedsService := feeds.NewService(ctx, sqldb, fetcher, articlesService)
+	feedsService := feeds.NewService(ctx, sqldb, fetcher, articlesService, gofeed.NewParser())
 	codesService := codes.NewService(domain, emailClient, jwtService)
 	tokensService := tokens.NewService(jwtService)
 	operationsService := operations.New(sqldb)

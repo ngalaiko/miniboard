@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
-	"github.com/ngalaiko/miniboard/server/actor"
 )
 
 type dbFeed struct {
@@ -153,9 +152,7 @@ func (db *feedsDB) ListAll(ctx context.Context) ([]*Feed, error) {
 }
 
 // List returns articles for a user.
-func (db *feedsDB) List(ctx context.Context, request *ListFeedsRequest) ([]*Feed, error) {
-	a, _ := actor.FromContext(ctx)
-
+func (db *feedsDB) List(ctx context.Context, userID string, request *ListFeedsRequest) ([]*Feed, error) {
 	from, err := request.FromID()
 	if err != nil {
 		return nil, err
@@ -175,7 +172,7 @@ func (db *feedsDB) List(ctx context.Context, request *ListFeedsRequest) ([]*Feed
 			AND id >= $2
 		ORDER BY id ASC
 		LIMIT $3
-	`, a.ID, from, request.PageSize)
+	`, userID, from, request.PageSize)
 	if err != nil {
 		return nil, err
 	}

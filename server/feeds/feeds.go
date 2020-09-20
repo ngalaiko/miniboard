@@ -13,10 +13,10 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
-	"github.com/mmcdole/gofeed"
 	"github.com/ngalaiko/miniboard/server/actor"
 	"github.com/ngalaiko/miniboard/server/articles"
 	"github.com/ngalaiko/miniboard/server/fetch"
+	"github.com/ngalaiko/miniboard/server/parsers"
 	"github.com/spaolacci/murmur3"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -40,19 +40,21 @@ type articlesService interface {
 	CreateArticle(context.Context, io.Reader, *url.URL, *time.Time, *string) (*articles.Article, error)
 }
 
+type parser interface {
+	Parse(feed io.Reader) (*parsers.Feed, error)
+}
+
 // Service is a Feeds service.
 type Service struct {
 	storage *feedsDB
 
-	parser          *gofeed.Parser
+	parser          parser
 	articlesService articlesService
 	fetcher         fetch.Fetcher
 }
 
 // NewService creates feeds service.
-func NewService(ctx context.Context, sqldb *sql.DB, fetcher fetch.Fetcher, articlesService articlesService) *Service {
-	parser := gofeed.NewParser()
-
+func NewService(ctx context.Context, sqldb *sql.DB, fetcher fetch.Fetcher, articlesService articlesService, parser parser) *Service {
 	s := &Service{
 		articlesService: articlesService,
 		parser:          parser,
@@ -80,8 +82,10 @@ func (s *Service) GetFeed(ctx context.Context, request *GetFeedRequest) (*Feed, 
 
 // ListFeeds returns a list of feeds.
 func (s *Service) ListFeeds(ctx context.Context, request *ListFeedsRequest) (*ListFeedsResponse, error) {
+	a, _ := actor.FromContext(ctx)
+
 	request.PageSize++
-	ff, err := s.storage.List(ctx, request)
+	ff, err := s.storage.List(ctx, a.ID, request)
 
 	var nextPageToken string
 	if len(ff) == int(request.PageSize+1) {
@@ -141,13 +145,16 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 	return feed, nil
 }
 
-func (s *Service) parse(reader io.Reader, feed *Feed) ([]*gofeed.Item, error) {
+func (s *Service) parse(reader io.Reader, feed *Feed) ([]*parsers.Item, error) {
 	var updateLeeway = 24 * time.Hour
 
 	parsedFeed, err := s.parser.Parse(reader)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse feed: %w", err)
 	}
+
+	feed.LastFetched = ptypes.TimestampNow()
+	feed.Title = parsedFeed.Title
 
 	lastFetched := time.Time{}
 	if feed.LastFetched != nil {
@@ -158,7 +165,7 @@ func (s *Service) parse(reader io.Reader, feed *Feed) ([]*gofeed.Item, error) {
 	}
 
 	updated := false
-	items := make([]*gofeed.Item, 0, len(parsedFeed.Items))
+	items := make([]*parsers.Item, 0, len(parsedFeed.Items))
 	for _, item := range parsedFeed.Items {
 		updatedTime := latestTimestamp(item.UpdatedParsed, item.PublishedParsed)
 		if updatedTime.Before(lastFetched.Add(-1 * updateLeeway)) {
@@ -173,9 +180,6 @@ func (s *Service) parse(reader io.Reader, feed *Feed) ([]*gofeed.Item, error) {
 	if !updated {
 		return nil, nil
 	}
-
-	feed.LastFetched = ptypes.TimestampNow()
-	feed.Title = parsedFeed.Title
 
 	log().Infof("feed %s updated", feed.Id)
 
@@ -196,7 +200,7 @@ func latestTimestamp(ts ...*time.Time) time.Time {
 	return latest
 }
 
-func (s *Service) saveItem(ctx context.Context, item *gofeed.Item, feed *Feed) error {
+func (s *Service) saveItem(ctx context.Context, item *parsers.Item, feed *Feed) error {
 	resp, err := s.fetcher.Fetch(ctx, item.Link)
 	if err != nil {
 		return fmt.Errorf("failed to fetch: %w", err)
