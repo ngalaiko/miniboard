@@ -9,7 +9,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.14.8
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/lib/pq v1.8.0
-	github.com/mattn/go-sqlite3 v1.14.2
+	github.com/mattn/go-sqlite3 v1.14.3
 	github.com/mmcdole/gofeed v1.0.0
 	github.com/segmentio/ksuid v1.0.3
 	github.com/sirupsen/logrus v1.6.0
