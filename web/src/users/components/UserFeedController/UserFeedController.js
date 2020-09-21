@@ -34,12 +34,12 @@ import './UserFeedList/UserFeedList.js'
         if (pageToken === '') return []
         if (pageToken === undefined) pageToken = ''
 
-        let response = await fetch(`/api/v1/feeds?page_size=10&page_token=${pageToken}`)
+        const response = await fetch(`/api/v1/feeds?page_size=10&page_token=${pageToken}`)
         if (response.status !== 200) {
             throw `failed to fetch feeds: ${(await response.json()).message}`
         }
 
-        let body = (await response.json())
+        const body = await response.json()
 
         return body.feeds.concat(await _loadFeeds(body.nextPageToken))
     }

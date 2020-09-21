@@ -21,17 +21,36 @@ import './UserArticleList/UserArticleList.js'
             this.render()
         }
 
+        get feedId() {
+            return this._feedId
+        }
+
+        set feedId(value) {
+            this._feedId = value
+            this.render()
+        }
+
         async render() { 
-            let feedListElement = this.shadowRoot.querySelector('#user-feed-list')
+            let articleListElement = this.shadowRoot.querySelector('#user-article-list')
 
-            let feeds = await _loadFeeds()
-
-            feedListElement.list = feeds
+            let articles = await _loadArticles(this)
+            
+            articleListElement.list = articles
         }
     }
 
-    const _loadArticles = async () => {
-        return []
+    const _loadArticles = async (self, pageToken) => {
+        if (pageToken === '') return []
+        if (pageToken === undefined) pageToken = ''
+
+        let articlesUrl = `/api/v1/articles?page_size=10&page_token=${pageToken}`
+        if (self.feedId !== undefined) articlesUrl += `&feed_id_eq=${self.feedId}`
+
+        const response = await fetch(articlesUrl)
+
+        const body = await response.json()
+
+        return body.articles
     }
 
     customElements.define('user-article-controller', UserArticleList)

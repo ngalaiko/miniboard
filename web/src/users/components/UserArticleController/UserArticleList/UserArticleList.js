@@ -1,7 +1,7 @@
 import './UserArticle/UserArticle.js'
 
 (async () => {
-    const res = await fetch('/users/components/UserArticleList/UserArticleList.html')
+    const res = await fetch('/users/components/UserArticleController/UserArticleList/UserArticleList.html')
     const textTemplate = await res.text()
 
     const HTMLTemplate = new DOMParser().parseFromString(textTemplate, 'text/html')
@@ -45,6 +45,17 @@ import './UserArticle/UserArticle.js'
 
         let li = document.createElement('li')
         li.appendChild(userArticle)
+
+        li.onclick = () => {
+            let event = new CustomEvent('ArticleSelected', {
+                detail: {
+                    id: article.id
+                },
+                bubbles: true,
+                composed: true
+            })
+            self.dispatchEvent(event)
+        }
 
         return li
     }

@@ -47,7 +47,7 @@ import './UserFeed/UserFeed.js'
         li.appendChild(userFeed)
 
         li.onclick = () => {
-            let event = new CustomEvent('FeedClicked', {
+            let event = new CustomEvent('FeedSelected', {
                 detail: {
                     id: feed.id
                 },
