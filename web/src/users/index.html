@@ -26,6 +26,10 @@
     <meta name="msapplication-starturl" content="/" />
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-config" content="/browserconfig.xml">
+
+    <script type="module" src="components/UserReaderController/UserReaderController.js"></script>
+    <script type="module" src="components/UserArticleController/UserArticleController.js"></script>
+    <script type="module" src="components/UserFeedController/UserFeedController.js"></script>
 </head>
 
 <body>
@@ -53,6 +57,7 @@
     <div id="body">
         <user-feed-controller id='user-feed-controller'></user-feed-controller>
         <user-article-controller id='user-article-controller'></user-article-controller>
+        <user-reader-controller id='user-reader-controller'></user-reader-controller>
     </div>
 
     <script type="module" src="script.js"></script>
