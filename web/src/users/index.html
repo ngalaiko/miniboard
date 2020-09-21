@@ -3,8 +3,6 @@
 
 <head>
     <link rel="stylesheet" href="/style.common.css" />
-    <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="reader.style.css" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png" />
@@ -33,32 +31,9 @@
 </head>
 
 <body>
-    <div id="header">
-        <input id="add-toggle" type="checkbox"></button>
-        <label id="add-toggle-label" for="add-toggle">
-            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-        </label>
-        <form id="add-form">
-            <input id="add-form-input" placeholder="Save a URL https://"/>
-            <button id="add-form-button"></button>
-            <input id="add-form-file" type="file" />
-            <label id="add-form-file-label" for="add-form-file">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="17 8 12 3 7 8"></polyline>
-                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
-            </label>
-        </form>
-    </div>
-    <div id="body">
-        <user-feed-controller id='user-feed-controller'></user-feed-controller>
-        <user-article-controller id='user-article-controller'></user-article-controller>
-        <user-reader-controller id='user-reader-controller'></user-reader-controller>
-    </div>
+    <user-feed-controller id='user-feed-controller'></user-feed-controller>
+    <user-article-controller id='user-article-controller'></user-article-controller>
+    <user-reader-controller id='user-reader-controller'></user-reader-controller>
 
     <script type="module" src="script.js"></script>
 </body>
