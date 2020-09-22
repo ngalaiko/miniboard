@@ -3,6 +3,8 @@ package sources
 import (
 	"encoding/xml"
 	"fmt"
+
+	sources "github.com/ngalaiko/miniboard/server/genproto/sources/v1"
 )
 
 type opml struct {
@@ -20,16 +22,16 @@ type feed struct {
 	URL   string `xml:"xmlUrl,attr"`
 }
 
-func parseOPML(data []byte) ([]*Source, error) {
+func parseOPML(data []byte) ([]*sources.Source, error) {
 	parsed := &opml{}
 	if err := xml.Unmarshal(data, parsed); err != nil {
 		return nil, fmt.Errorf("failed to parse opml: %w", err)
 	}
 
-	ss := make([]*Source, 0, 32)
+	ss := make([]*sources.Source, 0, 32)
 	for _, c := range parsed.Categories {
 		for _, f := range c.Feeds {
-			ss = append(ss, &Source{
+			ss = append(ss, &sources.Source{
 				Url: f.URL,
 			})
 		}

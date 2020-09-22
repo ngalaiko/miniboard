@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ngalaiko/miniboard/server/email"
+	codes "github.com/ngalaiko/miniboard/server/genproto/codes/v1"
 	"github.com/ngalaiko/miniboard/server/jwt"
 	"github.com/sirupsen/logrus"
 	"github.com/spaolacci/murmur3"
@@ -35,7 +36,7 @@ func NewService(
 }
 
 // CreateCode creates new authorization code.
-func (s *Service) CreateCode(ctx context.Context, request *CreateCodeRequest) (*Code, error) {
+func (s *Service) CreateCode(ctx context.Context, request *codes.CreateCodeRequest) (*codes.Code, error) {
 	h := murmur3.New128()
 	_, _ = io.WriteString(h, request.Email)
 	hashedEmail := fmt.Sprintf("%x", h.Sum(nil))
@@ -61,7 +62,7 @@ Link: %s
 		}
 	}(msg)
 
-	return &Code{}, nil
+	return &codes.Code{}, nil
 }
 
 func log(src string) *logrus.Entry {

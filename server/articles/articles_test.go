@@ -3,6 +3,7 @@ package articles
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -11,6 +12,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/ngalaiko/miniboard/server/actor"
+	"github.com/ngalaiko/miniboard/server/db"
+	articles "github.com/ngalaiko/miniboard/server/genproto/articles/v1"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -99,7 +103,7 @@ func Test_service_Get_basic_view(t *testing.T) {
 	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
 	assert.NoError(t, err)
 
-	article, err := service.GetArticle(ctx, &GetArticleRequest{
+	article, err := service.GetArticle(ctx, &articles.GetArticleRequest{
 		Id: resp.Id,
 	})
 	assert.NoError(t, err)
@@ -116,9 +120,9 @@ func Test_service_Get_full_view(t *testing.T) {
 	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
 	assert.NoError(t, err)
 
-	article, err := service.GetArticle(ctx, &GetArticleRequest{
+	article, err := service.GetArticle(ctx, &articles.GetArticleRequest{
 		Id:   resp.Id,
-		View: ArticleView_ARTICLE_VIEW_FULL,
+		View: articles.ArticleView_ARTICLE_VIEW_FULL,
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, resp, article)
@@ -129,7 +133,7 @@ func Test_service_Get_not_exists(t *testing.T) {
 
 	service := NewService(testDB(t), &testClient{})
 
-	article, err := service.GetArticle(ctx, &GetArticleRequest{
+	article, err := service.GetArticle(ctx, &articles.GetArticleRequest{
 		Id: "404",
 	})
 	assert.Nil(t, article)
@@ -149,12 +153,12 @@ func Test_service_Delete(t *testing.T) {
 	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
 	assert.NoError(t, err)
 
-	_, deleteErr := service.DeleteArticle(ctx, &DeleteArticleRequest{
+	_, deleteErr := service.DeleteArticle(ctx, &articles.DeleteArticleRequest{
 		Id: resp.Id,
 	})
 	assert.NoError(t, deleteErr)
 
-	_, getErr := service.GetArticle(ctx, &GetArticleRequest{
+	_, getErr := service.GetArticle(ctx, &articles.GetArticleRequest{
 		Id: resp.Id,
 	})
 
@@ -174,7 +178,7 @@ func Test_service_List_all(t *testing.T) {
 		assert.NoError(t, err)
 	}
 
-	response, err := service.ListArticles(ctx, &ListArticlesRequest{
+	response, err := service.ListArticles(ctx, &articles.ListArticlesRequest{
 		PageSize: 100,
 	})
 	assert.NoError(t, err)
@@ -195,7 +199,7 @@ func Test_service_List_pagination(t *testing.T) {
 
 	pageToken := ""
 	for i := 0; i < 10; i++ {
-		response, err := service.ListArticles(ctx, &ListArticlesRequest{
+		response, err := service.ListArticles(ctx, &articles.ListArticlesRequest{
 			PageSize:  5,
 			PageToken: pageToken,
 		})
@@ -210,4 +214,25 @@ func Test_service_List_pagination(t *testing.T) {
 
 		pageToken = response.NextPageToken
 	}
+}
+
+func testDB(t *testing.T) *sql.DB {
+	ctx := testContext()
+
+	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
+	assert.NoError(t, err)
+
+	t.Cleanup(func() {
+		os.Remove(tmpFile.Name())
+	})
+
+	sqlite, err := db.NewSQLite(tmpFile.Name())
+	assert.NoError(t, err)
+	assert.NoError(t, db.Migrate(ctx, sqlite))
+
+	return sqlite
+}
+
+func testContext() context.Context {
+	return actor.NewContext(context.Background(), "user_id")
 }

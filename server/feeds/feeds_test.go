@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/ngalaiko/miniboard/server/actor"
-	"github.com/ngalaiko/miniboard/server/articles"
 	"github.com/ngalaiko/miniboard/server/db"
+	articles "github.com/ngalaiko/miniboard/server/genproto/articles/v1"
 	"github.com/ngalaiko/miniboard/server/parsers"
 	"github.com/stretchr/testify/assert"
 )

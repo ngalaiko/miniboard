@@ -11,8 +11,8 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/ngalaiko/miniboard/server/db"
+	longrunning "github.com/ngalaiko/miniboard/server/genproto/google/longrunning"
 	"github.com/stretchr/testify/assert"
-	"google.golang.org/genproto/googleapis/longrunning"
 	"google.golang.org/genproto/googleapis/rpc/status"
 )
 

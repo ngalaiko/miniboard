@@ -9,7 +9,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/any"
-	"google.golang.org/genproto/googleapis/longrunning"
+	longrunning "github.com/ngalaiko/miniboard/server/genproto/google/longrunning"
 	status "google.golang.org/genproto/googleapis/rpc/status"
 )
 

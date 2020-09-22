@@ -5,7 +5,7 @@ package app.miniboard.users.sources.v1;
 import "google/api/annotations.proto";
 import "google/longrunning/operations.proto";
 
-option go_package = "sources";
+option go_package = "github.com/ngalaiko/miniboard/server/genproto/sources/v1;sources";
 
 service SourcesService {
     // Create source

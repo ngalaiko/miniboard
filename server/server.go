@@ -16,6 +16,12 @@ import (
 	"github.com/ngalaiko/miniboard/server/email"
 	"github.com/ngalaiko/miniboard/server/feeds"
 	"github.com/ngalaiko/miniboard/server/fetch"
+	articlesv1 "github.com/ngalaiko/miniboard/server/genproto/articles/v1"
+	codesv1 "github.com/ngalaiko/miniboard/server/genproto/codes/v1"
+	feedsv1 "github.com/ngalaiko/miniboard/server/genproto/feeds/v1"
+	longrunning "github.com/ngalaiko/miniboard/server/genproto/google/longrunning"
+	sourcesv1 "github.com/ngalaiko/miniboard/server/genproto/sources/v1"
+	tokensv1 "github.com/ngalaiko/miniboard/server/genproto/tokens/v1"
 	"github.com/ngalaiko/miniboard/server/jwt"
 	"github.com/ngalaiko/miniboard/server/middleware"
 	"github.com/ngalaiko/miniboard/server/operations"
@@ -24,7 +30,6 @@ import (
 	"github.com/ngalaiko/miniboard/server/web"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
-	"google.golang.org/genproto/googleapis/longrunning"
 )
 
 // todo: make it shorter
@@ -71,7 +76,7 @@ func New(
 			EmitDefaults: true,
 		}),
 		runtime.WithForwardResponseOption(func(ctx context.Context, rw http.ResponseWriter, msg proto.Message) error {
-			if token, ok := msg.(*tokens.Token); ok {
+			if token, ok := msg.(*tokensv1.Token); ok {
 				http.SetCookie(rw, &http.Cookie{
 					Name:     middleware.AuthCookie,
 					Value:    token.Token,
@@ -84,23 +89,23 @@ func New(
 		}),
 	)
 
-	if err := articles.RegisterArticlesServiceHandlerServer(ctx, gwMux, articlesService); err != nil {
+	if err := articlesv1.RegisterArticlesServiceHandlerServer(ctx, gwMux, articlesService); err != nil {
 		return nil, fmt.Errorf("failed to register articles http handler: %w", err)
 	}
 
-	if err := tokens.RegisterTokensServiceHandlerServer(ctx, gwMux, tokensService); err != nil {
+	if err := tokensv1.RegisterTokensServiceHandlerServer(ctx, gwMux, tokensService); err != nil {
 		return nil, fmt.Errorf("failed to register tokens http handler: %w", err)
 	}
 
-	if err := codes.RegisterCodesServiceHandlerServer(ctx, gwMux, codesService); err != nil {
+	if err := codesv1.RegisterCodesServiceHandlerServer(ctx, gwMux, codesService); err != nil {
 		return nil, fmt.Errorf("failed to register codes http handler: %w", err)
 	}
 
-	if err := sources.RegisterSourcesServiceHandlerServer(ctx, gwMux, sourcesService); err != nil {
+	if err := sourcesv1.RegisterSourcesServiceHandlerServer(ctx, gwMux, sourcesService); err != nil {
 		return nil, fmt.Errorf("failed to register sources http handler: %w", err)
 	}
 
-	if err := feeds.RegisterFeedsServiceHandlerServer(ctx, gwMux, feedsService); err != nil {
+	if err := feedsv1.RegisterFeedsServiceHandlerServer(ctx, gwMux, feedsService); err != nil {
 		return nil, fmt.Errorf("failed to register feeds http handler: %w", err)
 	}
 

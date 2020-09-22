@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/ngalaiko/miniboard/server/genproto/feeds/v1"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
@@ -56,7 +57,7 @@ func (s *Service) updateFeeds(ctx context.Context) error {
 	return wg.Wait()
 }
 
-func (s *Service) updateFeed(ctx context.Context, feed *Feed) error {
+func (s *Service) updateFeed(ctx context.Context, feed *feeds.Feed) error {
 	defer func() {
 		if r := recover(); r != nil {
 			log().Errorf("%s: %s", r, debug.Stack())

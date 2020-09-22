@@ -6,7 +6,7 @@ import "google/api/annotations.proto";
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "feeds";
+option go_package = "github.com/ngalaiko/miniboard/server/genproto/feeds/v1;feeds";
 
 service FeedsService {
     rpc GetFeed(GetFeedRequest) returns (Feed) {

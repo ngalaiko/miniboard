@@ -9,7 +9,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/wrappers.proto";
 
-option go_package = "articles";
+option go_package = "github.com/ngalaiko/miniboard/server/genproto/articles/v1;articles";
 
 service ArticlesService {
     // List articles

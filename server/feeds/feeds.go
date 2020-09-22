@@ -14,26 +14,14 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/ngalaiko/miniboard/server/actor"
-	"github.com/ngalaiko/miniboard/server/articles"
+	"github.com/ngalaiko/miniboard/server/feeds/db"
 	"github.com/ngalaiko/miniboard/server/fetch"
+	articles "github.com/ngalaiko/miniboard/server/genproto/articles/v1"
+	feeds "github.com/ngalaiko/miniboard/server/genproto/feeds/v1"
 	"github.com/ngalaiko/miniboard/server/parsers"
 	"github.com/spaolacci/murmur3"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-)
-
-// FromID returns page token converted to id.
-func (request *ListFeedsRequest) FromID() (string, error) {
-	decoded, err := base64.StdEncoding.DecodeString(request.PageToken)
-	if err != nil {
-		return "", status.Errorf(codes.InvalidArgument, "invalid page token")
-	}
-	return string(decoded), nil
-}
-
-// Known errors.
-var (
-	ErrAlreadyExists = errors.New("article already exists")
 )
 
 type articlesService interface {
@@ -46,7 +34,7 @@ type parser interface {
 
 // Service is a Feeds service.
 type Service struct {
-	storage *feedsDB
+	storage *db.DB
 
 	parser          parser
 	articlesService articlesService
@@ -58,7 +46,7 @@ func NewService(ctx context.Context, sqldb *sql.DB, fetcher fetch.Fetcher, artic
 	s := &Service{
 		articlesService: articlesService,
 		parser:          parser,
-		storage:         newDB(sqldb),
+		storage:         db.New(sqldb),
 		fetcher:         fetcher,
 	}
 	go s.listenToUpdates(ctx)
@@ -66,7 +54,7 @@ func NewService(ctx context.Context, sqldb *sql.DB, fetcher fetch.Fetcher, artic
 }
 
 // GetFeed returns a feed.
-func (s *Service) GetFeed(ctx context.Context, request *GetFeedRequest) (*Feed, error) {
+func (s *Service) GetFeed(ctx context.Context, request *feeds.GetFeedRequest) (*feeds.Feed, error) {
 	a, _ := actor.FromContext(ctx)
 	feed, err := s.storage.Get(ctx, request.Id, a.ID)
 	switch {
@@ -81,7 +69,7 @@ func (s *Service) GetFeed(ctx context.Context, request *GetFeedRequest) (*Feed, 
 }
 
 // ListFeeds returns a list of feeds.
-func (s *Service) ListFeeds(ctx context.Context, request *ListFeedsRequest) (*ListFeedsResponse, error) {
+func (s *Service) ListFeeds(ctx context.Context, request *feeds.ListFeedsRequest) (*feeds.ListFeedsResponse, error) {
 	a, _ := actor.FromContext(ctx)
 
 	request.PageSize++
@@ -95,7 +83,7 @@ func (s *Service) ListFeeds(ctx context.Context, request *ListFeedsRequest) (*Li
 
 	switch err {
 	case nil, sql.ErrNoRows:
-		return &ListFeedsResponse{
+		return &feeds.ListFeedsResponse{
 			Feeds:         ff,
 			NextPageToken: nextPageToken,
 		}, nil
@@ -106,7 +94,7 @@ func (s *Service) ListFeeds(ctx context.Context, request *ListFeedsRequest) (*Li
 }
 
 // CreateFeed creates a new feeds feed, fetches articles and schedules a next update.
-func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL) (*Feed, error) {
+func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL) (*feeds.Feed, error) {
 	a, _ := actor.FromContext(ctx)
 
 	urlHash := murmur3.New128()
@@ -116,11 +104,11 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 
 	id := fmt.Sprintf("%x", urlHash.Sum(nil))
 
-	if _, err := s.storage.Get(ctx, id, a.ID); err == nil {
-		return nil, ErrAlreadyExists
+	if feed, err := s.storage.Get(ctx, id, a.ID); err == nil {
+		return feed, nil
 	}
 
-	feed := &Feed{
+	feed := &feeds.Feed{
 		Id:     id,
 		UserId: a.ID,
 		Url:    url.String(),
@@ -145,7 +133,7 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 	return feed, nil
 }
 
-func (s *Service) parse(reader io.Reader, feed *Feed) ([]*parsers.Item, error) {
+func (s *Service) parse(reader io.Reader, feed *feeds.Feed) ([]*parsers.Item, error) {
 	var updateLeeway = 24 * time.Hour
 
 	parsedFeed, err := s.parser.Parse(reader)
@@ -200,7 +188,7 @@ func latestTimestamp(ts ...*time.Time) time.Time {
 	return latest
 }
 
-func (s *Service) saveItem(ctx context.Context, item *parsers.Item, feed *Feed) error {
+func (s *Service) saveItem(ctx context.Context, item *parsers.Item, feed *feeds.Feed) error {
 	resp, err := s.fetcher.Fetch(ctx, item.Link)
 	if err != nil {
 		return fmt.Errorf("failed to fetch: %w", err)

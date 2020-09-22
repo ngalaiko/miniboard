@@ -15,7 +15,9 @@ import (
 	empty "github.com/golang/protobuf/ptypes/empty"
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/ngalaiko/miniboard/server/actor"
+	"github.com/ngalaiko/miniboard/server/articles/db"
 	"github.com/ngalaiko/miniboard/server/fetch"
+	articles "github.com/ngalaiko/miniboard/server/genproto/articles/v1"
 	"github.com/ngalaiko/miniboard/server/reader"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
@@ -24,31 +26,22 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// FromID returns page token converted to id.
-func (lr *ListArticlesRequest) FromID() (string, error) {
-	decoded, err := base64.StdEncoding.DecodeString(lr.PageToken)
-	if err != nil {
-		return "", status.Errorf(codes.InvalidArgument, "invalid page token")
-	}
-	return string(decoded), nil
-}
-
 // Service controls articles resource.
 type Service struct {
-	storage *articlesDB
+	storage *db.DB
 	client  fetch.Fetcher
 }
 
 // NewService returns a new articles service instance.
 func NewService(sqldb *sql.DB, fetcher fetch.Fetcher) *Service {
 	return &Service{
-		storage: newDB(sqldb),
+		storage: db.New(sqldb),
 		client:  fetcher,
 	}
 }
 
 // ListArticles returns a list of articles.
-func (s *Service) ListArticles(ctx context.Context, request *ListArticlesRequest) (*ListArticlesResponse, error) {
+func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticlesRequest) (*articles.ListArticlesResponse, error) {
 	request.PageSize++
 	aa, err := s.storage.List(ctx, request)
 
@@ -60,7 +53,7 @@ func (s *Service) ListArticles(ctx context.Context, request *ListArticlesRequest
 
 	switch err {
 	case nil, sql.ErrNoRows:
-		return &ListArticlesResponse{
+		return &articles.ListArticlesResponse{
 			Articles:      aa,
 			NextPageToken: nextPageToken,
 		}, nil
@@ -77,7 +70,7 @@ func (s *Service) CreateArticle(
 	articleURL *url.URL,
 	published *time.Time,
 	sourceID *string,
-) (*Article, error) {
+) (*articles.Article, error) {
 	// before that date ksuid is no longer lexicographicaly sortable
 	// https://github.com/segmentio/ksuid#how-do-they-work
 	var timeLimit = time.Unix(1400000000, 0)
@@ -93,7 +86,7 @@ func (s *Service) CreateArticle(
 
 	actor, _ := actor.FromContext(ctx)
 
-	article := &Article{
+	article := &articles.Article{
 		Url:    articleURL.String(),
 		UserId: actor.ID,
 	}
@@ -159,7 +152,7 @@ func (s *Service) CreateArticle(
 }
 
 // UpdateArticle updates the article.
-func (s *Service) UpdateArticle(ctx context.Context, request *UpdateArticleRequest) (*Article, error) {
+func (s *Service) UpdateArticle(ctx context.Context, request *articles.UpdateArticleRequest) (*articles.Article, error) {
 	a, _ := actor.FromContext(ctx)
 
 	article, err := s.getArticle(ctx, request.Article.Id, a.ID)
@@ -193,7 +186,7 @@ func (s *Service) UpdateArticle(ctx context.Context, request *UpdateArticleReque
 }
 
 // GetArticle returns an article.
-func (s *Service) GetArticle(ctx context.Context, request *GetArticleRequest) (*Article, error) {
+func (s *Service) GetArticle(ctx context.Context, request *articles.GetArticleRequest) (*articles.Article, error) {
 	a, _ := actor.FromContext(ctx)
 
 	article, err := s.getArticle(ctx, request.Id, a.ID)
@@ -201,14 +194,14 @@ func (s *Service) GetArticle(ctx context.Context, request *GetArticleRequest) (*
 		return nil, err
 	}
 
-	if request.View != ArticleView_ARTICLE_VIEW_FULL {
+	if request.View != articles.ArticleView_ARTICLE_VIEW_FULL {
 		article.Content = nil
 	}
 
 	return article, nil
 }
 
-func (s *Service) getArticle(ctx context.Context, id string, userID string) (*Article, error) {
+func (s *Service) getArticle(ctx context.Context, id string, userID string) (*articles.Article, error) {
 	article, err := s.storage.Get(ctx, id, userID)
 	switch {
 	case err == nil:
@@ -221,7 +214,7 @@ func (s *Service) getArticle(ctx context.Context, id string, userID string) (*Ar
 }
 
 // DeleteArticle removes an article.
-func (s *Service) DeleteArticle(ctx context.Context, request *DeleteArticleRequest) (*empty.Empty, error) {
+func (s *Service) DeleteArticle(ctx context.Context, request *articles.DeleteArticleRequest) (*empty.Empty, error) {
 	a, _ := actor.FromContext(ctx)
 	if err := s.storage.Delete(ctx, request.Id, a.ID); err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to delete the article")

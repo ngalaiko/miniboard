@@ -4,7 +4,7 @@ package app.miniboard.codes.v1;
 
 import "google/api/annotations.proto";
 
-option go_package = "codes";
+option go_package = "github.com/ngalaiko/miniboard/server/genproto/codes/v1;codes";
 
 service CodesService {
     // Create authorization code.

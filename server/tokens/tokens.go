@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	tokens "github.com/ngalaiko/miniboard/server/genproto/tokens/v1"
 	"github.com/ngalaiko/miniboard/server/jwt"
 )
 
@@ -27,7 +28,7 @@ func NewService(jwt *jwt.Service) *Service {
 }
 
 // CreateToken creates new authorization token from a code.
-func (s *Service) CreateToken(ctx context.Context, request *CreateTokenRequest) (*Token, error) {
+func (s *Service) CreateToken(ctx context.Context, request *tokens.CreateTokenRequest) (*tokens.Token, error) {
 	subject, err := s.jwtService.Validate(ctx, request.Code, "authorization_code")
 	if err != nil {
 		return nil, status.New(codes.InvalidArgument, "authorization code not valid").Err()
@@ -39,7 +40,7 @@ func (s *Service) CreateToken(ctx context.Context, request *CreateTokenRequest) 
 		return nil, status.New(codes.InvalidArgument, "failed to generate token").Err()
 	}
 
-	return &Token{
+	return &tokens.Token{
 		Token: token,
 	}, nil
 }

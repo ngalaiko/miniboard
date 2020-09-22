@@ -4,7 +4,7 @@ package app.miniboard.tokens.v1;
 
 import "google/api/annotations.proto";
 
-option go_package = "tokens";
+option go_package = "github.com/ngalaiko/miniboard/server/genproto/tokens/v1;tokens";
 
 service TokensService {
     // Create authorization token.
