@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package app.miniboard.tokens.v1;
+package miniboard.v1;
 
 import "google/api/annotations.proto";
 
