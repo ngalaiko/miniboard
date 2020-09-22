@@ -18,7 +18,9 @@ import './UserArticleList/UserArticleList.js'
             const instance = HTMLTemplate.content.cloneNode(true)
             shadowRoot.appendChild(instance)
 
-            this.render()
+            _loadFeedIdState(this)
+
+            window.addEventListener('popstate', () => _loadFeedIdState(this))
         }
 
         get feedId() {
@@ -27,6 +29,7 @@ import './UserArticleList/UserArticleList.js'
 
         set feedId(value) {
             this._feedId = value
+            _storeFeedIdState(value)
             this.render()
         }
 
@@ -37,6 +40,24 @@ import './UserArticleList/UserArticleList.js'
             
             articleListElement.list = articles
         }
+    }
+
+    const _loadFeedIdState = (self) => {
+        const urlParams = new URLSearchParams(window.location.search.slice(1))
+        self.feedId = urlParams.get('feed')
+    }
+
+    const _storeFeedIdState = (feedId) => {
+        const urlParams = new URLSearchParams(window.location.search.slice(1))
+
+        if (urlParams.get('feed') === feedId) return 
+
+        urlParams.set('feed', feedId)
+
+        let refresh = window.location.protocol +
+            "//" + window.location.host + window.location.pathname +
+            `?${urlParams.toString()}`
+        window.history.pushState({ path: refresh }, '', refresh)
     }
 
     const _loadArticles = async (self, pageToken) => {
