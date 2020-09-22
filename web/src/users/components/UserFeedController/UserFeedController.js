@@ -7,7 +7,7 @@ import './UserFeedList/UserFeedList.js'
     const HTMLTemplate = new DOMParser().parseFromString(textTemplate, 'text/html')
                             .querySelector('template')
 
-    class UserFeedList extends HTMLElement {
+    class UserFeedController extends HTMLElement {
         constructor() { 
              super()
         }
@@ -44,5 +44,5 @@ import './UserFeedList/UserFeedList.js'
         return body.feeds.concat(await _loadFeeds(body.nextPageToken))
     }
 
-    customElements.define('user-feed-controller', UserFeedList)
+    customElements.define('user-feed-controller', UserFeedController)
 })()
