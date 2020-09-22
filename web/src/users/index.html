@@ -3,6 +3,7 @@
 
 <head>
     <link rel="stylesheet" href="/style.common.css" />
+    <link rel="stylesheet" href="style.css" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png" />
@@ -28,11 +29,17 @@
     <script type="module" src="components/UserReaderController/UserReaderController.js"></script>
     <script type="module" src="components/UserArticleController/UserArticleController.js"></script>
     <script type="module" src="components/UserFeedController/UserFeedController.js"></script>
+    <script type="module" src="components/UserAddController/UserAddController.js"></script>
 </head>
 
 <body>
-    <user-feed-controller id='user-feed-controller'></user-feed-controller>
-    <user-article-controller id='user-article-controller'></user-article-controller>
+    <div>
+        <div id="feed__container">
+            <user-feed-controller id='user-feed-controller'></user-feed-controller>
+            <user-article-controller id='user-article-controller'></user-article-controller>
+        </div>
+        <user-add-controller></user-add-controller>
+    </div>
     <user-reader-controller id='user-reader-controller'></user-reader-controller>
 
     <script type="module" src="script.js"></script>
