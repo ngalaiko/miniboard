@@ -7,7 +7,7 @@ require (
 	github.com/go-shiori/go-readability v0.0.0-20190829113304-8630e8f6e148
 	github.com/golang/protobuf v1.4.2
 	github.com/google/go-cmp v0.5.1 // indirect
-	github.com/grpc-ecosystem/grpc-gateway v1.14.8
+	github.com/grpc-ecosystem/grpc-gateway v1.15.0
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/lib/pq v1.8.0
 	github.com/mattn/go-sqlite3 v1.14.2
