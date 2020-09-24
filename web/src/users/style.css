@@ -1,4 +1,20 @@
+#controll__container {
+    display: flex;
+    flex-direction: column;
+}
+
 #feed__container {
     display: flex;
-    flex-direction: row;
+}
+
+#feed-controller {
+    display: flex;
+}
+
+#article-controller {
+    display: flex;
+}
+
+#reader-controller {
+    display: flex;
 }

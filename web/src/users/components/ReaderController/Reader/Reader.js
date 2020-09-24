@@ -27,9 +27,9 @@
         }
 
         render() { 
-            this.shadowRoot.querySelector('.reader__reader-title').innerText = this.articleData.title
-            this.shadowRoot.querySelector('.reader__reader-link').href = this.articleData.url
-            this.shadowRoot.querySelector('.reader__reader-content').innerHTML = _decodeContent(this.articleData.content)
+            this.shadowRoot.querySelector('.reader__title').innerText = this.articleData.title
+            this.shadowRoot.querySelector('.reader__link').href = this.articleData.url
+            this.shadowRoot.querySelector('.reader__content').innerHTML = _decodeContent(this.articleData.content)
         }
     }
 
