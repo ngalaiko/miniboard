@@ -1,13 +1,13 @@
-import './UserAddButton/UserAddButton.js'
+import './AddButton/AddButton.js'
 
 (async () => {
-    const res = await fetch('/users/components/UserAddController/UserAddController.html')
+    const res = await fetch('/users/components/AddController/AddController.html')
     const textTemplate = await res.text()
 
     const HTMLTemplate = new DOMParser().parseFromString(textTemplate, 'text/html')
                             .querySelector('template')
 
-    class UserAddController extends HTMLElement {
+    class AddController extends HTMLElement {
         constructor() { 
              super()
         }
@@ -23,12 +23,12 @@ import './UserAddButton/UserAddButton.js'
     }
 
     const _registerEventListeners = (self) => {
-        const addButton = self.shadowRoot.querySelector('#user-add-button')
+        const addButton = self.shadowRoot.querySelector('#add-button')
 
         addButton.addEventListener('AddClicked', (e) => {
-            import('./UserAddModal/UserAddModal.js')
+            import('./AddModal/AddModal.js')
 
-            let addModal = document.createElement('user-add-modal')
+            let addModal = document.createElement('add-modal')
             self.shadowRoot.appendChild(addModal)
 
             addModal.addEventListener('Closed', (e) => {
@@ -45,5 +45,5 @@ import './UserAddButton/UserAddButton.js'
         })
     }
 
-    customElements.define('user-add-controller', UserAddController)
+    customElements.define('add-controller', AddController)
 })()

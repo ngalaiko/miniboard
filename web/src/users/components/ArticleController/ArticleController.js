@@ -1,13 +1,13 @@
-import './UserArticleList/UserArticleList.js'
+import './ArticleList/ArticleList.js'
 
 (async () => {
-    const res = await fetch('/users/components/UserArticleController/UserArticleController.html')
+    const res = await fetch('/users/components/ArticleController/ArticleController.html')
     const textTemplate = await res.text()
 
     const HTMLTemplate = new DOMParser().parseFromString(textTemplate, 'text/html')
                             .querySelector('template')
 
-    class UserArticleList extends HTMLElement {
+    class ArticleList extends HTMLElement {
         constructor() { 
              super()
         }
@@ -34,7 +34,7 @@ import './UserArticleList/UserArticleList.js'
         }
 
         async render() { 
-            let articleListElement = this.shadowRoot.querySelector('#user-article-list')
+            let articleListElement = this.shadowRoot.querySelector('#article-list')
 
             let articles = await _loadArticles(this)
             
@@ -74,5 +74,5 @@ import './UserArticleList/UserArticleList.js'
         return body.articles
     }
 
-    customElements.define('user-article-controller', UserArticleList)
+    customElements.define('article-controller', ArticleList)
 })()

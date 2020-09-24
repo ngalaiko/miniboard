@@ -1,11 +1,11 @@
 (async () => {
-    const res = await fetch('/users/components/UserAddController/UserAddButton/UserAddButton.html')
+    const res = await fetch('/users/components/AddController/AddButton/AddButton.html')
     const textTemplate = await res.text()
 
     const HTMLTemplate = new DOMParser().parseFromString(textTemplate, 'text/html')
                             .querySelector('template')
 
-    class UserAddButton extends HTMLElement {
+    class AddButton extends HTMLElement {
         constructor() { 
              super()
         }
@@ -25,5 +25,5 @@
         }
     }
 
-    customElements.define('user-add-button', UserAddButton)
+    customElements.define('add-button', AddButton)
 })()

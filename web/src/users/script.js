@@ -1,11 +1,11 @@
-let userReaderController = document.querySelector('#user-reader-controller')
-let userArticleController = document.querySelector('#user-article-controller')
-let userFeedController = document.querySelector('#user-feed-controller')
+let readerController = document.querySelector('#reader-controller')
+let articleController = document.querySelector('#article-controller')
+let feedController = document.querySelector('#feed-controller')
 
-userArticleController.addEventListener('ArticleSelected', (e) => {
-    userReaderController.articleId = e.detail.id
+articleController.addEventListener('ArticleSelected', (e) => {
+    readerController.articleId = e.detail.id
 })
 
-userFeedController.addEventListener('FeedSelected', (e) => {
-    userArticleController.feedId = e.detail.id
+feedController.addEventListener('FeedSelected', (e) => {
+    articleController.feedId = e.detail.id
 })

@@ -1,11 +1,11 @@
 (async () => {
-    const res = await fetch('/users/components/UserArticleController/UserArticleList/UserArticle/UserArticle.html')
+    const res = await fetch('/users/components/ArticleController/ArticleList/Article/Article.html')
     const textTemplate = await res.text()
 
     const HTMLTemplate = new DOMParser().parseFromString(textTemplate, 'text/html')
                             .querySelector('template')
 
-    class UserArticle extends HTMLElement {
+    class Article extends HTMLElement {
         constructor() { 
              super()
         }
@@ -20,10 +20,10 @@
         }
 
         render() { 
-            this.shadowRoot.querySelector('.article__user-article-container').id = this.getAttribute('id')
-            this.shadowRoot.querySelector('.article__user-article-container').innerHTML = this.getAttribute('title')
+            this.shadowRoot.querySelector('.article__article-container').id = this.getAttribute('id')
+            this.shadowRoot.querySelector('.article__article-container').innerHTML = this.getAttribute('title')
         }
     }
 
-    customElements.define('user-article', UserArticle)
+    customElements.define('x-article', Article)
 })()

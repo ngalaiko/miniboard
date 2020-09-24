@@ -1,13 +1,13 @@
-import './UserArticle/UserArticle.js'
+import './Article/Article.js'
 
 (async () => {
-    const res = await fetch('/users/components/UserArticleController/UserArticleList/UserArticleList.html')
+    const res = await fetch('/users/components/ArticleController/ArticleList/ArticleList.html')
     const textTemplate = await res.text()
 
     const HTMLTemplate = new DOMParser().parseFromString(textTemplate, 'text/html')
                             .querySelector('template')
 
-    class UserArticleList extends HTMLElement {
+    class ArticleList extends HTMLElement {
         constructor() { 
              super()
         }
@@ -40,7 +40,7 @@ import './UserArticle/UserArticle.js'
     }
 
     const _createArticleElement = (self, article) => {
-        let userArticle = document.createElement('user-article')
+        let userArticle = document.createElement('x-article')
         Object.keys(article).forEach((key) => userArticle.setAttribute(key, article[key]))
 
         let li = document.createElement('li')
@@ -60,5 +60,5 @@ import './UserArticle/UserArticle.js'
         return li
     }
 
-    customElements.define('user-article-list', UserArticleList)
+    customElements.define('article-list', ArticleList)
 })()

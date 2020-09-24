@@ -1,13 +1,13 @@
-import './UserReader/UserReader.js'
+import './Reader/Reader.js'
 
 (async () => {
-    const res = await fetch('/users/components/UserReaderController/UserReaderController.html')
+    const res = await fetch('/users/components/ReaderController/ReaderController.html')
     const textTemplate = await res.text()
 
     const HTMLTemplate = new DOMParser().parseFromString(textTemplate, 'text/html')
                             .querySelector('template')
 
-    class UserReaderController extends HTMLElement {
+    class ReaderController extends HTMLElement {
         constructor() { 
              super()
         }
@@ -36,7 +36,7 @@ import './UserReader/UserReader.js'
         async render() { 
             if (!this.articleId) return
 
-            const userReader = this.shadowRoot.querySelector('#user-reader')
+            const userReader = this.shadowRoot.querySelector('#x-reader')
 
             const articleData = await _fetchArticle(this.articleId)
 
@@ -71,5 +71,5 @@ import './UserReader/UserReader.js'
         return body
     }
 
-    customElements.define('user-reader-controller', UserReaderController)
+    customElements.define('reader-controller', ReaderController)
 })()

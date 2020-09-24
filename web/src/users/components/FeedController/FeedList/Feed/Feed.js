@@ -1,11 +1,11 @@
 (async () => {
-    const res = await fetch('/users/components/UserFeedController/UserFeedList/UserFeed/UserFeed.html')
+    const res = await fetch('/users/components/FeedController/FeedList/Feed/Feed.html')
     const textTemplate = await res.text()
 
     const HTMLTemplate = new DOMParser().parseFromString(textTemplate, 'text/html')
                             .querySelector('template')
 
-    class UserFeed extends HTMLElement {
+    class Feed extends HTMLElement {
         constructor() { 
              super()
         }
@@ -32,7 +32,7 @@
         set title(value) {
             this._title = value
             if (this.shadowRoot)
-                this.shadowRoot.querySelector('.feed__user-feed-container').innerHTML = value
+                this.shadowRoot.querySelector('.feed__feed-container').innerHTML = value
         }
 
         get title() {
@@ -40,5 +40,5 @@
         }
     }
 
-    customElements.define('user-feed', UserFeed)
+    customElements.define('x-feed', Feed)
 })()

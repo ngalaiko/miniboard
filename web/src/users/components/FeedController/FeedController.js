@@ -1,13 +1,13 @@
-import './UserFeedList/UserFeedList.js'
+import './FeedList/FeedList.js'
 
 (async () => {
-    const res = await fetch('/users/components/UserFeedController/UserFeedController.html')
+    const res = await fetch('/users/components/FeedController/FeedController.html')
     const textTemplate = await res.text()
 
     const HTMLTemplate = new DOMParser().parseFromString(textTemplate, 'text/html')
                             .querySelector('template')
 
-    class UserFeedController extends HTMLElement {
+    class FeedController extends HTMLElement {
         constructor() { 
              super()
         }
@@ -22,7 +22,7 @@ import './UserFeedList/UserFeedList.js'
         }
 
         async render() { 
-            let feedListElement = this.shadowRoot.querySelector('#user-feed-list')
+            let feedListElement = this.shadowRoot.querySelector('#feed-list')
 
             let feeds = await _loadFeeds()
 
@@ -44,5 +44,5 @@ import './UserFeedList/UserFeedList.js'
         return body.feeds.concat(await _loadFeeds(body.nextPageToken))
     }
 
-    customElements.define('user-feed-controller', UserFeedController)
+    customElements.define('feed-controller', FeedController)
 })()

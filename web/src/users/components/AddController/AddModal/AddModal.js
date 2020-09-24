@@ -1,11 +1,11 @@
 (async () => {
-    const res = await fetch('/users/components/UserAddController/UserAddModal/UserAddModal.html')
+    const res = await fetch('/users/components/AddController/AddModal/AddModal.html')
     const textTemplate = await res.text()
 
     const HTMLTemplate = new DOMParser().parseFromString(textTemplate, 'text/html')
                             .querySelector('template')
 
-    class UserAddModal extends HTMLElement {
+    class AddModal extends HTMLElement {
         constructor() { 
              super()
         }
@@ -72,5 +72,5 @@
         self.dispatchEvent(event)
     }
 
-    customElements.define('user-add-modal', UserAddModal)
+    customElements.define('add-modal', AddModal)
 })()

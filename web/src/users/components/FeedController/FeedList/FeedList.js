@@ -1,13 +1,13 @@
-import './UserFeed/UserFeed.js'
+import './Feed/Feed.js'
 
 (async () => {
-    const res = await fetch('/users/components/UserFeedController/UserFeedList/UserFeedList.html')
+    const res = await fetch('/users/components/FeedController/FeedList/FeedList.html')
     const textTemplate = await res.text()
 
     const HTMLTemplate = new DOMParser().parseFromString(textTemplate, 'text/html')
                             .querySelector('template')
 
-    class UserFeedList extends HTMLElement {
+    class FeedList extends HTMLElement {
         constructor() { 
              super()
         }
@@ -40,7 +40,7 @@ import './UserFeed/UserFeed.js'
     }
 
     const _createFeedElement = (self, feed) => {
-        let userFeed = document.createElement('user-feed')
+        let userFeed = document.createElement('x-feed')
         Object.keys(feed).forEach((key) => userFeed.setAttribute(key, feed[key]))
 
         let li = document.createElement('li')
@@ -60,5 +60,5 @@ import './UserFeed/UserFeed.js'
         return li
     }
 
-    customElements.define('user-feed-list', UserFeedList)
+    customElements.define('feed-list', FeedList)
 })()

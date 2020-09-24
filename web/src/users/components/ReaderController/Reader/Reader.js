@@ -1,11 +1,11 @@
 (async () => {
-    const res = await fetch('/users/components/UserReaderController/UserReader/UserReader.html')
+    const res = await fetch('/users/components/ReaderController/Reader/Reader.html')
     const textTemplate = await res.text()
 
     const HTMLTemplate = new DOMParser().parseFromString(textTemplate, 'text/html')
                             .querySelector('template')
 
-    class UserReader extends HTMLElement {
+    class Reader extends HTMLElement {
         constructor() { 
              super()
         }
@@ -39,5 +39,5 @@
         }).join(''))
     }
 
-    customElements.define('user-reader', UserReader)
+    customElements.define('x-reader', Reader)
 })()

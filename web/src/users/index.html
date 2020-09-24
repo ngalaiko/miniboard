@@ -26,21 +26,21 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-config" content="/browserconfig.xml">
 
-    <script type="module" src="components/UserReaderController/UserReaderController.js"></script>
-    <script type="module" src="components/UserArticleController/UserArticleController.js"></script>
-    <script type="module" src="components/UserFeedController/UserFeedController.js"></script>
-    <script type="module" src="components/UserAddController/UserAddController.js"></script>
+    <script type="module" src="components/ReaderController/ReaderController.js"></script>
+    <script type="module" src="components/ArticleController/ArticleController.js"></script>
+    <script type="module" src="components/FeedController/FeedController.js"></script>
+    <script type="module" src="components/AddController/AddController.js"></script>
 </head>
 
 <body>
     <div>
         <div id="feed__container">
-            <user-feed-controller id='user-feed-controller'></user-feed-controller>
-            <user-article-controller id='user-article-controller'></user-article-controller>
+            <feed-controller id='feed-controller'></feed-controller>
+            <article-controller id='article-controller'></article-controller>
         </div>
-        <user-add-controller></user-add-controller>
+        <add-controller></add-controller>
     </div>
-    <user-reader-controller id='user-reader-controller'></user-reader-controller>
+    <reader-controller id='reader-controller'></reader-controller>
 
     <script type="module" src="script.js"></script>
 </body>
