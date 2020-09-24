@@ -152,7 +152,6 @@ func (s *Service) parse(reader io.Reader, feed *feeds.Feed) ([]*parsers.Item, er
 		}
 	}
 
-	updated := false
 	items := make([]*parsers.Item, 0, len(parsedFeed.Items))
 	for _, item := range parsedFeed.Items {
 		updatedTime := latestTimestamp(item.UpdatedParsed, item.PublishedParsed)
@@ -161,15 +160,8 @@ func (s *Service) parse(reader io.Reader, feed *feeds.Feed) ([]*parsers.Item, er
 			continue
 		}
 
-		updated = true
 		items = append(items, item)
 	}
-
-	if !updated {
-		return nil, nil
-	}
-
-	log().Infof("feed %s updated", feed.Id)
 
 	return items, nil
 }
