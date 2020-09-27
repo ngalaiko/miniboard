@@ -27,13 +27,14 @@
         }
 
         render() { 
-            this.shadowRoot.querySelector('.reader__title').innerText = this.articleData.title
-            this.shadowRoot.querySelector('.reader__link').href = this.articleData.url
+            this.shadowRoot.querySelector('.reader__title').innerText = this.articleData.title ? this.articleData.title : ''
+            this.shadowRoot.querySelector('.reader__link').href = this.articleData.url ? this.articleData.url : ''
             this.shadowRoot.querySelector('.reader__content').innerHTML = _decodeContent(this.articleData.content)
         }
     }
 
     const _decodeContent = (encoded) => {
+        if (!encoded) return ''
         return decodeURIComponent(atob(encoded).split('').map(function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
         }).join(''))

@@ -34,11 +34,9 @@ import './Reader/Reader.js'
         }
 
         async render() { 
-            if (!this.articleId) return
-
             const userReader = this.shadowRoot.querySelector('#x-reader')
 
-            const articleData = await _fetchArticle(this.articleId)
+            const articleData = this.articleId ? await _fetchArticle(this.articleId) : {}
 
             userReader.articleData = articleData
         }
