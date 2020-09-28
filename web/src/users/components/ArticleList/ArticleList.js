@@ -34,11 +34,15 @@ import './Article/Article.js'
             switch (attribute) {
             case 'feed':
                 if (oldValue !== newValue) {
-                    this.shadowRoot.querySelector('.article-list__list').innerHTML = ''
-                    this.pageToken = undefined
-                    _loadMore(this, newValue)
+                    this.feed = newValue
                 }
             }
+        }
+
+        set feed(value) {
+            this.shadowRoot.querySelector('.article-list__list').innerHTML = ''
+            this.pageToken = undefined
+            _loadMore(this, value)
         }
     }
 
