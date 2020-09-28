@@ -42,11 +42,12 @@ import './Article/Article.js'
         set feed(value) {
             this.shadowRoot.querySelector('.article-list__list').innerHTML = ''
             this.pageToken = undefined
-            _loadMore(this, value)
+            _loadMore(this)
         }
     }
 
-    const _loadMore = async (self, feedId) => {
+    const _loadMore = async (self) => {
+        const feedId = self.getAttribute('feed')
         const ulElement = self.shadowRoot.querySelector('.article-list__list')
         const articles = await _loadArticles(self, feedId)
         if (articles.length === 0) return
@@ -57,7 +58,7 @@ import './Article/Article.js'
         })
 
         if (_needMoreElements(ulElement)) {
-            _loadMore(self, feedId)
+            _loadMore(self)
         }
     }
 
