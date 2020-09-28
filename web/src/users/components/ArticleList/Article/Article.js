@@ -1,5 +1,5 @@
 (async () => {
-    const res = await fetch('/users/components/ArticleController/ArticleList/Article/Article.html')
+    const res = await fetch('/users/components/ArticleList/Article/Article.html')
     const textTemplate = await res.text()
 
     const HTMLTemplate = new DOMParser().parseFromString(textTemplate, 'text/html')
