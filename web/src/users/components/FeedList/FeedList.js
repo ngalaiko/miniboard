@@ -1,7 +1,7 @@
 import './Feed/Feed.js'
 
 (async () => {
-    const res = await fetch('/users/components/FeedController/FeedList/FeedList.html')
+    const res = await fetch('/users/components/FeedList/FeedList.html')
     const textTemplate = await res.text()
 
     const HTMLTemplate = new DOMParser().parseFromString(textTemplate, 'text/html')
@@ -9,34 +9,41 @@ import './Feed/Feed.js'
 
     class FeedList extends HTMLElement {
         constructor() { 
-             super()
-        }
+            super()
 
-        connectedCallback() {
             const shadowRoot = this.attachShadow({ mode: 'open' })
 
             const instance = HTMLTemplate.content.cloneNode(true)
             shadowRoot.appendChild(instance)
         }
 
-        get list() {
-            return this._list
-        }
-
-        set list(list) {
-            this._list = list
+        connectedCallback() {
             this.render()
         }
 
-        render() { 
-            let ulElement = this.shadowRoot.querySelector('.feed-list__list')
-            ulElement.innerHTML = ''
+        async render() { 
+            const ulElement = this.shadowRoot.querySelector('.feed-list__list')
+            const feeds = await _loadFeeds()
 
-            this.list.forEach(feed => {
-                let li = _createFeedElement(this, feed)
+            feeds.forEach(feed => {
+                const li = _createFeedElement(this, feed)
                 ulElement.appendChild(li)
             })
         }
+    }
+
+    const _loadFeeds = async (pageToken) => {
+        if (pageToken === '') return []
+        if (pageToken === undefined) pageToken = ''
+
+        const response = await fetch(`/api/v1/feeds?page_size=10&page_token=${pageToken}`)
+        if (response.status !== 200) {
+            throw `failed to fetch feeds: ${(await response.json()).message}`
+        }
+
+        const body = await response.json()
+
+        return body.feeds.concat(await _loadFeeds(body.nextPageToken))
     }
 
     const _createFeedElement = (self, feed) => {

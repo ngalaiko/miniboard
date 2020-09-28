@@ -1,6 +1,6 @@
 let readerController = document.querySelector('#reader-controller')
 let articleList = document.querySelector('#article-list')
-let feedController = document.querySelector('#feed-controller')
+let feedList = document.querySelector('#feed-list')
 
 const loadState = () => {
     const urlParams = new URLSearchParams(window.location.search.slice(1))
@@ -24,7 +24,7 @@ articleList.addEventListener('ArticleSelected', (e) => {
     readerController.articleId = e.detail.id
 })
 
-feedController.addEventListener('FeedSelected', (e) => {
+feedList.addEventListener('FeedSelected', (e) => {
     articleList.setAttribute('feed', e.detail.id)
     storeState('feed', e.detail.id)
 })
