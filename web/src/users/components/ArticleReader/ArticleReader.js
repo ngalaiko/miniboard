@@ -34,7 +34,7 @@
     }
 
     const _displayArticle = async (self, articleId) => {
-        const articleData = articleId && articleId !== null ? await _fetchArticle(articleId) : {}
+        const articleData = articleId && articleId !== 'null' ? await _fetchArticle(articleId) : {}
 
         self.shadowRoot.querySelector('.article-reader__title').innerText = articleData.title ? articleData.title : ''
         self.shadowRoot.querySelector('.article-reader__link').href = articleData.url ? articleData.url : ''
