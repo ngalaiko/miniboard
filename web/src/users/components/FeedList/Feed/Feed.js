@@ -7,15 +7,15 @@
 
     class Feed extends HTMLElement {
         constructor() { 
-             super()
-        }
+            super()
 
-        connectedCallback() {
             const shadowRoot = this.attachShadow({ mode: 'open' })
 
             const instance = HTMLTemplate.content.cloneNode(true)
             shadowRoot.appendChild(instance)
+        }
 
+        connectedCallback() {
             this.title = this.getAttribute('title')
         }
 
