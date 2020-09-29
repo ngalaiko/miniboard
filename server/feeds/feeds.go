@@ -141,7 +141,6 @@ func (s *Service) parse(reader io.Reader, feed *feeds.Feed) ([]*parsers.Item, er
 		return nil, fmt.Errorf("failed to parse feed: %w", err)
 	}
 
-	feed.LastFetched = ptypes.TimestampNow()
 	feed.Title = parsedFeed.Title
 
 	lastFetched := time.Time{}
@@ -162,6 +161,8 @@ func (s *Service) parse(reader io.Reader, feed *feeds.Feed) ([]*parsers.Item, er
 
 		items = append(items, item)
 	}
+
+	feed.LastFetched = ptypes.TimestampNow()
 
 	return items, nil
 }
