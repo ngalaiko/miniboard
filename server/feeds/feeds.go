@@ -76,7 +76,7 @@ func (s *Service) ListFeeds(ctx context.Context, request *feeds.ListFeedsRequest
 	ff, err := s.storage.List(ctx, a.ID, request)
 
 	var nextPageToken string
-	if len(ff) == int(request.PageSize+1) {
+	if len(ff) == int(request.PageSize) {
 		nextPageToken = base64.StdEncoding.EncodeToString([]byte(ff[len(ff)-1].Id))
 		ff = ff[:request.PageSize-1]
 	}
