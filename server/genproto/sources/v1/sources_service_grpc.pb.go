@@ -34,7 +34,7 @@ func NewSourcesServiceClient(cc grpc.ClientConnInterface) SourcesServiceClient {
 
 func (c *sourcesServiceClient) CreateSource(ctx context.Context, in *CreateSourceRequest, opts ...grpc.CallOption) (*longrunning.Operation, error) {
 	out := new(longrunning.Operation)
-	err := c.cc.Invoke(ctx, "/app.miniboard.users.sources.v1.SourcesService/CreateSource", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/miniboard.sources.v1.SourcesService/CreateSource", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func _SourcesService_CreateSource_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/app.miniboard.users.sources.v1.SourcesService/CreateSource",
+		FullMethod: "/miniboard.sources.v1.SourcesService/CreateSource",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SourcesServiceServer).CreateSource(ctx, req.(*CreateSourceRequest))
@@ -80,7 +80,7 @@ func _SourcesService_CreateSource_Handler(srv interface{}, ctx context.Context, 
 }
 
 var _SourcesService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "app.miniboard.users.sources.v1.SourcesService",
+	ServiceName: "miniboard.sources.v1.SourcesService",
 	HandlerType: (*SourcesServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

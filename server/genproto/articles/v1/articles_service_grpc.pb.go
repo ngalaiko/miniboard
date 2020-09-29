@@ -46,7 +46,7 @@ func NewArticlesServiceClient(cc grpc.ClientConnInterface) ArticlesServiceClient
 
 func (c *articlesServiceClient) ListArticles(ctx context.Context, in *ListArticlesRequest, opts ...grpc.CallOption) (*ListArticlesResponse, error) {
 	out := new(ListArticlesResponse)
-	err := c.cc.Invoke(ctx, "/app.miniboard.users.articles.v1.ArticlesService/ListArticles", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/miniboard.articles.v1.ArticlesService/ListArticles", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (c *articlesServiceClient) ListArticles(ctx context.Context, in *ListArticl
 
 func (c *articlesServiceClient) UpdateArticle(ctx context.Context, in *UpdateArticleRequest, opts ...grpc.CallOption) (*Article, error) {
 	out := new(Article)
-	err := c.cc.Invoke(ctx, "/app.miniboard.users.articles.v1.ArticlesService/UpdateArticle", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/miniboard.articles.v1.ArticlesService/UpdateArticle", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func (c *articlesServiceClient) UpdateArticle(ctx context.Context, in *UpdateArt
 
 func (c *articlesServiceClient) GetArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*Article, error) {
 	out := new(Article)
-	err := c.cc.Invoke(ctx, "/app.miniboard.users.articles.v1.ArticlesService/GetArticle", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/miniboard.articles.v1.ArticlesService/GetArticle", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (c *articlesServiceClient) GetArticle(ctx context.Context, in *GetArticleRe
 
 func (c *articlesServiceClient) DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, "/app.miniboard.users.articles.v1.ArticlesService/DeleteArticle", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/miniboard.articles.v1.ArticlesService/DeleteArticle", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ func _ArticlesService_ListArticles_Handler(srv interface{}, ctx context.Context,
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/app.miniboard.users.articles.v1.ArticlesService/ListArticles",
+		FullMethod: "/miniboard.articles.v1.ArticlesService/ListArticles",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ArticlesServiceServer).ListArticles(ctx, req.(*ListArticlesRequest))
@@ -149,7 +149,7 @@ func _ArticlesService_UpdateArticle_Handler(srv interface{}, ctx context.Context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/app.miniboard.users.articles.v1.ArticlesService/UpdateArticle",
+		FullMethod: "/miniboard.articles.v1.ArticlesService/UpdateArticle",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ArticlesServiceServer).UpdateArticle(ctx, req.(*UpdateArticleRequest))
@@ -167,7 +167,7 @@ func _ArticlesService_GetArticle_Handler(srv interface{}, ctx context.Context, d
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/app.miniboard.users.articles.v1.ArticlesService/GetArticle",
+		FullMethod: "/miniboard.articles.v1.ArticlesService/GetArticle",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ArticlesServiceServer).GetArticle(ctx, req.(*GetArticleRequest))
@@ -185,7 +185,7 @@ func _ArticlesService_DeleteArticle_Handler(srv interface{}, ctx context.Context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/app.miniboard.users.articles.v1.ArticlesService/DeleteArticle",
+		FullMethod: "/miniboard.articles.v1.ArticlesService/DeleteArticle",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ArticlesServiceServer).DeleteArticle(ctx, req.(*DeleteArticleRequest))
@@ -194,7 +194,7 @@ func _ArticlesService_DeleteArticle_Handler(srv interface{}, ctx context.Context
 }
 
 var _ArticlesService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "app.miniboard.users.articles.v1.ArticlesService",
+	ServiceName: "miniboard.articles.v1.ArticlesService",
 	HandlerType: (*ArticlesServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

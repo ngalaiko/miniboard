@@ -33,7 +33,7 @@ func NewCodesServiceClient(cc grpc.ClientConnInterface) CodesServiceClient {
 
 func (c *codesServiceClient) CreateCode(ctx context.Context, in *CreateCodeRequest, opts ...grpc.CallOption) (*Code, error) {
 	out := new(Code)
-	err := c.cc.Invoke(ctx, "/app.miniboard.codes.v1.CodesService/CreateCode", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/miniboard.codes.v1.CodesService/CreateCode", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func _CodesService_CreateCode_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/app.miniboard.codes.v1.CodesService/CreateCode",
+		FullMethod: "/miniboard.codes.v1.CodesService/CreateCode",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CodesServiceServer).CreateCode(ctx, req.(*CreateCodeRequest))
@@ -79,7 +79,7 @@ func _CodesService_CreateCode_Handler(srv interface{}, ctx context.Context, dec 
 }
 
 var _CodesService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "app.miniboard.codes.v1.CodesService",
+	ServiceName: "miniboard.codes.v1.CodesService",
 	HandlerType: (*CodesServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

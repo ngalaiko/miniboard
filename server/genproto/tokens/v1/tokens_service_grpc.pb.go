@@ -33,7 +33,7 @@ func NewTokensServiceClient(cc grpc.ClientConnInterface) TokensServiceClient {
 
 func (c *tokensServiceClient) CreateToken(ctx context.Context, in *CreateTokenRequest, opts ...grpc.CallOption) (*Token, error) {
 	out := new(Token)
-	err := c.cc.Invoke(ctx, "/app.miniboard.tokens.v1.TokensService/CreateToken", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/miniboard.v1.TokensService/CreateToken", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func _TokensService_CreateToken_Handler(srv interface{}, ctx context.Context, de
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/app.miniboard.tokens.v1.TokensService/CreateToken",
+		FullMethod: "/miniboard.v1.TokensService/CreateToken",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(TokensServiceServer).CreateToken(ctx, req.(*CreateTokenRequest))
@@ -79,7 +79,7 @@ func _TokensService_CreateToken_Handler(srv interface{}, ctx context.Context, de
 }
 
 var _TokensService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "app.miniboard.tokens.v1.TokensService",
+	ServiceName: "miniboard.v1.TokensService",
 	HandlerType: (*TokensServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

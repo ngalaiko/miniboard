@@ -31,7 +31,7 @@ func NewFeedsServiceClient(cc grpc.ClientConnInterface) FeedsServiceClient {
 
 func (c *feedsServiceClient) GetFeed(ctx context.Context, in *GetFeedRequest, opts ...grpc.CallOption) (*Feed, error) {
 	out := new(Feed)
-	err := c.cc.Invoke(ctx, "/app.miniboard.users.feeds.v1.FeedsService/GetFeed", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/miniboard.feeds.v1.FeedsService/GetFeed", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (c *feedsServiceClient) GetFeed(ctx context.Context, in *GetFeedRequest, op
 
 func (c *feedsServiceClient) ListFeeds(ctx context.Context, in *ListFeedsRequest, opts ...grpc.CallOption) (*ListFeedsResponse, error) {
 	out := new(ListFeedsResponse)
-	err := c.cc.Invoke(ctx, "/app.miniboard.users.feeds.v1.FeedsService/ListFeeds", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/miniboard.feeds.v1.FeedsService/ListFeeds", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func _FeedsService_GetFeed_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/app.miniboard.users.feeds.v1.FeedsService/GetFeed",
+		FullMethod: "/miniboard.feeds.v1.FeedsService/GetFeed",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FeedsServiceServer).GetFeed(ctx, req.(*GetFeedRequest))
@@ -96,7 +96,7 @@ func _FeedsService_ListFeeds_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/app.miniboard.users.feeds.v1.FeedsService/ListFeeds",
+		FullMethod: "/miniboard.feeds.v1.FeedsService/ListFeeds",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FeedsServiceServer).ListFeeds(ctx, req.(*ListFeedsRequest))
@@ -105,7 +105,7 @@ func _FeedsService_ListFeeds_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 var _FeedsService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "app.miniboard.users.feeds.v1.FeedsService",
+	ServiceName: "miniboard.feeds.v1.FeedsService",
 	HandlerType: (*FeedsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

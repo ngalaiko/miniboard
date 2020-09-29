@@ -21,6 +21,7 @@ import (
 	sources "github.com/ngalaiko/miniboard/server/genproto/sources/v1"
 	"github.com/ngalaiko/miniboard/server/operations"
 	"github.com/sirupsen/logrus"
+	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -105,22 +106,20 @@ func (s *Service) createSourceFromRaw(ctx context.Context, source *sources.Sourc
 
 	ctx = actor.NewContext(context.Background(), a.ID)
 
-	list := &sources.SourceList{}
+	result := &sources.OperationResult{}
 	for _, source := range ss {
-		any, err := s.createSourceFromURL(ctx, source)
+		response, err := s.createSourceFromURL(ctx, source)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create source from '%s': %s", source.Url, err)
+			result.Errors = append(result.Errors, &rpcstatus.Status{
+				Message: fmt.Sprintf("failed to create source from '%s': %s", source.Url, err),
+			})
+		} else {
+			result.Responses = append(result.Responses, response)
 		}
-
-		s := &sources.Source{}
-		if err := ptypes.UnmarshalAny(any, s); err != nil {
-			return nil, fmt.Errorf("failed to unmarshal source to list: %w", err)
-		}
-		list.Sources = append(list.Sources, s)
 	}
 	log().Infof("added %d sources from opml in %s", len(ss), time.Since(start))
 
-	return ptypes.MarshalAny(list)
+	return ptypes.MarshalAny(result)
 }
 
 func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Source) (*any.Any, error) {
