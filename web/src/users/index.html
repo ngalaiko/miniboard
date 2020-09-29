@@ -34,13 +34,14 @@
 
 <body>
     <div id="controll__container">
-        <div id="feed__container">
-            <feed-list id='feed-list'></feed-list>
-            <article-list id='article-list'></article-list>
+        <feed-list id="feed-list"></feed-list>
+        <div id="articles-container">
+            <button id="articles-back-button" type="button">back</button>
+            <article-list id="article-list"></article-list>
         </div>
         <add-controller id="add-controller"></add-controller>
     </div>
-    <article-reader id='article-reader'></article-reader>
+    <article-reader id="article-reader"></article-reader>
 
     <script type="module" src="script.js"></script>
 </body>
