@@ -131,6 +131,7 @@ func New(
 	handler := http.Handler(mux)
 	handler = middleware.WithAccessLogs(handler)
 	handler = middleware.WithCompression(handler)
+	handler = middleware.WithRecover(handler)
 	httpServer := &http.Server{
 		Handler: handler,
 	}

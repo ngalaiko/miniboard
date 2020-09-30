@@ -62,6 +62,21 @@ func (s *Service) runOperation(ctx context.Context, userID string, operation *lo
 
 	errChan := make(chan error)
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log().Errorf("panic: %s", r)
+				operation.Result = &longrunning.Operation_Error{
+					Error: &rpcstatus.Status{
+						Code:    int32(codes.Internal),
+						Message: "Internal Error",
+					},
+				}
+				if err := s.db.Update(ctx, userID, operation); err != nil {
+					log().Errorf("failed to update operation: %s", err)
+				}
+			}
+		}()
+
 		if err := operationFunc(ctx, &longrunning.Operation{
 			Name:     operation.Name,
 			Metadata: operation.Metadata,
@@ -79,7 +94,6 @@ func (s *Service) runOperation(ctx context.Context, userID string, operation *lo
 			if err := s.db.Update(ctx, userID, status); err != nil {
 				log().Errorf("failed to update operation: %s", err)
 			}
-
 		case err := <-errChan:
 			switch {
 			case lastStatus == nil:
@@ -105,7 +119,6 @@ func (s *Service) runOperation(ctx context.Context, userID string, operation *lo
 			}
 		}
 	}
-
 }
 
 // GetOperation returns a single operation.

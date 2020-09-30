@@ -41,6 +41,29 @@ func Test_Get_done(t *testing.T) {
 	}, time.Second, 10*time.Millisecond)
 }
 
+func Test_Get_panic(t *testing.T) {
+	ctx, cancel := context.WithCancel(testContext())
+	defer cancel()
+
+	o := New(testDB(ctx, t))
+
+	f := func(ctx context.Context, operation *longrunning.Operation, status chan<- *longrunning.Operation) error {
+		panic("test")
+		return nil
+	}
+
+	operation, err := o.CreateOperation(ctx, &any.Any{}, f)
+	assert.NoError(t, err)
+	assert.Eventually(t, func() bool {
+		doneOperation, err := o.GetOperation(ctx, &longrunning.GetOperationRequest{
+			Name: operation.Name,
+		})
+		assert.NoError(t, err)
+
+		return doneOperation.GetError() != nil
+	}, time.Second, 10*time.Millisecond)
+}
+
 func Test_Get_error(t *testing.T) {
 	ctx, cancel := context.WithCancel(testContext())
 	defer cancel()
