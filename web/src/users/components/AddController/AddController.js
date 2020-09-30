@@ -44,12 +44,30 @@ import './AddButton/AddButton.js'
                     }
                     reader.onerror = () => reject(new Error('failed to read file'))
                 })
-                .then(btoa)
-                .then(_addFile)
+                .then(_parseXML)
             })
 
             addModal.addEventListener('UrlAdded', (e) => _addUrl(e.detail.url))
         })
+    }
+
+    const _parseXML = async (raw) => {
+        const parser = new DOMParser()
+        const dom = parser.parseFromString(raw, "text/xml")
+
+        if (dom.documentElement.nodeName !== 'opml') {
+            throw new Error('only opml files supported')
+        }
+
+        const urls = Array.from(dom.getElementsByTagName('outline'))
+            .map(item => item.getAttribute('xmlUrl'))
+            .filter(item => item !== null)
+
+        for (const url of urls) {
+            try {
+                await _addUrl(url)
+            } catch {}
+        }
     }
 
     const _addUrl = async (url) => {
@@ -62,56 +80,42 @@ import './AddButton/AddButton.js'
 
         const body = await response.json()
 
-        _watchOperation(body.name)
+        _watchOperation(url, body.name)
     }
 
-    const _addFile = async (raw) => {
-        const response = await fetch('/api/v1/sources', {
-            method: 'POST',
-            body: JSON.stringify({
-                raw: raw,
-            }),
-        })
-
-        const body = await response.json()
-
-        _watchOperation(body.name)
-    }
-
-    const _watchOperation = async (name) => {
+    const _watchOperation = async (url, name) => {
         const response = await fetch(`/api/v1/${name}`)
         const body = await response.json()
 
         switch (true) {
         case !body.done:
-            console.log(name, 'not done')
-            window.setTimeout(() => _watchOperation(name), 1000)
+            window.setTimeout(() => _watchOperation(url, name), 1000)
             break
         case !(body.error === undefined):
-            _handleError(body.error)
+            _handleError(url, body.error)
             break
         case !(body.response === undefined):
-            _handleResponse(body.response)
+            _handleResponse(url, body.response)
             break
         }
     }
 
-    const _handleResponse = (response) => {
+    const _handleResponse = (url, response) => {
         switch (response['@type']) {
-        case 'type.googleapis.com/miniboard.users.feeds.v1.Feed':
-            console.log('feed added', response.title)
+        case 'type.googleapis.com/miniboard.feeds.v1.Feed':
+            console.log(`${url} feed added`, response.title)
             break
-        case 'type.googleapis.com/miniboard.users.articles.v1.Article':
-            console.log('article added', response.title)
+        case 'type.googleapis.com/miniboard.articles.v1.Article':
+            console.log(`${url} article added`, response.title)
             break
         default:
-            console.log(response)
+            console.log(`${url}`, response)
             break
         }
     }
 
-    const _handleError = (error) => {
-        console.error(error.message)
+    const _handleError = (url, error) => {
+        console.error(`${url}: ${error.message}`)
     }
 
     customElements.define('add-controller', AddController)
