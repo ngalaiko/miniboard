@@ -13,7 +13,6 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
-	"github.com/ngalaiko/miniboard/server/actor"
 	"github.com/ngalaiko/miniboard/server/fetch"
 	articles "github.com/ngalaiko/miniboard/server/genproto/articles/v1"
 	feeds "github.com/ngalaiko/miniboard/server/genproto/feeds/v1"
@@ -21,7 +20,6 @@ import (
 	sources "github.com/ngalaiko/miniboard/server/genproto/sources/v1"
 	"github.com/ngalaiko/miniboard/server/operations"
 	"github.com/sirupsen/logrus"
-	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -70,77 +68,54 @@ func (s *Service) CreateSource(ctx context.Context, request *sources.CreateSourc
 	return s.operationsService.CreateOperation(ctx, a, s.processSource)
 }
 
-func (s *Service) processSource(ctx context.Context, operation *longrunning.Operation) (*any.Any, error) {
+func (s *Service) processSource(ctx context.Context, operation *longrunning.Operation, status chan<- *longrunning.Operation) error {
 	request := &sources.CreateSourceRequest{}
 	if err := ptypes.UnmarshalAny(operation.Metadata, request); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal operation metadata: %w", err)
+		return fmt.Errorf("failed to unmarshal operation metadata: %w", err)
 	}
-	return s.createSource(ctx, request)
+
+	return s.createSource(ctx, request, operation, status)
 }
 
-func (s *Service) createSource(ctx context.Context, request *sources.CreateSourceRequest) (*any.Any, error) {
+func (s *Service) createSource(ctx context.Context, request *sources.CreateSourceRequest, operation *longrunning.Operation, status chan<- *longrunning.Operation) error {
 	switch {
 	case request.Source.Url != "":
-		return s.createSourceFromURL(ctx, request.Source)
-	case request.Source.Raw != nil:
-		return s.createSourceFromRaw(ctx, request.Source)
-	default:
-		return nil, status.Errorf(codes.InvalidArgument, "you need to provide either url or raw data")
-	}
-}
-
-func (s *Service) createSourceFromRaw(ctx context.Context, source *sources.Source) (*any.Any, error) {
-	a, _ := actor.FromContext(ctx)
-
-	if !strings.HasPrefix(http.DetectContentType(source.Raw), "text/xml") {
-		return nil, status.Errorf(codes.InvalidArgument, "only raw xml files supported")
-	}
-
-	ss, err := parseOPML(source.Raw)
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "only raw opml files supported")
-	}
-
-	start := time.Now()
-	log().Infof("adding %d sources from opml", len(ss))
-
-	ctx = actor.NewContext(context.Background(), a.ID)
-
-	result := &sources.OperationResult{}
-	for _, source := range ss {
-		response, err := s.createSourceFromURL(ctx, source)
+		result, err := s.createSourceFromURL(ctx, request.Source)
 		if err != nil {
-			result.Errors = append(result.Errors, &rpcstatus.Status{
-				Message: fmt.Sprintf("failed to create source from '%s': %s", source.Url, err),
-			})
-		} else {
-			result.Responses = append(result.Responses, response)
+			return err
 		}
-	}
-	log().Infof("added %d sources from opml in %s", len(ss), time.Since(start))
 
-	return ptypes.MarshalAny(result)
+		operation.Result = &longrunning.Operation_Response{
+			Response: result,
+		}
+		operation.Done = true
+
+		status <- operation
+		return nil
+	default:
+		return fmt.Errorf("you need to provide url ")
+	}
 }
 
 func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Source) (*any.Any, error) {
 	url, err := url.ParseRequestURI(source.Url)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "url is invalid")
+		return nil, fmt.Errorf("url is invalid")
 	}
 
 	resp, err := s.client.Fetch(ctx, source.Url)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "failed to fetch url: %s", err)
+		return nil, fmt.Errorf("failed to fetch url: %s", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, status.Errorf(codes.InvalidArgument, "failde to fetch source: response code %d", resp.StatusCode)
+		return nil, fmt.Errorf("failde to fetch source: response code %d", resp.StatusCode)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to read source response: %s", err)
+		return nil, fmt.Errorf("failed to read source response: %s", err)
 	}
 
 	ct := resp.Header.Get("Content-Type")
@@ -150,7 +125,7 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Sourc
 		now := time.Now()
 		article, err := s.articlesService.CreateArticle(ctx, bytes.NewBuffer(body), url, &now, nil)
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "failed to create article from source: %s", err)
+			return nil, fmt.Errorf("failed to create article from source: %s", err)
 		}
 		return ptypes.MarshalAny(article)
 	case strings.Contains(ct, "application/rss+xml"),
@@ -159,11 +134,11 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Sourc
 		strings.Contains(ct, "text/xml"):
 		feed, err := s.feedsService.CreateFeed(ctx, bytes.NewBuffer(body), url)
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "failed to create feed from source: %s", err)
+			return nil, fmt.Errorf("failed to create feed from source: %s", err)
 		}
 		return ptypes.MarshalAny(feed)
 	default:
-		return nil, status.Errorf(codes.InvalidArgument, "unsupported source content type '%s'", ct)
+		return nil, fmt.Errorf("unsupported source content type '%s'", ct)
 	}
 }
 

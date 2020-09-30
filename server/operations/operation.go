@@ -32,7 +32,7 @@ func New(sqldb *sql.DB) *Service {
 }
 
 // Operation is a single long running operation.
-type Operation func(context.Context, *longrunning.Operation) (*any.Any, error)
+type Operation func(context.Context, *longrunning.Operation, chan<- *longrunning.Operation) error
 
 // CreateOperation creates an operation, and runs it.
 func (s *Service) CreateOperation(ctx context.Context, metadata *any.Any, operationFunc Operation) (*longrunning.Operation, error) {
@@ -46,8 +46,10 @@ func (s *Service) CreateOperation(ctx context.Context, metadata *any.Any, operat
 	}
 
 	// todo: wait for graceful shutdown
+	backgroundCtx := actor.NewContext(context.Background(), a.ID)
+
 	go s.runOperation(
-		actor.NewContext(context.Background(), a.ID), a.ID, &longrunning.Operation{
+		backgroundCtx, a.ID, &longrunning.Operation{
 			Name:     operation.Name,
 			Metadata: operation.Metadata,
 		}, operationFunc)
@@ -56,35 +58,54 @@ func (s *Service) CreateOperation(ctx context.Context, metadata *any.Any, operat
 }
 
 func (s *Service) runOperation(ctx context.Context, userID string, operation *longrunning.Operation, operationFunc Operation) {
-	result, err := operationFunc(ctx, &longrunning.Operation{
-		Name:     operation.Name,
-		Metadata: operation.Metadata,
-	})
-	switch {
-	case err == nil && result != nil:
-		operation.Result = &longrunning.Operation_Response{
-			Response: result,
+	statusChan := make(chan *longrunning.Operation, 10)
+
+	errChan := make(chan error)
+	go func() {
+		if err := operationFunc(ctx, &longrunning.Operation{
+			Name:     operation.Name,
+			Metadata: operation.Metadata,
+		}, statusChan); err != nil {
+			errChan <- err
 		}
-	case err != nil:
-		operation.Result = &longrunning.Operation_Error{
-			Error: &rpcstatus.Status{
-				Code:    int32(codes.FailedPrecondition),
-				Message: err.Error(),
-			},
-		}
-	default:
-		operation.Result = &longrunning.Operation_Error{
-			Error: &rpcstatus.Status{
-				Code: int32(codes.Internal),
-			},
+		close(errChan)
+	}()
+
+	var lastStatus *longrunning.Operation
+	for {
+		select {
+		case status := <-statusChan:
+			lastStatus = status
+			if err := s.db.Update(ctx, userID, status); err != nil {
+				log().Errorf("failed to update operation: %s", err)
+			}
+
+		case err := <-errChan:
+			switch {
+			case lastStatus == nil:
+				operation.Result = &longrunning.Operation_Error{
+					Error: &rpcstatus.Status{
+						Code:    int32(codes.Internal),
+						Message: "Internal Error",
+					},
+				}
+			case err != nil:
+				operation.Result = &longrunning.Operation_Error{
+					Error: &rpcstatus.Status{
+						Code:    int32(codes.Internal),
+						Message: err.Error(),
+					},
+				}
+			default:
+				return
+			}
+
+			if err := s.db.Update(ctx, userID, operation); err != nil {
+				log().Errorf("failed to update operation: %s", err)
+			}
 		}
 	}
 
-	operation.Done = true
-
-	if err := s.db.Update(ctx, userID, operation); err != nil {
-		log().Errorf("failed to update operation: %s", err)
-	}
 }
 
 // GetOperation returns a single operation.
