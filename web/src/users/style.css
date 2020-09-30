@@ -1,6 +1,12 @@
 #controll__container {
     display: flex;
     flex-direction: column;
+    min-width: 200px;
+    max-width: 200px;
+}
+
+#add-controller {
+    margin-top: auto;
 }
 
 #articles-container {
