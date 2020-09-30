@@ -49,7 +49,6 @@ func Test_Get_panic(t *testing.T) {
 
 	f := func(ctx context.Context, operation *longrunning.Operation, status chan<- *longrunning.Operation) error {
 		panic("test")
-		return nil
 	}
 
 	operation, err := o.CreateOperation(ctx, &any.Any{}, f)

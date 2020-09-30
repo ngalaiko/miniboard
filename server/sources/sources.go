@@ -19,7 +19,6 @@ import (
 	longrunning "github.com/ngalaiko/miniboard/server/genproto/google/longrunning"
 	sources "github.com/ngalaiko/miniboard/server/genproto/sources/v1"
 	"github.com/ngalaiko/miniboard/server/operations"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -140,10 +139,4 @@ func (s *Service) createSourceFromURL(ctx context.Context, source *sources.Sourc
 	default:
 		return nil, fmt.Errorf("unsupported source content type '%s'", ct)
 	}
-}
-
-func log() *logrus.Entry {
-	return logrus.WithFields(logrus.Fields{
-		"source": "sources",
-	})
 }
