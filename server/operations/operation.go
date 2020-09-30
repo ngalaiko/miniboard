@@ -71,6 +71,7 @@ func (s *Service) runOperation(ctx context.Context, userID string, operation *lo
 						Message: "Internal Error",
 					},
 				}
+				operation.Done = true
 				if err := s.db.Update(ctx, userID, operation); err != nil {
 					log().Errorf("failed to update operation: %s", err)
 				}
@@ -97,6 +98,7 @@ func (s *Service) runOperation(ctx context.Context, userID string, operation *lo
 		case err := <-errChan:
 			switch {
 			case lastStatus == nil:
+				operation.Done = true
 				operation.Result = &longrunning.Operation_Error{
 					Error: &rpcstatus.Status{
 						Code:    int32(codes.Internal),
@@ -104,6 +106,7 @@ func (s *Service) runOperation(ctx context.Context, userID string, operation *lo
 					},
 				}
 			case err != nil:
+				operation.Done = true
 				operation.Result = &longrunning.Operation_Error{
 					Error: &rpcstatus.Status{
 						Code:    int32(codes.Internal),
