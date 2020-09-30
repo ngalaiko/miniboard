@@ -205,16 +205,22 @@ func (db *DB) List(ctx context.Context, request *articles.ListArticlesRequest) (
 		FROM articles
 		WHERE
 			user_id = $1
-			AND id >= $2
 	`)
+
+	args := []interface{}{
+		a.ID,
+	}
 
 	from, err := getID(request)
 	if err != nil {
 		return nil, err
 	}
 
-	args := []interface{}{
-		a.ID, from,
+	if from != "" {
+		args = append(args, from)
+		q.WriteString(fmt.Sprintf(`
+			AND id <= $%d
+		`, len(args)))
 	}
 
 	if request.IsReadEq != nil {
@@ -240,7 +246,7 @@ func (db *DB) List(ctx context.Context, request *articles.ListArticlesRequest) (
 
 	args = append(args, request.PageSize)
 	q.WriteString(fmt.Sprintf(`
-		ORDER BY id ASC
+		ORDER BY id DESC
 		LIMIT $%d
 	`, len(args)))
 

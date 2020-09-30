@@ -151,8 +151,8 @@ func Test_db_List_all(t *testing.T) {
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, 10, len(aa))
-	assert.Equal(t, saved[0], aa[0])
-	assert.Equal(t, saved[9], aa[9])
+	assert.Equal(t, saved[0], aa[9])
+	assert.Equal(t, saved[9], aa[0])
 }
 
 func Test_db_List_with_limit(t *testing.T) {
@@ -175,8 +175,8 @@ func Test_db_List_with_limit(t *testing.T) {
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, 5, len(aa))
-	assert.Equal(t, saved[0], aa[0])
-	assert.Equal(t, saved[4], aa[4])
+	assert.Equal(t, saved[9], aa[0])
+	assert.Equal(t, saved[5], aa[4])
 }
 
 func Test_db_List_with_from(t *testing.T) {
@@ -195,13 +195,13 @@ func Test_db_List_with_from(t *testing.T) {
 	}
 
 	aa, err := database.List(ctx, &articles.ListArticlesRequest{
-		PageToken: base64.StdEncoding.EncodeToString([]byte(saved[4].Id)),
+		PageToken: base64.StdEncoding.EncodeToString([]byte(saved[5].Id)),
 		PageSize:  100,
 	})
 	assert.NoError(t, err)
 	assert.Equal(t, 6, len(aa))
-	assert.Equal(t, saved[4], aa[0])
-	assert.Equal(t, saved[8], aa[4])
+	assert.Equal(t, saved[5], aa[0])
+	assert.Equal(t, saved[0], aa[5])
 }
 
 func Test_db_List_with_is_read(t *testing.T) {
