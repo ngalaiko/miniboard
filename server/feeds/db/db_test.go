@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/ngalaiko/miniboard/server/actor"
 	"github.com/ngalaiko/miniboard/server/db"
 	"github.com/ngalaiko/miniboard/server/genproto/feeds/v1"
@@ -160,7 +161,10 @@ func feed() *feeds.Feed {
 		UserId:      "user_id",
 		LastFetched: ptypes.TimestampNow(),
 		Url:         "url",
-		Title:       " title",
+		Title:       "title",
+		IconUrl: &wrappers.StringValue{
+			Value: "test",
+		},
 	}
 }
 

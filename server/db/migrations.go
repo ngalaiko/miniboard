@@ -26,6 +26,7 @@ func migrations() []*migration {
 				url          TEXT   NOT NULL,
 				title        TEXT   NOT NULL,
 				last_fetched BIGINT NOT NULL,
+				icon_url     TEXT       NULL,
 				PRIMARY KEY (id),
 				UNIQUE (user_id, url)
 			)

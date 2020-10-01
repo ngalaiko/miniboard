@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/ngalaiko/miniboard/server/actor"
 	"github.com/ngalaiko/miniboard/server/feeds/db"
 	"github.com/ngalaiko/miniboard/server/fetch"
@@ -142,6 +143,11 @@ func (s *Service) parse(reader io.Reader, feed *feeds.Feed) ([]*parsers.Item, er
 	}
 
 	feed.Title = parsedFeed.Title
+	if parsedFeed.Image != nil {
+		feed.IconUrl = &wrappers.StringValue{
+			Value: parsedFeed.Image.URL,
+		}
+	}
 
 	lastFetched := time.Time{}
 	if feed.LastFetched != nil {

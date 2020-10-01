@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/ngalaiko/miniboard/server/genproto/feeds/v1"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -16,6 +17,7 @@ import (
 type dbFeed struct {
 	Feed        *feeds.Feed
 	LastFetched int64
+	IconURL     string
 }
 
 // DB allows to access feeds database.
@@ -43,9 +45,10 @@ func (db *DB) Create(ctx context.Context, feed *feeds.Feed) error {
 		user_id,
 		url,
 		title,
-		last_fetched
+		last_fetched,
+		icon_url
 	) VALUES (
-		$1, $2, $3, $4, $5
+		$1, $2, $3, $4, $5, $6
 	)
 	`,
 		feed.Id,
@@ -53,6 +56,7 @@ func (db *DB) Create(ctx context.Context, feed *feeds.Feed) error {
 		feed.Url,
 		feed.Title,
 		lastFetched.UnixNano(),
+		feed.IconUrl.GetValue(),
 	)
 	return createErr
 }
@@ -65,7 +69,8 @@ func (db *DB) Get(ctx context.Context, id string, userID string) (*feeds.Feed, e
 		user_id,
 		url,
 		title,
-		last_fetched
+		last_fetched,
+		icon_url
 	FROM
 		feeds
 	WHERE
@@ -90,6 +95,7 @@ func (db *DB) scanRow(row scannable) (*feeds.Feed, error) {
 		&feed.Feed.Url,
 		&feed.Feed.Title,
 		&feed.LastFetched,
+		&feed.IconURL,
 	)
 
 	if err != nil {
@@ -102,10 +108,16 @@ func (db *DB) scanRow(row scannable) (*feeds.Feed, error) {
 		return nil, fmt.Errorf("failed to convert create time: %w", convertTimeErr)
 	}
 
+	if feed.IconURL != "" {
+		feed.Feed.IconUrl = &wrappers.StringValue{
+			Value: feed.IconURL,
+		}
+	}
+
 	return feed.Feed, nil
 }
 
-// Upates updates a feed.
+// Update updates a feed.
 func (db *DB) Update(ctx context.Context, feed *feeds.Feed, userID string) error {
 	lastFetched, err := ptypes.Timestamp(feed.LastFetched)
 	if err != nil {
@@ -131,7 +143,8 @@ func (db *DB) ListAll(ctx context.Context) ([]*feeds.Feed, error) {
 			user_id,
 			url,
 			title,
-			last_fetched
+			last_fetched,
+			icon_url
 		FROM
 			feeds
 		ORDER BY id ASC
@@ -171,7 +184,8 @@ func (db *DB) List(ctx context.Context, userID string, request *feeds.ListFeedsR
 			user_id,
 			url,
 			title,
-			last_fetched
+			last_fetched,
+			icon_url
 		FROM
 			feeds
 		WHERE

@@ -5,6 +5,7 @@ package miniboard.feeds.v1;
 import "google/api/annotations.proto";
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
 
 option go_package = "github.com/ngalaiko/miniboard/server/genproto/feeds/v1;feeds";
 
@@ -57,4 +58,7 @@ message Feed {
 
     // Title is the feed's title.
     string title = 5;
+
+    // Url with a feed's icon.
+    google.protobuf.StringValue icon_url = 6;
 }
