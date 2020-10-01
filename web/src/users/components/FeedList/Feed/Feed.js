@@ -15,28 +15,32 @@
             shadowRoot.appendChild(instance)
         }
 
-        connectedCallback() {
-            this.title = this.getAttribute('title')
-        }
-
         static get observedAttributes() {
-            return ['title']
+            return ['title', 'iconurl']
         }
 
         attributeChangedCallback(attribute, oldValue, newValue) {
-            if (attribute === 'title') {
+            switch (attribute) {
+            case 'title':
                 this.title = newValue !== '' ? newValue : "Not Provided!"
+                break
+            case 'iconurl':
+                this.iconUrl = newValue
+                break
             }
         }
 
         set title(value) {
-            this._title = value
             if (this.shadowRoot)
-                this.shadowRoot.querySelector('.feed__feed-container').innerHTML = value
+                this.shadowRoot.querySelector('.feed__feed-title').innerText = value
         }
 
-        get title() {
-            return this._title
+        set iconUrl(value) {
+            if (!this.shadowRoot) return
+
+            if (value !== 'null') {
+                this.shadowRoot.querySelector('.feed__feed-icon').src = value
+            }
         }
     }
 

@@ -1,0 +1,15 @@
+.feed__feed-container {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+}
+
+.feed__feed-container:hover {
+    background: #cccccc;
+}
+
+.feed__feed-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
