@@ -8,7 +8,7 @@ WORKDIR /server
 RUN go build -o miniboard ./cmd/miniboard/main.go
 
 
-FROM alpine:3.11.6
+FROM alpine:3.12.0
 
 COPY --from=go_builder /server/miniboard /app/miniboard
 COPY ./web/src /app/dist
