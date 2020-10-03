@@ -46,6 +46,7 @@ func (s *Service) updateFeeds(ctx context.Context) error {
 
 	wg, ctx := errgroup.WithContext(ctx)
 	for _, feed := range feeds {
+		feed := feed
 		wg.Go(func() error {
 			if err := s.updateFeed(ctx, feed); err != nil {
 				return fmt.Errorf("failed to update feed: %w", err)
