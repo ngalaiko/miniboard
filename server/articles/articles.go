@@ -71,17 +71,9 @@ func (s *Service) CreateArticle(
 	published *time.Time,
 	sourceID *string,
 ) (*articles.Article, error) {
-	// before that date ksuid is no longer lexicographicaly sortable
-	// https://github.com/segmentio/ksuid#how-do-they-work
-	var timeLimit = time.Unix(1400000000, 0)
-
 	createTime := time.Now()
 	if published != nil {
 		createTime = *published
-	}
-
-	if createTime.Before(timeLimit) {
-		return nil, status.Errorf(codes.InvalidArgument, "articles written before %s not supported, sorry", timeLimit)
 	}
 
 	actor, _ := actor.FromContext(ctx)
@@ -115,7 +107,11 @@ func (s *Service) CreateArticle(
 	_, _ = urlHash.Write([]byte(article.Url))
 
 	// timestamp order == lexicographical order
-	id, err := ksuid.FromParts(createTime, urlHash.Sum(nil))
+
+	// ksuid margin to "never" hit the limit
+	var ksuidTimeMargin = 1000 * 30 * 24 * time.Hour
+
+	id, err := ksuid.FromParts(createTime.Add(-1*ksuidTimeMargin), urlHash.Sum(nil))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to generate id")
 	}
