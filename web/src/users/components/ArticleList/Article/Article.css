@@ -1,0 +1,14 @@
+.article__article-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.article__feed-container {
+    display: flex;
+}
+
+.article__feed-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

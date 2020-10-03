@@ -1,3 +1,5 @@
+import FeedService from '../../../services/FeedService.js'
+
 (async () => {
     const res = await fetch('/users/components/ArticleList/Article/Article.html')
     const textTemplate = await res.text()
@@ -21,23 +23,32 @@
 
 
         static get observedAttributes() {
-            return ['title']
+            return ['title', 'feedid']
         }
 
         attributeChangedCallback(attribute, oldValue, newValue) {
-            if (attribute === 'title') {
-                this.title = newValue !== '' ? newValue : "Not Provided!"
+            switch (attribute) {
+            case 'title':
+                this.title = newValue
+                break
+            case 'feedid':
+                this.feedid = newValue
+                break
             }
         }
 
         set title(value) {
-            this._title = value
             if (this.shadowRoot)
-                this.shadowRoot.querySelector('.article__article-container').innerHTML = value
+                this.shadowRoot.querySelector('.article__article-title').innerHTML = value
         }
 
-        get title() {
-            return this._title
+        set feedid(value) {
+            FeedService.get(value).then((feed) => {
+                if (feed.iconUrl !== null)  {
+                    this.shadowRoot.querySelector('.article__feed-icon').src = feed.iconUrl
+                } 
+                this.shadowRoot.querySelector('.article__feed-title').innerHTML = feed.title
+            })
         }
     }
 
