@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/ngalaiko/miniboard/server/actor"
 	"github.com/ngalaiko/miniboard/server/db"
@@ -52,7 +53,8 @@ func Test_service_Create(t *testing.T) {
 
 	testURL, _ := url.Parse("http://localhost")
 
-	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
+	ts, _ := time.Parse(time.RFC3339, time.RFC3339)
+	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, &ts, nil)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, resp.Id)
 	assert.Equal(t, resp.Url, "http://localhost")
