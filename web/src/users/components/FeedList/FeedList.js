@@ -1,4 +1,5 @@
 import './Feed/Feed.js'
+import FeedService from '../../services/FeedService.js'
 
 (async () => {
     const res = await fetch('/users/components/FeedList/FeedList.html')
@@ -33,17 +34,11 @@ import './Feed/Feed.js'
     }
 
     const _loadFeeds = async (pageToken) => {
-        if (pageToken === '') return []
-        if (pageToken === undefined) pageToken = ''
+        const {feeds, nextPageToken} = await FeedService.list(25, pageToken)
 
-        const response = await fetch(`/api/v1/feeds?page_size=10&page_token=${pageToken}`)
-        if (response.status !== 200) {
-            throw `failed to fetch feeds: ${(await response.json()).message}`
-        }
+        if (nextPageToken === '') return []
 
-        const body = await response.json()
-
-        return body.feeds.concat(await _loadFeeds(body.nextPageToken))
+        return feeds.concat(await _loadFeeds(nextPageToken))
     }
 
     const _createFeedElement = (self, feed) => {
