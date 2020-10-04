@@ -1,6 +1,5 @@
 .article-reader__container {
     max-height: 100%;
-    overflow-y: scroll;
     padding: 0.5em;
     word-wrap: break-word;
     text-align: start;
