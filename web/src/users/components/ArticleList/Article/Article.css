@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     cursor: pointer;
-    margin: 0.2em;
+    padding: 0.2em;
 }
 
 .article__article-container:hover {
