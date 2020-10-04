@@ -1,14 +1,20 @@
+import FeedService from './services/FeedService.js'
+
 const feedList = document.querySelector('#feed-list')
 
 const articlesContainer = document.querySelector('#articles-container')
-const articlesBackButton = document.querySelector('#articles-back-button')
+const articlesBackButton = document.querySelector('#article-list-button')
 const articleList = document.querySelector('#article-list')
+const articleListTitle = document.querySelector('#article-list-title')
 
 const articleReader = document.querySelector('#article-reader')
 
-const showArticles = () => {
+const showArticles = async (feedId) => {
     feedList.classList.add('hidden')
     articlesContainer.classList.remove('hidden')
+
+    const feed = await FeedService.get(feedId)
+    articleListTitle.innerText = feed.title
 }
 
 const showFeeds = () => {
@@ -25,7 +31,7 @@ const loadState = () => {
     articleReader.setAttribute('article', articleId)
 
     if (feedId) {
-        showArticles()
+        showArticles(feedId)
     } else {
         showFeeds()
     }
@@ -64,7 +70,7 @@ feedList.addEventListener('FeedSelected', (e) => {
     articleList.setAttribute('feed', e.detail.id)
     storeState('feed', e.detail.id)
 
-    showArticles()
+    showArticles(e.detail.id)
 })
 
 articlesBackButton.addEventListener('click', (e) => {
