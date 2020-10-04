@@ -2,7 +2,7 @@
     display: flex;
     cursor: pointer;
     align-items: center;
-    margin: 0.2em;
+    padding: 0.2em;
 }
 
 .feed__feed-container:hover {
