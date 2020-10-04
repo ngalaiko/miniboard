@@ -39,7 +39,7 @@ import FeedService from '../../../services/FeedService.js'
 
         set title(value) {
             if (this.shadowRoot)
-                this.shadowRoot.querySelector('.article__article-title').innerHTML = value
+                this.shadowRoot.querySelector('.article__article-title').innerText = value
         }
 
         set feedid(value) {
@@ -47,7 +47,7 @@ import FeedService from '../../../services/FeedService.js'
                 if (feed.iconUrl !== null)  {
                     this.shadowRoot.querySelector('.article__feed-icon').src = feed.iconUrl
                 } 
-                this.shadowRoot.querySelector('.article__feed-title').innerHTML = feed.title
+                this.shadowRoot.querySelector('.article__feed-title').innerText = feed.title
             })
         }
     }
