@@ -19,16 +19,29 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+type operationTask struct {
+	UserID    string
+	Operation *longrunning.Operation
+	Func      Operation
+}
+
 // Service manages longrunning api operations.
 type Service struct {
 	db *db.DB
+
+	processQueue chan *operationTask
 }
 
 // New returns new service.
-func New(sqldb *sql.DB) *Service {
-	return &Service{
-		db: db.New(sqldb),
+func New(ctx context.Context, sqldb *sql.DB) *Service {
+	s := &Service{
+		db:           db.New(sqldb),
+		processQueue: make(chan *operationTask),
 	}
+	for i := 0; i < 10; i++ {
+		go s.runWorker(ctx)
+	}
+	return s
 }
 
 // Operation is a single long running operation.
@@ -45,16 +58,30 @@ func (s *Service) CreateOperation(ctx context.Context, metadata *any.Any, operat
 		return nil, fmt.Errorf("failed to create operation: %w", err)
 	}
 
-	// todo: wait for graceful shutdown
-	backgroundCtx := actor.NewContext(context.Background(), a.ID)
-
-	go s.runOperation(
-		backgroundCtx, a.ID, &longrunning.Operation{
+	s.processQueue <- &operationTask{
+		UserID: a.ID,
+		Operation: &longrunning.Operation{
 			Name:     operation.Name,
 			Metadata: operation.Metadata,
-		}, operationFunc)
+		},
+		Func: operationFunc,
+	}
 
 	return operation, nil
+}
+
+func (s *Service) runWorker(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case task := <-s.processQueue:
+			log().Debugf("processing %s", task.Operation.Name)
+			backgroundCtx := actor.NewContext(ctx, task.UserID)
+
+			s.runOperation(backgroundCtx, task.UserID, task.Operation, task.Func)
+		}
+	}
 }
 
 func (s *Service) runOperation(ctx context.Context, userID string, operation *longrunning.Operation, operationFunc Operation) {

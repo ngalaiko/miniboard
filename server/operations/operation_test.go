@@ -20,7 +20,7 @@ func Test_Get_done(t *testing.T) {
 	ctx, cancel := context.WithCancel(testContext())
 	defer cancel()
 
-	o := New(testDB(ctx, t))
+	o := New(ctx, testDB(ctx, t))
 
 	f := func(ctx context.Context, operation *longrunning.Operation, status chan<- *longrunning.Operation) error {
 		operation.Done = true
@@ -45,7 +45,7 @@ func Test_Get_panic(t *testing.T) {
 	ctx, cancel := context.WithCancel(testContext())
 	defer cancel()
 
-	o := New(testDB(ctx, t))
+	o := New(ctx, testDB(ctx, t))
 
 	f := func(ctx context.Context, operation *longrunning.Operation, status chan<- *longrunning.Operation) error {
 		panic("test")
@@ -67,7 +67,7 @@ func Test_Get_error(t *testing.T) {
 	ctx, cancel := context.WithCancel(testContext())
 	defer cancel()
 
-	o := New(testDB(ctx, t))
+	o := New(ctx, testDB(ctx, t))
 
 	f := func(ctx context.Context, operation *longrunning.Operation, status chan<- *longrunning.Operation) error {
 		return fmt.Errorf("testError")
@@ -89,7 +89,7 @@ func Test_Get_no_updates(t *testing.T) {
 	ctx, cancel := context.WithCancel(testContext())
 	defer cancel()
 
-	o := New(testDB(ctx, t))
+	o := New(ctx, testDB(ctx, t))
 
 	f := func(ctx context.Context, operation *longrunning.Operation, status chan<- *longrunning.Operation) error {
 		return nil

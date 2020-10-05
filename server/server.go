@@ -67,7 +67,7 @@ func New(
 	feedsService := feeds.NewService(ctx, sqldb, fetcher, articlesService, gofeed.NewParser())
 	codesService := codes.NewService(domain, emailClient, jwtService)
 	tokensService := tokens.NewService(jwtService)
-	operationsService := operations.New(sqldb)
+	operationsService := operations.New(ctx, sqldb)
 	sourcesService := sources.NewService(articlesService, feedsService, operationsService, fetcher)
 
 	gwMux := runtime.NewServeMux(
