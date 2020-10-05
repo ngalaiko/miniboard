@@ -1,5 +1,10 @@
+export const All = {
+    id: 'all',
+    title: 'All Feeds'
+}
+
 class FeedService {
-    cache = []
+    cache = {'all': All}
 
     async get(id) {
         if (this.cache[id] !== undefined) return this.cache[id]
