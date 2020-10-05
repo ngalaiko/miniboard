@@ -14,8 +14,8 @@ import (
 
 	"github.com/ngalaiko/miniboard/server/actor"
 	"github.com/ngalaiko/miniboard/server/db"
+	"github.com/ngalaiko/miniboard/server/feeds/parsers"
 	articles "github.com/ngalaiko/miniboard/server/genproto/articles/v1"
-	"github.com/ngalaiko/miniboard/server/parsers"
 	"github.com/stretchr/testify/assert"
 )
 
