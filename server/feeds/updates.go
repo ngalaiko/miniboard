@@ -9,7 +9,6 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/ngalaiko/miniboard/server/genproto/feeds/v1"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -44,18 +43,13 @@ func (s *Service) updateFeeds(ctx context.Context) error {
 		return fmt.Errorf("failed to load feeds: %w", err)
 	}
 
-	wg, ctx := errgroup.WithContext(ctx)
 	for _, feed := range feeds {
-		feed := feed
-		wg.Go(func() error {
-			if err := s.updateFeed(ctx, feed); err != nil {
-				return fmt.Errorf("failed to update feed: %w", err)
-			}
-			return nil
-		})
+		if err := s.updateFeed(ctx, feed); err != nil {
+			log().Errorf("failed to update feed: %s", err)
+		}
 	}
 
-	return wg.Wait()
+	return nil
 }
 
 func (s *Service) updateFeed(ctx context.Context, feed *feeds.Feed) error {
