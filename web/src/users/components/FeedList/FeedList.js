@@ -36,7 +36,7 @@ import FeedService from '../../services/FeedService.js'
     const _loadFeeds = async (pageToken) => {
         const {feeds, nextPageToken} = await FeedService.list(25, pageToken)
 
-        if (nextPageToken === '') return []
+        if (nextPageToken === '') return feeds
 
         return feeds.concat(await _loadFeeds(nextPageToken))
     }
