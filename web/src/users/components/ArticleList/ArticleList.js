@@ -1,4 +1,5 @@
 import './Article/Article.js'
+import { All as AllFeeds } from '../../services/FeedService.js'
 
 (async () => {
     const res = await fetch('/users/components/ArticleList/ArticleList.html')
@@ -95,7 +96,7 @@ import './Article/Article.js'
         if (self.pageToken === undefined) self.pageToken = ''
 
         let articlesUrl = `/api/v1/articles?page_size=10&page_token=${self.pageToken}`
-        if (feedId) articlesUrl += `&feed_id_eq=${feedId}`
+        if (feedId && feedId !== AllFeeds.id) articlesUrl += `&feed_id_eq=${feedId}`
 
         const response = await fetch(articlesUrl)
 

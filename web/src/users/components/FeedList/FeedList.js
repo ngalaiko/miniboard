@@ -1,5 +1,6 @@
 import './Feed/Feed.js'
 import FeedService from '../../services/FeedService.js'
+import { All as AllFeeds } from '../../services/FeedService.js'
 
 (async () => {
     const res = await fetch('/users/components/FeedList/FeedList.html')
@@ -25,6 +26,8 @@ import FeedService from '../../services/FeedService.js'
         async render() { 
             const ulElement = this.shadowRoot.querySelector('.feed-list__list')
             const feeds = await _loadFeeds()
+
+            feeds.unshift(AllFeeds)
 
             feeds.forEach(feed => {
                 const li = _createFeedElement(this, feed)
