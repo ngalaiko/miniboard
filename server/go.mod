@@ -3,7 +3,7 @@ module github.com/ngalaiko/miniboard/server
 go 1.14
 
 require (
-	github.com/andybalholm/brotli v1.0.0
+	github.com/andybalholm/brotli v1.0.1
 	github.com/go-shiori/go-readability v0.0.0-20190829113304-8630e8f6e148
 	github.com/golang/protobuf v1.4.2
 	github.com/google/go-cmp v0.5.1 // indirect
