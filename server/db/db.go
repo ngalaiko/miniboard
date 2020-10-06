@@ -8,8 +8,6 @@ import (
 	// supported drivers
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
-
-	"github.com/sirupsen/logrus"
 )
 
 // New returns a database instance.
@@ -24,10 +22,4 @@ func New(ctx context.Context, driver string, address string) (*sql.DB, error) {
 	}
 
 	return db, nil
-}
-
-func log() *logrus.Entry {
-	return logrus.WithFields(logrus.Fields{
-		"source": "db",
-	})
 }
