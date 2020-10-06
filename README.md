@@ -6,6 +6,8 @@
 | Command line            | Default                  | Description                                      |
 | ----------------------- | ------------------------ | ------------------------------------------------ |
 | addr                    | :8080                    | Address to listen for connections.               |
+| db-addr                 | db.sqlite                | Database URI to connect to.                      |
+| db-type                 | sqlite3                  | Database type (sqlite3, postgres).               |
 | domain                  | http://localhost:8080    | Service domain.                                  |
 | smtp-host               |                          | SMTP server host.                                |
 | smtp-port               |                          | SMTP server port.                                |
@@ -23,19 +25,12 @@
 
 ## Development
 
-0. Run datababse:
-
-```bash
-$ docker run --name postgres -e POSTGRES_PASSWORD=miniboard -e POSTGRES_DB=miniboard -e POSTGRES_USER=miniboard -p 5432:5432 -d postgres
-```
-
 1. Run server: 
 
 ```bash
 $ cd ./server && go run \ 
     cmd/miniboard/main.go \
-    --static-path=../web/src \
-    --psql-uri "postgres://miniboard:miniboard@localhost/miniboard?sslmode=disable"
+    --static-path=../web/src
 ```
 
 2. Open browser

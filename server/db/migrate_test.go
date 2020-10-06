@@ -14,10 +14,8 @@ func Test_Migrate(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
-	db, err := NewSQLite(tmpFile.Name())
+	_, err = New(context.Background(), "sqlite3", tmpFile.Name())
 	assert.NoError(t, err)
-
-	assert.NoError(t, Migrate(context.Background(), db))
 }
 
 func Test_Migrate_twice(t *testing.T) {
@@ -25,9 +23,9 @@ func Test_Migrate_twice(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
-	db, err := NewSQLite(tmpFile.Name())
+	_, err = New(context.Background(), "sqlite3", tmpFile.Name())
 	assert.NoError(t, err)
 
-	assert.NoError(t, Migrate(context.Background(), db))
-	assert.NoError(t, Migrate(context.Background(), db))
+	_, err = New(context.Background(), "sqlite3", tmpFile.Name())
+	assert.NoError(t, err)
 }

@@ -19,9 +19,8 @@ func Test_Service(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
-	sqlite, err := db.NewSQLite(tmpFile.Name())
+	sqlite, err := db.New(ctx, "sqlite3", tmpFile.Name())
 	assert.NoError(t, err)
-	assert.NoError(t, db.Migrate(ctx, sqlite))
 
 	service := NewService(ctx, sqlite)
 

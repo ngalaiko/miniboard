@@ -120,9 +120,8 @@ func testDB(ctx context.Context, t *testing.T) *sql.DB {
 		os.Remove(tmpFile.Name())
 	}()
 
-	sqlite, err := db.NewSQLite(tmpFile.Name())
+	sqlite, err := db.New(ctx, "sqlite3", tmpFile.Name())
 	assert.NoError(t, err)
-	assert.NoError(t, db.Migrate(ctx, sqlite))
 
 	return sqlite
 }

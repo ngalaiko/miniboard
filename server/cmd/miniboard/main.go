@@ -18,7 +18,8 @@ func main() {
 	domain := flag.String("domain", "http://localhost:8080", "Service domain.")
 	addr := flag.String("addr", ":8080", "Address to listen for connections.")
 
-	psqlURI := flag.String("psql-uri", "", "Postgres URI to connect to.")
+	dbType := flag.String("db-type", "sqlite3", "Database type (sqlite3, postgres).")
+	dbAddr := flag.String("db-addr", "db.sqlite", "Database URI to connect to.")
 
 	sslCert := flag.String("ssl-cert", "", "Path to ssl certificate.")
 	sslKey := flag.String("ssl-key", "", "Path to ssl key.")
@@ -34,13 +35,9 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	postgres, err := db.NewPostgres(*psqlURI)
+	sqldb, err := db.New(ctx, *dbType, *dbAddr)
 	if err != nil {
-		logrus.Fatalf("failed to connect to postgres: %s", err)
-	}
-
-	if err := db.Migrate(ctx, postgres); err != nil {
-		logrus.Fatalf("failed to migrate postgres: %s", err)
+		logrus.Fatalf("%s", err)
 	}
 
 	lis, err := net.Listen("tcp", *addr)
@@ -48,7 +45,7 @@ func main() {
 		logrus.Fatalf("failed to open a connection: %s", err)
 	}
 
-	srv, err := server.New(ctx, postgres, emailClient(*smtpHost, *smtpPort, *smtpSender), *filePath, *domain)
+	srv, err := server.New(ctx, sqldb, emailClient(*smtpHost, *smtpPort, *smtpSender), *filePath, *domain)
 	if err != nil {
 		logrus.Fatalf("failed to create server: %s", err)
 	}
