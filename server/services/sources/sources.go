@@ -18,7 +18,7 @@ import (
 	feeds "github.com/ngalaiko/miniboard/server/genproto/feeds/v1"
 	longrunning "github.com/ngalaiko/miniboard/server/genproto/google/longrunning"
 	sources "github.com/ngalaiko/miniboard/server/genproto/sources/v1"
-	"github.com/ngalaiko/miniboard/server/operations"
+	"github.com/ngalaiko/miniboard/server/services/operations"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

@@ -11,7 +11,7 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/ngalaiko/miniboard/server/actor"
 	longrunning "github.com/ngalaiko/miniboard/server/genproto/google/longrunning"
-	"github.com/ngalaiko/miniboard/server/operations/db"
+	"github.com/ngalaiko/miniboard/server/services/operations/db"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
