@@ -6,23 +6,28 @@ require (
 	github.com/andybalholm/brotli v1.0.1
 	github.com/andybalholm/cascadia v1.2.0 // indirect
 	github.com/go-shiori/go-readability v0.0.0-20190829113304-8630e8f6e148
+	github.com/gobuffalo/packr/v2 v2.8.0
 	github.com/golang/protobuf v1.4.2
 	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.15.0
-	github.com/kr/pretty v0.1.0 // indirect
+	github.com/karrick/godirwalk v1.16.1 // indirect
 	github.com/lib/pq v1.8.0
 	github.com/mattn/go-sqlite3 v1.14.4
 	github.com/mmcdole/gofeed v1.1.0
 	github.com/mmcdole/goxpp v0.0.0-20200921145534-2f3784f67354 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
+	github.com/rogpeppe/go-internal v1.6.2 // indirect
 	github.com/segmentio/ksuid v1.0.3
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spaolacci/murmur3 v1.1.0
 	github.com/stretchr/testify v1.6.1
+	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0 // indirect
 	golang.org/x/net v0.0.0-20201002202402-0a1ea396d57c
-	golang.org/x/sys v0.0.0-20201005172224-997123666555 // indirect
+	golang.org/x/sync v0.0.0-20201008141435-b3e1573b7520 // indirect
+	golang.org/x/sys v0.0.0-20201008064518-c1f3e3309c71 // indirect
 	golang.org/x/text v0.3.3 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/genproto v0.0.0-20200917134801-bb4cff56e0d0
 	google.golang.org/grpc v1.32.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v0.0.0-20200527211525-6c9e30c09db2

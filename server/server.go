@@ -55,7 +55,6 @@ func New(
 	ctx context.Context,
 	sqldb *sql.DB,
 	emailClient email.Client,
-	filePath string,
 	domain string,
 ) (*Server, error) {
 	log("server").Infof("using domain: %s", domain)
@@ -126,7 +125,7 @@ func New(
 	mux.Handle("/api/v1/tokens", gwMux)
 	mux.Handle("/api/v1/codes", gwMux)
 	mux.Handle("/api/", middleware.Authorized(gwMux, jwtService))
-	mux.Handle("/", web.Handler(filePath))
+	mux.Handle("/", web.Handler())
 
 	handler := http.Handler(mux)
 	handler = middleware.WithAccessLogs(handler)

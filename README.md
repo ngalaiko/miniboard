@@ -14,7 +14,6 @@
 | smtp-sender             |                          | SMTP sender.                                     |
 | ssl-cert                |                          | Path to ssl certificate.                         |
 | ssl-key                 |                          | Path to ssl key.                                 |
-| static-path             |                          | Path to static files.
 
 ### Environment variables
 
@@ -29,8 +28,7 @@
 
 ```bash
 $ cd ./server && go run \ 
-    cmd/miniboard/main.go \
-    --static-path=../web/src
+    cmd/miniboard/main.go
 ```
 
 2. Open browser

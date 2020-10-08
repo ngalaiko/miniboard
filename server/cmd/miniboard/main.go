@@ -28,8 +28,6 @@ func main() {
 	smtpPort := flag.String("smtp-port", "", "SMTP server port.")
 	smtpSender := flag.String("smtp-sender", "", "SMTP sender.")
 
-	filePath := flag.String("static-path", "", "Filepath to static files.")
-
 	flag.Parse()
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -45,7 +43,7 @@ func main() {
 		logrus.Fatalf("failed to open a connection: %s", err)
 	}
 
-	srv, err := server.New(ctx, sqldb, emailClient(*smtpHost, *smtpPort, *smtpSender), *filePath, *domain)
+	srv, err := server.New(ctx, sqldb, emailClient(*smtpHost, *smtpPort, *smtpSender), *domain)
 	if err != nil {
 		logrus.Fatalf("failed to create server: %s", err)
 	}

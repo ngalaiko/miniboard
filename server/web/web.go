@@ -3,17 +3,11 @@ package web
 import (
 	"net/http"
 
-	"github.com/sirupsen/logrus"
+	packr "github.com/gobuffalo/packr/v2"
 )
 
 // Handler returns http handler for the UI.
-func Handler(filePath string) http.Handler {
-	log().Infof("filepath: %s", filePath)
-	return http.FileServer(http.Dir(filePath))
-}
-
-func log() *logrus.Entry {
-	return logrus.WithFields(logrus.Fields{
-		"source": "web",
-	})
+func Handler() http.Handler {
+	box := packr.New("src", "../../web/src")
+	return http.FileServer(box)
 }
