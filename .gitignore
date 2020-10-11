@@ -1,11 +1,4 @@
-# test db
-bolt.db
+# terraform 
 
-# node
-node_modules
-
-# yarn
-yarn-error.log
-
-# artifacts
-web/dist
+.terraform
+*tfstate*
