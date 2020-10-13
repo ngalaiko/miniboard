@@ -13,6 +13,13 @@
 
             const instance = HTMLTemplate.content.cloneNode(true)
             shadowRoot.appendChild(instance)
+
+            this.shadowRoot.querySelector('.article-reader__close-button').addEventListener('click', e => {
+                const event = new CustomEvent('CloseClicked', {
+                    bubbles: true,
+                })
+                this.dispatchEvent(event)
+            })
         }
 
         static get observedAttributes() {

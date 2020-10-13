@@ -2,6 +2,7 @@ import FeedService from './services/FeedService.js'
 
 const feedList = document.querySelector('#feed-list')
 
+const controllContainer = document.querySelector('#controll__container')
 const articlesContainer = document.querySelector('#articles-container')
 const articlesBackButton = document.querySelector('#article-list-button')
 const articleList = document.querySelector('#article-list')
@@ -22,6 +23,16 @@ const showFeeds = () => {
     articlesContainer.classList.add('hidden')
 }
 
+const showReader = () => {
+    controllContainer.classList.add('mobile-hidden')
+    articleReader.classList.remove('hidden')
+}
+
+const showControll = () => {
+    controllContainer.classList.remove('mobile-hidden')
+    articleReader.classList.add('hidden')
+}
+
 const loadState = () => {
     const urlParams = new URLSearchParams(window.location.search.slice(1))
     const feedId = urlParams.get('feed')
@@ -29,6 +40,12 @@ const loadState = () => {
 
     articleList.setAttribute('feed', feedId)
     articleReader.setAttribute('article', articleId)
+
+    if (articleId) {
+        showReader()
+    } else {
+        showControll()
+    }
 
     if (feedId) {
         showArticles(feedId)
@@ -64,6 +81,8 @@ const deleteState = (key) => {
 articleList.addEventListener('ArticleSelected', (e) => {
     articleReader.setAttribute('article', e.detail.id)
     storeState('article', e.detail.id)
+
+    showReader()
 })
 
 feedList.addEventListener('FeedSelected', (e) => {
@@ -76,7 +95,15 @@ feedList.addEventListener('FeedSelected', (e) => {
 articlesBackButton.addEventListener('click', (e) => {
     articleList.removeAttribute('feed')
     deleteState('feed')
+
     showFeeds()
+})
+
+articleReader.addEventListener('CloseClicked', (e) => {
+    articleList.removeAttribute('article')
+    deleteState('article')
+
+    showControll()
 })
 
 window.addEventListener('popstate', loadState)

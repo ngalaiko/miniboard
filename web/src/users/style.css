@@ -51,3 +51,16 @@
     width: 0;
     height: 0;
 }
+
+@media screen and (max-width: 414px) {
+    .mobile-hidden {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    #controll__container {
+        min-width: auto;
+        max-width: 100%;
+    }
+}

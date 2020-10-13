@@ -6,6 +6,21 @@
     line-height: 1.4em;
 }
 
+.article-reader__header {
+    justify-content: flex-end;
+    display: flex;
+}
+
+.article-reader__close-button {
+    border: none;
+    background: initial;
+    cursor: pointer;
+}
+
+.article-reader__close-button:active {
+    color: text;
+}
+
 .article-reader__title {
     margin: 0;
     line-height: 1.2em;
