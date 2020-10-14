@@ -5,9 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"io"
 	"io/ioutil"
-	"net/http"
 	"net/url"
 	"os"
 	"testing"
@@ -21,40 +19,16 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func testArticle(replacement string) io.ReadCloser {
-	file, err := os.Open("./testdata/test.html")
-	if err != nil {
-		return nil
-	}
-
-	dd, err := ioutil.ReadAll(file)
-	if err != nil {
-		return nil
-	}
-
-	dd = bytes.Replace(dd, []byte("__RANDOM__"), []byte(replacement), 1)
-
-	return ioutil.NopCloser(bytes.NewBuffer(dd))
-}
-
-type testClient struct{}
-
-func (tc *testClient) Fetch(ctx context.Context, url string) (*http.Response, error) {
-	return &http.Response{
-		StatusCode: http.StatusOK,
-		Body:       testArticle(url),
-	}, nil
-}
-
 func Test_service_Create(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t), &testClient{})
+	service := NewService(testDB(t))
 
 	testURL, _ := url.Parse("http://localhost")
 
 	ts, _ := time.Parse(time.RFC3339, time.RFC3339)
-	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, &ts, nil)
+	resp, err := service.CreateArticle(ctx,
+		ioutil.NopCloser(bytes.NewBuffer([]byte("data"))), testURL, &ts, nil)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, resp.Id)
 	assert.Equal(t, resp.Url, "http://localhost")
@@ -64,14 +38,16 @@ func Test_service_Create(t *testing.T) {
 func Test_service_Create_twice_with_same_content(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t), &testClient{})
+	service := NewService(testDB(t))
 
 	testURL, _ := url.Parse("http://localhost")
 
-	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
+	resp, err := service.CreateArticle(ctx,
+		ioutil.NopCloser(bytes.NewBuffer([]byte("data"))), testURL, nil, nil)
 	assert.NoError(t, err)
 
-	secondResponse, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
+	secondResponse, err := service.CreateArticle(ctx,
+		ioutil.NopCloser(bytes.NewBuffer([]byte("data"))), testURL, nil, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, resp.CreateTime, secondResponse.CreateTime)
 }
@@ -79,14 +55,15 @@ func Test_service_Create_twice_with_same_content(t *testing.T) {
 func Test_service_Create_twice_with_different_content(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t), &testClient{})
-
+	service := NewService(testDB(t))
 	testURL, _ := url.Parse("http://localhost")
 
-	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
+	resp, err := service.CreateArticle(ctx,
+		ioutil.NopCloser(bytes.NewBuffer([]byte("data"))), testURL, nil, nil)
 	assert.NoError(t, err)
 
-	secondResponse, err := service.CreateArticle(ctx, testArticle("new content"), testURL, nil, nil)
+	secondResponse, err := service.CreateArticle(ctx,
+		ioutil.NopCloser(bytes.NewBuffer([]byte("new data"))), testURL, nil, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, resp.CreateTime, secondResponse.CreateTime)
 	assert.Equal(t, resp.Id, secondResponse.Id)
@@ -98,11 +75,12 @@ func Test_service_Create_twice_with_different_content(t *testing.T) {
 func Test_service_Get_basic_view(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t), &testClient{})
+	service := NewService(testDB(t))
 
 	testURL, _ := url.Parse("http://localhost")
 
-	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
+	resp, err := service.CreateArticle(ctx,
+		ioutil.NopCloser(bytes.NewBuffer([]byte("data"))), testURL, nil, nil)
 	assert.NoError(t, err)
 
 	article, err := service.GetArticle(ctx, &articles.GetArticleRequest{
@@ -115,11 +93,12 @@ func Test_service_Get_basic_view(t *testing.T) {
 func Test_service_Get_full_view(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t), &testClient{})
+	service := NewService(testDB(t))
 
 	testURL, _ := url.Parse("http://localhost")
 
-	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
+	resp, err := service.CreateArticle(ctx,
+		ioutil.NopCloser(bytes.NewBuffer([]byte("data"))), testURL, nil, nil)
 	assert.NoError(t, err)
 
 	article, err := service.GetArticle(ctx, &articles.GetArticleRequest{
@@ -133,7 +112,7 @@ func Test_service_Get_full_view(t *testing.T) {
 func Test_service_Get_not_exists(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t), &testClient{})
+	service := NewService(testDB(t))
 
 	article, err := service.GetArticle(ctx, &articles.GetArticleRequest{
 		Id: "404",
@@ -148,11 +127,12 @@ func Test_service_Get_not_exists(t *testing.T) {
 func Test_service_Delete(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t), &testClient{})
+	service := NewService(testDB(t))
 
 	testURL, _ := url.Parse("http://localhost")
 
-	resp, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
+	resp, err := service.CreateArticle(ctx,
+		ioutil.NopCloser(bytes.NewBuffer([]byte("data"))), testURL, nil, nil)
 	assert.NoError(t, err)
 
 	_, deleteErr := service.DeleteArticle(ctx, &articles.DeleteArticleRequest{
@@ -172,11 +152,12 @@ func Test_service_Delete(t *testing.T) {
 func Test_service_List_all(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t), &testClient{})
+	service := NewService(testDB(t))
 
 	for i := 0; i < 50; i++ {
 		testURL, _ := url.Parse(fmt.Sprintf("http://localhost-%d", i))
-		_, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
+		_, err := service.CreateArticle(ctx,
+			ioutil.NopCloser(bytes.NewBuffer([]byte(testURL.String()))), testURL, nil, nil)
 		assert.NoError(t, err)
 	}
 
@@ -191,11 +172,12 @@ func Test_service_List_all(t *testing.T) {
 func Test_service_List_pagination(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t), &testClient{})
+	service := NewService(testDB(t))
 
 	for i := 0; i < 50; i++ {
 		testURL, _ := url.Parse(fmt.Sprintf("http://localhost-%d", i))
-		_, err := service.CreateArticle(ctx, testArticle(testURL.String()), testURL, nil, nil)
+		_, err := service.CreateArticle(ctx,
+			ioutil.NopCloser(bytes.NewBuffer([]byte(testURL.String()))), testURL, nil, nil)
 		assert.NoError(t, err)
 	}
 

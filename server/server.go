@@ -62,7 +62,7 @@ func New(
 	fetcher := fetch.New()
 
 	jwtService := jwt.NewService(ctx, sqldb)
-	articlesService := articles.NewService(sqldb, fetcher)
+	articlesService := articles.NewService(sqldb)
 	feedsService := feeds.NewService(ctx, sqldb, fetcher, articlesService, gofeed.NewParser())
 	codesService := codes.NewService(domain, emailClient, jwtService)
 	tokensService := tokens.NewService(jwtService)

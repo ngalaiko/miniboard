@@ -15,7 +15,6 @@ import (
 	empty "github.com/golang/protobuf/ptypes/empty"
 	wrappers "github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/ngalaiko/miniboard/server/actor"
-	"github.com/ngalaiko/miniboard/server/fetch"
 	articles "github.com/ngalaiko/miniboard/server/genproto/articles/v1"
 	"github.com/ngalaiko/miniboard/server/services/articles/db"
 	"github.com/ngalaiko/miniboard/server/services/articles/reader"
@@ -29,14 +28,12 @@ import (
 // Service controls articles resource.
 type Service struct {
 	storage *db.DB
-	client  fetch.Fetcher
 }
 
 // NewService returns a new articles service instance.
-func NewService(sqldb *sql.DB, fetcher fetch.Fetcher) *Service {
+func NewService(sqldb *sql.DB) *Service {
 	return &Service{
 		storage: db.New(sqldb),
-		client:  fetcher,
 	}
 }
 
@@ -95,18 +92,13 @@ func (s *Service) CreateArticle(
 		return nil, status.Errorf(codes.Internal, "failed to convert timestamp")
 	}
 
-	var content []byte
-
-	r, err := reader.NewFromReader(ctx, s.client, body, articleURL)
+	content, title, err := reader.FromReader(body, articleURL.String())
 	if err == nil {
-		article.Title = r.Title()
-		content = r.Content()
+		article.Title = title
 	}
 
 	urlHash := murmur3.New128()
 	_, _ = urlHash.Write([]byte(article.Url))
-
-	// timestamp order == lexicographical order
 
 	// ksuid margin to "never" hit the limit
 	var ksuidTimeMargin = 1000 * 30 * 24 * time.Hour

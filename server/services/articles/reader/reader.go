@@ -2,30 +2,21 @@ package reader
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"io"
-	"net/url"
 	"sync"
 
 	"github.com/go-shiori/go-readability"
-	"github.com/ngalaiko/miniboard/server/fetch"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
 
-// Reader returns simplified HTML content.
-type Reader struct {
-	article *readability.Article
-	url     *url.URL
-	content []byte
-}
-
-// NewFromReader returns new reader from io.Reader.
-func NewFromReader(ctx context.Context, client fetch.Fetcher, raw io.Reader, url *url.URL) (*Reader, error) {
-	article, err := readability.FromReader(raw, url.String())
+// FromReader returns new reader from io.Reader.
+// returns content, title and an error
+func FromReader(raw io.Reader, url string) ([]byte, string, error) {
+	article, err := readability.FromReader(raw, url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse document: %w", err)
+		return nil, "", fmt.Errorf("failed to parse document: %w", err)
 	}
 
 	wg := &sync.WaitGroup{}
@@ -47,14 +38,10 @@ func NewFromReader(ctx context.Context, client fetch.Fetcher, raw io.Reader, url
 
 	b := &bytes.Buffer{}
 	if err := html.Render(b, article.Node); err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return &Reader{
-		article: &article,
-		url:     url,
-		content: b.Bytes(),
-	}, nil
+	return b.Bytes(), article.Title, nil
 }
 
 func bfs(node *html.Node, forEach func(*html.Node) bool) {
@@ -69,24 +56,4 @@ func bfs(node *html.Node, forEach func(*html.Node) bool) {
 		bfs(n, forEach)
 		n = n.NextSibling
 	}
-}
-
-// Title returns the page title.
-func (r *Reader) Title() (title string) {
-	return r.article.Title
-}
-
-// SiteName returns name of source website.
-func (r *Reader) SiteName() string {
-	return r.article.SiteName
-}
-
-// Content returns page content.
-func (r *Reader) Content() []byte {
-	return r.content
-}
-
-// IconURL returns a link to the first page favicon.
-func (r *Reader) IconURL() string {
-	return r.article.Favicon
 }
