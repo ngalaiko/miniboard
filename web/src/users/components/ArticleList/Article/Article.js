@@ -23,7 +23,7 @@ import FeedService from '../../../services/FeedService.js'
 
 
         static get observedAttributes() {
-            return ['title', 'feedid']
+            return ['title', 'feedid', 'createtime']
         }
 
         attributeChangedCallback(attribute, oldValue, newValue) {
@@ -34,6 +34,18 @@ import FeedService from '../../../services/FeedService.js'
             case 'feedid':
                 this.feedid = newValue
                 break
+            case 'createtime':
+                this.createtime = newValue
+                break
+            }
+        }
+
+        set createtime(value) {
+            if (this.shadowRoot) {
+                const date = Date.parse(value)
+                const now = performance.timing.navigationStart + performance.now()
+                const secondsSince = ~~((now - date) / 1000 )
+                this.shadowRoot.querySelector('.article__time').innerText = _timeAgo(secondsSince)
             }
         }
 
@@ -50,6 +62,25 @@ import FeedService from '../../../services/FeedService.js'
                 this.shadowRoot.querySelector('.article__feed-title').innerText = feed.title
             })
         }
+    }
+
+    const _timeAgo = (seconds) =>  {
+        let minutes = ~~(seconds / 60)
+        if (minutes == 0) return `${seconds}s`
+
+        let hours = ~~(minutes / 60)
+        if (hours == 0) return `${minutes}m`
+
+        let days = ~~(hours / 24)
+        if (days == 0) return `${hours}h`
+
+        let weeks = ~~(days / 7)
+        if (weeks == 0) return `${days}d`
+
+        let years = ~~(days / 365)
+        if (years == 0) return `${weeks}w`
+
+        return `${years}y`
     }
 
     customElements.define('x-article', Article)

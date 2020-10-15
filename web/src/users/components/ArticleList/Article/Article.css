@@ -9,9 +9,16 @@
     background: #cccccc;
 }
 
+.article__header {
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .article__feed-container {
     display: inline-flex;
     align-items: center;
+    max-width: 80%;
 }
 
 .article__feed-icon {
@@ -30,4 +37,8 @@
 
 .article__article-title {
     margin: 0.1em;
+}
+
+.article__time {
+    font-size: smaller;
 }
