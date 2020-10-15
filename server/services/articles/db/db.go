@@ -246,7 +246,7 @@ func (db *DB) List(ctx context.Context, request *articles.ListArticlesRequest) (
 
 	args = append(args, request.PageSize)
 	q.WriteString(fmt.Sprintf(`
-		ORDER BY id DESC
+		ORDER BY create_time DESC
 		LIMIT $%d
 	`, len(args)))
 

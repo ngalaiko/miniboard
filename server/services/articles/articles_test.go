@@ -176,8 +176,9 @@ func Test_service_List_pagination(t *testing.T) {
 
 	for i := 0; i < 50; i++ {
 		testURL, _ := url.Parse(fmt.Sprintf("http://localhost-%d", i))
+		ts := time.Now().Add(-1 * time.Hour).Add(time.Duration(i) * time.Minute)
 		_, err := service.CreateArticle(ctx,
-			ioutil.NopCloser(bytes.NewBuffer([]byte(testURL.String()))), testURL, nil, nil)
+			ioutil.NopCloser(bytes.NewBuffer([]byte(testURL.String()))), testURL, &ts, nil)
 		assert.NoError(t, err)
 	}
 
