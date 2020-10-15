@@ -191,7 +191,7 @@ func (db *DB) List(ctx context.Context, userID string, request *feeds.ListFeedsR
 		WHERE
 			user_id = $1
 			AND id >= $2
-		ORDER BY id ASC
+		ORDER BY title ASC
 		LIMIT $3
 	`, userID, from, request.PageSize)
 	if err != nil {
