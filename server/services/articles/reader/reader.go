@@ -6,15 +6,26 @@ import (
 	"io"
 	"sync"
 
-	"github.com/go-shiori/go-readability"
+	readability "github.com/go-shiori/go-readability"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 )
 
-// FromReader returns new reader from io.Reader.
-// returns content, title and an error
-func FromReader(raw io.Reader, url string) ([]byte, string, error) {
-	article, err := readability.FromReader(raw, url)
+// Reader wraps readability parser.
+type Reader struct {
+	parser readability.Parser
+}
+
+// New returns a new readability reader.
+func New() *Reader {
+	return &Reader{
+		parser: readability.NewParser(),
+	}
+}
+
+// Parse returns ewadable contant of a page.
+func (r *Reader) Parse(raw io.Reader, url string) ([]byte, string, error) {
+	article, err := r.parser.Parse(raw, url)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to parse document: %w", err)
 	}

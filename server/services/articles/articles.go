@@ -28,12 +28,14 @@ import (
 // Service controls articles resource.
 type Service struct {
 	storage *db.DB
+	reader  *reader.Reader
 }
 
 // NewService returns a new articles service instance.
 func NewService(sqldb *sql.DB) *Service {
 	return &Service{
 		storage: db.New(sqldb),
+		reader:  reader.New(),
 	}
 }
 
@@ -92,7 +94,7 @@ func (s *Service) CreateArticle(
 		return nil, status.Errorf(codes.Internal, "failed to convert timestamp")
 	}
 
-	content, title, err := reader.FromReader(body, articleURL.String())
+	content, title, err := s.reader.Parse(body, articleURL.String())
 	if err == nil {
 		article.Title = title
 	}
