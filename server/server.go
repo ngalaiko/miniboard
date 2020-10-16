@@ -147,31 +147,29 @@ func New(
 func (s *Server) Serve(ctx context.Context, lis net.Listener, tlsConfig *TLSConfig) error {
 	log("http").Infof("starting server on %s", lis.Addr())
 
-	idleConnsClosed := make(chan struct{})
-
-	go func() {
-		<-ctx.Done()
-		log("http").Infof("stopping server")
-		if err := s.httpServer.Shutdown(context.Background()); err != nil {
-			log("http").Errorf("error stopping server: %s", err)
-		}
-		close(idleConnsClosed)
-	}()
-
 	switch tlsConfig != nil && tlsConfig.valid() {
 	case true:
 		log("http").Infof("tls cert: %s", tlsConfig.CertPath)
 		log("http").Infof("tls key: %s", tlsConfig.KeyPath)
-		if err := s.httpServer.ServeTLS(lis, tlsConfig.CertPath, tlsConfig.KeyPath); err != nil {
+		if err := s.httpServer.ServeTLS(lis, tlsConfig.CertPath, tlsConfig.KeyPath); err != http.ErrServerClosed {
 			return fmt.Errorf("failed to start tls http server: %w", err)
 		}
 	case false:
-		if err := s.httpServer.Serve(lis); err != nil {
+		if err := s.httpServer.Serve(lis); err != http.ErrServerClosed {
 			return fmt.Errorf("failed to start http server: %w", err)
 		}
 	}
 
-	<-idleConnsClosed
+	return nil
+}
+
+// Shutdown gracefully stops the server.
+func (s *Server) Shutdown(ctx context.Context) error {
+	log("http").Infof("stopping server")
+
+	if err := s.httpServer.Shutdown(ctx); err != nil {
+		return fmt.Errorf("error stopping server: %w", err)
+	}
 
 	return nil
 }

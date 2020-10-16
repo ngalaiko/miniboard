@@ -5,6 +5,9 @@ import (
 	"flag"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/ngalaiko/miniboard/server"
 	"github.com/ngalaiko/miniboard/server/db"
@@ -48,11 +51,27 @@ func main() {
 		logrus.Fatalf("failed to create server: %s", err)
 	}
 
+	errCh := make(chan error)
+	go func() {
+		shutdownCh := make(chan os.Signal)
+		signal.Notify(shutdownCh, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGINT)
+		<-shutdownCh
+
+		shutdownTimeout := 30 * time.Second
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+		defer cancel()
+		errCh <- srv.Shutdown(shutdownCtx)
+	}()
+
 	if err := srv.Serve(ctx, lis, &server.TLSConfig{
 		CertPath: *sslCert,
 		KeyPath:  *sslKey,
 	}); err != nil {
 		logrus.Fatalf("failed to start the server: %s", err)
+	}
+
+	if err := <-errCh; err != nil {
+		logrus.Fatalf("error during shutdown: %s", err)
 	}
 }
 
