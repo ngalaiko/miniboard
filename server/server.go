@@ -4,178 +4,61 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"net"
-	"net/http"
-	"time"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/mmcdole/gofeed"
+	"github.com/ngalaiko/miniboard/server/api"
 	"github.com/ngalaiko/miniboard/server/email"
 	"github.com/ngalaiko/miniboard/server/fetch"
-	articlesv1 "github.com/ngalaiko/miniboard/server/genproto/articles/v1"
-	codesv1 "github.com/ngalaiko/miniboard/server/genproto/codes/v1"
-	feedsv1 "github.com/ngalaiko/miniboard/server/genproto/feeds/v1"
-	longrunning "github.com/ngalaiko/miniboard/server/genproto/google/longrunning"
-	sourcesv1 "github.com/ngalaiko/miniboard/server/genproto/sources/v1"
-	tokensv1 "github.com/ngalaiko/miniboard/server/genproto/tokens/v1"
 	"github.com/ngalaiko/miniboard/server/jwt"
-	"github.com/ngalaiko/miniboard/server/middleware"
-	"github.com/ngalaiko/miniboard/server/services/articles"
-	"github.com/ngalaiko/miniboard/server/services/codes"
-	"github.com/ngalaiko/miniboard/server/services/feeds"
-	"github.com/ngalaiko/miniboard/server/services/operations"
-	"github.com/ngalaiko/miniboard/server/services/sources"
-	"github.com/ngalaiko/miniboard/server/services/tokens"
-	"github.com/ngalaiko/miniboard/server/web"
-	"github.com/sirupsen/logrus"
-	"golang.org/x/net/http2"
 )
-
-// todo: make it shorter
-const authDuration = 28 * 24 * time.Hour
-
-// TLSConfig contains ssl certificates.
-type TLSConfig struct {
-	CertPath string
-	KeyPath  string
-}
-
-func (cfg *TLSConfig) valid() bool {
-	return cfg.CertPath != "" || cfg.KeyPath != ""
-}
 
 // Server is the api server.
 type Server struct {
-	httpServer *http.Server
+	httpAPI *api.HTTP
+}
+
+// Config contains server configuration.
+type Config struct {
+	HTTP *api.HTTPConfig
 }
 
 // New creates new api server.
 func New(
 	ctx context.Context,
+	cfg *Config,
 	sqldb *sql.DB,
 	emailClient email.Client,
 	domain string,
 ) (*Server, error) {
-	log("server").Infof("using domain: %s", domain)
+	if cfg == nil {
+		cfg = &Config{}
+	}
 
 	fetcher := fetch.New()
-
 	jwtService := jwt.NewService(ctx, sqldb)
-	articlesService := articles.NewService(sqldb)
-	feedsService := feeds.NewService(ctx, sqldb, fetcher, articlesService, gofeed.NewParser())
-	codesService := codes.NewService(domain, emailClient, jwtService)
-	tokensService := tokens.NewService(jwtService)
-	operationsService := operations.New(ctx, sqldb)
-	sourcesService := sources.NewService(articlesService, feedsService, operationsService, fetcher)
 
-	gwMux := runtime.NewServeMux(
-		runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
-			OrigName:     false,
-			EmitDefaults: true,
-		}),
-		runtime.WithForwardResponseOption(func(ctx context.Context, rw http.ResponseWriter, msg proto.Message) error {
-			if token, ok := msg.(*tokensv1.Token); ok {
-				http.SetCookie(rw, &http.Cookie{
-					Name:     middleware.AuthCookie,
-					Value:    token.Token,
-					Path:     "/",
-					Expires:  time.Now().Add(authDuration),
-					HttpOnly: true,
-				})
-			}
-			return nil
-		}),
-	)
-
-	if err := articlesv1.RegisterArticlesServiceHandlerServer(ctx, gwMux, articlesService); err != nil {
-		return nil, fmt.Errorf("failed to register articles http handler: %w", err)
-	}
-
-	if err := tokensv1.RegisterTokensServiceHandlerServer(ctx, gwMux, tokensService); err != nil {
-		return nil, fmt.Errorf("failed to register tokens http handler: %w", err)
-	}
-
-	if err := codesv1.RegisterCodesServiceHandlerServer(ctx, gwMux, codesService); err != nil {
-		return nil, fmt.Errorf("failed to register codes http handler: %w", err)
-	}
-
-	if err := sourcesv1.RegisterSourcesServiceHandlerServer(ctx, gwMux, sourcesService); err != nil {
-		return nil, fmt.Errorf("failed to register sources http handler: %w", err)
-	}
-
-	if err := feedsv1.RegisterFeedsServiceHandlerServer(ctx, gwMux, feedsService); err != nil {
-		return nil, fmt.Errorf("failed to register feeds http handler: %w", err)
-	}
-
-	if err := longrunning.RegisterOperationsHandlerServer(ctx, gwMux, operationsService); err != nil {
-		return nil, fmt.Errorf("failed to register operations http handler: %w", err)
-	}
-
-	mux := http.NewServeMux()
-	mux.Handle("/logout", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.SetCookie(w, &http.Cookie{
-			Name:     middleware.AuthCookie,
-			Path:     "/",
-			MaxAge:   -1,
-			HttpOnly: true,
-		})
-	}))
-
-	mux.Handle("/api/v1/tokens", gwMux)
-	mux.Handle("/api/v1/codes", gwMux)
-	mux.Handle("/api/", middleware.Authorized(gwMux, jwtService))
-	mux.Handle("/", web.Handler())
-
-	handler := http.Handler(mux)
-	handler = middleware.WithAccessLogs(handler)
-	handler = middleware.WithCompression(handler)
-	handler = middleware.WithRecover(handler)
-	httpServer := &http.Server{
-		Handler: handler,
-	}
-	if err := http2.ConfigureServer(httpServer, nil); err != nil {
-		return nil, fmt.Errorf("can't configure http: %w", err)
+	httpAPI, err := api.NewHTTP(ctx, cfg.HTTP, sqldb, fetcher, domain, emailClient, jwtService)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create http api: %w", err)
 	}
 
 	return &Server{
-		httpServer: httpServer,
+		httpAPI: httpAPI,
 	}, nil
 }
 
 // Serve starts the server.
-func (s *Server) Serve(ctx context.Context, lis net.Listener, tlsConfig *TLSConfig) error {
-	log("http").Infof("starting server on %s", lis.Addr())
-
-	switch tlsConfig != nil && tlsConfig.valid() {
-	case true:
-		log("http").Infof("tls cert: %s", tlsConfig.CertPath)
-		log("http").Infof("tls key: %s", tlsConfig.KeyPath)
-		if err := s.httpServer.ServeTLS(lis, tlsConfig.CertPath, tlsConfig.KeyPath); err != http.ErrServerClosed {
-			return fmt.Errorf("failed to start tls http server: %w", err)
-		}
-	case false:
-		if err := s.httpServer.Serve(lis); err != http.ErrServerClosed {
-			return fmt.Errorf("failed to start http server: %w", err)
-		}
+func (s *Server) Serve(ctx context.Context) error {
+	if err := s.httpAPI.ListenAndServe(ctx); err != nil {
+		return fmt.Errorf("failed to start http api: %w", err)
 	}
-
 	return nil
 }
 
 // Shutdown gracefully stops the server.
 func (s *Server) Shutdown(ctx context.Context) error {
-	log("http").Infof("stopping server")
-
-	if err := s.httpServer.Shutdown(ctx); err != nil {
-		return fmt.Errorf("error stopping server: %w", err)
+	if err := s.httpAPI.Shutdown(ctx); err != nil {
+		return fmt.Errorf("error stopping http api: %w", err)
 	}
 
 	return nil
-}
-
-func log(src string) *logrus.Entry {
-	return logrus.WithFields(logrus.Fields{
-		"source": src,
-	})
 }

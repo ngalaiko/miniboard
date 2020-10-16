@@ -13,12 +13,12 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/any"
+	"github.com/ngalaiko/miniboard/server/api/operations"
 	"github.com/ngalaiko/miniboard/server/fetch"
 	articles "github.com/ngalaiko/miniboard/server/genproto/articles/v1"
 	feeds "github.com/ngalaiko/miniboard/server/genproto/feeds/v1"
 	longrunning "github.com/ngalaiko/miniboard/server/genproto/google/longrunning"
 	sources "github.com/ngalaiko/miniboard/server/genproto/sources/v1"
-	"github.com/ngalaiko/miniboard/server/services/operations"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

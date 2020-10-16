@@ -13,9 +13,9 @@ import (
 	"time"
 
 	"github.com/ngalaiko/miniboard/server/actor"
+	"github.com/ngalaiko/miniboard/server/api/feeds/parsers"
 	"github.com/ngalaiko/miniboard/server/db"
 	articles "github.com/ngalaiko/miniboard/server/genproto/articles/v1"
-	"github.com/ngalaiko/miniboard/server/services/feeds/parsers"
 	"github.com/stretchr/testify/assert"
 )
 

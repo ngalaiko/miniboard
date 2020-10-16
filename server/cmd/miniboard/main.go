@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	"flag"
-	"net"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/ngalaiko/miniboard/server"
+	"github.com/ngalaiko/miniboard/server/api"
 	"github.com/ngalaiko/miniboard/server/db"
 	"github.com/ngalaiko/miniboard/server/email"
 	"github.com/ngalaiko/miniboard/server/email/disabled"
@@ -41,12 +41,14 @@ func main() {
 		logrus.Fatalf("%s", err)
 	}
 
-	lis, err := net.Listen("tcp", *addr)
-	if err != nil {
-		logrus.Fatalf("failed to open a connection: %s", err)
-	}
-
-	srv, err := server.New(ctx, sqldb, emailClient(*smtpHost, *smtpPort, *smtpSender), *domain)
+	srv, err := server.New(ctx, &server.Config{
+		HTTP: &api.HTTPConfig{
+			Addr: *addr,
+			TLS: &api.TLSConfig{
+				CertPath: *sslCert,
+				KeyPath:  *sslKey,
+			}},
+	}, sqldb, emailClient(*smtpHost, *smtpPort, *smtpSender), *domain)
 	if err != nil {
 		logrus.Fatalf("failed to create server: %s", err)
 	}
@@ -63,10 +65,7 @@ func main() {
 		errCh <- srv.Shutdown(shutdownCtx)
 	}()
 
-	if err := srv.Serve(ctx, lis, &server.TLSConfig{
-		CertPath: *sslCert,
-		KeyPath:  *sslKey,
-	}); err != nil {
+	if err := srv.Serve(ctx); err != nil {
 		logrus.Fatalf("failed to start the server: %s", err)
 	}
 
