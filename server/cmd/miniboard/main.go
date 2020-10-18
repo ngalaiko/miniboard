@@ -12,8 +12,6 @@ import (
 	"github.com/ngalaiko/miniboard/server/api"
 	"github.com/ngalaiko/miniboard/server/db"
 	"github.com/ngalaiko/miniboard/server/email"
-	"github.com/ngalaiko/miniboard/server/email/disabled"
-	"github.com/ngalaiko/miniboard/server/email/smtp"
 	"github.com/sirupsen/logrus"
 )
 
@@ -27,8 +25,7 @@ func main() {
 	sslCert := flag.String("ssl-cert", "", "Path to ssl certificate.")
 	sslKey := flag.String("ssl-key", "", "Path to ssl key.")
 
-	smtpHost := flag.String("smtp-host", "", "SMTP server host.")
-	smtpPort := flag.String("smtp-port", "", "SMTP server port.")
+	smtpAddr := flag.String("smtp-host", "", "SMTP server address.")
 	smtpSender := flag.String("smtp-sender", "", "SMTP sender.")
 
 	flag.Parse()
@@ -49,7 +46,14 @@ func main() {
 			Driver: *dbType,
 			Addr:   *dbAddr,
 		},
-	}, emailClient(*smtpHost, *smtpPort, *smtpSender))
+		Email: &email.Config{
+			Enabled:  *smtpAddr != "",
+			Addr:     *smtpAddr,
+			From:     *smtpSender,
+			Username: os.Getenv("SMTP_USERNAME"),
+			Password: os.Getenv("SMTP_PASSWORD"),
+		},
+	})
 	if err != nil {
 		logrus.Fatalf("failed to create server: %s", err)
 	}
@@ -73,17 +77,4 @@ func main() {
 	if err := <-errCh; err != nil {
 		logrus.Fatalf("error during shutdown: %s", err)
 	}
-}
-
-func emailClient(host, port, sender string) email.Client {
-	if host == "" {
-		return disabled.New()
-	}
-	return smtp.New(
-		host,
-		port,
-		sender,
-		os.Getenv("SMTP_USERNAME"),
-		os.Getenv("SMTP_PASSWORD"),
-	)
 }

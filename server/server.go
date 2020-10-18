@@ -18,15 +18,15 @@ type Server struct {
 
 // Config contains server configuration.
 type Config struct {
-	HTTP *api.HTTPConfig
-	DB   *db.Config
+	HTTP  *api.HTTPConfig
+	DB    *db.Config
+	Email *email.Config
 }
 
 // New creates new api server.
 func New(
 	ctx context.Context,
 	cfg *Config,
-	emailClient email.Client,
 ) (*Server, error) {
 	if cfg == nil {
 		cfg = &Config{}
@@ -35,6 +35,11 @@ func New(
 	sqldb, err := db.New(ctx, cfg.DB)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create db: %w", err)
+	}
+
+	emailClient, err := email.New(cfg.Email)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create email client: %w", err)
 	}
 
 	fetcher := fetch.New()

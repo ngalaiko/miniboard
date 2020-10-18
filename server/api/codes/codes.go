@@ -6,7 +6,6 @@ import (
 	"io"
 	"time"
 
-	"github.com/ngalaiko/miniboard/server/email"
 	codes "github.com/ngalaiko/miniboard/server/genproto/codes/v1"
 	"github.com/ngalaiko/miniboard/server/jwt"
 	"github.com/sirupsen/logrus"
@@ -15,17 +14,21 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+type emailSender interface {
+	Send(to string, subject string, payload string) error
+}
+
 // Service implements codes service.
 type Service struct {
 	domain      string
 	jwt         *jwt.Service
-	emailClient email.Client
+	emailClient emailSender
 }
 
 // NewService returns new serice instance.
 func NewService(
 	domain string,
-	emailClient email.Client,
+	emailClient emailSender,
 	jwt *jwt.Service,
 ) *Service {
 	return &Service{

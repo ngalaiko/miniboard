@@ -9,8 +9,7 @@
 | db-addr                 | db.sqlite                | Database URI to connect to.                      |
 | db-type                 | sqlite3                  | Database type (sqlite3, postgres).               |
 | domain                  | http://localhost:8080    | Service domain.                                  |
-| smtp-host               |                          | SMTP server host.                                |
-| smtp-port               |                          | SMTP server port.                                |
+| smtp-addr               |                          | SMTP server address.                             |
 | smtp-sender             |                          | SMTP sender.                                     |
 | ssl-cert                |                          | Path to ssl certificate.                         |
 | ssl-key                 |                          | Path to ssl key.                                 |
