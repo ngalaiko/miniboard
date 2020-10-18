@@ -2,10 +2,10 @@ package server
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 
 	"github.com/ngalaiko/miniboard/server/api"
+	"github.com/ngalaiko/miniboard/server/db"
 	"github.com/ngalaiko/miniboard/server/email"
 	"github.com/ngalaiko/miniboard/server/fetch"
 	"github.com/ngalaiko/miniboard/server/jwt"
@@ -19,24 +19,28 @@ type Server struct {
 // Config contains server configuration.
 type Config struct {
 	HTTP *api.HTTPConfig
+	DB   *db.Config
 }
 
 // New creates new api server.
 func New(
 	ctx context.Context,
 	cfg *Config,
-	sqldb *sql.DB,
 	emailClient email.Client,
-	domain string,
 ) (*Server, error) {
 	if cfg == nil {
 		cfg = &Config{}
 	}
 
+	sqldb, err := db.New(ctx, cfg.DB)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create db: %w", err)
+	}
+
 	fetcher := fetch.New()
 	jwtService := jwt.NewService(ctx, sqldb)
 
-	httpAPI, err := api.NewHTTP(ctx, cfg.HTTP, sqldb, fetcher, domain, emailClient, jwtService)
+	httpAPI, err := api.NewHTTP(ctx, cfg.HTTP, sqldb, fetcher, emailClient, jwtService)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create http api: %w", err)
 	}

@@ -54,8 +54,9 @@ func (cfg *TLSConfig) valid() bool {
 
 // HTTPConfig is the http api configuration.
 type HTTPConfig struct {
-	Addr string
-	TLS  *TLSConfig
+	Domain string
+	Addr   string
+	TLS    *TLSConfig
 }
 
 // HTTP exposes http api.
@@ -65,13 +66,13 @@ type HTTP struct {
 }
 
 // NewHTTP returns new http api.
-func NewHTTP(ctx context.Context, cfg *HTTPConfig, sqldb *sql.DB, fetcher fetcher, domain string, emailClient emailSender, jwtService *jwt.Service) (*HTTP, error) {
+func NewHTTP(ctx context.Context, cfg *HTTPConfig, sqldb *sql.DB, fetcher fetcher, emailClient emailSender, jwtService *jwt.Service) (*HTTP, error) {
 	if cfg == nil {
 		cfg = &HTTPConfig{}
 	}
 	articlesService := articles.NewService(sqldb)
 	feedsService := feeds.NewService(ctx, sqldb, fetcher, articlesService, gofeed.NewParser())
-	codesService := codes.NewService(domain, emailClient, jwtService)
+	codesService := codes.NewService(cfg.Domain, emailClient, jwtService)
 	tokensService := tokens.NewService(jwtService)
 	operationsService := operations.New(ctx, sqldb)
 	sourcesService := sources.NewService(articlesService, feedsService, operationsService, fetcher)

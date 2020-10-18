@@ -36,19 +36,20 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	sqldb, err := db.New(ctx, *dbType, *dbAddr)
-	if err != nil {
-		logrus.Fatalf("%s", err)
-	}
-
 	srv, err := server.New(ctx, &server.Config{
 		HTTP: &api.HTTPConfig{
 			Addr: *addr,
 			TLS: &api.TLSConfig{
 				CertPath: *sslCert,
 				KeyPath:  *sslKey,
-			}},
-	}, sqldb, emailClient(*smtpHost, *smtpPort, *smtpSender), *domain)
+			},
+			Domain: *domain,
+		},
+		DB: &db.Config{
+			Driver: *dbType,
+			Addr:   *dbAddr,
+		},
+	}, emailClient(*smtpHost, *smtpPort, *smtpSender))
 	if err != nil {
 		logrus.Fatalf("failed to create server: %s", err)
 	}

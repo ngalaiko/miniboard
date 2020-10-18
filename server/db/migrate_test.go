@@ -14,7 +14,10 @@ func Test_Migrate(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
-	_, err = New(context.Background(), "sqlite3", tmpFile.Name())
+	_, err = New(context.Background(), &Config{
+		Driver: "sqlite3",
+		Addr:   tmpFile.Name(),
+	})
 	assert.NoError(t, err)
 }
 
@@ -23,9 +26,15 @@ func Test_Migrate_twice(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
-	_, err = New(context.Background(), "sqlite3", tmpFile.Name())
+	_, err = New(context.Background(), &Config{
+		Driver: "sqlite3",
+		Addr:   tmpFile.Name(),
+	})
 	assert.NoError(t, err)
 
-	_, err = New(context.Background(), "sqlite3", tmpFile.Name())
+	_, err = New(context.Background(), &Config{
+		Driver: "sqlite3",
+		Addr:   tmpFile.Name(),
+	})
 	assert.NoError(t, err)
 }
