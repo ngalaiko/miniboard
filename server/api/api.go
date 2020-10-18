@@ -11,7 +11,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/mmcdole/gofeed"
-	"github.com/sirupsen/logrus"
 
 	articlesv1 "github.com/ngalaiko/miniboard/server/genproto/articles/v1"
 	codesv1 "github.com/ngalaiko/miniboard/server/genproto/codes/v1"
@@ -35,6 +34,11 @@ const authDuration = 28 * 24 * time.Hour
 
 type fetcher interface {
 	Fetch(context.Context, string) (*http.Response, error)
+}
+
+type logger interface {
+	Info(string, ...interface{})
+	Error(string, ...interface{})
 }
 
 type emailSender interface {
@@ -61,19 +65,28 @@ type HTTPConfig struct {
 // HTTP exposes http api.
 type HTTP struct {
 	cfg    *HTTPConfig
+	logger logger
 	server *http.Server
 }
 
 // NewHTTP returns new http api.
-func NewHTTP(ctx context.Context, cfg *HTTPConfig, sqldb *sql.DB, fetcher fetcher, emailClient emailSender, jwtService *jwt.Service) (*HTTP, error) {
+func NewHTTP(
+	ctx context.Context,
+	cfg *HTTPConfig,
+	logger logger,
+	sqldb *sql.DB,
+	fetcher fetcher,
+	emailClient emailSender,
+	jwtService *jwt.Service,
+) (*HTTP, error) {
 	if cfg == nil {
 		cfg = &HTTPConfig{}
 	}
-	articlesService := articles.NewService(sqldb)
-	feedsService := feeds.NewService(ctx, sqldb, fetcher, articlesService, gofeed.NewParser())
-	codesService := codes.NewService(cfg.Domain, emailClient, jwtService)
-	tokensService := tokens.NewService(jwtService)
-	operationsService := operations.New(ctx, sqldb)
+	articlesService := articles.NewService(logger, sqldb)
+	feedsService := feeds.NewService(ctx, logger, sqldb, fetcher, articlesService, gofeed.NewParser())
+	codesService := codes.NewService(logger, cfg.Domain, emailClient, jwtService)
+	tokensService := tokens.NewService(logger, jwtService)
+	operationsService := operations.New(ctx, logger, sqldb)
 	sourcesService := sources.NewService(articlesService, feedsService, operationsService, fetcher)
 
 	gwMux := runtime.NewServeMux(
@@ -135,16 +148,17 @@ func NewHTTP(ctx context.Context, cfg *HTTPConfig, sqldb *sql.DB, fetcher fetche
 	mux.Handle("/", web.Handler())
 
 	handler := http.Handler(mux)
-	handler = withAccessLogs(handler)
+	handler = withAccessLogs(logger, handler)
 	handler = withCompression(handler)
-	handler = withRecover(handler)
+	handler = withRecover(logger, handler)
 
 	addr := "0.0.0.0:8080"
 	if cfg.Addr != "" {
 		addr = cfg.Addr
 	}
 	return &HTTP{
-		cfg: cfg,
+		cfg:    cfg,
+		logger: logger,
 		server: &http.Server{
 			Addr:    addr,
 			Handler: handler,
@@ -172,7 +186,7 @@ func NewHTTP(ctx context.Context, cfg *HTTPConfig, sqldb *sql.DB, fetcher fetche
 
 // ListenAndServe stars http server.
 func (h *HTTP) ListenAndServe(ctx context.Context) error {
-	log("http").Infof("starting server on %s", h.server.Addr)
+	h.logger.Info("starting server on %s", h.server.Addr)
 
 	if h.cfg.TLS.valid() {
 		if err := h.server.ListenAndServeTLS(h.cfg.TLS.CertPath, h.cfg.TLS.KeyPath); err != http.ErrServerClosed {
@@ -188,17 +202,11 @@ func (h *HTTP) ListenAndServe(ctx context.Context) error {
 
 // Shutdown gracefully stops the api.
 func (h *HTTP) Shutdown(ctx context.Context) error {
-	log("http").Infof("stopping server")
+	h.logger.Info("stopping server")
 
 	if err := h.server.Shutdown(ctx); err == context.DeadlineExceeded {
 		return fmt.Errorf("timeout exceeded while waiting on HTTP shutdown")
 	}
 
 	return nil
-}
-
-func log(src string) *logrus.Entry {
-	return logrus.WithFields(logrus.Fields{
-		"source": src,
-	})
 }

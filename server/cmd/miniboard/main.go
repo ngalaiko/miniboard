@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -12,7 +13,6 @@ import (
 	"github.com/ngalaiko/miniboard/server/api"
 	"github.com/ngalaiko/miniboard/server/db"
 	"github.com/ngalaiko/miniboard/server/email"
-	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -55,7 +55,7 @@ func main() {
 		},
 	})
 	if err != nil {
-		logrus.Fatalf("failed to create server: %s", err)
+		log.Fatalf("failed to create server: %s", err)
 	}
 
 	errCh := make(chan error)
@@ -71,10 +71,10 @@ func main() {
 	}()
 
 	if err := srv.Serve(ctx); err != nil {
-		logrus.Fatalf("failed to start the server: %s", err)
+		log.Fatalf("failed to start the server: %s", err)
 	}
 
 	if err := <-errCh; err != nil {
-		logrus.Fatalf("error during shutdown: %s", err)
+		log.Fatalf("error during shutdown: %s", err)
 	}
 }

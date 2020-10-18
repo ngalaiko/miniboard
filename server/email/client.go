@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/smtp"
 	"net/url"
-
-	"github.com/sirupsen/logrus"
 )
 
 // Config contains email client configuration.
@@ -17,14 +15,20 @@ type Config struct {
 	Password string
 }
 
+type logger interface {
+	Info(string, ...interface{})
+	Warn(string, ...interface{})
+}
+
 // Client is used to send emails.
 type Client struct {
-	auth smtp.Auth
-	cfg  *Config
+	logger logger
+	auth   smtp.Auth
+	cfg    *Config
 }
 
 // New returns new email client.
-func New(cfg *Config) (*Client, error) {
+func New(cfg *Config, logger logger) (*Client, error) {
 	if cfg == nil {
 		cfg = &Config{}
 	}
@@ -38,7 +42,7 @@ func New(cfg *Config) (*Client, error) {
 		return nil, fmt.Errorf("invalid address: %w", err)
 	}
 
-	log().Infof("using %s smtp client", addr)
+	logger.Info("using %s smtp client", addr)
 
 	return &Client{
 		auth: smtp.PlainAuth(
@@ -61,7 +65,7 @@ func (c *Client) Send(to string, subject string, payload string) error {
 		to, subject, payload))
 
 	if !c.cfg.Enabled {
-		log().Warnf("outgoing email: %s", msg)
+		c.logger.Warn("outgoing email: %s", msg)
 		return nil
 	}
 
@@ -75,10 +79,4 @@ func (c *Client) Send(to string, subject string, payload string) error {
 		return fmt.Errorf("failed to send email: %w", err)
 	}
 	return nil
-}
-
-func log() *logrus.Entry {
-	return logrus.WithFields(logrus.Fields{
-		"source": "email",
-	})
 }

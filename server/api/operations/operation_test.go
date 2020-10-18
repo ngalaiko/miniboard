@@ -20,7 +20,7 @@ func Test_Get_done(t *testing.T) {
 	ctx, cancel := context.WithCancel(testContext())
 	defer cancel()
 
-	o := New(ctx, testDB(ctx, t))
+	o := New(ctx, &testLogger{}, testDB(ctx, t))
 
 	f := func(ctx context.Context, operation *longrunning.Operation, status chan<- *longrunning.Operation) error {
 		operation.Done = true
@@ -45,7 +45,7 @@ func Test_Get_panic(t *testing.T) {
 	ctx, cancel := context.WithCancel(testContext())
 	defer cancel()
 
-	o := New(ctx, testDB(ctx, t))
+	o := New(ctx, &testLogger{}, testDB(ctx, t))
 
 	f := func(ctx context.Context, operation *longrunning.Operation, status chan<- *longrunning.Operation) error {
 		panic("test")
@@ -67,7 +67,7 @@ func Test_Get_error(t *testing.T) {
 	ctx, cancel := context.WithCancel(testContext())
 	defer cancel()
 
-	o := New(ctx, testDB(ctx, t))
+	o := New(ctx, &testLogger{}, testDB(ctx, t))
 
 	f := func(ctx context.Context, operation *longrunning.Operation, status chan<- *longrunning.Operation) error {
 		return fmt.Errorf("testError")
@@ -89,7 +89,7 @@ func Test_Get_no_updates(t *testing.T) {
 	ctx, cancel := context.WithCancel(testContext())
 	defer cancel()
 
-	o := New(ctx, testDB(ctx, t))
+	o := New(ctx, &testLogger{}, testDB(ctx, t))
 
 	f := func(ctx context.Context, operation *longrunning.Operation, status chan<- *longrunning.Operation) error {
 		return nil
@@ -128,3 +128,7 @@ func testDB(ctx context.Context, t *testing.T) *sql.DB {
 
 	return sqlite
 }
+
+type testLogger struct{}
+
+func (l *testLogger) Error(string, ...interface{}) {}

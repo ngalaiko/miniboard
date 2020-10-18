@@ -22,7 +22,7 @@ import (
 func Test_service_Create(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t))
+	service := NewService(&testLogger{}, testDB(t))
 
 	testURL, _ := url.Parse("http://localhost")
 
@@ -38,7 +38,7 @@ func Test_service_Create(t *testing.T) {
 func Test_service_Create_twice_with_same_content(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t))
+	service := NewService(&testLogger{}, testDB(t))
 
 	testURL, _ := url.Parse("http://localhost")
 
@@ -55,7 +55,7 @@ func Test_service_Create_twice_with_same_content(t *testing.T) {
 func Test_service_Create_twice_with_different_content(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t))
+	service := NewService(&testLogger{}, testDB(t))
 	testURL, _ := url.Parse("http://localhost")
 
 	resp, err := service.CreateArticle(ctx,
@@ -75,7 +75,7 @@ func Test_service_Create_twice_with_different_content(t *testing.T) {
 func Test_service_Get_basic_view(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t))
+	service := NewService(&testLogger{}, testDB(t))
 
 	testURL, _ := url.Parse("http://localhost")
 
@@ -93,7 +93,7 @@ func Test_service_Get_basic_view(t *testing.T) {
 func Test_service_Get_full_view(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t))
+	service := NewService(&testLogger{}, testDB(t))
 
 	testURL, _ := url.Parse("http://localhost")
 
@@ -112,7 +112,7 @@ func Test_service_Get_full_view(t *testing.T) {
 func Test_service_Get_not_exists(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t))
+	service := NewService(&testLogger{}, testDB(t))
 
 	article, err := service.GetArticle(ctx, &articles.GetArticleRequest{
 		Id: "404",
@@ -127,7 +127,7 @@ func Test_service_Get_not_exists(t *testing.T) {
 func Test_service_Delete(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t))
+	service := NewService(&testLogger{}, testDB(t))
 
 	testURL, _ := url.Parse("http://localhost")
 
@@ -152,7 +152,7 @@ func Test_service_Delete(t *testing.T) {
 func Test_service_List_all(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t))
+	service := NewService(&testLogger{}, testDB(t))
 
 	for i := 0; i < 50; i++ {
 		testURL, _ := url.Parse(fmt.Sprintf("http://localhost-%d", i))
@@ -172,7 +172,7 @@ func Test_service_List_all(t *testing.T) {
 func Test_service_List_pagination(t *testing.T) {
 	ctx := testContext()
 
-	service := NewService(testDB(t))
+	service := NewService(&testLogger{}, testDB(t))
 
 	for i := 0; i < 50; i++ {
 		testURL, _ := url.Parse(fmt.Sprintf("http://localhost-%d", i))
@@ -223,3 +223,7 @@ func testDB(t *testing.T) *sql.DB {
 func testContext() context.Context {
 	return actor.NewContext(context.Background(), "user_id")
 }
+
+type testLogger struct{}
+
+func (l *testLogger) Error(string, ...interface{}) {}

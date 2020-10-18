@@ -32,7 +32,7 @@ func Test_feeds_Create_with_items(t *testing.T) {
 		},
 	}
 	testArticles := &testArticles{}
-	service := NewService(ctx, testDB(t), &testClient{}, testArticles, &testParser{feed: parsedFeed})
+	service := NewService(ctx, &testLogger{}, testDB(t), &testClient{}, testArticles, &testParser{feed: parsedFeed})
 
 	url, _ := url.Parse("http://localhost")
 
@@ -94,3 +94,9 @@ func testDB(t *testing.T) *sql.DB {
 
 	return sqlite
 }
+
+type testLogger struct{}
+
+func (l *testLogger) Error(string, ...interface{}) {}
+
+func (l *testLogger) Info(string, ...interface{}) {}

@@ -9,6 +9,7 @@ import (
 	"github.com/ngalaiko/miniboard/server/email"
 	"github.com/ngalaiko/miniboard/server/fetch"
 	"github.com/ngalaiko/miniboard/server/jwt"
+	"github.com/ngalaiko/miniboard/server/logger"
 )
 
 // Server is the api server.
@@ -32,20 +33,26 @@ func New(
 		cfg = &Config{}
 	}
 
+	logger := logger.New()
+
 	sqldb, err := db.New(ctx, cfg.DB)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create db: %w", err)
 	}
 
-	emailClient, err := email.New(cfg.Email)
+	emailClient, err := email.New(cfg.Email, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create email client: %w", err)
 	}
 
 	fetcher := fetch.New()
-	jwtService := jwt.NewService(ctx, sqldb)
 
-	httpAPI, err := api.NewHTTP(ctx, cfg.HTTP, sqldb, fetcher, emailClient, jwtService)
+	jwtService, err := jwt.NewService(ctx, logger, sqldb)
+	if err != nil {
+		return nil, fmt.Errorf("faied to create jwt service: %w", err)
+	}
+
+	httpAPI, err := api.NewHTTP(ctx, cfg.HTTP, logger, sqldb, fetcher, emailClient, jwtService)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create http api: %w", err)
 	}

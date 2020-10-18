@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -15,14 +14,20 @@ import (
 // todo: make it shorter
 const authDuration = 28 * 24 * time.Hour
 
+type logger interface {
+	Error(string, ...interface{})
+}
+
 // Service implements tokens service.
 type Service struct {
+	logger     logger
 	jwtService *jwt.Service
 }
 
 // NewService returns new serice instance.
-func NewService(jwt *jwt.Service) *Service {
+func NewService(logger logger, jwt *jwt.Service) *Service {
 	return &Service{
+		logger:     logger,
 		jwtService: jwt,
 	}
 }
@@ -36,16 +41,11 @@ func (s *Service) CreateToken(ctx context.Context, request *tokens.CreateTokenRe
 
 	token, err := s.jwtService.NewToken(subject, authDuration, "access_token")
 	if err != nil {
-		log("tokens").Errorf("failed to generate token :%s", err)
+		s.logger.Error("failed to generate token :%s", err)
 		return nil, status.New(codes.InvalidArgument, "failed to generate token").Err()
 	}
 
 	return &tokens.Token{
 		Token: token,
 	}, nil
-}
-func log(src string) *logrus.Entry {
-	return logrus.WithFields(logrus.Fields{
-		"source": src,
-	})
 }

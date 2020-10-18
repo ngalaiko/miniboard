@@ -25,7 +25,8 @@ func Test_Service(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	service := NewService(ctx, sqlite)
+	service, err := NewService(ctx, &testLogger{}, sqlite)
+	assert.NoError(t, err)
 
 	t.Run("When creating a token", func(t *testing.T) {
 		testSubject := "test subject"
@@ -50,3 +51,9 @@ func Test_Service(t *testing.T) {
 		})
 	})
 }
+
+type testLogger struct{}
+
+func (l *testLogger) Info(string, ...interface{}) {}
+
+func (l *testLogger) Error(string, ...interface{}) {}

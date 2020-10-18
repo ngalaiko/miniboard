@@ -14,7 +14,6 @@ import (
 
 	"github.com/ngalaiko/miniboard/server/jwt/db"
 	"github.com/segmentio/ksuid"
-	"github.com/sirupsen/logrus"
 	jose "gopkg.in/square/go-jose.v2"
 	"gopkg.in/square/go-jose.v2/jwt"
 )
@@ -23,9 +22,15 @@ const (
 	defaultIssuer = "github.com/ngalaiko/miniboard/server"
 )
 
+type logger interface {
+	Info(string, ...interface{})
+	Error(string, ...interface{})
+}
+
 // Service issues and validates jwt tokens.
 type Service struct {
 	keyStorage *db.DB
+	logger     logger
 
 	rotationInterval time.Duration
 	expiryInterval   time.Duration
@@ -39,8 +44,9 @@ type customClaims struct {
 }
 
 // NewService creates new jwt service instance.
-func NewService(ctx context.Context, sqldb *sql.DB) *Service {
+func NewService(ctx context.Context, logger logger, sqldb *sql.DB) (*Service, error) {
 	s := &Service{
+		logger:           logger,
 		keyStorage:       db.New(sqldb),
 		signerGuard:      &sync.RWMutex{},
 		rotationInterval: 2 * time.Hour,
@@ -48,13 +54,13 @@ func NewService(ctx context.Context, sqldb *sql.DB) *Service {
 	}
 
 	if err := s.newSigner(ctx); err != nil {
-		log().Errorf("failed to generate encryption key: %s", err)
+		return nil, fmt.Errorf("failed to generate encryption key: %s", err)
 	}
 
 	go s.rotateKeys(ctx)
 	go s.cleanupOldKeys(ctx)
 
-	return s
+	return s, nil
 }
 
 func (s *Service) newSigner(ctx context.Context) error {
@@ -76,7 +82,7 @@ func (s *Service) newSigner(ctx context.Context) error {
 	if err := s.keyStorage.Create(ctx, publicKey); err != nil {
 		return err
 	}
-	log().Infof("%s: new encryption key", publicKey.ID)
+	s.logger.Info("%s: new encryption key", publicKey.ID)
 
 	options := (&jose.SignerOptions{}).
 		WithHeader("kid", publicKey.ID).
@@ -187,7 +193,7 @@ func (s *Service) rotateKeys(ctx context.Context) {
 			return
 		case <-timer.C:
 			if err := s.newSigner(ctx); err != nil {
-				log().Errorf("failed to rotate keys: %s", err)
+				s.logger.Error("failed to rotate keys: %s", err)
 			}
 		}
 	}
@@ -201,7 +207,7 @@ func (s *Service) cleanupOldKeys(ctx context.Context) {
 			return
 		case <-timer.C:
 			if err := s.deleteOldKeys(ctx); err != nil {
-				log().Errorf("failed to delete keys: %s", err)
+				s.logger.Error("failed to delete keys: %s", err)
 			}
 		}
 	}
@@ -217,7 +223,7 @@ func (s *Service) deleteOldKeys(ctx context.Context) error {
 	for _, k := range kk {
 		ksID, err := ksuid.Parse(k.ID)
 		if err != nil {
-			log().Errorf("%s: malformed kuid", k.ID)
+			s.logger.Error("%s: malformed kuid", k.ID)
 			continue
 		}
 
@@ -225,17 +231,11 @@ func (s *Service) deleteOldKeys(ctx context.Context) error {
 			continue
 		}
 		if err := s.keyStorage.Delete(ctx, k.ID); err != nil {
-			log().Errorf("%s: can't delete key: %s", k.ID, err)
+			s.logger.Error("%s: can't delete key: %s", k.ID, err)
 			continue
 		}
-		log().Infof("%s: key removed", k.ID)
+		s.logger.Info("%s: key removed", k.ID)
 	}
 
 	return nil
-}
-
-func log() *logrus.Entry {
-	return logrus.WithFields(logrus.Fields{
-		"source": "jwt",
-	})
 }

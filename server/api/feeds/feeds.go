@@ -33,9 +33,15 @@ type parser interface {
 	Parse(feed io.Reader) (*parsers.Feed, error)
 }
 
+type logger interface {
+	Info(string, ...interface{})
+	Error(string, ...interface{})
+}
+
 // Service is a Feeds service.
 type Service struct {
 	storage *db.DB
+	logger  logger
 
 	parser          parser
 	articlesService articlesService
@@ -43,8 +49,9 @@ type Service struct {
 }
 
 // NewService creates feeds service.
-func NewService(ctx context.Context, sqldb *sql.DB, fetcher fetch.Fetcher, articlesService articlesService, parser parser) *Service {
+func NewService(ctx context.Context, logger logger, sqldb *sql.DB, fetcher fetch.Fetcher, articlesService articlesService, parser parser) *Service {
 	s := &Service{
+		logger:          logger,
 		articlesService: articlesService,
 		parser:          parser,
 		storage:         db.New(sqldb),
@@ -89,7 +96,7 @@ func (s *Service) ListFeeds(ctx context.Context, request *feeds.ListFeedsRequest
 			NextPageToken: nextPageToken,
 		}, nil
 	default:
-		log().Error(err)
+		s.logger.Error("%s", err)
 		return nil, status.Errorf(codes.Internal, "failed to list feeds")
 	}
 }
@@ -126,7 +133,7 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 
 	for _, item := range items {
 		if err := s.saveItem(ctx, item, feed); err != nil {
-			log().Errorf("failed to save item %s: %s", item.Link, err)
+			s.logger.Error("failed to save item %s: %s", item.Link, err)
 			continue
 		}
 	}
@@ -161,7 +168,7 @@ func (s *Service) parse(reader io.Reader, feed *feeds.Feed) ([]*parsers.Item, er
 	for _, item := range parsedFeed.Items {
 		updatedTime := latestTimestamp(item.UpdatedParsed, item.PublishedParsed)
 		if updatedTime.Before(lastFetched.Add(-1 * updateLeeway)) {
-			log().Infof("skipping item %s from %s: updated at %s", item.Link, feed.Id, updatedTime)
+			s.logger.Info("skipping item %s from %s: updated at %s", item.Link, feed.Id, updatedTime)
 			continue
 		}
 

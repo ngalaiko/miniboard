@@ -19,23 +19,28 @@ import (
 	"github.com/ngalaiko/miniboard/server/api/articles/reader"
 	articles "github.com/ngalaiko/miniboard/server/genproto/articles/v1"
 	"github.com/segmentio/ksuid"
-	"github.com/sirupsen/logrus"
 	"github.com/spaolacci/murmur3"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
+type logger interface {
+	Error(string, ...interface{})
+}
+
 // Service controls articles resource.
 type Service struct {
 	storage *db.DB
 	reader  *reader.Reader
+	logger  logger
 }
 
 // NewService returns a new articles service instance.
-func NewService(sqldb *sql.DB) *Service {
+func NewService(logger logger, sqldb *sql.DB) *Service {
 	return &Service{
 		storage: db.New(sqldb),
 		reader:  reader.New(),
+		logger:  logger,
 	}
 }
 
@@ -57,7 +62,7 @@ func (s *Service) ListArticles(ctx context.Context, request *articles.ListArticl
 			NextPageToken: nextPageToken,
 		}, nil
 	default:
-		log().Error(err)
+		s.logger.Error(err.Error())
 		return nil, status.Errorf(codes.Internal, "failed to list articles")
 	}
 }
@@ -126,7 +131,7 @@ func (s *Service) CreateArticle(
 		existing.Content = article.Content
 
 		if err := s.storage.Update(ctx, existing, actor.ID); err != nil {
-			log().Error(err)
+			s.logger.Error(err.Error())
 			return nil, status.Errorf(codes.Internal, "failed to store the article")
 		}
 
@@ -134,7 +139,7 @@ func (s *Service) CreateArticle(
 	}
 
 	if err := s.storage.Create(ctx, article); err != nil {
-		log().Error(err)
+		s.logger.Error(err.Error())
 		return nil, status.Errorf(codes.Internal, "failed to store the article")
 	}
 
@@ -211,10 +216,4 @@ func (s *Service) DeleteArticle(ctx context.Context, request *articles.DeleteArt
 	}
 
 	return &empty.Empty{}, nil
-}
-
-func log() *logrus.Entry {
-	return logrus.WithFields(logrus.Fields{
-		"source": "articles",
-	})
 }

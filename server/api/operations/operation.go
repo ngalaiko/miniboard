@@ -13,7 +13,6 @@ import (
 	"github.com/ngalaiko/miniboard/server/api/operations/db"
 	longrunning "github.com/ngalaiko/miniboard/server/genproto/google/longrunning"
 	"github.com/segmentio/ksuid"
-	"github.com/sirupsen/logrus"
 	rpcstatus "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -25,18 +24,24 @@ type operationTask struct {
 	Func      Operation
 }
 
+type logger interface {
+	Error(string, ...interface{})
+}
+
 // Service manages longrunning api operations.
 type Service struct {
-	db *db.DB
+	db     *db.DB
+	logger logger
 
 	processQueue chan *operationTask
 }
 
 // New returns new service.
-func New(ctx context.Context, sqldb *sql.DB) *Service {
+func New(ctx context.Context, logger logger, sqldb *sql.DB) *Service {
 	s := &Service{
 		db:           db.New(sqldb),
 		processQueue: make(chan *operationTask),
+		logger:       logger,
 	}
 	for i := 0; i < 10; i++ {
 		go s.runWorker(ctx)
@@ -76,7 +81,6 @@ func (s *Service) runWorker(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case task := <-s.processQueue:
-			log().Debugf("processing %s", task.Operation.Name)
 			backgroundCtx := actor.NewContext(ctx, task.UserID)
 
 			s.runOperation(backgroundCtx, task.UserID, task.Operation, task.Func)
@@ -91,7 +95,7 @@ func (s *Service) runOperation(ctx context.Context, userID string, operation *lo
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
-				log().Errorf("panic: %s", r)
+				s.logger.Error("panic: %s", r)
 				operation.Result = &longrunning.Operation_Error{
 					Error: &rpcstatus.Status{
 						Code:    int32(codes.Internal),
@@ -100,7 +104,7 @@ func (s *Service) runOperation(ctx context.Context, userID string, operation *lo
 				}
 				operation.Done = true
 				if err := s.db.Update(ctx, userID, operation); err != nil {
-					log().Errorf("failed to update operation: %s", err)
+					s.logger.Error("failed to update operation: %s", err)
 				}
 			}
 		}()
@@ -120,7 +124,7 @@ func (s *Service) runOperation(ctx context.Context, userID string, operation *lo
 		case status := <-statusChan:
 			lastStatus = status
 			if err := s.db.Update(ctx, userID, status); err != nil {
-				log().Errorf("failed to update operation: %s", err)
+				s.logger.Error("failed to update operation: %s", err)
 			}
 		case err := <-errChan:
 			switch {
@@ -145,7 +149,7 @@ func (s *Service) runOperation(ctx context.Context, userID string, operation *lo
 			}
 
 			if err := s.db.Update(ctx, userID, operation); err != nil {
-				log().Errorf("failed to update operation: %s", err)
+				s.logger.Error("failed to update operation: %s", err)
 			}
 		}
 	}
@@ -184,10 +188,4 @@ func (s *Service) CancelOperation(ctx context.Context, in *longrunning.CancelOpe
 // WaitOperation waits until operations is done, and then returns an operation.
 func (s *Service) WaitOperation(ctx context.Context, in *longrunning.WaitOperationRequest) (*longrunning.Operation, error) {
 	return nil, status.Errorf(codes.Unimplemented, "not implemented")
-}
-
-func log() *logrus.Entry {
-	return logrus.WithFields(logrus.Fields{
-		"source": "operations",
-	})
 }

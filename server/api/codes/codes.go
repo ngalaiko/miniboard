@@ -8,7 +8,6 @@ import (
 
 	codes "github.com/ngalaiko/miniboard/server/genproto/codes/v1"
 	"github.com/ngalaiko/miniboard/server/jwt"
-	"github.com/sirupsen/logrus"
 	"github.com/spaolacci/murmur3"
 	responsecodes "google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -18,8 +17,13 @@ type emailSender interface {
 	Send(to string, subject string, payload string) error
 }
 
+type logger interface {
+	Error(string, ...interface{})
+}
+
 // Service implements codes service.
 type Service struct {
+	logger      logger
 	domain      string
 	jwt         *jwt.Service
 	emailClient emailSender
@@ -27,11 +31,13 @@ type Service struct {
 
 // NewService returns new serice instance.
 func NewService(
+	logger logger,
 	domain string,
 	emailClient emailSender,
 	jwt *jwt.Service,
 ) *Service {
 	return &Service{
+		logger:      logger,
 		domain:      domain,
 		emailClient: emailClient,
 		jwt:         jwt,
@@ -61,15 +67,9 @@ Link: %s
 
 	go func(msg string) {
 		if err := s.emailClient.Send(request.Email, "Authentication link", msg); err != nil {
-			log("codes").Error(err)
+			s.logger.Error("%s", err)
 		}
 	}(msg)
 
 	return &codes.Code{}, nil
-}
-
-func log(src string) *logrus.Entry {
-	return logrus.WithFields(logrus.Fields{
-		"source": src,
-	})
 }

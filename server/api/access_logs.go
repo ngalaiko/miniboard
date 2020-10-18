@@ -3,8 +3,6 @@ package api
 import (
 	"net/http"
 	"time"
-
-	"github.com/sirupsen/logrus"
 )
 
 type loggingResponseWriter struct {
@@ -22,7 +20,7 @@ func (lrw *loggingResponseWriter) WriteHeader(code int) {
 }
 
 // withAccessLogs adds access logging.
-func withAccessLogs(h http.Handler) http.Handler {
+func withAccessLogs(logger logger, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -30,12 +28,6 @@ func withAccessLogs(h http.Handler) http.Handler {
 
 		h.ServeHTTP(wl, r)
 
-		log("access").WithFields(logrus.Fields{
-			"method":   r.Method,
-			"path":     r.URL.String(),
-			"ts":       start.Format(time.RFC3339),
-			"duration": time.Since(start),
-			"status":   wl.statusCode,
-		}).Info()
+		logger.Info("%d %s %s %s", wl.statusCode, r.Method, r.URL.String(), time.Since(start))
 	})
 }
