@@ -1,4 +1,4 @@
-package middleware
+package api
 
 import (
 	"net/http"
@@ -7,14 +7,14 @@ import (
 	"github.com/ngalaiko/miniboard/server/jwt"
 )
 
-// AuthCookie is the name of authorization cookie
-const AuthCookie = "auth"
+// authCookie is the name of authorization cookie
+const authCookie = "auth"
 
-// Authorized adds authorization check.
-func Authorized(handler http.Handler, jwtService *jwt.Service) http.Handler {
+// authorized adds authorization check.
+func authorized(handler http.Handler, jwtService *jwt.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		for _, cookie := range r.Cookies() {
-			if cookie.Name != AuthCookie {
+			if cookie.Name != authCookie {
 				continue
 			}
 

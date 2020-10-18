@@ -27,7 +27,6 @@ import (
 	"github.com/ngalaiko/miniboard/server/api/sources"
 	"github.com/ngalaiko/miniboard/server/api/tokens"
 	"github.com/ngalaiko/miniboard/server/jwt"
-	"github.com/ngalaiko/miniboard/server/middleware"
 	"github.com/ngalaiko/miniboard/server/web"
 )
 
@@ -85,7 +84,7 @@ func NewHTTP(ctx context.Context, cfg *HTTPConfig, sqldb *sql.DB, fetcher fetche
 		runtime.WithForwardResponseOption(func(ctx context.Context, rw http.ResponseWriter, msg proto.Message) error {
 			if token, ok := msg.(*tokensv1.Token); ok {
 				http.SetCookie(rw, &http.Cookie{
-					Name:     middleware.AuthCookie,
+					Name:     authCookie,
 					Value:    token.Token,
 					Path:     "/",
 					Expires:  time.Now().Add(authDuration),
@@ -123,7 +122,7 @@ func NewHTTP(ctx context.Context, cfg *HTTPConfig, sqldb *sql.DB, fetcher fetche
 	mux := http.NewServeMux()
 	mux.Handle("/logout", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, &http.Cookie{
-			Name:     middleware.AuthCookie,
+			Name:     authCookie,
 			Path:     "/",
 			MaxAge:   -1,
 			HttpOnly: true,
@@ -132,13 +131,13 @@ func NewHTTP(ctx context.Context, cfg *HTTPConfig, sqldb *sql.DB, fetcher fetche
 
 	mux.Handle("/api/v1/tokens", gwMux)
 	mux.Handle("/api/v1/codes", gwMux)
-	mux.Handle("/api/", middleware.Authorized(gwMux, jwtService))
+	mux.Handle("/api/", authorized(gwMux, jwtService))
 	mux.Handle("/", web.Handler())
 
 	handler := http.Handler(mux)
-	handler = middleware.WithAccessLogs(handler)
-	handler = middleware.WithCompression(handler)
-	handler = middleware.WithRecover(handler)
+	handler = withAccessLogs(handler)
+	handler = withCompression(handler)
+	handler = withRecover(handler)
 
 	addr := "0.0.0.0:8080"
 	if cfg.Addr != "" {

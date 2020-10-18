@@ -1,4 +1,4 @@
-package middleware
+package api
 
 import (
 	"net/http"
@@ -6,8 +6,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// WithRecover adds recovery.
-func WithRecover(h http.Handler) http.Handler {
+// withRecover adds recovery.
+func withRecover(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if r := recover(); r != nil {
