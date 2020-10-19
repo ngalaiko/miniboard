@@ -22,7 +22,7 @@ func Test_Service(t *testing.T) {
 	sqlite, err := db.New(ctx, &db.Config{
 		Driver: "sqlite3",
 		Addr:   tmpFile.Name(),
-	})
+	}, &testLogger{})
 	assert.NoError(t, err)
 
 	service, err := NewService(ctx, &testLogger{}, sqlite)

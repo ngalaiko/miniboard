@@ -123,12 +123,14 @@ func testDB(ctx context.Context, t *testing.T) *sql.DB {
 	sqlite, err := db.New(ctx, &db.Config{
 		Driver: "sqlite3",
 		Addr:   tmpFile.Name(),
-	})
+	}, &testLogger{})
 	assert.NoError(t, err)
 
 	return sqlite
 }
 
 type testLogger struct{}
+
+func (l *testLogger) Info(string, ...interface{}) {}
 
 func (l *testLogger) Error(string, ...interface{}) {}

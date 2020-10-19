@@ -157,7 +157,11 @@ func testDB(t *testing.T) *sql.DB {
 	db, err := db.New(ctx, &db.Config{
 		Driver: "sqlite3",
 		Addr:   tmpFile.Name(),
-	})
+	}, &testLogger{})
 	assert.NoError(t, err)
 	return db
 }
+
+type testLogger struct{}
+
+func (l *testLogger) Info(string, ...interface{}) {}

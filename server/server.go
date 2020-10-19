@@ -35,7 +35,7 @@ func New(
 
 	logger := logger.New()
 
-	sqldb, err := db.New(ctx, cfg.DB)
+	sqldb, err := db.New(ctx, cfg.DB, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create db: %w", err)
 	}

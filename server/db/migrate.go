@@ -7,7 +7,7 @@ import (
 )
 
 // migrate prepares database scheme.
-func migrate(ctx context.Context, db *sql.DB) error {
+func migrate(ctx context.Context, db *sql.DB, logger logger) error {
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("failed to start transaction: %w", err)
@@ -26,6 +26,7 @@ func migrate(ctx context.Context, db *sql.DB) error {
 		if _, ok := applied[m.Name]; ok {
 			continue
 		}
+		logger.Info("applying migration '%s'", m.Name)
 		if _, err := tx.ExecContext(ctx, m.Query); err != nil {
 			return fmt.Errorf("failed to apply %s: %w", m.Name, err)
 		}

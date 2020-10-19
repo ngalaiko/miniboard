@@ -17,7 +17,7 @@ func Test_Migrate(t *testing.T) {
 	_, err = New(context.Background(), &Config{
 		Driver: "sqlite3",
 		Addr:   tmpFile.Name(),
-	})
+	}, &testLogger{})
 	assert.NoError(t, err)
 }
 
@@ -29,12 +29,16 @@ func Test_Migrate_twice(t *testing.T) {
 	_, err = New(context.Background(), &Config{
 		Driver: "sqlite3",
 		Addr:   tmpFile.Name(),
-	})
+	}, &testLogger{})
 	assert.NoError(t, err)
 
 	_, err = New(context.Background(), &Config{
 		Driver: "sqlite3",
 		Addr:   tmpFile.Name(),
-	})
+	}, &testLogger{})
 	assert.NoError(t, err)
 }
+
+type testLogger struct{}
+
+func (l *testLogger) Info(string, ...interface{}) {}

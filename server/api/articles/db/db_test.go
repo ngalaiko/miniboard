@@ -338,7 +338,7 @@ func testDB(t *testing.T) *sql.DB {
 	sqlite, err := db.New(ctx, &db.Config{
 		Driver: "sqlite3",
 		Addr:   tmpFile.Name(),
-	})
+	}, &testLogger{})
 	assert.NoError(t, err)
 
 	return sqlite
@@ -360,3 +360,7 @@ func article() *articles.Article {
 func testContext() context.Context {
 	return actor.NewContext(context.Background(), "user_id")
 }
+
+type testLogger struct{}
+
+func (tl *testLogger) Info(string, ...interface{}) {}

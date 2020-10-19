@@ -10,6 +10,10 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+type logger interface {
+	Info(string, ...interface{})
+}
+
 // Config contains database configuration.
 type Config struct {
 	Driver string
@@ -17,13 +21,15 @@ type Config struct {
 }
 
 // New returns a database instance.
-func New(ctx context.Context, cfg *Config) (*sql.DB, error) {
+func New(ctx context.Context, cfg *Config, logger logger) (*sql.DB, error) {
 	db, err := sql.Open(cfg.Driver, cfg.Addr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	if err := migrate(ctx, db); err != nil {
+	logger.Info("connected to %s", cfg.Driver)
+
+	if err := migrate(ctx, db, logger); err != nil {
 		return nil, fmt.Errorf("failed to apply migrations: %w", err)
 	}
 
