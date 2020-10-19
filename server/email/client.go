@@ -34,7 +34,10 @@ func New(cfg *Config, logger logger) (*Client, error) {
 	}
 
 	if !cfg.Enabled {
-		return &Client{cfg: cfg}, nil
+		return &Client{
+			logger: logger,
+			cfg:    cfg,
+		}, nil
 	}
 
 	addr, err := url.Parse(cfg.Addr)
@@ -45,6 +48,7 @@ func New(cfg *Config, logger logger) (*Client, error) {
 	logger.Info("using %s smtp client", addr)
 
 	return &Client{
+		logger: logger,
 		auth: smtp.PlainAuth(
 			"",
 			cfg.Username,
