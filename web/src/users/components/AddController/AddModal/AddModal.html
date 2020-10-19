@@ -1,5 +1,48 @@
 <template>
-    <link rel="stylesheet" href="/users/components/AddController/AddModal/AddModal.css" />
+    <style>
+        .modal__background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .modal__content {
+            display: inline-flex;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: calc(100vw - 4em);
+            max-width: 32em;
+            max-height: calc(100vh - 4em);
+            overflow: auto;
+            transform: translate(-50%,-50%);
+            padding: 1em;
+            border-radius: 0.3em;
+            background: white;
+        }
+
+        .modal__input-url {
+            font: inherit;
+            font-size: 1.5em;
+            border: 0;
+            width: 100%;
+        }
+
+        .modal__input-url:focus {
+            outline: none;
+        }
+
+        .modal__input-file {
+            display: none;
+        }
+
+        .modal__input-icon {
+            cursor: pointer;
+        }
+    </style>
     <div class="modal__background"></div>
     <div class="modal__content">
         <input class="modal__input-url" placeholder="Link, RSS" />
