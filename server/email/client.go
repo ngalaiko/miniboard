@@ -3,7 +3,7 @@ package email
 import (
 	"fmt"
 	"net/smtp"
-	"net/url"
+	"strings"
 )
 
 // Config contains email client configuration.
@@ -40,20 +40,13 @@ func New(cfg *Config, logger logger) (*Client, error) {
 		}, nil
 	}
 
-	addr, err := url.Parse(cfg.Addr)
-	if err != nil {
-		return nil, fmt.Errorf("invalid address: %w", err)
-	}
-
-	logger.Info("using %s smtp client", addr)
-
 	return &Client{
 		logger: logger,
 		auth: smtp.PlainAuth(
 			"",
 			cfg.Username,
 			cfg.Password,
-			addr.Hostname(),
+			strings.Split(cfg.Addr, ":")[0],
 		),
 		cfg: cfg,
 	}, nil
