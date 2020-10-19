@@ -46,6 +46,9 @@ type Service struct {
 	parser          parser
 	articlesService articlesService
 	fetcher         fetch.Fetcher
+
+	nowFunc      func() time.Time
+	updateLeeway time.Duration
 }
 
 // NewService creates feeds service.
@@ -56,6 +59,8 @@ func NewService(ctx context.Context, logger logger, sqldb *sql.DB, fetcher fetch
 		parser:          parser,
 		storage:         db.New(sqldb),
 		fetcher:         fetcher,
+		nowFunc:         time.Now().UTC,
+		updateLeeway:    24 * time.Hour,
 	}
 	go s.listenToUpdates(ctx)
 	return s
@@ -142,8 +147,6 @@ func (s *Service) CreateFeed(ctx context.Context, reader io.Reader, url *url.URL
 }
 
 func (s *Service) parse(reader io.Reader, feed *feeds.Feed) ([]*parsers.Item, error) {
-	var updateLeeway = 24 * time.Hour
-
 	parsedFeed, err := s.parser.Parse(reader)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse feed: %w", err)
@@ -167,7 +170,8 @@ func (s *Service) parse(reader io.Reader, feed *feeds.Feed) ([]*parsers.Item, er
 	items := make([]*parsers.Item, 0, len(parsedFeed.Items))
 	for _, item := range parsedFeed.Items {
 		updatedTime := latestTimestamp(item.UpdatedParsed, item.PublishedParsed)
-		if updatedTime.Before(lastFetched.Add(-1 * updateLeeway)) {
+
+		if updatedTime.Before(lastFetched.Add(-1 * s.updateLeeway)) {
 			s.logger.Info("skipping item %s from %s: updated at %s", item.Link, feed.Id, updatedTime)
 			continue
 		}
@@ -175,13 +179,14 @@ func (s *Service) parse(reader io.Reader, feed *feeds.Feed) ([]*parsers.Item, er
 		items = append(items, item)
 	}
 
-	feed.LastFetched = ptypes.TimestampNow()
+	feed.LastFetched, _ = ptypes.TimestampProto(s.nowFunc())
 
 	return items, nil
 }
 
 func latestTimestamp(ts ...*time.Time) time.Time {
-	latest := time.Time{}
+	zeroTime := time.Time{}
+	latest := zeroTime
 	for _, t := range ts {
 		if t == nil {
 			continue
@@ -191,6 +196,11 @@ func latestTimestamp(ts ...*time.Time) time.Time {
 			latest = *t
 		}
 	}
+
+	if latest == zeroTime {
+		latest = time.Now()
+	}
+
 	return latest
 }
 

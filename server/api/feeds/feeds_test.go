@@ -19,30 +19,176 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_feeds_Create_with_items(t *testing.T) {
+func Test_Create_no_items(t *testing.T) {
 	ctx := testContext()
 
-	now := time.Now()
 	parsedFeed := &parsers.Feed{
 		Title: "feed",
-		Items: []*parsers.Item{
-			{
-				UpdatedParsed: &now,
-			},
-		},
 	}
 	testArticles := &testArticles{}
 	service := NewService(ctx, &testLogger{}, testDB(t), &testClient{}, testArticles, &testParser{feed: parsedFeed})
+
+	now := time.Now().UTC()
+	service.nowFunc = func() time.Time { return now }
 
 	url, _ := url.Parse("http://localhost")
 
 	feed, err := service.CreateFeed(ctx, nil, url)
 	if assert.NoError(t, err) {
 		assert.NotEmpty(t, feed.Id)
-		assert.NotEmpty(t, feed.LastFetched)
+		assert.Equal(t, now, feed.LastFetched.AsTime())
+		assert.NotEmpty(t, feed.Url)
+		assert.NotEmpty(t, feed.Title)
+		assert.Equal(t, 0, testArticles.count)
+	}
+}
+
+func Test_Create_with_items(t *testing.T) {
+	ctx := testContext()
+
+	now := time.Now().UTC()
+	parsedFeed := &parsers.Feed{
+		Title: "feed",
+		Items: []*parsers.Item{
+			{
+				PublishedParsed: &now,
+			},
+		},
+	}
+	testArticles := &testArticles{}
+	service := NewService(ctx, &testLogger{}, testDB(t), &testClient{}, testArticles, &testParser{feed: parsedFeed})
+
+	service.nowFunc = func() time.Time { return now }
+
+	url, _ := url.Parse("http://localhost")
+
+	feed, err := service.CreateFeed(ctx, nil, url)
+	if assert.NoError(t, err) {
+		assert.NotEmpty(t, feed.Id)
+		assert.Equal(t, now, feed.LastFetched.AsTime())
 		assert.NotEmpty(t, feed.Url)
 		assert.NotEmpty(t, feed.Title)
 		assert.Equal(t, 1, testArticles.count)
+	}
+}
+
+func Test_update_nothing_updated(t *testing.T) {
+	ctx := testContext()
+
+	now := time.Now().UTC()
+	hourAgo := now.Add(-1 * time.Hour)
+	dayAgo := now.Add(-1 * 24 * time.Hour)
+	parsedFeed := &parsers.Feed{
+		Title: "feed",
+		Items: []*parsers.Item{
+			{
+				PublishedParsed: &dayAgo,
+			},
+		},
+	}
+
+	testArticles := &testArticles{}
+	testParser := &testParser{feed: parsedFeed}
+	service := NewService(ctx, &testLogger{}, testDB(t), &testClient{}, testArticles, testParser)
+
+	service.nowFunc = func() time.Time { return hourAgo }
+	service.updateLeeway = time.Duration(0)
+
+	url, _ := url.Parse("http://localhost")
+
+	feed, err := service.CreateFeed(ctx, nil, url)
+	if assert.NoError(t, err) {
+		assert.Equal(t, 1, testArticles.count)
+		assert.Equal(t, hourAgo, feed.LastFetched.AsTime())
+	}
+
+	service.nowFunc = func() time.Time { return now }
+	if assert.NoError(t, service.updateFeed(ctx, feed)) {
+		assert.Equal(t, 1, testArticles.count)
+		assert.Equal(t, now, feed.LastFetched.AsTime())
+	}
+}
+
+func Test_update_item_added(t *testing.T) {
+	ctx := testContext()
+
+	now := time.Now().UTC()
+	dayAgo := now.Add(-1 * 24 * time.Hour)
+	threeHoursAgo := now.Add(-3 * time.Hour)
+	twoHoursAgo := now.Add(-2 * time.Hour)
+
+	parsedFeed := &parsers.Feed{
+		Title: "feed",
+		Items: []*parsers.Item{
+			{
+				PublishedParsed: &dayAgo,
+			},
+		},
+	}
+
+	testArticles := &testArticles{}
+	testParser := &testParser{feed: parsedFeed}
+	service := NewService(ctx, &testLogger{}, testDB(t), &testClient{}, testArticles, testParser)
+	service.nowFunc = func() time.Time {
+		return threeHoursAgo
+	}
+
+	url, _ := url.Parse("http://localhost")
+
+	feed, err := service.CreateFeed(ctx, nil, url)
+	if assert.NoError(t, err) {
+		assert.Equal(t, 1, testArticles.count)
+	}
+
+	service.nowFunc = func() time.Time {
+		return now
+	}
+
+	testParser.feed.Items = append(testParser.feed.Items, &parsers.Item{
+		PublishedParsed: &twoHoursAgo,
+	})
+
+	if assert.NoError(t, service.updateFeed(ctx, feed)) {
+		assert.Equal(t, 3, testArticles.count)
+	}
+}
+
+func Test_update_item_added_with_no_time(t *testing.T) {
+	ctx := testContext()
+
+	now := time.Now()
+	threeHoursAgo := now.Add(-3 * time.Hour)
+
+	parsedFeed := &parsers.Feed{
+		Title: "feed",
+		Items: []*parsers.Item{
+			{},
+		},
+	}
+
+	testArticles := &testArticles{}
+	testParser := &testParser{feed: parsedFeed}
+	service := NewService(ctx, &testLogger{}, testDB(t), &testClient{}, testArticles, testParser)
+	service.updateLeeway = time.Duration(0)
+	service.nowFunc = func() time.Time {
+		return threeHoursAgo
+	}
+
+	url, _ := url.Parse("http://localhost")
+
+	feed, err := service.CreateFeed(ctx, nil, url)
+	if assert.NoError(t, err) {
+		assert.Equal(t, 1, testArticles.count)
+	}
+
+	service.nowFunc = func() time.Time {
+		return now
+	}
+
+	testParser.feed.Items = append(testParser.feed.Items, &parsers.Item{})
+
+	if assert.NoError(t, service.updateFeed(ctx, feed)) {
+		assert.Equal(t, 3, testArticles.count)
 	}
 }
 

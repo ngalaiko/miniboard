@@ -67,7 +67,7 @@ func (s *Service) updateFeed(ctx context.Context, feed *feeds.Feed) error {
 		}
 	}
 
-	if lastFetched.Add(updateInterval).After(time.Now()) {
+	if lastFetched.Add(updateInterval).After(s.nowFunc()) {
 		s.logger.Info("no need to update %s (%s): lastFetched at %s", feed.Id, feed.Url, lastFetched)
 		return nil
 	}
