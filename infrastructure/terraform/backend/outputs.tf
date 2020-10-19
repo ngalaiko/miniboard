@@ -1,3 +1,0 @@
-output "tag" {
-  value = "backend"
-}
