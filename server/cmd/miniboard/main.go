@@ -25,7 +25,7 @@ func main() {
 	sslCert := flag.String("ssl-cert", "", "Path to ssl certificate.")
 	sslKey := flag.String("ssl-key", "", "Path to ssl key.")
 
-	smtpAddr := flag.String("smtp-host", "", "SMTP server address.")
+	smtpAddr := flag.String("smtp-addr", "", "SMTP server address.")
 	smtpSender := flag.String("smtp-sender", "", "SMTP sender.")
 
 	flag.Parse()
