@@ -12,6 +12,6 @@ RUN go get -u github.com/gobuffalo/packr/v2/... \
 
 RUN go build -o miniboard ./cmd/miniboard/main.go		
 
-FROM alpine:3.12.0
+FROM alpine:3.12.1
 
 COPY --from=go_builder /server/miniboard /bin/miniboard		
