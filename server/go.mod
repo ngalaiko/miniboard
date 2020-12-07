@@ -11,7 +11,7 @@ require (
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.15.2
 	github.com/karrick/godirwalk v1.16.1 // indirect
-	github.com/lib/pq v1.8.0
+	github.com/lib/pq v1.9.0
 	github.com/mattn/go-sqlite3 v1.14.4
 	github.com/mmcdole/gofeed v1.1.0
 	github.com/mmcdole/goxpp v0.0.0-20200921145534-2f3784f67354 // indirect
