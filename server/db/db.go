@@ -1,7 +1,6 @@
 package db
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 
@@ -21,7 +20,7 @@ type Config struct {
 }
 
 // New returns a database instance.
-func New(ctx context.Context, cfg *Config, logger logger) (*sql.DB, error) {
+func New(cfg *Config, logger logger) (*sql.DB, error) {
 	if cfg == nil {
 		cfg = &Config{}
 	}
@@ -47,10 +46,6 @@ func New(ctx context.Context, cfg *Config, logger logger) (*sql.DB, error) {
 	}
 
 	logger.Info("connected to %s", cfg.Driver)
-
-	if err := migrate(ctx, db, logger); err != nil {
-		return nil, fmt.Errorf("failed to apply migrations: %w", err)
-	}
 
 	return db, nil
 }

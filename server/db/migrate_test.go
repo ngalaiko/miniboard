@@ -14,11 +14,13 @@ func Test_Migrate(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
-	_, err = New(context.Background(), &Config{
+	db, err := New(&Config{
 		Driver: "sqlite3",
 		Addr:   tmpFile.Name(),
 	}, &testLogger{})
 	assert.NoError(t, err)
+
+	assert.NoError(t, Migrate(context.Background(), db, &testLogger{}))
 }
 
 func Test_Migrate_twice(t *testing.T) {
@@ -26,17 +28,14 @@ func Test_Migrate_twice(t *testing.T) {
 	assert.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
-	_, err = New(context.Background(), &Config{
+	db, err := New(&Config{
 		Driver: "sqlite3",
 		Addr:   tmpFile.Name(),
 	}, &testLogger{})
 	assert.NoError(t, err)
 
-	_, err = New(context.Background(), &Config{
-		Driver: "sqlite3",
-		Addr:   tmpFile.Name(),
-	}, &testLogger{})
-	assert.NoError(t, err)
+	assert.NoError(t, Migrate(context.Background(), db, &testLogger{}))
+	assert.NoError(t, Migrate(context.Background(), db, &testLogger{}))
 }
 
 type testLogger struct{}

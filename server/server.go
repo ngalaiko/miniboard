@@ -2,26 +2,64 @@ package server
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/ngalaiko/miniboard/server/db"
+	"github.com/ngalaiko/miniboard/server/http"
 	"github.com/ngalaiko/miniboard/server/logger"
 )
 
 // Config contains all server configuration.
 type Config struct {
-	DB *db.Config
+	DB   *db.Config
+	HTTP *http.Config
 }
 
 // Server is the main object.
-type Server struct{}
+type Server struct {
+	logger     *logger.Logger
+	db         *sql.DB
+	httpServer *http.Server
+}
 
 // New returns a new initialized server object.
-func New(ctx context.Context, logger *logger.Logger, cfg *Config) (*Server, error) {
-	_, err := db.New(ctx, cfg.DB, logger)
+func New(logger *logger.Logger, cfg *Config) (*Server, error) {
+	db, err := db.New(cfg.DB, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize db: %w", err)
 	}
 
-	return &Server{}, nil
+	httpServer, err := http.NewServer(cfg.HTTP, logger, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize http server: %w", err)
+	}
+
+	return &Server{
+		logger:     logger,
+		db:         db,
+		httpServer: httpServer,
+	}, nil
+}
+
+// Start starts all components of the server.
+func (s *Server) Start(ctx context.Context) error {
+	if err := db.Migrate(ctx, s.db, s.logger); err != nil {
+		return fmt.Errorf("failed to apply db migrations: %w", err)
+	}
+	if err := s.httpServer.Start(); err != nil {
+		return fmt.Errorf("failed to start http server: %w", err)
+	}
+	return nil
+}
+
+// Shutdown gracefully stops all components of the server.
+func (s *Server) Shutdown(ctx context.Context) error {
+	if err := s.httpServer.Shutdown(ctx); err != nil {
+		return fmt.Errorf("failed to stop http server: %w", err)
+	}
+	if err := s.db.Close(); err != nil {
+		return fmt.Errorf("failed to close db: %w", err)
+	}
+	return nil
 }
