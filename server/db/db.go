@@ -22,6 +22,25 @@ type Config struct {
 
 // New returns a database instance.
 func New(ctx context.Context, cfg *Config, logger logger) (*sql.DB, error) {
+	if cfg == nil {
+		cfg = &Config{}
+	}
+
+	if cfg.Driver == "" {
+		return nil, fmt.Errorf("driver is not set")
+	}
+
+	if _, supported := map[string]bool{
+		"sqlite3":  true,
+		"postgres": true,
+	}[cfg.Driver]; !supported {
+		return nil, fmt.Errorf("'%s' is not supported", cfg.Driver)
+	}
+
+	if cfg.Addr == "" {
+		return nil, fmt.Errorf("addr is not set")
+	}
+
 	db, err := sql.Open(cfg.Driver, cfg.Addr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)

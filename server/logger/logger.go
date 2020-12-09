@@ -48,3 +48,8 @@ func (l *Logger) Warn(format string, vv ...interface{}) {
 func (l *Logger) Error(format string, vv ...interface{}) {
 	l.logger.Error().Msgf(format, vv...)
 }
+
+// Fatal writes fatal log and stops the application.
+func (l *Logger) Fatal(format string, vv ...interface{}) {
+	l.logger.Fatal().Msgf(format, vv...)
+}
