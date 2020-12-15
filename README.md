@@ -27,7 +27,8 @@
 
 ```bash
 $ cd ./server && go run \ 
-    cmd/miniboard/main.go
+    cmd/miniboard/main.go \
+        --config config.dev.yaml
 ```
 
 2. Open browser
