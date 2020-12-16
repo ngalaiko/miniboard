@@ -7,6 +7,8 @@ import (
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/ngalaiko/miniboard/server/http/handler"
 )
 
 type tlsConfig struct {
@@ -34,7 +36,7 @@ type Server struct {
 // NewServer creates a new HTTP server.
 //
 // The handler can be nil, in which case http.DefaultServeMux is used.
-func NewServer(cfg *Config, logger logger, handler http.Handler) (*Server, error) {
+func NewServer(cfg *Config, logger logger) (*Server, error) {
 	if cfg == nil {
 		cfg = &Config{
 			// Preserve the stdlib default.
@@ -46,7 +48,7 @@ func NewServer(cfg *Config, logger logger, handler http.Handler) (*Server, error
 		cfg:    cfg,
 		server: &http.Server{
 			Addr:    cfg.Addr,
-			Handler: handler,
+			Handler: handler.New(),
 			// https://blog.cloudflare.com/exposing-go-on-the-internet/
 			ReadTimeout:  5 * time.Second,
 			WriteTimeout: 10 * time.Second,

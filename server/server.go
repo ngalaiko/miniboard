@@ -30,7 +30,7 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 		return nil, fmt.Errorf("failed to initialize db: %w", err)
 	}
 
-	httpServer, err := http.NewServer(cfg.HTTP, logger, nil)
+	httpServer, err := http.NewServer(cfg.HTTP, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize http server: %w", err)
 	}
