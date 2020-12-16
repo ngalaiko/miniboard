@@ -16,5 +16,15 @@ func migrations() []*migration {
 			)
 			`,
 		},
+		{
+			Name: "create public_keys",
+			Query: `
+			CREATE TABLE public_keys (
+				id         TEXT NOT NULL,
+				der        BLOB NOT NULL,
+				PRIMARY KEY (id)
+			)
+			`,
+		},
 	}
 }

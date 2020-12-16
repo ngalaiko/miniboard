@@ -84,7 +84,9 @@ func createTestDB(ctx context.Context, t *testing.T) *sql.DB {
 	}
 
 	t.Cleanup(func() {
-		os.Remove(tmpFile.Name())
+		if err := os.Remove(tmpFile.Name()); err != nil {
+			t.Fatalf("failed to delete file for test db: %s", err)
+		}
 	})
 
 	sqlite, err := db.New(&db.Config{
