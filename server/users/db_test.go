@@ -16,7 +16,8 @@ func Test_db__Create(t *testing.T) {
 	db := newDB(createTestDB(ctx, t))
 
 	user := &User{
-		ID: "test id",
+		ID:   "test id",
+		Hash: []byte("hash"),
 	}
 	if err := db.Create(ctx, user); err != nil {
 		t.Fatalf("failed to create a user: %s", err)
@@ -28,7 +29,8 @@ func Test_db__Create_twice(t *testing.T) {
 	db := newDB(createTestDB(ctx, t))
 
 	user := &User{
-		ID: "test id",
+		ID:   "test id",
+		Hash: []byte("hash"),
 	}
 	if err := db.Create(ctx, user); err != nil {
 		t.Fatalf("failed to create a user: %s", err)
@@ -44,7 +46,8 @@ func Test_db__Get_not_found(t *testing.T) {
 	db := newDB(createTestDB(ctx, t))
 
 	user := &User{
-		ID: "test id",
+		ID:   "test id",
+		Hash: []byte("hash"),
 	}
 
 	fromDB, err := db.Get(ctx, user.ID)
@@ -62,7 +65,8 @@ func Test_db__Get(t *testing.T) {
 	db := newDB(createTestDB(ctx, t))
 
 	user := &User{
-		ID: "test id",
+		ID:   "test id",
+		Hash: []byte("hash"),
 	}
 	if err := db.Create(ctx, user); err != nil {
 		t.Fatalf("failed to create a user: %s", err)

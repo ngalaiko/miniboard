@@ -19,10 +19,11 @@ func newDB(sqldb *sql.DB) *database {
 func (d *database) Create(ctx context.Context, user *User) error {
 	_, err := d.db.ExecContext(ctx, `
 	INSERT INTO users (
-		id
+		id,
+		hash
 	) VALUES (
-		$1
-	)`, user.ID)
+		$1, $2
+	)`, user.ID, user.Hash)
 
 	return err
 }
@@ -31,7 +32,8 @@ func (d *database) Create(ctx context.Context, user *User) error {
 func (d *database) Get(ctx context.Context, id string) (*User, error) {
 	row := d.db.QueryRowContext(ctx, `
 	SELECT
-		id
+		id,
+		hash
 	FROM
 		users
 	WHERE
@@ -47,7 +49,7 @@ type scannable interface {
 
 func (d *database) scanRow(row scannable) (*User, error) {
 	user := &User{}
-	if err := row.Scan(&user.ID); err != nil {
+	if err := row.Scan(&user.ID, &user.Hash); err != nil {
 		return nil, err
 	}
 

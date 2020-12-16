@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/gobuffalo/packr/v2 v2.8.0
+	github.com/google/uuid v1.1.2
 	github.com/karrick/godirwalk v1.16.1 // indirect
 	github.com/lib/pq v1.8.0
 	github.com/mattn/go-sqlite3 v1.14.4

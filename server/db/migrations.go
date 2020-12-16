@@ -11,7 +11,8 @@ func migrations() []*migration {
 			Name: "create users",
 			Query: `
 			CREATE TABLE users (
-				id         TEXT NOT NULL,
+				id   TEXT NOT NULL,
+				hash BLOB NOT NULL,
 				PRIMARY KEY (id)
 			)
 			`,
@@ -20,8 +21,8 @@ func migrations() []*migration {
 			Name: "create public_keys",
 			Query: `
 			CREATE TABLE public_keys (
-				id         TEXT NOT NULL,
-				der        BLOB NOT NULL,
+				id  TEXT NOT NULL,
+				der BLOB NOT NULL,
 				PRIMARY KEY (id)
 			)
 			`,
