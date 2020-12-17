@@ -11,7 +11,7 @@ import (
 func Test_Migrate(t *testing.T) {
 	ctx := context.Background()
 
-	db := testDB(ctx, t)
+	db := testDB(t)
 
 	if err := Migrate(ctx, db, &testLogger{}); err != nil {
 		t.Fatalf("unexpected error: %s", err)
@@ -20,7 +20,7 @@ func Test_Migrate(t *testing.T) {
 
 func Test_Migrate_twice(t *testing.T) {
 	ctx := context.Background()
-	db := testDB(ctx, t)
+	db := testDB(t)
 
 	if err := Migrate(ctx, db, &testLogger{}); err != nil {
 		t.Fatalf("unexpected error: %s", err)
@@ -30,7 +30,7 @@ func Test_Migrate_twice(t *testing.T) {
 	}
 }
 
-func testDB(ctx context.Context, t *testing.T) *sql.DB {
+func testDB(t *testing.T) *sql.DB {
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
 	if err != nil {
 		t.Fatalf("failed to create file for test db: %s", err)
