@@ -20,11 +20,11 @@ func migrations() []*migration {
 			`,
 		},
 		{
-			Name: "create public_keys",
+			Name: "create jwt_keys",
 			Query: `
-			CREATE TABLE public_keys (
-				id  TEXT NOT NULL,
-				der BLOB NOT NULL,
+			CREATE TABLE jwt_keys (
+				id         TEXT NOT NULL,
+				public_der BLOB NOT NULL,
 				PRIMARY KEY (id)
 			)
 			`,

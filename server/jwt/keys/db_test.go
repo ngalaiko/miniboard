@@ -1,4 +1,4 @@
-package db
+package keys
 
 import (
 	"context"
@@ -17,11 +17,11 @@ func Test_Create(t *testing.T) {
 
 	sqlite := testDB(ctx, t)
 
-	database := New(sqlite)
+	database := NewDatabase(sqlite)
 
-	testKey := &PublicKey{
-		ID:  "test",
-		Der: []byte("some data"),
+	testKey := &Key{
+		ID:        "test",
+		PublicDER: []byte("some data"),
 	}
 
 	if err := database.Create(ctx, testKey); err != nil {
@@ -34,11 +34,11 @@ func Test_Create_twice(t *testing.T) {
 
 	sqlite := testDB(ctx, t)
 
-	database := New(sqlite)
+	database := NewDatabase(sqlite)
 
-	testKey := &PublicKey{
-		ID:  "test",
-		Der: []byte("some data"),
+	testKey := &Key{
+		ID:        "test",
+		PublicDER: []byte("some data"),
 	}
 
 	if err := database.Create(ctx, testKey); err != nil {
@@ -55,11 +55,11 @@ func Test_Get(t *testing.T) {
 
 	sqlite := testDB(ctx, t)
 
-	database := New(sqlite)
+	database := NewDatabase(sqlite)
 
-	testKey := &PublicKey{
-		ID:  "test",
-		Der: []byte("some data"),
+	testKey := &Key{
+		ID:        "test",
+		PublicDER: []byte("some data"),
 	}
 
 	if err := database.Create(ctx, testKey); err != nil {
@@ -81,11 +81,11 @@ func Test_Get_not_exists(t *testing.T) {
 
 	sqlite := testDB(ctx, t)
 
-	database := New(sqlite)
+	database := NewDatabase(sqlite)
 
-	testKey := &PublicKey{
-		ID:  "test",
-		Der: []byte("some data"),
+	testKey := &Key{
+		ID:        "test",
+		PublicDER: []byte("some data"),
 	}
 
 	_, err := database.Get(ctx, testKey.ID)
@@ -99,11 +99,11 @@ func Test_Delete(t *testing.T) {
 
 	sqlite := testDB(ctx, t)
 
-	database := New(sqlite)
+	database := NewDatabase(sqlite)
 
-	testKey := &PublicKey{
-		ID:  "test",
-		Der: []byte("some data"),
+	testKey := &Key{
+		ID:        "test",
+		PublicDER: []byte("some data"),
 	}
 
 	if err := database.Create(ctx, testKey); err != nil {
@@ -128,11 +128,11 @@ func Test_Delete_not_existing(t *testing.T) {
 
 	sqlite := testDB(ctx, t)
 
-	database := New(sqlite)
+	database := NewDatabase(sqlite)
 
-	testKey := &PublicKey{
-		ID:  "test",
-		Der: []byte("some data"),
+	testKey := &Key{
+		ID:        "test",
+		PublicDER: []byte("some data"),
 	}
 
 	if err := database.Delete(ctx, testKey.ID); err != nil {
@@ -145,7 +145,7 @@ func Test_List(t *testing.T) {
 
 	sqlite := testDB(ctx, t)
 
-	database := New(sqlite)
+	database := NewDatabase(sqlite)
 
 	kk, err := database.List(ctx)
 	if err != nil {
@@ -156,9 +156,9 @@ func Test_List(t *testing.T) {
 	}
 
 	for i := 0; i < 10; i++ {
-		testKey := &PublicKey{
-			ID:  fmt.Sprintf("test-%d", i),
-			Der: []byte("some data"),
+		testKey := &Key{
+			ID:        fmt.Sprintf("test-%d", i),
+			PublicDER: []byte("some data"),
 		}
 
 		if err := database.Create(ctx, testKey); err != nil {
