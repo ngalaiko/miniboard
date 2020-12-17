@@ -12,23 +12,35 @@ const bcryptCost = 14
 // Known errors.
 var (
 	ErrInvalidPassword = fmt.Errorf("invalid password")
+	ErrUsernameEmpty   = fmt.Errorf("username is empty")
+	ErrPasswordEmpty   = fmt.Errorf("password is empty")
 )
 
 // User is the user model.
 type User struct {
-	ID   string `json:"id"`
-	Hash []byte `json:"hash"`
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Hash     []byte `json:"hash"`
 }
 
-func newUser(password []byte) (*User, error) {
+func newUser(username string, password []byte) (*User, error) {
+	if username == "" {
+		return nil, ErrUsernameEmpty
+	}
+
+	if len(password) == 0 {
+		return nil, ErrPasswordEmpty
+	}
+
 	hash, err := bcrypt.GenerateFromPassword(password, bcryptCost)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate password hash: %w", err)
 	}
 
 	return &User{
-		ID:   uuid.New().String(),
-		Hash: hash,
+		ID:       uuid.New().String(),
+		Username: username,
+		Hash:     hash,
 	}, nil
 }
 

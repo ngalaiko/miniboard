@@ -11,9 +11,11 @@ func migrations() []*migration {
 			Name: "create users",
 			Query: `
 			CREATE TABLE users (
-				id   TEXT NOT NULL,
-				hash BLOB NOT NULL,
-				PRIMARY KEY (id)
+				id       TEXT NOT NULL,
+				username TEXT NOT NULL,
+				hash     BLOB NOT NULL,
+				PRIMARY KEY (id),
+				UNIQUE(username)
 			)
 			`,
 		},

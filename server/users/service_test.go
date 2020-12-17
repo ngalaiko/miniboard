@@ -12,7 +12,7 @@ func Test_Service_Create(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	service := NewService(sqldb)
 
-	user, err := service.Create(ctx, []byte("password"))
+	user, err := service.Create(ctx, "username", []byte("password"))
 	if err != nil {
 		t.Fatalf("failed to create a user: %s", err)
 	}
@@ -26,18 +26,18 @@ func Test_Service_Create(t *testing.T) {
 	}
 }
 
-func Test_Service_Get(t *testing.T) {
+func Test_Service_GetByID(t *testing.T) {
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
 	service := NewService(sqldb)
 
-	created, err := service.Create(ctx, []byte("password"))
+	created, err := service.Create(ctx, "username", []byte("password"))
 	if err != nil {
 		t.Fatalf("failed to create a user: %s", err)
 	}
 
-	found, err := service.Get(ctx, created.ID)
+	found, err := service.GetByID(ctx, created.ID)
 	if err != nil {
 		t.Fatalf("failed to get a user: %s", err)
 	}
@@ -47,13 +47,46 @@ func Test_Service_Get(t *testing.T) {
 	}
 }
 
-func Test_Service_Get__not_found(t *testing.T) {
+func Test_Service_GetByID__not_found(t *testing.T) {
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
 	service := NewService(sqldb)
 
-	_, err := service.Get(ctx, "id")
+	_, err := service.GetByID(ctx, "id")
+	if err != ErrNotFound {
+		t.Fatalf("expected %s, got %s", ErrNotFound, err)
+	}
+}
+
+func Test_Service_GetByUsername(t *testing.T) {
+	ctx := context.TODO()
+
+	sqldb := createTestDB(ctx, t)
+	service := NewService(sqldb)
+
+	created, err := service.Create(ctx, "username", []byte("password"))
+	if err != nil {
+		t.Fatalf("failed to create a user: %s", err)
+	}
+
+	found, err := service.GetByUsername(ctx, created.Username)
+	if err != nil {
+		t.Fatalf("failed to get a user: %s", err)
+	}
+
+	if !reflect.DeepEqual(found, created) {
+		t.Fatalf("expected %+v, got %+v", created, found)
+	}
+}
+
+func Test_Service_GetByUsername__not_found(t *testing.T) {
+	ctx := context.TODO()
+
+	sqldb := createTestDB(ctx, t)
+	service := NewService(sqldb)
+
+	_, err := service.GetByUsername(ctx, "username")
 	if err != ErrNotFound {
 		t.Fatalf("expected %s, got %s", ErrNotFound, err)
 	}

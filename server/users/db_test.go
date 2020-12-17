@@ -41,7 +41,7 @@ func Test_db__Create_twice(t *testing.T) {
 	}
 }
 
-func Test_db__Get_not_found(t *testing.T) {
+func Test_db__GetByID_not_found(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t))
 
@@ -50,7 +50,7 @@ func Test_db__Get_not_found(t *testing.T) {
 		Hash: []byte("hash"),
 	}
 
-	fromDB, err := db.Get(ctx, user.ID)
+	fromDB, err := db.GetByID(ctx, user.ID)
 	if fromDB != nil {
 		t.Fatalf("nothing should be returned, got %+v", fromDB)
 	}
@@ -60,7 +60,7 @@ func Test_db__Get_not_found(t *testing.T) {
 	}
 }
 
-func Test_db__Get(t *testing.T) {
+func Test_db__GetByID(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t))
 
@@ -72,7 +72,49 @@ func Test_db__Get(t *testing.T) {
 		t.Fatalf("failed to create a user: %s", err)
 	}
 
-	fromDB, err := db.Get(ctx, user.ID)
+	fromDB, err := db.GetByID(ctx, user.ID)
+	if err != nil {
+		t.Fatalf("failed to get user from the db: %s", err)
+	}
+	if !reflect.DeepEqual(user, fromDB) {
+		t.Fatalf("expected %+v, got %+v", user, fromDB)
+	}
+}
+
+func Test_db__GetByUsername_not_found(t *testing.T) {
+	ctx := context.TODO()
+	db := newDB(createTestDB(ctx, t))
+
+	user := &User{
+		ID:       "test id",
+		Username: "username",
+		Hash:     []byte("hash"),
+	}
+
+	fromDB, err := db.GetByUsername(ctx, user.Username)
+	if fromDB != nil {
+		t.Fatalf("nothing should be returned, got %+v", fromDB)
+	}
+
+	if err != sql.ErrNoRows {
+		t.Fatalf("expected %s, got %s", sql.ErrNoRows, err)
+	}
+}
+
+func Test_db__GetByUsername(t *testing.T) {
+	ctx := context.TODO()
+	db := newDB(createTestDB(ctx, t))
+
+	user := &User{
+		ID:       "test id",
+		Username: "username",
+		Hash:     []byte("hash"),
+	}
+	if err := db.Create(ctx, user); err != nil {
+		t.Fatalf("failed to create a user: %s", err)
+	}
+
+	fromDB, err := db.GetByUsername(ctx, user.Username)
 	if err != nil {
 		t.Fatalf("failed to get user from the db: %s", err)
 	}

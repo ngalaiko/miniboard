@@ -24,8 +24,8 @@ func NewService(db *sql.DB) *Service {
 }
 
 // Create creates a new user with the given password.
-func (s *Service) Create(ctx context.Context, password []byte) (*User, error) {
-	user, err := newUser(password)
+func (s *Service) Create(ctx context.Context, username string, password []byte) (*User, error) {
+	user, err := newUser(username, password)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
@@ -37,9 +37,22 @@ func (s *Service) Create(ctx context.Context, password []byte) (*User, error) {
 	return user, nil
 }
 
-// Get returns a user by id.
-func (s *Service) Get(ctx context.Context, id string) (*User, error) {
-	user, err := s.db.Get(ctx, id)
+// GetByID returns a user by id.
+func (s *Service) GetByID(ctx context.Context, id string) (*User, error) {
+	user, err := s.db.GetByID(ctx, id)
+	switch err {
+	case nil:
+		return user, nil
+	case sql.ErrNoRows:
+		return nil, ErrNotFound
+	default:
+		return nil, fmt.Errorf("failed to get user from db: %w", err)
+	}
+}
+
+// GetByUsername returns a user by id.
+func (s *Service) GetByUsername(ctx context.Context, username string) (*User, error) {
+	user, err := s.db.GetByUsername(ctx, username)
 	switch err {
 	case nil:
 		return user, nil
