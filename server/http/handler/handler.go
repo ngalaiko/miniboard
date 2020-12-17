@@ -13,7 +13,9 @@ type Handler struct {
 
 // New returns a new empty handler.
 func New() *Handler {
-	return &Handler{}
+	return &Handler{
+		routes: map[string]http.Handler{},
+	}
 }
 
 // Route adds a handler for requests that start with _prefix_.

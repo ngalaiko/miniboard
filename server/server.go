@@ -33,14 +33,16 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 		return nil, fmt.Errorf("failed to initialize db: %w", err)
 	}
 
-	_ = users.NewService(db)
-
 	jwtService := jwt.NewService(db, logger)
 
 	httpServer, err := http.NewServer(cfg.HTTP, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize http server: %w", err)
 	}
+
+	usersService := users.NewService(db)
+
+	httpServer.Route("users", users.NewHandler(usersService))
 
 	return &Server{
 		logger:     logger,
