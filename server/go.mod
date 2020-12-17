@@ -11,7 +11,7 @@ require (
 	github.com/rogpeppe/go-internal v1.6.2 // indirect
 	github.com/rs/zerolog v1.20.0
 	github.com/sirupsen/logrus v1.7.0 // indirect
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.6.1 // indirect
 	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
 	golang.org/x/sync v0.0.0-20201008141435-b3e1573b7520 // indirect
 	golang.org/x/sys v0.0.0-20201008064518-c1f3e3309c71 // indirect
