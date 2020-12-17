@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func Test_newKey(t *testing.T) {
-	key, err := newKey([]byte("der"))
+func Test_New(t *testing.T) {
+	key, err := New([]byte("der"))
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
@@ -20,8 +20,8 @@ func Test_newKey(t *testing.T) {
 	}
 }
 
-func Test_newKey__empty_key(t *testing.T) {
-	_, err := newKey([]byte(""))
+func Test_New__empty_key(t *testing.T) {
+	_, err := New([]byte(""))
 	if err != ErrKeyIsEmpty {
 		t.Fatalf("expected %s, got %s", ErrKeyIsEmpty, err)
 	}

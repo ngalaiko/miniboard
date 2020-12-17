@@ -7,7 +7,9 @@ import (
 
 	"github.com/ngalaiko/miniboard/server/db"
 	"github.com/ngalaiko/miniboard/server/http"
+	"github.com/ngalaiko/miniboard/server/jwt"
 	"github.com/ngalaiko/miniboard/server/logger"
+	"github.com/ngalaiko/miniboard/server/users"
 )
 
 // Config contains all server configuration.
@@ -21,6 +23,7 @@ type Server struct {
 	logger     *logger.Logger
 	db         *sql.DB
 	httpServer *http.Server
+	jwtService *jwt.Service
 }
 
 // New returns a new initialized server object.
@@ -29,6 +32,10 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize db: %w", err)
 	}
+
+	_ = users.NewService(db)
+
+	jwtService := jwt.NewService(db, logger)
 
 	httpServer, err := http.NewServer(cfg.HTTP, logger)
 	if err != nil {
@@ -39,6 +46,7 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 		logger:     logger,
 		db:         db,
 		httpServer: httpServer,
+		jwtService: jwtService,
 	}, nil
 }
 
@@ -46,6 +54,9 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 func (s *Server) Start(ctx context.Context) error {
 	if err := db.Migrate(ctx, s.db, s.logger); err != nil {
 		return fmt.Errorf("failed to apply db migrations: %w", err)
+	}
+	if err := s.jwtService.Init(ctx); err != nil {
+		return fmt.Errorf("failed to init jwt service: %w", err)
 	}
 	if err := s.httpServer.Start(); err != nil {
 		return fmt.Errorf("failed to start http server: %w", err)

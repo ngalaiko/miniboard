@@ -17,7 +17,8 @@ type Key struct {
 	PublicDER []byte
 }
 
-func newKey(publicDER []byte) (*Key, error) {
+// New creates a new key with a public der payload.
+func New(publicDER []byte) (*Key, error) {
 	if len(publicDER) == 0 {
 		return nil, ErrKeyIsEmpty
 	}
