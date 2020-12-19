@@ -99,6 +99,47 @@ func Test_Handler__Post_create_password_empty(t *testing.T) {
 	}
 }
 
+func Test_Handler__Post_already_exists(t *testing.T) {
+	ctx := context.Background()
+	handler := NewHandler(NewService(createTestDB(ctx, t)), &testLogger{})
+
+	req, err := http.NewRequest("POST", "/", bytes.NewBuffer([]byte(`
+	{"username":"test","password":"1234"}`)))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	req, err = http.NewRequest("POST", "/", bytes.NewBuffer([]byte(`
+	{"username":"test","password":"1234"}`)))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr = httptest.NewRecorder()
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusBadRequest)
+	}
+
+	expected := fmt.Sprintf(`{"error":"%s"}`, ErrAlreadyExists)
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got %v want %v",
+			rr.Body.String(), expected)
+	}
+}
+
 func Test_Handler__Post_create_success(t *testing.T) {
 	ctx := context.Background()
 	handler := NewHandler(NewService(createTestDB(ctx, t)), &testLogger{})

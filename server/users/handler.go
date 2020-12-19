@@ -72,8 +72,9 @@ func (h *Handler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case err == nil:
 		httpx.JSON(w, h.logger, user)
-	case errors.Is(err, ErrAlreadyExists),
-		errors.Is(err, ErrUsernameEmpty),
+	case errors.Is(err, ErrAlreadyExists):
+		httpx.Error(w, h.logger, err, http.StatusBadRequest)
+	case errors.Is(err, ErrUsernameEmpty),
 		errors.Is(err, ErrPasswordEmpty):
 		httpx.Error(w, h.logger, errors.Unwrap(err), http.StatusBadRequest)
 	default:
