@@ -24,6 +24,7 @@ const (
 
 type logger interface {
 	Info(string, ...interface{})
+	Error(string, ...interface{})
 }
 
 // Service allows to issue and verify jwt tokens.
