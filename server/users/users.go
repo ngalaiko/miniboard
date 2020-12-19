@@ -20,7 +20,7 @@ var (
 type User struct {
 	ID       string `json:"id"`
 	Username string `json:"username"`
-	Hash     []byte `json:"hash"`
+	Hash     []byte `json:"-"`
 }
 
 func newUser(username string, password []byte) (*User, error) {
