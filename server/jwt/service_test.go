@@ -38,6 +38,25 @@ func Test_Init__twice(t *testing.T) {
 	}
 }
 
+func Test_NewToken(t *testing.T) {
+	ctx := context.TODO()
+
+	service := NewService(createTestDB(ctx, t), &testLogger{})
+
+	token, err := service.NewToken(ctx, "user id")
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+
+	if token.UserID != "user id" {
+		t.Errorf("expected user id %s, got %s", "user id", token.UserID)
+	}
+
+	if token.Token == "" {
+		t.Errorf("token is empty")
+	}
+}
+
 func createTestDB(ctx context.Context, t *testing.T) *sql.DB {
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
 	if err != nil {

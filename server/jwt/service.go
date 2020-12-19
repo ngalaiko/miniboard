@@ -8,10 +8,18 @@ import (
 	"crypto/x509"
 	"database/sql"
 	"fmt"
+	"time"
 
 	jose "gopkg.in/square/go-jose.v2"
+	"gopkg.in/square/go-jose.v2/jwt"
 
+	"github.com/google/uuid"
 	"github.com/ngalaiko/miniboard/server/jwt/keys"
+)
+
+const (
+	defaultIssuer = "miniboard.app"
+	validFor      = time.Hour
 )
 
 type logger interface {
@@ -76,4 +84,32 @@ func (s *Service) Init(ctx context.Context) error {
 	s.signer = signer
 
 	return nil
+}
+
+// NewToken creates a new signed JWT.
+func (s *Service) NewToken(ctx context.Context, userID string) (*Token, error) {
+	if s.signer == nil {
+		if err := s.Init(ctx); err != nil {
+			return nil, err
+		}
+	}
+
+	now := time.Now()
+	claims := &jwt.Claims{
+		ID:       uuid.New().String(),
+		Issuer:   defaultIssuer,
+		Subject:  userID,
+		IssuedAt: jwt.NewNumericDate(now),
+		Expiry:   jwt.NewNumericDate(now.Add(validFor)),
+	}
+
+	token, err := jwt.Signed(s.signer).Claims(claims).CompactSerialize()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create a signed token: %w", err)
+	}
+
+	return &Token{
+		Token:  token,
+		UserID: userID,
+	}, nil
 }
