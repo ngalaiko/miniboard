@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/ngalaiko/miniboard/server/db"
-	"github.com/ngalaiko/miniboard/server/http"
+	"github.com/ngalaiko/miniboard/server/httpx"
 	"github.com/ngalaiko/miniboard/server/jwt"
 	"github.com/ngalaiko/miniboard/server/logger"
 	"github.com/ngalaiko/miniboard/server/users"
@@ -15,14 +15,14 @@ import (
 // Config contains all server configuration.
 type Config struct {
 	DB   *db.Config
-	HTTP *http.Config
+	HTTP *httpx.Config
 }
 
 // Server is the main object.
 type Server struct {
 	logger     *logger.Logger
 	db         *sql.DB
-	httpServer *http.Server
+	httpServer *httpx.Server
 	jwtService *jwt.Service
 }
 
@@ -35,14 +35,14 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 
 	jwtService := jwt.NewService(db, logger)
 
-	httpServer, err := http.NewServer(cfg.HTTP, logger)
+	httpServer, err := httpx.NewServer(cfg.HTTP, logger)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize http server: %w", err)
 	}
 
 	usersService := users.NewService(db)
 
-	httpServer.Route("users", users.NewHandler(usersService))
+	httpServer.Route("users", users.NewHandler(usersService, logger))
 
 	return &Server{
 		logger:     logger,

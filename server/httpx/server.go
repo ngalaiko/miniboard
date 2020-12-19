@@ -1,4 +1,4 @@
-package http
+package httpx
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ngalaiko/miniboard/server/http/handler"
+	"github.com/ngalaiko/miniboard/server/httpx/handler"
 )
 
 type tlsConfig struct {
