@@ -9,6 +9,8 @@ import (
 // Known errors.
 var (
 	ErrNotFound = fmt.Errorf("user does not exist")
+	// TODO: implement
+	ErrAlreadyExists = fmt.Errorf("user already exists")
 )
 
 // Service allows to manage users resource.
@@ -25,6 +27,15 @@ func NewService(db *sql.DB) *Service {
 
 // Create creates a new user with the given password.
 func (s *Service) Create(ctx context.Context, username string, password []byte) (*User, error) {
+	_, err := s.db.GetByUsername(ctx, username)
+	switch err {
+	case nil:
+		return nil, ErrAlreadyExists
+	case sql.ErrNoRows:
+	default:
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+
 	user, err := newUser(username, password)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
