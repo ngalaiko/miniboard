@@ -6,13 +6,28 @@ import (
 	"net/http"
 )
 
+type errorLogger interface {
+	Error(string, ...interface{})
+}
+
 // JSON marshals objet as json and writes it to the response body.
-func JSON(w http.ResponseWriter, response interface{}) {
-	body, _ := json.Marshal(response)
-	size, _ := w.Write(body)
+func JSON(w http.ResponseWriter, logger errorLogger, response interface{}) {
+	body, err := json.Marshal(response)
+	if err != nil {
+		logger.Error("failed to marshal response: %s", err)
+		InternalError(w, logger)
+		return
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+
+	size, err := w.Write(body)
+	if err != nil {
+		logger.Error("failed to write response: %s", err)
+		return
+	}
 
 	w.Header().Add("Content-Length", fmt.Sprint(size))
-	w.Header().Add("Content-Type", "application/json")
 }
 
 type errorMessage struct {
@@ -20,12 +35,12 @@ type errorMessage struct {
 }
 
 // Error writes error response.
-func Error(w http.ResponseWriter, err error, code int) {
+func Error(w http.ResponseWriter, logger errorLogger, err error, code int) {
 	w.WriteHeader(code)
-	JSON(w, &errorMessage{Error: err.Error()})
+	JSON(w, logger, &errorMessage{Error: err.Error()})
 }
 
 // InternalError responsds with unknown internal error.
-func InternalError(w http.ResponseWriter) {
-	Error(w, fmt.Errorf("internal server error"), http.StatusInternalServerError)
+func InternalError(w http.ResponseWriter, logger errorLogger) {
+	Error(w, logger, fmt.Errorf("internal server error"), http.StatusInternalServerError)
 }

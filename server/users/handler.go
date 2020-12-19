@@ -55,7 +55,7 @@ func (h *Handler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		h.logger.Error("failed to read request body: %s", err)
-		httpx.InternalError(w)
+		httpx.InternalError(w, h.logger)
 		return
 	}
 
@@ -63,7 +63,7 @@ func (h *Handler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	if len(body) > 0 {
 		if err := json.Unmarshal(body, req); err != nil {
 			h.logger.Error("failed unmarshal request: %s", err)
-			httpx.InternalError(w)
+			httpx.InternalError(w, h.logger)
 			return
 		}
 	}
@@ -71,13 +71,13 @@ func (h *Handler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	user, err := h.service.Create(r.Context(), req.Username, []byte(req.Password))
 	switch {
 	case err == nil:
-		httpx.JSON(w, user)
+		httpx.JSON(w, h.logger, user)
 	case errors.Is(err, ErrAlreadyExists),
 		errors.Is(err, ErrUsernameEmpty),
 		errors.Is(err, ErrPasswordEmpty):
-		httpx.Error(w, err, http.StatusBadRequest)
+		httpx.Error(w, h.logger, errors.Unwrap(err), http.StatusBadRequest)
 	default:
 		h.logger.Error("failed to create user: %s", err)
-		httpx.InternalError(w)
+		httpx.InternalError(w, h.logger)
 	}
 }

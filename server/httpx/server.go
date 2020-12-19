@@ -24,6 +24,7 @@ type Config struct {
 
 type logger interface {
 	Info(string, ...interface{})
+	Error(string, ...interface{})
 }
 
 // Server represents an HTTP server.
