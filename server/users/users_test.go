@@ -1,6 +1,8 @@
 package users
 
-import "testing"
+import (
+	"testing"
+)
 
 func Test_User_newUser__invalid_username(t *testing.T) {
 	_, err := newUser("", []byte("password"))

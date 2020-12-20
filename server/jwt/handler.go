@@ -81,9 +81,11 @@ func (h *Handler) handleCreateAuthorization(w http.ResponseWriter, r *http.Reque
 	case err == nil:
 	case errors.Is(users.ErrNotFound, err):
 		httpx.Error(w, h.logger, users.ErrNotFound, http.StatusBadRequest)
+		return
 	default:
 		h.logger.Error("failed to get user: %s", err)
 		httpx.InternalError(w, h.logger)
+		return
 	}
 
 	validatePasswordErr := user.ValidatePassword([]byte(req.Password))
@@ -91,15 +93,18 @@ func (h *Handler) handleCreateAuthorization(w http.ResponseWriter, r *http.Reque
 	case validatePasswordErr == nil:
 	case errors.Is(validatePasswordErr, users.ErrInvalidPassword):
 		httpx.Error(w, h.logger, users.ErrInvalidPassword, http.StatusBadRequest)
+		return
 	default:
 		h.logger.Error("failed to validate password: %s", err)
 		httpx.InternalError(w, h.logger)
+		return
 	}
 
 	token, err := h.jwtService.NewToken(r.Context(), user.ID)
 	if err != nil {
 		h.logger.Error("failed to create a new token: %s", err)
 		httpx.InternalError(w, h.logger)
+		return
 	}
 
 	httpx.JSON(w, h.logger, token)
