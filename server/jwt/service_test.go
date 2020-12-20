@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"io/ioutil"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/ngalaiko/miniboard/server/db"
@@ -54,6 +55,40 @@ func Test_NewToken(t *testing.T) {
 
 	if token.Token == "" {
 		t.Errorf("token is empty")
+	}
+
+	if token.ExpiresAt.String() == "" {
+		t.Errorf("token expiry is empty")
+	}
+}
+
+func Test_Verify__invalid(t *testing.T) {
+	ctx := context.TODO()
+
+	service := NewService(createTestDB(ctx, t), &testLogger{})
+
+	if _, err := service.Verify(ctx, "invalid"); err != ErrInvalidToken {
+		t.Errorf("exected %s, got %s", ErrInvalidToken, err)
+	}
+}
+
+func Test_Verify(t *testing.T) {
+	ctx := context.TODO()
+
+	service := NewService(createTestDB(ctx, t), &testLogger{})
+
+	token, err := service.NewToken(ctx, "user id")
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+
+	parsed, err := service.Verify(ctx, token.Token)
+	if err != nil {
+		t.Errorf("exected nil, got %s", err)
+	}
+
+	if !reflect.DeepEqual(parsed, token) {
+		t.Errorf("tokens must be the equal")
 	}
 }
 

@@ -10,11 +10,16 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	jose "gopkg.in/square/go-jose.v2"
 	"gopkg.in/square/go-jose.v2/jwt"
 
-	"github.com/google/uuid"
 	"github.com/ngalaiko/miniboard/server/jwt/keys"
+)
+
+// Known errors.
+var (
+	ErrInvalidToken = fmt.Errorf("token is invalid")
 )
 
 const (
@@ -110,7 +115,57 @@ func (s *Service) NewToken(ctx context.Context, userID string) (*Token, error) {
 	}
 
 	return &Token{
-		Token:  token,
-		UserID: userID,
+		Token:     token,
+		UserID:    userID,
+		ExpiresAt: claims.Expiry.Time(),
 	}, nil
+}
+
+// Verify checks token signature and returns it's meaningful content.
+func (s *Service) Verify(ctx context.Context, token string) (*Token, error) {
+	jwtoken, err := jwt.ParseSigned(token)
+	if err != nil {
+		return nil, ErrInvalidToken
+	}
+
+	if len(jwtoken.Headers) == 0 {
+		return nil, ErrInvalidToken
+	}
+
+	id := jwtoken.Headers[0].KeyID
+
+	pubicKey, err := s.get(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find key '%s': %w", id, err)
+	}
+
+	claims := &jwt.Claims{}
+	if err := jwtoken.Claims(pubicKey, claims); err != nil {
+		return nil, ErrInvalidToken
+	}
+
+	return &Token{
+		Token:     token,
+		UserID:    claims.Subject,
+		ExpiresAt: claims.Expiry.Time(),
+	}, nil
+}
+
+func (s *Service) get(ctx context.Context, id string) (*ecdsa.PublicKey, error) {
+	key, err := s.keysDatabase.Get(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find key '%s': %w", id, err)
+	}
+
+	untypedResult, err := x509.ParsePKIXPublicKey(key.PublicDER)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse PKIX public key: %w", err)
+	}
+
+	switch v := untypedResult.(type) {
+	case *ecdsa.PublicKey:
+		return v, nil
+	default:
+		return nil, fmt.Errorf("unknown public key type: %T", v)
+	}
 }
