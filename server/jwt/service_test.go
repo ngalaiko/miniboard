@@ -67,8 +67,8 @@ func Test_Verify__invalid(t *testing.T) {
 
 	service := NewService(createTestDB(ctx, t), &testLogger{})
 
-	if _, err := service.Verify(ctx, "invalid"); err != ErrInvalidToken {
-		t.Errorf("exected %s, got %s", ErrInvalidToken, err)
+	if _, err := service.Verify(ctx, "invalid"); err != errInvalidToken {
+		t.Errorf("exected %s, got %s", errInvalidToken, err)
 	}
 }
 

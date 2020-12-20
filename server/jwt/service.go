@@ -19,7 +19,7 @@ import (
 
 // Known errors.
 var (
-	ErrInvalidToken = fmt.Errorf("token is invalid")
+	errInvalidToken = fmt.Errorf("token is invalid")
 )
 
 const (
@@ -28,8 +28,8 @@ const (
 )
 
 type logger interface {
+	errorLogger
 	Info(string, ...interface{})
-	Error(string, ...interface{})
 }
 
 // Service allows to issue and verify jwt tokens.
@@ -125,11 +125,11 @@ func (s *Service) NewToken(ctx context.Context, userID string) (*Token, error) {
 func (s *Service) Verify(ctx context.Context, token string) (*Token, error) {
 	jwtoken, err := jwt.ParseSigned(token)
 	if err != nil {
-		return nil, ErrInvalidToken
+		return nil, errInvalidToken
 	}
 
 	if len(jwtoken.Headers) == 0 {
-		return nil, ErrInvalidToken
+		return nil, errInvalidToken
 	}
 
 	id := jwtoken.Headers[0].KeyID
@@ -141,7 +141,7 @@ func (s *Service) Verify(ctx context.Context, token string) (*Token, error) {
 
 	claims := &jwt.Claims{}
 	if err := jwtoken.Claims(pubicKey, claims); err != nil {
-		return nil, ErrInvalidToken
+		return nil, errInvalidToken
 	}
 
 	return &Token{
