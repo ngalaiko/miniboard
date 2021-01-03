@@ -42,7 +42,7 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 	usersService := users.NewService(db)
 
 	httpServer.Route("users", users.NewHandler(usersService, logger))
-	httpServer.Route("authorization", jwt.NewHandler(usersService, jwtService, logger))
+	httpServer.Route("authorizations", jwt.NewHandler(usersService, jwtService, logger))
 
 	return &Server{
 		logger:     logger,
