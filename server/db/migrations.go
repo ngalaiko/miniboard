@@ -29,5 +29,18 @@ func migrations() []*migration {
 			)
 			`,
 		},
+		{
+			Name: "create operations",
+			Query: `
+			CREATE TABLE operations (
+				id       TEXT NOT NULL,
+				user_id  TEXT NOT NULL,
+				done     BOOLEAN NOT NULL,
+				error    TEXT NULL,
+				response TEXT NULL,
+				PRIMARY KEY (id)
+			)
+			`,
+		},
 	}
 }
