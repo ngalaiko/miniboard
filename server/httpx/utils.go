@@ -31,13 +31,13 @@ func JSON(w http.ResponseWriter, logger errorLogger, response interface{}) {
 }
 
 type errorMessage struct {
-	Error string `json:"error"`
+	Message string `json:"message"`
 }
 
 // Error writes error response.
 func Error(w http.ResponseWriter, logger errorLogger, err error, code int) {
 	w.WriteHeader(code)
-	JSON(w, logger, &errorMessage{Error: err.Error()})
+	JSON(w, logger, &errorMessage{Message: err.Error()})
 }
 
 // InternalError responsds with unknown internal error.

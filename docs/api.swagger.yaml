@@ -6,10 +6,14 @@ info:
     url: https://github.com/ngalaiko/miniboard/blob/master/LICENSE
   version: 1.0.0
 servers:
-- url: https://miniboard.app/api/v1
+- url: https://miniboard.app/
 tags:
 - name: authorization
   description: Operations about authorization
+- name: feed
+  description: Operations about feed
+- name: operation
+  description: Operations about longrunning operations
 - name: user
   description: Operations about user
 paths:
@@ -51,6 +55,87 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 error: "invalid password"
+        500:
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "internal server error"
+  /feeds/:
+    post:
+      tags:
+      - feed
+      summary: Creates a new feed
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: url
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Operation"
+              example:
+                id: "85efc772-6aaa-423d-b32a-96fab4312464"
+                done: "false"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "feed not found"
+        500:
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "internal server error"
+  /operations/{operationId}:
+    get:
+      tags:
+      - operation
+      summary: Returns information about an operation
+      parameters:
+      - name: operationId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Operation"
+              example:
+                id: "85efc772-6aaa-423d-b32a-96fab4312464"
+                done: "true"
+                result:
+                  error:
+                    $ref: "#/components/schemas/Error"
+        404:
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "operation not found"
         500:
           description: Internal error
           content:
@@ -113,18 +198,54 @@ components:
           type: string
         user_id:
           type: string
+          format: uuid
         expires_at:
           type: string
           format: date-time
+    Feed:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: url
+        title:
+          type: string
+        created:
+          type: string
+          format: datetime
+        updated:
+          type: string
+          format: datetime
+    Operation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        done:
+          type: boolean
+        result:
+          type: object
+          properties:
+            error:
+              $ref: "#/components/schemas/Error"
+            response:
+              type: object
+              anyOf:
+              - $ref: "#/components/schemas/Feed"
     User:
       type: object
       properties:
         id:
           type: string
+          format: uuid
         username:
           type: string
     Error:
       type: object
       properties:
-        error:
+        message:
           type: string
