@@ -1,6 +1,10 @@
 package operations
 
-import "github.com/google/uuid"
+import (
+	"context"
+
+	"github.com/google/uuid"
+)
 
 // Error contains operations error result.
 type Error struct {
@@ -13,12 +17,17 @@ type Result struct {
 	Response interface{} `json:"response,omitempty"`
 }
 
+// operationFunc is a single long running operation.
+type operationFunc func(context.Context, *Operation, chan<- *Operation) error
+
 // Operation represents a longrunning operation.
 type Operation struct {
 	ID     string  `json:"id"`
-	UserID string  `json:"-"`
 	Done   bool    `json:"done"`
+	UserID string  `json:"-"`
 	Result *Result `json:"result,omitempty"`
+
+	task operationFunc
 }
 
 // New creates new operation.
@@ -26,6 +35,16 @@ func New(userID string) *Operation {
 	return &Operation{
 		ID:     uuid.New().String(),
 		UserID: userID,
+	}
+}
+
+func (o *Operation) copy() *Operation {
+	return &Operation{
+		ID:     o.ID,
+		Done:   o.Done,
+		UserID: o.UserID,
+		Result: o.Result,
+		task:   o.task,
 	}
 }
 

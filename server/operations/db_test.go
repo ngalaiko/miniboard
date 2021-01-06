@@ -162,3 +162,5 @@ func testDB(ctx context.Context, t *testing.T) *sql.DB {
 type testLogger struct{}
 
 func (tl *testLogger) Info(string, ...interface{}) {}
+
+func (tl *testLogger) Error(string, ...interface{}) {}
