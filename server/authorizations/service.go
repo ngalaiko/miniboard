@@ -1,4 +1,4 @@
-package jwt
+package authorizations
 
 import (
 	"context"
@@ -14,7 +14,7 @@ import (
 	jose "gopkg.in/square/go-jose.v2"
 	"gopkg.in/square/go-jose.v2/jwt"
 
-	"github.com/ngalaiko/miniboard/server/jwt/keys"
+	"github.com/ngalaiko/miniboard/server/authorizations/keys"
 )
 
 // Known errors.

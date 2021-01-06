@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/ngalaiko/miniboard/server/authorizations"
 	"github.com/ngalaiko/miniboard/server/db"
 	"github.com/ngalaiko/miniboard/server/httpx"
-	"github.com/ngalaiko/miniboard/server/jwt"
 	"github.com/ngalaiko/miniboard/server/logger"
 	"github.com/ngalaiko/miniboard/server/users"
 )
@@ -20,10 +20,10 @@ type Config struct {
 
 // Server is the main object.
 type Server struct {
-	logger     *logger.Logger
-	db         *sql.DB
-	httpServer *httpx.Server
-	jwtService *jwt.Service
+	logger                *logger.Logger
+	db                    *sql.DB
+	httpServer            *httpx.Server
+	authorizationsService *authorizations.Service
 }
 
 // New returns a new initialized server object.
@@ -38,17 +38,17 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 		return nil, fmt.Errorf("failed to initialize http server: %w", err)
 	}
 
-	jwtService := jwt.NewService(db, logger)
+	authorizationsService := authorizations.NewService(db, logger)
 	usersService := users.NewService(db)
 
 	httpServer.Route("users", users.NewHandler(usersService, logger))
-	httpServer.Route("authorizations", jwt.NewHandler(usersService, jwtService, logger))
+	httpServer.Route("authorizations", authorizations.NewHandler(usersService, authorizationsService, logger))
 
 	return &Server{
-		logger:     logger,
-		db:         db,
-		httpServer: httpServer,
-		jwtService: jwtService,
+		logger:                logger,
+		db:                    db,
+		httpServer:            httpServer,
+		authorizationsService: authorizationsService,
 	}, nil
 }
 
@@ -57,7 +57,7 @@ func (s *Server) Start(ctx context.Context) error {
 	if err := db.Migrate(ctx, s.db, s.logger); err != nil {
 		return fmt.Errorf("failed to apply db migrations: %w", err)
 	}
-	if err := s.jwtService.Init(ctx); err != nil {
+	if err := s.authorizationsService.Init(ctx); err != nil {
 		return fmt.Errorf("failed to init jwt service: %w", err)
 	}
 	if err := s.httpServer.Start(); err != nil {
