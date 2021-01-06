@@ -74,7 +74,7 @@ func Test_Handler__Create_unknown_user(t *testing.T) {
 			status, http.StatusBadRequest)
 	}
 
-	expected := fmt.Sprintf(`{"error":"%s"}`, users.ErrNotFound)
+	expected := fmt.Sprintf(`{"message":"%s"}`, users.ErrNotFound)
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
@@ -106,7 +106,7 @@ func Test_Handler__Create_invalid_password(t *testing.T) {
 			status, http.StatusBadRequest)
 	}
 
-	expected := fmt.Sprintf(`{"error":"%s"}`, users.ErrInvalidPassword)
+	expected := fmt.Sprintf(`{"message":"%s"}`, users.ErrInvalidPassword)
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)

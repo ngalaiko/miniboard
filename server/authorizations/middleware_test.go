@@ -32,7 +32,7 @@ func Test_Middleware__no_token(t *testing.T) {
 		t.Errorf("handler was called")
 	}
 
-	expected := fmt.Sprintf(`{"error":"%s"}`, errNoToken)
+	expected := fmt.Sprintf(`{"message":"%s"}`, errNoToken)
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
@@ -65,7 +65,7 @@ func Test_Middleware__internal(t *testing.T) {
 		t.Errorf("handler was called")
 	}
 
-	expected := fmt.Sprintf(`{"error":"internal server error"}`)
+	expected := fmt.Sprintf(`{"message":"internal server error"}`)
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
@@ -98,7 +98,7 @@ func Test_Middleware__invalid_token(t *testing.T) {
 		t.Errorf("handler was called")
 	}
 
-	expected := fmt.Sprintf(`{"error":"%s"}`, errInvalidToken)
+	expected := fmt.Sprintf(`{"message":"%s"}`, errInvalidToken)
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)

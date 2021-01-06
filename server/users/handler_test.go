@@ -66,7 +66,7 @@ func Test_Handler__Post_create_username_empty(t *testing.T) {
 			status, http.StatusBadRequest)
 	}
 
-	expected := fmt.Sprintf(`{"error":"%s"}`, ErrUsernameEmpty)
+	expected := fmt.Sprintf(`{"message":"%s"}`, ErrUsernameEmpty)
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
@@ -92,7 +92,7 @@ func Test_Handler__Post_create_password_empty(t *testing.T) {
 			status, http.StatusBadRequest)
 	}
 
-	expected := fmt.Sprintf(`{"error":"%s"}`, ErrPasswordEmpty)
+	expected := fmt.Sprintf(`{"message":"%s"}`, ErrPasswordEmpty)
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
@@ -133,7 +133,7 @@ func Test_Handler__Post_already_exists(t *testing.T) {
 			status, http.StatusBadRequest)
 	}
 
-	expected := fmt.Sprintf(`{"error":"%s"}`, ErrAlreadyExists)
+	expected := fmt.Sprintf(`{"message":"%s"}`, ErrAlreadyExists)
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
