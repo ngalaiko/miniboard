@@ -8,6 +8,7 @@ require (
 	github.com/karrick/godirwalk v1.16.1 // indirect
 	github.com/lib/pq v1.8.0
 	github.com/mattn/go-sqlite3 v1.14.4
+	github.com/mmcdole/gofeed v1.1.0
 	github.com/rogpeppe/go-internal v1.6.2 // indirect
 	github.com/rs/zerolog v1.20.0
 	github.com/sirupsen/logrus v1.7.0 // indirect
