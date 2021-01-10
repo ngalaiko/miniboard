@@ -42,5 +42,19 @@ func migrations() []*migration {
 			)
 			`,
 		},
+		{
+			Name: "create feeds",
+			Query: `
+			CREATE TABLE feeds (
+				id            TEXT   NOT NULL,
+				user_id       TEXT   NOT NULL,
+				url           TEXT   NOT NULL,
+				title         TEXT   NOT NULL,
+				created_epoch BIGINT NOT NULL,
+				updated_epoch BIGINT NOT NULL,
+				PRIMARY KEY (id)
+			)
+			`,
+		},
 	}
 }
