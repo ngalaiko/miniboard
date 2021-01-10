@@ -51,7 +51,7 @@ func migrations() []*migration {
 				url           TEXT   NOT NULL,
 				title         TEXT   NOT NULL,
 				created_epoch BIGINT NOT NULL,
-				updated_epoch BIGINT NOT NULL,
+				updated_epoch BIGINT     NULL,
 				PRIMARY KEY (id)
 			)
 			`,

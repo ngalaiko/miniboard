@@ -19,6 +19,12 @@ func newDB(sqldb *sql.DB) *database {
 
 // Create creates a feed in the database.
 func (d *database) Create(ctx context.Context, feed *Feed) error {
+	var updatedEpoch *int64
+	if feed.Updated != nil {
+		updatedEpoch = new(int64)
+		*updatedEpoch = feed.Updated.UTC().UnixNano()
+	}
+
 	_, err := d.db.ExecContext(ctx, `
 	INSERT INTO feeds (
 		id,
@@ -31,7 +37,7 @@ func (d *database) Create(ctx context.Context, feed *Feed) error {
 		$1, $2, $3, $4, $5, $6
 	)`, feed.ID, feed.UserID, feed.URL.String(), feed.Title,
 		feed.Created.UTC().UnixNano(),
-		feed.Updated.UTC().UnixNano(),
+		updatedEpoch,
 	)
 
 	return err
@@ -64,7 +70,8 @@ type scannable interface {
 func (d *database) scanRow(row scannable) (*Feed, error) {
 	feed := &Feed{}
 	var rawURL string
-	var createdEpoch, updatedEpoch int64
+	var createdEpoch int64
+	var updatedEpoch *int64
 	if err := row.Scan(
 		&feed.ID,
 		&feed.UserID,
@@ -81,8 +88,13 @@ func (d *database) scanRow(row scannable) (*Feed, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	feed.Created = time.Unix(0, createdEpoch).Round(time.Nanosecond)
-	feed.Updated = time.Unix(0, updatedEpoch).Round(time.Nanosecond)
+
+	if updatedEpoch != nil {
+		feed.Updated = new(time.Time)
+		*feed.Updated = time.Unix(0, *updatedEpoch).Round(time.Nanosecond)
+	}
 
 	return feed, nil
 }

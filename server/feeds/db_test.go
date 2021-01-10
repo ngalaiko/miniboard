@@ -23,8 +23,8 @@ func Test_db__Create(t *testing.T) {
 		URL:     mustParseURL("https://example.com"),
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour),
-		Updated: time.Now(),
 	}
+
 	if err := db.Create(ctx, feed); err != nil {
 		t.Fatalf("failed to create a feed: %s", err)
 	}
@@ -40,7 +40,6 @@ func Test_db__Create_twice(t *testing.T) {
 		URL:     mustParseURL("https://example.com"),
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour),
-		Updated: time.Now(),
 	}
 	if err := db.Create(ctx, feed); err != nil {
 		t.Fatalf("failed to create a feed: %s", err)
@@ -61,7 +60,6 @@ func Test_db__Get_not_found(t *testing.T) {
 		URL:     mustParseURL("https://example.com"),
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour),
-		Updated: time.Now(),
 	}
 
 	fromDB, err := db.Get(ctx, feed.UserID, feed.ID)
@@ -84,8 +82,9 @@ func Test_db__Get(t *testing.T) {
 		URL:     mustParseURL("https://example.com"),
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
-		Updated: time.Now().Truncate(time.Nanosecond),
 	}
+	feed.Updated = new(time.Time)
+	*feed.Updated = time.Now().Truncate(time.Nanosecond)
 
 	if err := db.Create(ctx, feed); err != nil {
 		t.Fatalf("failed to create a feed: %s", err)

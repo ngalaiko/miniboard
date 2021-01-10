@@ -55,7 +55,7 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL) (*Fee
 		UserID:  userID,
 		URL:     url,
 		Title:   parsedFeed.Title,
-		Created: time.Now().UTC(),
+		Created: time.Now().Truncate(time.Nanosecond),
 	}
 
 	if err := s.db.Create(ctx, feed); err != nil {
@@ -66,7 +66,7 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL) (*Fee
 }
 
 // Get returns a feed by it's id.
-func (s *Service) Get(ctx context.Context, userID string, id string) (*Feed, error) {
+func (s *Service) Get(ctx context.Context, id string, userID string) (*Feed, error) {
 	feed, err := s.db.Get(ctx, id, userID)
 	switch {
 	case err == nil:
