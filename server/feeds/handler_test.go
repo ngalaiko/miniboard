@@ -87,12 +87,11 @@ func Test_Handler__Post_create_failed_create_operation(t *testing.T) {
 			status, http.StatusInternalServerError)
 	}
 
-	expected := fmt.Sprintf(`{"message":"internal server error"}`)
+	expected := `{"message":"internal server error"}`
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
 	}
-
 }
 
 func Test_Handler__Post_create_url_empty(t *testing.T) {
@@ -121,38 +120,6 @@ func Test_Handler__Post_create_url_empty(t *testing.T) {
 	}
 
 	expected := fmt.Sprintf(`{"message":"%s"}`, errEmptyURL)
-	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v",
-			rr.Body.String(), expected)
-	}
-}
-
-func Test_Handler__Post_create_url_invalid(t *testing.T) {
-	ctx := context.Background()
-	logger := &testLogger{}
-	db := createTestDB(ctx, t)
-	crawler := &testCrawler{}
-	service := NewService(db, crawler)
-	handler := NewHandler(service, logger, &testOperationsService{})
-
-	req, err := http.NewRequest("POST", "/", strings.NewReader(`{"url": ":? ::///example.org"}`))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	req = req.WithContext(authorizations.NewContext(ctx, &authorizations.Token{
-		UserID: "user",
-	}))
-	rr := httptest.NewRecorder()
-
-	handler.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusBadRequest {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusBadRequest)
-	}
-
-	expected := fmt.Sprintf(`{"message":"%s"}`, errInvalidURL)
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)

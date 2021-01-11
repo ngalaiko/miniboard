@@ -65,7 +65,7 @@ func Test_Middleware__internal(t *testing.T) {
 		t.Errorf("handler was called")
 	}
 
-	expected := fmt.Sprintf(`{"message":"internal server error"}`)
+	expected := `{"message":"internal server error"}`
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)

@@ -86,13 +86,13 @@ func Test_Update_response(t *testing.T) {
 		t.Fatal("failed to marshal operation: %w", err)
 	}
 
-	fromDbMarshalled, err := json.Marshal(fromDB)
+	fromDBMarshalled, err := json.Marshal(fromDB)
 	if err != nil {
 		t.Fatal("failed to marshal fromDB: %w", err)
 	}
 
-	if bytes.Compare(operationMarshalled, fromDbMarshalled) != 0 {
-		t.Fatalf("expected %+v, got %+v", string(operationMarshalled), string(fromDbMarshalled))
+	if !bytes.Equal(operationMarshalled, fromDBMarshalled) {
+		t.Fatalf("expected %+v, got %+v", string(operationMarshalled), string(fromDBMarshalled))
 	}
 }
 
