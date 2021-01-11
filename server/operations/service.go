@@ -14,6 +14,7 @@ var (
 )
 
 type logger interface {
+	Info(string, ...interface{})
 	Error(string, ...interface{})
 }
 
@@ -26,32 +27,38 @@ type Config struct {
 type Service struct {
 	db     *database
 	logger logger
+	config *Config
 
 	processQueue chan *Operation
 }
 
 // NewService returns new service.
-func NewService(ctx context.Context, logger logger, sqldb *sql.DB, cfg *Config) *Service {
+func NewService(logger logger, sqldb *sql.DB, cfg *Config) *Service {
 	if cfg == nil {
 		cfg = &Config{}
 	}
 
-	s := &Service{
+	return &Service{
 		db:           newDatabase(sqldb),
 		logger:       logger,
 		processQueue: make(chan *Operation),
+		config:       cfg,
 	}
+}
 
+// Start starts processing workers.
+func (s *Service) Start(ctx context.Context) error {
 	nWorkers := 10
-	if cfg.Workers > 0 {
-		nWorkers = cfg.Workers
+	if s.config.Workers > 0 {
+		nWorkers = s.config.Workers
 	}
 
+	s.logger.Info("starting %d operation workers", nWorkers)
 	for i := 0; i < nWorkers; i++ {
+		// todo: handle errors here
 		go s.runWorker(ctx)
 	}
-
-	return s
+	return nil
 }
 
 // Create creates an operation, and runs it.

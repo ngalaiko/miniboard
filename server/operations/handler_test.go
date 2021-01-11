@@ -13,7 +13,10 @@ import (
 func Test_Handler__Post(t *testing.T) {
 	ctx := context.Background()
 	logger := &testLogger{}
-	service := NewService(ctx, logger, testDB(ctx, t), nil)
+	service := NewService(logger, testDB(ctx, t), nil)
+	if err := service.Start(ctx); err != nil {
+		t.Fatal(err)
+	}
 	handler := NewHandler(service, logger)
 
 	req, err := http.NewRequest("Post", "/", nil)
@@ -34,7 +37,7 @@ func Test_Handler__Post(t *testing.T) {
 func Test_Handler__Get_unauthorized(t *testing.T) {
 	ctx := context.Background()
 	logger := &testLogger{}
-	service := NewService(ctx, logger, testDB(ctx, t), nil)
+	service := NewService(logger, testDB(ctx, t), nil)
 	handler := NewHandler(service, logger)
 
 	req, err := http.NewRequest("GET", "/", nil)
@@ -56,7 +59,10 @@ func Test_Handler__Get_not_found(t *testing.T) {
 	ctx := context.Background()
 	logger := &testLogger{}
 	db := testDB(ctx, t)
-	service := NewService(ctx, logger, db, nil)
+	service := NewService(logger, db, nil)
+	if err := service.Start(ctx); err != nil {
+		t.Fatal(err)
+	}
 	handler := NewHandler(service, logger)
 
 	req, err := http.NewRequest("GET", "/404", nil)
@@ -81,7 +87,10 @@ func Test_Handler__Get_found(t *testing.T) {
 	ctx := context.Background()
 	logger := &testLogger{}
 	db := testDB(ctx, t)
-	service := NewService(ctx, logger, db, nil)
+	service := NewService(logger, db, nil)
+	if err := service.Start(ctx); err != nil {
+		t.Fatal(err)
+	}
 	handler := NewHandler(service, logger)
 
 	operation, err := service.Create(ctx, "user", func(context.Context, *Operation, chan<- *Operation) error {

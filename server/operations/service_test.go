@@ -11,7 +11,10 @@ func Test_Get_done(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
 
-	service := NewService(ctx, &testLogger{}, testDB(ctx, t), nil)
+	service := NewService(&testLogger{}, testDB(ctx, t), nil)
+	if err := service.Start(ctx); err != nil {
+		t.Fatal(err)
+	}
 
 	f := func(ctx context.Context, operation *Operation, status chan<- *Operation) error {
 		operation.Done = true
@@ -38,7 +41,10 @@ func Test_Get_panic(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
 
-	service := NewService(ctx, &testLogger{}, testDB(ctx, t), nil)
+	service := NewService(&testLogger{}, testDB(ctx, t), nil)
+	if err := service.Start(ctx); err != nil {
+		t.Fatal(err)
+	}
 
 	f := func(ctx context.Context, operation *Operation, status chan<- *Operation) error {
 		panic("test")
@@ -65,7 +71,10 @@ func Test_Get_error(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
 
-	service := NewService(ctx, &testLogger{}, testDB(ctx, t), nil)
+	service := NewService(&testLogger{}, testDB(ctx, t), nil)
+	if err := service.Start(ctx); err != nil {
+		t.Fatal(err)
+	}
 
 	f := func(ctx context.Context, operation *Operation, status chan<- *Operation) error {
 		return fmt.Errorf("test error")
@@ -92,7 +101,10 @@ func Test_Get_no_updates(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
 
-	service := NewService(ctx, &testLogger{}, testDB(ctx, t), nil)
+	service := NewService(&testLogger{}, testDB(ctx, t), nil)
+	if err := service.Start(ctx); err != nil {
+		t.Fatal(err)
+	}
 
 	f := func(ctx context.Context, operation *Operation, status chan<- *Operation) error {
 		return nil
