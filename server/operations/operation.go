@@ -17,8 +17,8 @@ type Result struct {
 	Response interface{} `json:"response,omitempty"`
 }
 
-// operationFunc is a single long running operation.
-type operationFunc func(context.Context, *Operation, chan<- *Operation) error
+// Task is a single long running operation.
+type Task func(context.Context, *Operation, chan<- *Operation) error
 
 // Operation represents a longrunning operation.
 type Operation struct {
@@ -27,7 +27,7 @@ type Operation struct {
 	UserID string  `json:"-"`
 	Result *Result `json:"result,omitempty"`
 
-	task operationFunc
+	task Task
 }
 
 // New creates new operation.

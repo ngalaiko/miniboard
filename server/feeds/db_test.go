@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"io/ioutil"
-	"net/url"
 	"os"
 	"reflect"
 	"testing"
@@ -20,7 +19,7 @@ func Test_db__Create(t *testing.T) {
 	feed := &Feed{
 		ID:      "test id",
 		UserID:  "user",
-		URL:     mustParseURL("https://example.com"),
+		URL:     "https://example.com",
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour),
 	}
@@ -37,7 +36,7 @@ func Test_db__Create_twice(t *testing.T) {
 	feed := &Feed{
 		ID:      "test id",
 		UserID:  "user",
-		URL:     mustParseURL("https://example.com"),
+		URL:     "https://example.com",
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour),
 	}
@@ -57,7 +56,7 @@ func Test_db__Get_not_found(t *testing.T) {
 	feed := &Feed{
 		ID:      "test id",
 		UserID:  "user",
-		URL:     mustParseURL("https://example.com"),
+		URL:     "https://example.com",
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour),
 	}
@@ -79,7 +78,7 @@ func Test_db__Get(t *testing.T) {
 	feed := &Feed{
 		ID:      "test id",
 		UserID:  "user",
-		URL:     mustParseURL("https://example.com"),
+		URL:     "https://example.com",
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
 	}
@@ -98,11 +97,6 @@ func Test_db__Get(t *testing.T) {
 	if !reflect.DeepEqual(feed, fromDB) {
 		t.Fatalf("expected %+v, got %+v", feed, fromDB)
 	}
-}
-
-func mustParseURL(raw string) *url.URL {
-	u, _ := url.ParseRequestURI(raw)
-	return u
 }
 
 func createTestDB(ctx context.Context, t *testing.T) *sql.DB {

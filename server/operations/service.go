@@ -55,7 +55,7 @@ func NewService(ctx context.Context, logger logger, sqldb *sql.DB, cfg *Config) 
 }
 
 // Create creates an operation, and runs it.
-func (s *Service) Create(ctx context.Context, userID string, opFunc operationFunc) (*Operation, error) {
+func (s *Service) Create(ctx context.Context, userID string, opFunc Task) (*Operation, error) {
 	operation := &Operation{
 		ID:     uuid.New().String(),
 		UserID: userID,

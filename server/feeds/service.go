@@ -15,7 +15,9 @@ import (
 
 // Known errors.
 var (
-	errNotFound = fmt.Errorf("not found")
+	errNotFound             = fmt.Errorf("not found")
+	errFailedToDownloadFeed = fmt.Errorf("failed to download feed")
+	errFailedToParseFeed    = fmt.Errorf("failed to parse feed")
 )
 
 type crawler interface {
@@ -42,18 +44,18 @@ func NewService(db *sql.DB, crawler crawler) *Service {
 func (s *Service) Create(ctx context.Context, userID string, url *url.URL) (*Feed, error) {
 	data, err := s.crawler.Crawl(ctx, url)
 	if err != nil {
-		return nil, fmt.Errorf("failed to download %w", err)
+		return nil, errFailedToDownloadFeed
 	}
 
 	parsedFeed, err := s.parser.Parse(bytes.NewReader(data))
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse feed: %w", err)
+		return nil, errFailedToParseFeed
 	}
 
 	feed := &Feed{
 		ID:      uuid.New().String(),
 		UserID:  userID,
-		URL:     url,
+		URL:     url.String(),
 		Title:   parsedFeed.Title,
 		Created: time.Now().Truncate(time.Nanosecond),
 	}

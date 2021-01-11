@@ -3,7 +3,6 @@ package feeds
 import (
 	"context"
 	"database/sql"
-	"net/url"
 	"time"
 )
 
@@ -35,7 +34,7 @@ func (d *database) Create(ctx context.Context, feed *Feed) error {
 		updated_epoch
 	) VALUES (
 		$1, $2, $3, $4, $5, $6
-	)`, feed.ID, feed.UserID, feed.URL.String(), feed.Title,
+	)`, feed.ID, feed.UserID, feed.URL, feed.Title,
 		feed.Created.UTC().UnixNano(),
 		updatedEpoch,
 	)
@@ -69,23 +68,16 @@ type scannable interface {
 
 func (d *database) scanRow(row scannable) (*Feed, error) {
 	feed := &Feed{}
-	var rawURL string
 	var createdEpoch int64
 	var updatedEpoch *int64
 	if err := row.Scan(
 		&feed.ID,
 		&feed.UserID,
-		&rawURL,
+		&feed.URL,
 		&feed.Title,
 		&createdEpoch,
 		&updatedEpoch,
 	); err != nil {
-		return nil, err
-	}
-
-	var err error
-	feed.URL, err = url.ParseRequestURI(rawURL)
-	if err != nil {
 		return nil, err
 	}
 

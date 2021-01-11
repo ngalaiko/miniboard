@@ -8,6 +8,33 @@ import (
 	"testing"
 )
 
+func Test__Create_feed_failed_to_parse_feed(t *testing.T) {
+	ctx := context.TODO()
+
+	sqldb := createTestDB(ctx, t)
+	cw := &testCrawler{}
+	cw.With("https://example.org", []byte("wrong"))
+	service := NewService(sqldb, cw)
+
+	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"))
+	if err != errFailedToParseFeed {
+		t.Fatalf("expected %s, got %s", errFailedToParseFeed, err)
+	}
+}
+
+func Test__Create_feed_not_found(t *testing.T) {
+	ctx := context.TODO()
+
+	sqldb := createTestDB(ctx, t)
+	cw := &testCrawler{}
+	service := NewService(sqldb, cw)
+
+	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"))
+	if err != errFailedToDownloadFeed {
+		t.Fatalf("expected %s, got %s", errFailedToDownloadFeed, err)
+	}
+}
+
 func Test__Create(t *testing.T) {
 	ctx := context.TODO()
 
@@ -36,7 +63,7 @@ func Test__Create(t *testing.T) {
 		t.Errorf("id expected to not be empty")
 	}
 
-	if feed.URL.String() != "https://example.org" {
+	if feed.URL != "https://example.org" {
 		t.Errorf("url should be https://example.org, got %s", feed.URL)
 	}
 }
@@ -103,4 +130,12 @@ func (tc *testCrawler) Crawl(_ context.Context, url *url.URL) ([]byte, error) {
 	}
 
 	return data, nil
+}
+
+func mustParseURL(raw string) *url.URL {
+	url, err := url.Parse(raw)
+	if err != nil {
+		panic(err)
+	}
+	return url
 }
