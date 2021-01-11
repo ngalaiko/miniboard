@@ -4,7 +4,7 @@ on:
   push: {}
 
 env:
-  GO_VERSION: 1.14.2
+  GO_VERSION: 1.15.6
 
 jobs:
   lint:
@@ -48,7 +48,7 @@ jobs:
 
 
   build:
-    name: Build
+    name: Build binaries
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -62,9 +62,15 @@ jobs:
       with:
         go-version: ${{ env.GO_VERSION }}
 
-    - name: Build binary ${{ matrix.goos }} ${{ matrix.goarch }}
+    - name: Build binary for ${{ matrix.goos }} ${{ matrix.goarch }}
       run: |
+          pwd
+          ls
+          ls server
           cd server
+          ls
+          ls cmd
+          ls cmd/miniboard
           CGO_ENABLED=1 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build \
             -o miniboard_${{ matrix.goos }}_${{ matrix.goarch }} \
             ./cmd/miniboard/main.go
