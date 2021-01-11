@@ -6,16 +6,20 @@ import (
 	"fmt"
 
 	"github.com/ngalaiko/miniboard/server/authorizations"
+	"github.com/ngalaiko/miniboard/server/crawler"
 	"github.com/ngalaiko/miniboard/server/db"
+	"github.com/ngalaiko/miniboard/server/feeds"
 	"github.com/ngalaiko/miniboard/server/httpx"
 	"github.com/ngalaiko/miniboard/server/logger"
+	"github.com/ngalaiko/miniboard/server/operations"
 	"github.com/ngalaiko/miniboard/server/users"
 )
 
 // Config contains all server configuration.
 type Config struct {
-	DB   *db.Config
-	HTTP *httpx.Config
+	DB         *db.Config         `yaml:"db"`
+	HTTP       *httpx.Config      `yaml:"http"`
+	Operations *operations.Config `yaml:"operations"`
 }
 
 // Server is the main object.
@@ -24,6 +28,7 @@ type Server struct {
 	db                    *sql.DB
 	httpServer            *httpx.Server
 	authorizationsService *authorizations.Service
+	operationsService     *operations.Service
 }
 
 // New returns a new initialized server object.
@@ -40,15 +45,22 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 
 	authorizationsService := authorizations.NewService(db, logger)
 	usersService := users.NewService(db)
+	operationsService := operations.NewService(logger, db, cfg.Operations)
+	feedsService := feeds.NewService(db, crawler.New())
 
-	httpServer.Route("users", users.NewHandler(usersService, logger))
+	withAuth := authorizations.Authenticate(authorizationsService, logger)
+
 	httpServer.Route("authorizations", authorizations.NewHandler(usersService, authorizationsService, logger))
+	httpServer.Route("feeds", withAuth(feeds.NewHandler(feedsService, logger, operationsService)))
+	httpServer.Route("operations", withAuth(operations.NewHandler(operationsService, logger)))
+	httpServer.Route("users", users.NewHandler(usersService, logger))
 
 	return &Server{
 		logger:                logger,
 		db:                    db,
 		httpServer:            httpServer,
 		authorizationsService: authorizationsService,
+		operationsService:     operationsService,
 	}, nil
 }
 
@@ -59,6 +71,9 @@ func (s *Server) Start(ctx context.Context) error {
 	}
 	if err := s.authorizationsService.Init(ctx); err != nil {
 		return fmt.Errorf("failed to init jwt service: %w", err)
+	}
+	if err := s.operationsService.Start(ctx); err != nil {
+		return fmt.Errorf("failed to start operations service: %w", err)
 	}
 	if err := s.httpServer.Start(); err != nil {
 		return fmt.Errorf("failed to start http server: %w", err)
