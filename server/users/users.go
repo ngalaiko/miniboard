@@ -7,8 +7,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-const bcryptCost = 14
-
 // Known errors.
 var (
 	ErrInvalidPassword = fmt.Errorf("invalid password")
@@ -23,7 +21,7 @@ type User struct {
 	Hash     []byte `json:"-"`
 }
 
-func newUser(username string, password []byte) (*User, error) {
+func newUser(username string, password []byte, bcryptCost int) (*User, error) {
 	if username == "" {
 		return nil, ErrUsernameEmpty
 	}

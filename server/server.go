@@ -20,6 +20,7 @@ type Config struct {
 	DB         *db.Config         `yaml:"db"`
 	HTTP       *httpx.Config      `yaml:"http"`
 	Operations *operations.Config `yaml:"operations"`
+	Users      *users.Config      `yaml:"users"`
 }
 
 // Server is the main object.
@@ -44,7 +45,7 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 	}
 
 	authorizationsService := authorizations.NewService(db, logger)
-	usersService := users.NewService(db)
+	usersService := users.NewService(db, cfg.Users)
 	operationsService := operations.NewService(logger, db, cfg.Operations)
 	feedsService := feeds.NewService(db, crawler.New())
 

@@ -10,7 +10,7 @@ func Test_Service_Create(t *testing.T) {
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
-	service := NewService(sqldb)
+	service := NewService(sqldb, &Config{BCryptCost: 10})
 
 	user, err := service.Create(ctx, "username", []byte("password"))
 	if err != nil {
@@ -30,7 +30,7 @@ func Test_Service_Create__twice(t *testing.T) {
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
-	service := NewService(sqldb)
+	service := NewService(sqldb, &Config{BCryptCost: 10})
 
 	if _, err := service.Create(ctx, "username", []byte("password")); err != nil {
 		t.Fatalf("failed to create a user: %s", err)
@@ -46,7 +46,7 @@ func Test_Service_GetByID(t *testing.T) {
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
-	service := NewService(sqldb)
+	service := NewService(sqldb, &Config{BCryptCost: 10})
 
 	created, err := service.Create(ctx, "username", []byte("password"))
 	if err != nil {
@@ -67,7 +67,7 @@ func Test_Service_GetByID__not_found(t *testing.T) {
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
-	service := NewService(sqldb)
+	service := NewService(sqldb, &Config{BCryptCost: 10})
 
 	_, err := service.GetByID(ctx, "id")
 	if err != ErrNotFound {
@@ -79,7 +79,7 @@ func Test_Service_GetByUsername(t *testing.T) {
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
-	service := NewService(sqldb)
+	service := NewService(sqldb, &Config{BCryptCost: 10})
 
 	created, err := service.Create(ctx, "username", []byte("password"))
 	if err != nil {
@@ -100,7 +100,7 @@ func Test_Service_GetByUsername__not_found(t *testing.T) {
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
-	service := NewService(sqldb)
+	service := NewService(sqldb, &Config{BCryptCost: 10})
 
 	_, err := service.GetByUsername(ctx, "username")
 	if err != ErrNotFound {

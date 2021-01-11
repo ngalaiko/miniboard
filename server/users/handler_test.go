@@ -12,7 +12,7 @@ import (
 
 func Test_Handler__Get(t *testing.T) {
 	ctx := context.Background()
-	handler := NewHandler(NewService(createTestDB(ctx, t)), &testLogger{})
+	handler := NewHandler(NewService(createTestDB(ctx, t), &Config{BCryptCost: 1}), &testLogger{})
 
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
@@ -31,7 +31,7 @@ func Test_Handler__Get(t *testing.T) {
 
 func Test_Handler__Post_404(t *testing.T) {
 	ctx := context.Background()
-	handler := NewHandler(NewService(createTestDB(ctx, t)), &testLogger{})
+	handler := NewHandler(NewService(createTestDB(ctx, t), &Config{BCryptCost: 1}), &testLogger{})
 
 	req, err := http.NewRequest("POST", "/404", nil)
 	if err != nil {
@@ -50,7 +50,7 @@ func Test_Handler__Post_404(t *testing.T) {
 
 func Test_Handler__Post_create_username_empty(t *testing.T) {
 	ctx := context.Background()
-	handler := NewHandler(NewService(createTestDB(ctx, t)), &testLogger{})
+	handler := NewHandler(NewService(createTestDB(ctx, t), &Config{BCryptCost: 1}), &testLogger{})
 
 	req, err := http.NewRequest("POST", "/", bytes.NewBuffer([]byte(``)))
 	if err != nil {
@@ -75,7 +75,7 @@ func Test_Handler__Post_create_username_empty(t *testing.T) {
 
 func Test_Handler__Post_create_password_empty(t *testing.T) {
 	ctx := context.Background()
-	handler := NewHandler(NewService(createTestDB(ctx, t)), &testLogger{})
+	handler := NewHandler(NewService(createTestDB(ctx, t), &Config{BCryptCost: 1}), &testLogger{})
 
 	req, err := http.NewRequest("POST", "/", bytes.NewBuffer([]byte(`
 	{"username":"test"}`)))
@@ -101,7 +101,7 @@ func Test_Handler__Post_create_password_empty(t *testing.T) {
 
 func Test_Handler__Post_already_exists(t *testing.T) {
 	ctx := context.Background()
-	handler := NewHandler(NewService(createTestDB(ctx, t)), &testLogger{})
+	handler := NewHandler(NewService(createTestDB(ctx, t), &Config{BCryptCost: 1}), &testLogger{})
 
 	req, err := http.NewRequest("POST", "/", bytes.NewBuffer([]byte(`
 	{"username":"test","password":"1234"}`)))
@@ -142,7 +142,7 @@ func Test_Handler__Post_already_exists(t *testing.T) {
 
 func Test_Handler__Post_create_success(t *testing.T) {
 	ctx := context.Background()
-	handler := NewHandler(NewService(createTestDB(ctx, t)), &testLogger{})
+	handler := NewHandler(NewService(createTestDB(ctx, t), &Config{BCryptCost: 1}), &testLogger{})
 
 	req, err := http.NewRequest("POST", "/", bytes.NewBuffer([]byte(`
 	{"username":"test","password":"1234"}`)))

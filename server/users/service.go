@@ -13,15 +13,25 @@ var (
 	ErrAlreadyExists = fmt.Errorf("user already exists")
 )
 
+// Config contains users configuration.
+type Config struct {
+	BCryptCost int `yaml:"bcrypt_cost"`
+}
+
 // Service allows to manage users resource.
 type Service struct {
-	db *database
+	db     *database
+	config *Config
 }
 
 // NewService returns new users service.
-func NewService(db *sql.DB) *Service {
+func NewService(db *sql.DB, cfg *Config) *Service {
+	if cfg == nil {
+		cfg = &Config{}
+	}
 	return &Service{
-		db: newDB(db),
+		db:     newDB(db),
+		config: cfg,
 	}
 }
 
@@ -36,7 +46,11 @@ func (s *Service) Create(ctx context.Context, username string, password []byte) 
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
-	user, err := newUser(username, password)
+	bgCryptCost := 14
+	if s.config.BCryptCost > 0 {
+		bgCryptCost = s.config.BCryptCost
+	}
+	user, err := newUser(username, password, bgCryptCost)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
