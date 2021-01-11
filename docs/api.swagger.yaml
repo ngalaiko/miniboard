@@ -67,6 +67,8 @@ paths:
     post:
       tags:
       - feed
+      security:
+      - bearerAuth: []
       summary: Creates a new feed
       requestBody:
         content:
@@ -108,6 +110,8 @@ paths:
     get:
       tags:
       - operation
+      security:
+      - bearerAuth: []
       summary: Returns information about an operation
       parameters:
       - name: operationId
@@ -190,6 +194,11 @@ paths:
               example:
                 error: "internal server error"
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     Authorization:
       type: object
