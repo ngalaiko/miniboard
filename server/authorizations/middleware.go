@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/ngalaiko/miniboard/server/httpx"
 )
@@ -19,7 +20,8 @@ type errorLogger interface {
 
 // Known errors.
 var (
-	errNoToken = fmt.Errorf("authorization token not found")
+	errNoToken            = fmt.Errorf("authorization token not found")
+	errInvalidTokenFormat = fmt.Errorf("invalid auth token format")
 )
 
 // Authenticate is a http middleware that validates request Authorization token
@@ -27,7 +29,25 @@ var (
 func Authenticate(jwtService jwtValidator, logger errorLogger) httpx.Middleware {
 	return func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			rawToken := r.Header.Get("Authorization")
+			tok := r.Header.Get("Authorization")
+			if tok == "" {
+				httpx.Error(w, logger, errNoToken, http.StatusUnauthorized)
+				return
+			}
+
+			tokenParts := strings.Split(tok, " ")
+			if len(tokenParts) != 2 {
+				httpx.Error(w, logger, errInvalidTokenFormat, http.StatusUnauthorized)
+				return
+			}
+
+			tokenType := tokenParts[0]
+			if strings.ToLower(tokenType) != "bearer" {
+				httpx.Error(w, logger, errInvalidTokenFormat, http.StatusUnauthorized)
+				return
+			}
+
+			rawToken := tokenParts[1]
 			if rawToken == "" {
 				httpx.Error(w, logger, errNoToken, http.StatusUnauthorized)
 				return

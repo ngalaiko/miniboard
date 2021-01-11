@@ -50,7 +50,7 @@ func Test_Middleware__internal(t *testing.T) {
 	})
 
 	r, _ := http.NewRequest("GET", "/", nil)
-	r.Header.Add("Authorization", "invalid")
+	r.Header.Add("Authorization", "bearer invalid")
 
 	rr := httptest.NewRecorder()
 
@@ -72,6 +72,37 @@ func Test_Middleware__internal(t *testing.T) {
 	}
 }
 
+func Test_Middleware__invalid_token_type(t *testing.T) {
+	middleware := Authenticate(&testJWValidator{}, &testErrorLogger{})
+
+	handlerCalled := false
+	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handlerCalled = true
+	})
+
+	r, _ := http.NewRequest("GET", "/", nil)
+	r.Header.Add("Authorization", "smth invalid")
+
+	rr := httptest.NewRecorder()
+
+	middleware(testHandler).ServeHTTP(rr, r)
+
+	if status := rr.Code; status != http.StatusUnauthorized {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusUnauthorized)
+	}
+
+	if handlerCalled {
+		t.Errorf("handler was called")
+	}
+
+	expected := fmt.Sprintf(`{"message":"%s"}`, errInvalidTokenFormat)
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got %v want %v",
+			rr.Body.String(), expected)
+	}
+}
+
 func Test_Middleware__invalid_token(t *testing.T) {
 	middleware := Authenticate(&testJWValidator{
 		Error: errInvalidToken,
@@ -83,7 +114,7 @@ func Test_Middleware__invalid_token(t *testing.T) {
 	})
 
 	r, _ := http.NewRequest("GET", "/", nil)
-	r.Header.Add("Authorization", "invalid")
+	r.Header.Add("Authorization", "bearer invalid")
 
 	rr := httptest.NewRecorder()
 
@@ -120,7 +151,7 @@ func Test_Middleware__valid_token(t *testing.T) {
 	})
 
 	r, _ := http.NewRequest("GET", "/", nil)
-	r.Header.Add("Authorization", "token")
+	r.Header.Add("Authorization", "bearer token")
 
 	rr := httptest.NewRecorder()
 
