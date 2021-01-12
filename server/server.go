@@ -87,6 +87,7 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	if err := s.httpServer.Shutdown(ctx); err != nil {
 		return fmt.Errorf("failed to stop http server: %w", err)
 	}
+	s.operationsService.Shutdown(ctx)
 	if err := s.db.Close(); err != nil {
 		return fmt.Errorf("failed to close db: %w", err)
 	}

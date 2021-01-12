@@ -30,6 +30,7 @@ type Service struct {
 	config *Config
 
 	processQueue chan *Operation
+	workers      []*worker
 }
 
 // NewService returns new service.
@@ -55,10 +56,20 @@ func (s *Service) Start(ctx context.Context) error {
 
 	s.logger.Info("starting %d operation workers", nWorkers)
 	for i := 0; i < nWorkers; i++ {
-		// todo: handle errors here
-		go s.runWorker(ctx)
+		worker := newWorker(s.processQueue, s.logger, s.db)
+		worker.Start(ctx)
+
+		s.workers = append(s.workers, worker)
 	}
 	return nil
+}
+
+// Shutdown stops all running workers.
+func (s *Service) Shutdown(ctx context.Context) {
+	// todo: are there any tasks that have been registered, but not yet started?
+	for _, worker := range s.workers {
+		worker.Shutdown(ctx)
+	}
 }
 
 // Create creates an operation, and runs it.
@@ -76,61 +87,6 @@ func (s *Service) Create(ctx context.Context, userID string, opFunc Task) (*Oper
 	s.processQueue <- operation
 
 	return operation, nil
-}
-
-func (s *Service) runWorker(ctx context.Context) {
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case op := <-s.processQueue:
-			s.runOperation(ctx, op)
-		}
-	}
-}
-
-func (s *Service) runOperation(ctx context.Context, operation *Operation) {
-	statusChan := make(chan *Operation, 10)
-
-	errChan := make(chan error)
-	go func() {
-		defer func() {
-			if r := recover(); r != nil {
-				s.logger.Error("panic: %s", r)
-
-				operation.Error("internal error")
-
-				if err := s.db.Update(ctx, operation); err != nil {
-					s.logger.Error("failed to update operation: %s", err)
-				}
-			}
-		}()
-
-		if err := operation.task(ctx, operation.copy(), statusChan); err != nil {
-			errChan <- err
-		}
-		close(errChan)
-	}()
-
-	for {
-		select {
-		case status := <-statusChan:
-			if err := s.db.Update(ctx, status); err != nil {
-				s.logger.Error("failed to update operation: %s", err)
-			}
-		case err := <-errChan:
-			switch {
-			case err != nil:
-				operation.Error(err.Error())
-			default:
-				return
-			}
-
-			if err := s.db.Update(ctx, operation); err != nil {
-				s.logger.Error("failed to update operation: %s", err)
-			}
-		}
-	}
 }
 
 // Get returns a single operation.
