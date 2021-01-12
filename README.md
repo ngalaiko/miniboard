@@ -11,6 +11,10 @@
 
 See [example](./server/config.dev.yaml).
 
+It is also possible to define any configuration value by setting an environment value, for example:
+* `MINIBOARD_HTTP_ADDR` will override `http.addr`
+* `MINIBOARD_DB_DRIVER` will override `db.driver`
+
 ## Development
 
 1. Run server: 

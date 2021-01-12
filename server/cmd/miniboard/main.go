@@ -14,6 +14,7 @@ import (
 
 	"github.com/ngalaiko/miniboard/server"
 	"github.com/ngalaiko/miniboard/server/logger"
+	"github.com/vrischmann/envconfig"
 )
 
 func main() {
@@ -22,11 +23,7 @@ func main() {
 
 	logger := logger.New()
 
-	if *configPath == "" {
-		logger.Fatal("--config is not defined")
-	}
-
-	cfg, err := parseConfiguration(*configPath)
+	cfg, err := parseConfiguration(configPath)
 	if err != nil {
 		logger.Fatal("failed to parse configuration: %s", err)
 	}
@@ -67,7 +64,35 @@ func main() {
 	logger.Info("application stopped")
 }
 
-func parseConfiguration(path string) (*server.Config, error) {
+func parseConfiguration(path *string) (*server.Config, error) {
+	cfg := &server.Config{}
+	if path != nil && *path != "" {
+		var err error
+		cfg, err = parseConfigurationFromYaml(*path)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if err := parseConfigurationFromEnvironment(cfg); err != nil {
+		return nil, err
+	}
+
+	return cfg, nil
+}
+
+func parseConfigurationFromEnvironment(cfg *server.Config) error {
+	if err := envconfig.InitWithOptions(cfg, envconfig.Options{
+		Prefix:      "MINIBOARD",
+		AllOptional: true,
+		LeaveNil:    true,
+	}); err != nil {
+		return fmt.Errorf("failed to parse config from env: %w", err)
+	}
+	return nil
+}
+
+func parseConfigurationFromYaml(path string) (*server.Config, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %w", err)
