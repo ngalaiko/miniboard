@@ -1,0 +1,5 @@
+http:
+  addr: ":8080"
+db:
+  driver: sqlite3
+  addr: ./db.dev.sqlite3

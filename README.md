@@ -5,21 +5,15 @@
 
 | Command line            | Default                  | Description                                      |
 | ----------------------- | ------------------------ | ------------------------------------------------ |
-| addr                    | :8080                    | Address to listen for connections.               |
-| db-addr                 | db.sqlite                | Database URI to connect to.                      |
-| db-type                 | sqlite3                  | Database type (sqlite3, postgres).               |
-| domain                  | http://localhost:8080    | Service domain.                                  |
-| smtp-addr               |                          | SMTP server address.                             |
-| smtp-sender             |                          | SMTP sender.                                     |
-| ssl-cert                |                          | Path to ssl certificate.                         |
-| ssl-key                 |                          | Path to ssl key.                                 |
+| config                  |                          | Path to the configuration file, required.        |
 
-### Environment variables
+### Configuration file
 
-| Name                       | Description                                      |
-| -------------------------- | ------------------------------------------------ |
-| SMTP_USERNAME              | Username for SMTP server authentication          |
-| SMTP_PASSWORD              | Password for SMTP server authentication          |
+See [example](./server/config.dev.yaml).
+
+It is also possible to define any configuration value by setting an environment value, for example:
+* `MINIBOARD_HTTP_ADDR` will override `http.addr`
+* `MINIBOARD_DB_DRIVER` will override `db.driver`
 
 ## Development
 
@@ -27,7 +21,8 @@
 
 ```bash
 $ cd ./server && go run \ 
-    cmd/miniboard/main.go
+    cmd/miniboard/main.go \
+        --config config.dev.yaml
 ```
 
 2. Open browser

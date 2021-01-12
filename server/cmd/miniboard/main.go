@@ -3,78 +3,105 @@ package main
 import (
 	"context"
 	"flag"
-	"log"
+	"fmt"
+	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	yaml "gopkg.in/yaml.v2"
+
 	"github.com/ngalaiko/miniboard/server"
-	"github.com/ngalaiko/miniboard/server/api"
-	"github.com/ngalaiko/miniboard/server/db"
-	"github.com/ngalaiko/miniboard/server/email"
+	"github.com/ngalaiko/miniboard/server/logger"
+	"github.com/vrischmann/envconfig"
 )
 
 func main() {
-	domain := flag.String("domain", "http://localhost:8080", "Service domain.")
-	addr := flag.String("addr", ":8080", "Address to listen for connections.")
-
-	dbType := flag.String("db-type", "sqlite3", "Database type (sqlite3, postgres).")
-	dbAddr := flag.String("db-addr", "db.sqlite", "Database URI to connect to.")
-
-	sslCert := flag.String("ssl-cert", "", "Path to ssl certificate.")
-	sslKey := flag.String("ssl-key", "", "Path to ssl key.")
-
-	smtpAddr := flag.String("smtp-addr", "", "SMTP server address.")
-	smtpSender := flag.String("smtp-sender", "", "SMTP sender.")
-
+	configPath := flag.String("config", "", "Path to the configuration file, required")
 	flag.Parse()
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	logger := logger.New()
 
-	srv, err := server.New(ctx, &server.Config{
-		HTTP: &api.HTTPConfig{
-			Addr: *addr,
-			TLS: &api.TLSConfig{
-				CertPath: *sslCert,
-				KeyPath:  *sslKey,
-			},
-			Domain: *domain,
-		},
-		DB: &db.Config{
-			Driver: *dbType,
-			Addr:   *dbAddr,
-		},
-		Email: &email.Config{
-			Enabled:  *smtpAddr != "",
-			Addr:     *smtpAddr,
-			From:     *smtpSender,
-			Username: os.Getenv("SMTP_USERNAME"),
-			Password: os.Getenv("SMTP_PASSWORD"),
-		},
-	})
+	cfg, err := parseConfiguration(configPath)
 	if err != nil {
-		log.Fatalf("failed to create server: %s", err)
+		logger.Fatal("failed to parse configuration: %s", err)
 	}
 
+	logger.Info("application is starting")
+
+	srv, err := server.New(logger, cfg)
+	if err != nil {
+		logger.Fatal("failed to initialize server: %s", err)
+	}
+
+	// Wait for shut down in a separate goroutine.
 	errCh := make(chan error)
 	go func() {
 		shutdownCh := make(chan os.Signal)
-		signal.Notify(shutdownCh, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGINT)
-		<-shutdownCh
+		signal.Notify(shutdownCh, os.Interrupt, syscall.SIGTERM)
+		sig := <-shutdownCh
 
-		shutdownTimeout := 30 * time.Second
+		logger.Info("received %s, shutting down", sig)
+
+		shutdownTimeout := 15 * time.Second
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 		defer cancel()
+
 		errCh <- srv.Shutdown(shutdownCtx)
 	}()
 
-	if err := srv.Serve(ctx); err != nil {
-		log.Fatalf("failed to start the server: %s", err)
+	mainCtx := context.Background()
+	if err := srv.Start(mainCtx); err != nil {
+		logger.Fatal("failed to start the server: %s", err)
 	}
 
+	// Handle shutdown errors.
 	if err := <-errCh; err != nil {
-		log.Fatalf("error during shutdown: %s", err)
+		logger.Warn("error during shutdown: %s", err)
 	}
+
+	logger.Info("application stopped")
+}
+
+func parseConfiguration(path *string) (*server.Config, error) {
+	cfg := &server.Config{}
+	if path != nil && *path != "" {
+		var err error
+		cfg, err = parseConfigurationFromYaml(*path)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if err := parseConfigurationFromEnvironment(cfg); err != nil {
+		return nil, err
+	}
+
+	return cfg, nil
+}
+
+func parseConfigurationFromEnvironment(cfg *server.Config) error {
+	if err := envconfig.InitWithOptions(cfg, envconfig.Options{
+		Prefix:      "MINIBOARD",
+		AllOptional: true,
+		LeaveNil:    true,
+	}); err != nil {
+		return fmt.Errorf("failed to parse config from env: %w", err)
+	}
+	return nil
+}
+
+func parseConfigurationFromYaml(path string) (*server.Config, error) {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file: %w", err)
+	}
+
+	cfg := &server.Config{}
+	if err := yaml.UnmarshalStrict(data, cfg); err != nil {
+		return nil, fmt.Errorf("failed to parse file: %w", err)
+	}
+
+	return cfg, nil
 }

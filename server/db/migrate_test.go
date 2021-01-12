@@ -2,41 +2,54 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"io/ioutil"
 	"os"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func Test_Migrate(t *testing.T) {
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
-	assert.NoError(t, err)
-	defer os.Remove(tmpFile.Name())
+	ctx := context.Background()
 
-	_, err = New(context.Background(), &Config{
-		Driver: "sqlite3",
-		Addr:   tmpFile.Name(),
-	}, &testLogger{})
-	assert.NoError(t, err)
+	db := testDB(t)
+
+	if err := Migrate(ctx, db, &testLogger{}); err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
 }
 
 func Test_Migrate_twice(t *testing.T) {
+	ctx := context.Background()
+	db := testDB(t)
+
+	if err := Migrate(ctx, db, &testLogger{}); err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+	if err := Migrate(ctx, db, &testLogger{}); err != nil {
+		t.Fatalf("unexpected error during the second migration: %s", err)
+	}
+}
+
+func testDB(t *testing.T) *sql.DB {
 	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
-	assert.NoError(t, err)
-	defer os.Remove(tmpFile.Name())
+	if err != nil {
+		t.Fatalf("failed to create file for test db: %s", err)
+	}
+	t.Cleanup(func() {
+		if err := os.Remove(tmpFile.Name()); err != nil {
+			t.Fatalf("failed to delete file for test db: %s", err)
+		}
+	})
 
-	_, err = New(context.Background(), &Config{
+	sqldb, err := New(&Config{
 		Driver: "sqlite3",
 		Addr:   tmpFile.Name(),
 	}, &testLogger{})
-	assert.NoError(t, err)
+	if err != nil {
+		t.Fatalf("failed to create a db: %s", err)
+	}
 
-	_, err = New(context.Background(), &Config{
-		Driver: "sqlite3",
-		Addr:   tmpFile.Name(),
-	}, &testLogger{})
-	assert.NoError(t, err)
+	return sqldb
 }
 
 type testLogger struct{}

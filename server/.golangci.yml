@@ -54,3 +54,5 @@ issues:
     - path: _test\.go
       linters:
         - gocognit
+        - unparam
+        - gochecknoglobals

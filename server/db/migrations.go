@@ -8,58 +8,50 @@ type migration struct {
 func migrations() []*migration {
 	return []*migration{
 		{
-			Name: "create public_keys",
+			Name: "create users",
 			Query: `
-			CREATE TABLE public_keys (
+			CREATE TABLE users (
+				id       TEXT NOT NULL,
+				username TEXT NOT NULL,
+				hash     BLOB NOT NULL,
+				PRIMARY KEY (id),
+				UNIQUE(username)
+			)
+			`,
+		},
+		{
+			Name: "create jwt_keys",
+			Query: `
+			CREATE TABLE jwt_keys (
 				id         TEXT NOT NULL,
-				der_base64 TEXT NOT NULL,
+				public_der BLOB NOT NULL,
 				PRIMARY KEY (id)
 			)
 			`,
 		},
 		{
-			Name: "create feeds table",
-			Query: `
-			CREATE TABLE feeds (
-				id           TEXT   NOT NULL,
-				user_id      TEXT   NOT NULL,
-				url          TEXT   NOT NULL,
-				title        TEXT   NOT NULL,
-				last_fetched BIGINT NOT NULL,
-				icon_url     TEXT       NULL,
-				PRIMARY KEY (id),
-				UNIQUE (user_id, url)
-			)
-			`,
-		},
-		{
-			Name: "create articles table",
-			Query: `
-			CREATE TABLE articles (
-				id             TEXT    NOT NULL,
-				user_id        TEXT    NOT NULL,
-				url            TEXT    NOT NULL,
-				title          TEXT    NOT NULL,
-				create_time    BIGINT  NOT NULL,
-				content        TEXT    NOT NULL,
-				content_sha256 TEXT    NOT NULL,
-				is_read        BOOLEAN NOT NULL,
-				feed_id        TEXT    NULL     REFERENCES feeds(id),
-				PRIMARY KEY (id),
-				UNIQUE (user_id, content_sha256)
-			)
-			`,
-		},
-		{
-			Name: "create operations table",
+			Name: "create operations",
 			Query: `
 			CREATE TABLE operations (
-				id       TEXT    NOT NULL,
-				user_id  TEXT    NOT NULL,
-				done     BOOLEAN NOT NULL DEFAULT false,
-				error    TEXT        NULL,
-				response TEXT        NULL,
-				metadata TEXT    NOT NULL,
+				id       TEXT NOT NULL,
+				user_id  TEXT NOT NULL,
+				done     BOOLEAN NOT NULL,
+				error    TEXT NULL,
+				response TEXT NULL,
+				PRIMARY KEY (id)
+			)
+			`,
+		},
+		{
+			Name: "create feeds",
+			Query: `
+			CREATE TABLE feeds (
+				id            TEXT   NOT NULL,
+				user_id       TEXT   NOT NULL,
+				url           TEXT   NOT NULL,
+				title         TEXT   NOT NULL,
+				created_epoch BIGINT NOT NULL,
+				updated_epoch BIGINT     NULL,
 				PRIMARY KEY (id)
 			)
 			`,

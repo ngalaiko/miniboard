@@ -6,8 +6,8 @@ import (
 	"fmt"
 )
 
-// migrate prepares database scheme.
-func migrate(ctx context.Context, db *sql.DB, logger logger) error {
+// Migrate prepares database scheme.
+func Migrate(ctx context.Context, db *sql.DB, logger logger) error {
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("failed to start transaction: %w", err)
