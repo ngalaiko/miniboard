@@ -7,6 +7,8 @@ COPY /server /server
 COPY /web /web		
 WORKDIR /server		
 
+RUN go test ./... -v
+
 RUN go build -o miniboard ./cmd/miniboard/main.go		
 
 FROM alpine:3.12.0
