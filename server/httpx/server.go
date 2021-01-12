@@ -52,7 +52,7 @@ func NewServer(cfg *Config, logger logger) (*Server, error) {
 		handler: handler,
 		server: &http.Server{
 			Addr:    cfg.Addr,
-			Handler: handler,
+			Handler: withAccessLogs(logger)(handler),
 			// https://blog.cloudflare.com/exposing-go-on-the-internet/
 			ReadTimeout:  5 * time.Second,
 			WriteTimeout: 10 * time.Second,
