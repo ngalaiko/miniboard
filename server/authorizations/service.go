@@ -144,6 +144,13 @@ func (s *Service) Verify(ctx context.Context, token string) (*Token, error) {
 		return nil, errInvalidToken
 	}
 
+	if err := claims.ValidateWithLeeway(jwt.Expected{
+		Time:   time.Now(),
+		Issuer: defaultIssuer,
+	}, time.Second); err != nil {
+		return nil, errInvalidToken
+	}
+
 	return &Token{
 		Token:     token,
 		UserID:    claims.Subject,
