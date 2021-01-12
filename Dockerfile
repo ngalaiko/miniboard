@@ -12,3 +12,6 @@ RUN go build -o miniboard ./cmd/miniboard/main.go
 FROM alpine:3.12.0
 
 COPY --from=go_builder /server/miniboard /bin/miniboard		
+
+ENTRYPOINT ["/bin/miniboard"]
+CMD ["/bin/miniboard"]
