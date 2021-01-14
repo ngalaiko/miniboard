@@ -30,14 +30,14 @@ func (h *Handler) Route(prefix string, handler http.Handler) *Handler {
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if !strings.HasSuffix(r.URL.Path, "/") {
-		r.URL.Path += "/"
-	}
 	for _, route := range h.routes {
 		if !strings.HasPrefix(r.URL.Path, route.Prefix) {
 			continue
 		}
 		r.URL.Path = strings.TrimPrefix(r.URL.Path, route.Prefix)
+		if r.URL.Path == "" {
+			r.URL.Path = "/"
+		}
 		route.Handler.ServeHTTP(w, r)
 		return
 	}
