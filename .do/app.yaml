@@ -1,0 +1,28 @@
+name: miniboard
+region: ams
+
+domains:
+- domain: miniboard.app
+  type: PRIMARY
+  zone: miniboard.app
+
+services:
+- name: api
+  http_port: 80
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  environment_slug: go
+  github:
+    repo: ngalaiko/miniboard
+    branch: master
+    deploy_on_push: true
+  source_dir: server
+  envs:
+  - key: MINIBOARD_DB_DRIVER
+    scope: RUN_AND_BUILD_TIME
+    value: sqlite3
+  - key: MINIBOARD_DB_ADDR
+    scope: RUN_AND_BUILD_TIME
+    value: ./db.sqlite3
+  routes:
+  - path: /
