@@ -24,7 +24,7 @@ services:
     scope: RUN_AND_BUILD_TIME
     value: ./db.sqlite3
   routes:
-  - path: /
+  - path: /api
 
 static_sites:
 - name: docs
