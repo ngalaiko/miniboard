@@ -3,7 +3,7 @@
 
 ## API
 
-You can access Swagger UI [here](https://docs.miniboard.app/) if you want to expole the api.
+You can access Swagger UI [here](https://docs.miniboard.app/) if you want to expole and try out the api.
 
 Swagger description itsef is available [here](https://docs.miniboard.app/api.swagger.yaml).
 
