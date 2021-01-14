@@ -19,15 +19,14 @@ func JSON(w http.ResponseWriter, logger errorLogger, response interface{}) {
 		return
 	}
 
-	w.Header().Add("Content-Type", "application/json")
-
 	size, err := w.Write(body)
 	if err != nil {
 		logger.Error("failed to write response: %s", err)
 		return
 	}
 
-	w.Header().Add("Content-Length", fmt.Sprint(size))
+	w.Header().Set("Content-Length", fmt.Sprint(size))
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 }
 
 type errorMessage struct {
