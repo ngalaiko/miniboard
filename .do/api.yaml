@@ -4,7 +4,6 @@ region: ams
 domains:
 - domain: api.miniboard.app
   type: PRIMARY
-  zone: api.miniboard.app
 
 services:
 - name: api

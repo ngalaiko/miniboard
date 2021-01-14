@@ -4,7 +4,6 @@ region: ams
 domains:
 - domain: docs.miniboard.app
   type: PRIMARY
-  zone: docs.miniboard.app
 
 static_sites:
 - name: docs

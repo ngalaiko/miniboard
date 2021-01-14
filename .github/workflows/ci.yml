@@ -63,7 +63,7 @@ jobs:
       run: |
         doctl apps update \
             --spec .do/api.yaml \
-            $(doctl apps list | grep miniboard | awk '{print $1}')
+            $(doctl apps list | grep miniboard-api | awk '{print $1}')
 
   deploy-docs:
     name: Deploy docs
