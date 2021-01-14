@@ -15,7 +15,6 @@ services:
   github:
     repo: ngalaiko/miniboard
     branch: master
-    deploy_on_push: true
   source_dir: server
   envs:
   - key: MINIBOARD_DB_DRIVER
@@ -26,3 +25,13 @@ services:
     value: ./db.sqlite3
   routes:
   - path: /
+
+static_sites:
+- name: docs
+  environment_slug: html
+  github:
+    repo: ngalaiko/miniboard
+    branch: master
+  source_dir: docs
+  routes:
+  - path: /api/docs
