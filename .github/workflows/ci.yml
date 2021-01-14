@@ -46,11 +46,14 @@ jobs:
       run: |
         cd server && go test -race -v ./...
 
-  deploy-api:
-    name: Deploy api
+  deploy:
+    name: Deploy
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     needs: [lint, test]
+    strategy:
+      matrix:
+        app: [api, docs]
     steps:
     - uses: actions/checkout@v1
 
@@ -61,25 +64,6 @@ jobs:
     
     - name: Deploy
       run: |
-        doctl apps update \
-            --spec .do/api.yaml \
-            $(doctl apps list | grep miniboard-api | awk '{print $1}')
-
-  deploy-docs:
-    name: Deploy docs
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-latest
-    needs: [lint, test]
-    steps:
-    - uses: actions/checkout@v1
-
-    - name: Install doctl
-      uses: digitalocean/action-doctl@v2
-      with:
-        token: ${{ secrets.DIGITALOCEAN_TOKEN }}
-    
-    - name: Deploy
-      run: |
-        doctl apps update \
-            --spec .do/docs.yaml \
-            $(doctl apps list | grep miniboard-docs | awk '{print $1}')
+        APP_ID="$(doctl apps list | grep miniboard-${{ matrix.app }} | awk '{print $1}')"
+        doctl apps update --spec ".do/${{ matrix.app }}.yaml" "$APP_ID"
+        doctl apps create-deployment "${APP_ID}"
