@@ -46,8 +46,8 @@ jobs:
       run: |
         cd server && go test -race -v ./...
 
-  deploy-app:
-    name: Deploy app
+  deploy-api:
+    name: Deploy api
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     needs: [lint, test]
@@ -62,7 +62,7 @@ jobs:
     - name: Deploy
       run: |
         doctl apps update \
-            --spec .do/app.yaml \
+            --spec .do/api.yaml \
             $(doctl apps list | grep miniboard | awk '{print $1}')
 
   deploy-docs:
