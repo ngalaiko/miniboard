@@ -25,13 +25,3 @@ services:
     value: ./db.sqlite3
   routes:
   - path: /api
-
-static_sites:
-- name: docs
-  environment_slug: html
-  github:
-    repo: ngalaiko/miniboard
-    branch: master
-  source_dir: docs
-  routes:
-  - path: /api/docs

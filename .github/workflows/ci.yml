@@ -46,8 +46,8 @@ jobs:
       run: |
         cd server && go test -race -v ./...
 
-  deploy:
-    name: Deploy
+  deploy-app:
+    name: Deploy app
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     needs: [lint, test]
@@ -65,3 +65,21 @@ jobs:
             --spec .do/app.yaml \
             $(doctl apps list | grep miniboard | awk '{print $1}')
 
+  deploy-docs:
+    name: Deploy docs
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_TOKEN }}
+    
+    - name: Deploy
+      run: |
+        doctl apps update \
+            --spec .do/docs.yaml \
+            $(doctl apps list | grep miniboard-docs | awk '{print $1}')

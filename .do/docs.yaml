@@ -1,0 +1,17 @@
+name: miniboard-docs
+region: ams
+
+domains:
+- domain: docs.miniboard.app
+  type: PRIMARY
+  zone: miniboard.app
+
+static_sites:
+- name: docs
+  environment_slug: html
+  github:
+    repo: ngalaiko/miniboard
+    branch: master
+  source_dir: docs
+  routes:
+  - path: /
