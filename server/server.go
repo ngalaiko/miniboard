@@ -68,7 +68,6 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 	httpServer.Route("/v1/users", httpx.Chain(
 		users.NewHandler(usersService, logger),
 		httpx.WithCors(),
-		withAuth,
 	))
 
 	return &Server{
