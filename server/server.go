@@ -51,10 +51,25 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 
 	withAuth := authorizations.Authenticate(authorizationsService, logger)
 
-	httpServer.Route("authorizations", authorizations.NewHandler(usersService, authorizationsService, logger))
-	httpServer.Route("feeds", withAuth(feeds.NewHandler(feedsService, logger, operationsService)))
-	httpServer.Route("operations", withAuth(operations.NewHandler(operationsService, logger)))
-	httpServer.Route("users", users.NewHandler(usersService, logger))
+	httpServer.Route("/v1/authorizations", httpx.Chain(
+		authorizations.NewHandler(usersService, authorizationsService, logger),
+		httpx.WithCors(),
+	))
+	httpServer.Route("/v1/feeds", httpx.Chain(
+		feeds.NewHandler(feedsService, logger, operationsService),
+		httpx.WithCors(),
+		withAuth,
+	))
+	httpServer.Route("/v1/operations", httpx.Chain(
+		operations.NewHandler(operationsService, logger),
+		httpx.WithCors(),
+		withAuth,
+	))
+	httpServer.Route("/v1/users", httpx.Chain(
+		users.NewHandler(usersService, logger),
+		httpx.WithCors(),
+		withAuth,
+	))
 
 	return &Server{
 		logger:                logger,

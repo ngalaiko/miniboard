@@ -2,9 +2,9 @@ name: miniboard
 region: ams
 
 domains:
-- domain: api.miniboard.app
+- domain: miniboard.app
   type: PRIMARY
-  zone: api.miniboard.app
+  zone: miniboard.app
 
 services:
 - name: api
@@ -24,4 +24,4 @@ services:
     scope: RUN_AND_BUILD_TIME
     value: ./db.sqlite3
   routes:
-  - path: /
+  - path: /api
