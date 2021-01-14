@@ -1,0 +1,421 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Miniboard",
+    "license": {
+      "name": "MIT",
+      "url": "https://github.com/ngalaiko/miniboard/blob/master/LICENSE"
+    },
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://miniboard.app/"
+    }
+  ],
+  "tags": [
+    {
+      "name": "authorization",
+      "description": "Operations about authorization"
+    },
+    {
+      "name": "feed",
+      "description": "Operations about feed"
+    },
+    {
+      "name": "operation",
+      "description": "Operations about longrunning operations"
+    },
+    {
+      "name": "user",
+      "description": "Operations about user"
+    }
+  ],
+  "paths": {
+    "/authorizations/": {
+      "post": {
+        "tags": [
+          "authorization"
+        ],
+        "summary": "Creates a new authorization",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "example": {
+                  "username": "hacker123",
+                  "password": "12345"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Authorization"
+                },
+                "example": {
+                  "token": "eyJhbGciOiJFUzI1NiIsImtpZCI6IjU3Y2NkMzQ1LWM3ZTUtNDcwYS04NDQwLWEzNGY5YzViNWVhZSIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MDk3MDA5MDksImlhdCI6MTYwOTY5NzMwOSwiaXNzIjoibWluaWJvYXJkLmFwcCIsImp0aSI6ImJkNzRmNWRkLTQ4ZDAtNGEzOS04Njg4LTU1YjNhMWI5N2Q3MCIsInN1YiI6Ijg1ZWZjNzcyLTZhYWEtNDIzZC1iMzJhLTk2ZmFiNDMxMjQ2NCJ9.f8N0wcdny2oznJbYTZGlMKVXVAlZfqbMr5DP0lUSDwEZKmq6lKyNWs3XbYkOJM-qtTLK5GWpkUAry46XlTq_lg",
+                  "user_id": "85efc772-6aaa-423d-b32a-96fab4312464",
+                  "expires_at": "2021-01-03T20:08:29+01:00"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "invalid password"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/feeds/": {
+      "post": {
+        "tags": [
+          "feed"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Creates a new feed",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "format": "url"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operation"
+                },
+                "example": {
+                  "id": "85efc772-6aaa-423d-b32a-96fab4312464",
+                  "done": "false"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "feed not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/operations/{operationId}": {
+      "get": {
+        "tags": [
+          "operation"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Returns information about an operation",
+        "parameters": [
+          {
+            "name": "operationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operation"
+                },
+                "example": {
+                  "id": "85efc772-6aaa-423d-b32a-96fab4312464",
+                  "done": "true",
+                  "result": {
+                    "error": {
+                      "$ref": "#/components/schemas/Error"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "operation not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Creates a new user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "example": {
+                  "username": "hacker123",
+                  "password": "12345"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "example": {
+                  "id": "85efc772-6aaa-423d-b32a-96fab4312464",
+                  "username": "hacker123"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "user already exists"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Authorization": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Feed": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "url": {
+            "type": "string",
+            "format": "url"
+          },
+          "title": {
+            "type": "string"
+          },
+          "created": {
+            "type": "string",
+            "format": "datetime"
+          },
+          "updated": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      },
+      "Operation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "done": {
+            "type": "boolean"
+          },
+          "result": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "$ref": "#/components/schemas/Error"
+              },
+              "response": {
+                "type": "object",
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Feed"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "username": {
+            "type": "string"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
