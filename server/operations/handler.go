@@ -55,7 +55,7 @@ func (h *Handler) handleGetOperation(w http.ResponseWriter, r *http.Request, id 
 	operation, err := h.service.Get(r.Context(), id, token.UserID)
 	switch {
 	case err == nil:
-		httpx.JSON(w, h.logger, operation)
+		httpx.JSON(w, h.logger, operation, http.StatusOK)
 	case errors.Is(err, errNotFound):
 		http.NotFound(w, r)
 	default:

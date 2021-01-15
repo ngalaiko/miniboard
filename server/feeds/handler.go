@@ -104,7 +104,7 @@ func (h *Handler) handleCreateFeed(w http.ResponseWriter, r *http.Request) {
 	operation, err := h.operationService.Create(r.Context(), token.UserID, h.createFeed(token.UserID, url))
 	switch {
 	case err == nil:
-		httpx.JSON(w, h.logger, operation)
+		httpx.JSON(w, h.logger, operation, http.StatusOK)
 	default:
 		h.logger.Error("failed to create feed: %s", err)
 		httpx.InternalError(w, h.logger)

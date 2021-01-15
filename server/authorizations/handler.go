@@ -107,5 +107,5 @@ func (h *Handler) handleCreateAuthorization(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	httpx.JSON(w, h.logger, token)
+	httpx.JSON(w, h.logger, token, http.StatusOK)
 }
