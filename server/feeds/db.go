@@ -55,9 +55,9 @@ func (d *database) GetByURL(ctx context.Context, userID string, url string) (*Fe
 	FROM
 		feeds
 	WHERE
-		url = $1
-		AND user_id = $2
-	`, url, userID)
+		user_id = $1
+		AND url = $2
+	`, userID, url)
 
 	return d.scanRow(row)
 }
