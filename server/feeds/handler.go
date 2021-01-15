@@ -119,7 +119,9 @@ func (h *Handler) createFeed(userID string, url *url.URL) operations.Task {
 			operation.Success(feed)
 			status <- operation
 			return nil
-		case errors.Is(err, errFailedToDownloadFeed), errors.Is(err, errFailedToParseFeed):
+		case errors.Is(err, errFailedToDownloadFeed),
+			errors.Is(err, errAlreadyExists),
+			errors.Is(err, errFailedToParseFeed):
 			operation.Error(err.Error())
 			status <- operation
 			return nil

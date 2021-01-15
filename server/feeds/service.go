@@ -16,6 +16,7 @@ import (
 // Known errors.
 var (
 	errNotFound             = fmt.Errorf("not found")
+	errAlreadyExists        = fmt.Errorf("feed already exists")
 	errFailedToDownloadFeed = fmt.Errorf("failed to download feed")
 	errFailedToParseFeed    = fmt.Errorf("failed to parse feed")
 )
@@ -42,6 +43,10 @@ func NewService(db *sql.DB, crawler crawler) *Service {
 
 // Create creates a feed from URL.
 func (s *Service) Create(ctx context.Context, userID string, url *url.URL) (*Feed, error) {
+	if exists, err := s.db.GetByURL(ctx, userID, url.String()); err == nil && exists != nil {
+		return nil, errAlreadyExists
+	}
+
 	data, err := s.crawler.Crawl(ctx, url)
 	if err != nil {
 		return nil, errFailedToDownloadFeed

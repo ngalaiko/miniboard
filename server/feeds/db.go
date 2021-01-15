@@ -42,6 +42,26 @@ func (d *database) Create(ctx context.Context, feed *Feed) error {
 	return err
 }
 
+// Get returns a feed from the db with the given url and user id.
+func (d *database) GetByURL(ctx context.Context, userID string, url string) (*Feed, error) {
+	row := d.db.QueryRowContext(ctx, `
+	SELECT
+		id,
+		user_id,
+		url,
+		title,
+		created_epoch,
+		updated_epoch
+	FROM
+		feeds
+	WHERE
+		url = $1
+		AND user_id = $2
+	`, url, userID)
+
+	return d.scanRow(row)
+}
+
 // Get returns a feed from the db with the given id and user id.
 func (d *database) Get(ctx context.Context, userID string, id string) (*Feed, error) {
 	row := d.db.QueryRowContext(ctx, `

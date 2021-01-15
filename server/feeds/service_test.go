@@ -68,6 +68,25 @@ func Test__Create(t *testing.T) {
 	}
 }
 
+func Test__Create_twice(t *testing.T) {
+	ctx := context.TODO()
+
+	sqldb := createTestDB(ctx, t)
+	cw := &testCrawler{}
+	cw = cw.With("https://example.org", feedData)
+	service := NewService(sqldb, cw)
+
+	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"))
+	if err != nil {
+		t.Fatalf("failed to create a feed %s", err)
+	}
+
+	_, secondErr := service.Create(ctx, "user id", mustParseURL("https://example.org"))
+	if secondErr != errAlreadyExists {
+		t.Fatalf("expected %s, got %s", errAlreadyExists, secondErr)
+	}
+}
+
 func Test__Get(t *testing.T) {
 	ctx := context.TODO()
 

@@ -94,6 +94,49 @@ func Test_Handler__Post_create_failed_create_operation(t *testing.T) {
 	}
 }
 
+func Test_Handler__Post_create_already_exists(t *testing.T) {
+	ctx := context.Background()
+	logger := &testLogger{}
+	db := createTestDB(ctx, t)
+	crawler := &testCrawler{}
+	crawler = crawler.With("https://example.org", feedData)
+	service := NewService(db, crawler)
+	handler := NewHandler(service, logger, &testOperationsService{})
+
+	var rr *httptest.ResponseRecorder
+	for i := 0; i < 2; i++ {
+		req, err := http.NewRequest("POST", "/", strings.NewReader(`{"url":"https://example.org"}`))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		req = req.WithContext(authorizations.NewContext(ctx, &authorizations.Token{
+			UserID: "user",
+		}))
+		rr = httptest.NewRecorder()
+
+		handler.ServeHTTP(rr, req)
+	}
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	returned := &operations.Operation{}
+	if err := json.Unmarshal(rr.Body.Bytes(), &returned); err != nil {
+		t.Fatalf("failed to unmarshal response body: %s", err)
+	}
+
+	if returned.Result.Error == nil {
+		t.Fatal("expected error")
+	}
+
+	if err := fmt.Sprint(returned.Result.Error.Message); err != errAlreadyExists.Error() {
+		t.Fatalf("expected %s, got %s", errAlreadyExists, err)
+	}
+}
+
 func Test_Handler__Post_create_url_empty(t *testing.T) {
 	ctx := context.Background()
 	logger := &testLogger{}
