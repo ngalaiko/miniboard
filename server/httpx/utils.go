@@ -6,8 +6,6 @@ import (
 	"net/http"
 )
 
-const contentTypeHeader = "Content-Type"
-
 type errorLogger interface {
 	Error(string, ...interface{})
 }
@@ -21,7 +19,8 @@ func JSON(w http.ResponseWriter, logger errorLogger, response interface{}, code 
 		return
 	}
 
-	w.Header().Set(contentTypeHeader, "application/json; charset=utf-8")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Content-Length", fmt.Sprint(len(body)))
 	w.WriteHeader(code)
 
 	_, err = w.Write(body)
