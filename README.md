@@ -24,8 +24,8 @@ db:
 http:
   addr: ":8080" # address to listen on
   tls:
-    key_path: "key.pem" # path to tls key
-    cert_path "crt.pem" # path to tls certificate
+    key_path: "key.pem"  # path to tls key
+    cert_path: "crt.pem" # path to tls certificate
 operations:
   workers: 10 # number of workers that execute longrunning operations
 users:
