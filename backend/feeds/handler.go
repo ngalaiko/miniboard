@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/ngalaiko/miniboard/server/authorizations"
-	"github.com/ngalaiko/miniboard/server/httpx"
-	"github.com/ngalaiko/miniboard/server/operations"
+	"github.com/ngalaiko/miniboard/backend/authorizations"
+	"github.com/ngalaiko/miniboard/backend/httpx"
+	"github.com/ngalaiko/miniboard/backend/operations"
 )
 
 // Known errors.

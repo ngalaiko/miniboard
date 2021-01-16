@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ngalaiko/miniboard/server/httpx"
+	"github.com/ngalaiko/miniboard/backend/httpx"
 )
 
 type jwtValidator interface {

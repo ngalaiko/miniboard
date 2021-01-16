@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/ngalaiko/miniboard/server/httpx"
-	"github.com/ngalaiko/miniboard/server/users"
+	"github.com/ngalaiko/miniboard/backend/httpx"
+	"github.com/ngalaiko/miniboard/backend/users"
 )
 
 type usersService interface {

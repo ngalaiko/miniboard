@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ngalaiko/miniboard/server/authorizations"
-	"github.com/ngalaiko/miniboard/server/operations"
+	"github.com/ngalaiko/miniboard/backend/authorizations"
+	"github.com/ngalaiko/miniboard/backend/operations"
 )
 
 func Test_Handler__Get(t *testing.T) {

@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ngalaiko/miniboard/server/db"
+	"github.com/ngalaiko/miniboard/backend/db"
 )
 
 func Test_Init(t *testing.T) {

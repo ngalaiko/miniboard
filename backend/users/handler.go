@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/ngalaiko/miniboard/server/httpx"
+	"github.com/ngalaiko/miniboard/backend/httpx"
 )
 
 type logger interface {

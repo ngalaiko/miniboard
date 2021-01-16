@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ngalaiko/miniboard/server/authorizations"
+	"github.com/ngalaiko/miniboard/backend/authorizations"
 )
 
 func Test_Handler__Post(t *testing.T) {

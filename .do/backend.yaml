@@ -1,4 +1,4 @@
-name: miniboard-api
+name: miniboard-backend
 region: ams
 
 domains:
@@ -6,7 +6,7 @@ domains:
   type: PRIMARY
 
 services:
-- name: api
+- name: backend
   http_port: 80
   instance_count: 1
   instance_size_slug: basic-xxs
@@ -14,7 +14,7 @@ services:
   github:
     repo: ngalaiko/miniboard
     branch: master
-  source_dir: server
+  source_dir: backend
   envs:
   - key: MINIBOARD_DB_DRIVER
     scope: RUN_AND_BUILD_TIME

@@ -28,7 +28,7 @@ jobs:
 
     - name: Run lint
       run: |
-        cd server && "${GITHUB_WORKSPACE}/bin/golangci-lint" run ./...
+        cd backend && "${GITHUB_WORKSPACE}/bin/golangci-lint" run ./...
 
 
   test:
@@ -44,7 +44,7 @@ jobs:
 
     - name: Run tests
       run: |
-        cd server && go test -race -v ./...
+        cd backend && go test -race -v ./...
 
   deploy:
     name: Deploy
@@ -53,7 +53,7 @@ jobs:
     needs: [lint, test]
     strategy:
       matrix:
-        app: [api, docs]
+        app: [backend, docs]
     steps:
     - uses: actions/checkout@v1
 

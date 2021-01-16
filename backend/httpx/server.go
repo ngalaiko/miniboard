@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ngalaiko/miniboard/server/httpx/handler"
+	"github.com/ngalaiko/miniboard/backend/httpx/handler"
 )
 
 type tlsConfig struct {

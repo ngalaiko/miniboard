@@ -14,7 +14,7 @@ import (
 	jose "gopkg.in/square/go-jose.v2"
 	"gopkg.in/square/go-jose.v2/jwt"
 
-	"github.com/ngalaiko/miniboard/server/authorizations/keys"
+	"github.com/ngalaiko/miniboard/backend/authorizations/keys"
 )
 
 // Known errors.

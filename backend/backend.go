@@ -1,18 +1,18 @@
-package server
+package backend
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
 
-	"github.com/ngalaiko/miniboard/server/authorizations"
-	"github.com/ngalaiko/miniboard/server/crawler"
-	"github.com/ngalaiko/miniboard/server/db"
-	"github.com/ngalaiko/miniboard/server/feeds"
-	"github.com/ngalaiko/miniboard/server/httpx"
-	"github.com/ngalaiko/miniboard/server/logger"
-	"github.com/ngalaiko/miniboard/server/operations"
-	"github.com/ngalaiko/miniboard/server/users"
+	"github.com/ngalaiko/miniboard/backend/authorizations"
+	"github.com/ngalaiko/miniboard/backend/crawler"
+	"github.com/ngalaiko/miniboard/backend/db"
+	"github.com/ngalaiko/miniboard/backend/feeds"
+	"github.com/ngalaiko/miniboard/backend/httpx"
+	"github.com/ngalaiko/miniboard/backend/logger"
+	"github.com/ngalaiko/miniboard/backend/operations"
+	"github.com/ngalaiko/miniboard/backend/users"
 )
 
 // Config contains all server configuration.

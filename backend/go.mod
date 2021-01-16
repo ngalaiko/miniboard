@@ -1,4 +1,4 @@
-module github.com/ngalaiko/miniboard/server
+module github.com/ngalaiko/miniboard/backend
 
 go 1.14
 

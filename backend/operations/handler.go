@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/ngalaiko/miniboard/server/authorizations"
-	"github.com/ngalaiko/miniboard/server/httpx"
+	"github.com/ngalaiko/miniboard/backend/authorizations"
+	"github.com/ngalaiko/miniboard/backend/httpx"
 )
 
 // Handler handles http requests for user resource.

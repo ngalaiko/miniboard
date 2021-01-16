@@ -9,7 +9,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ngalaiko/miniboard/server/users"
+	"github.com/ngalaiko/miniboard/backend/users"
 )
 
 func Test_Handler__Get(t *testing.T) {

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ngalaiko/miniboard/server/db"
+	"github.com/ngalaiko/miniboard/backend/db"
 )
 
 func Test_db__Create(t *testing.T) {
