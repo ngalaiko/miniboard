@@ -6,7 +6,7 @@ info:
     url: https://github.com/ngalaiko/miniboard/blob/master/LICENSE
   version: 1.0.0
 servers:
-- url: https://api.miniboard.app/v1
+- url: https://api.miniboard.app/
 tags:
 - name: authorization
   description: Operations about authorization
@@ -17,7 +17,7 @@ tags:
 - name: user
   description: Operations about user
 paths:
-  /authorizations/:
+  /v1/authorizations/:
     post:
       tags:
       - authorization
@@ -63,7 +63,7 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 error: "internal server error"
-  /feeds/:
+  /v1/feeds/:
     post:
       tags:
       - feed
@@ -106,7 +106,7 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 error: "internal server error"
-  /operations/{operationId}:
+  /v1/operations/{operationId}:
     get:
       tags:
       - operation
@@ -148,7 +148,7 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 error: "internal server error"
-  /users/:
+  /v1/users/:
     post:
       tags:
       - user
