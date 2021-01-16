@@ -8,8 +8,7 @@ import (
 
 // Known errors.
 var (
-	ErrNotFound = fmt.Errorf("user does not exist")
-	// TODO: implement
+	ErrNotFound      = fmt.Errorf("user does not exist")
 	ErrAlreadyExists = fmt.Errorf("user already exists")
 )
 
