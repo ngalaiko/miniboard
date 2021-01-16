@@ -11,13 +11,26 @@ Swagger description itsef is available [here](https://docs.miniboard.app/api.swa
 
 ### Command line arguments
 
-| Command line            | Default                  | Description                                      |
-| ----------------------- | ------------------------ | ------------------------------------------------ |
-| config                  |                          | Path to the configuration file, required.        |
+| Command line            | Default                  | Description                     |
+| ----------------------- | ------------------------ | ------------------------------- |
+| config                  |                          | Path to the configuration file. |
 
 ### Configuration file
 
-See [example](./server/config.dev.yaml).
+```yaml
+db:
+  driver: "sqlite3"     # available values: "sqlite3", "postgres"
+  addr: "./db.sqilite3" # db address
+http:
+  addr: ":8080" # address to listen on
+  tls:
+    key_path: "key.pem" # path to tls key
+    cert_path "crt.pem" # path to tls certificate
+operations:
+  workers: 10 # number of workers that execute longrunning operations
+users:
+  bcrypt_cose: 14 # bcrypt cost
+```
 
 ### Environment variables
 
@@ -30,7 +43,7 @@ It is also possible to define any configuration value by setting an environment 
 1. Run server: 
 
 ```bash
-$ cd ./server && go run \ 
+$ cd ./backend && go run \
     cmd/miniboard/main.go \
         --config config.dev.yaml
 ```

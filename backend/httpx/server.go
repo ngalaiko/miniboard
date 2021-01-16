@@ -12,8 +12,8 @@ import (
 )
 
 type tlsConfig struct {
-	KeyPath  string
-	CertPath string
+	KeyPath  string `yaml:"key_path"`
+	CertPath string `yaml:"cert_path"`
 }
 
 // Config contains http server configuration values.
