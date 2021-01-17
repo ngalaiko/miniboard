@@ -3,6 +3,7 @@ package feeds
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -96,6 +97,45 @@ func Test_db__Get(t *testing.T) {
 
 	if !reflect.DeepEqual(feed, fromDB) {
 		t.Fatalf("expected %+v, got %+v", feed, fromDB)
+	}
+}
+
+func Test_db__List_paginated_by_created(t *testing.T) {
+	ctx := context.TODO()
+	db := newDB(createTestDB(ctx, t))
+
+	for i := 0; i < 100; i++ {
+		feed := &Feed{
+			ID:      fmt.Sprint(i),
+			UserID:  "user",
+			URL:     fmt.Sprintf("https://example%d.com", i),
+			Title:   fmt.Sprintf("%d title", i),
+			Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
+		}
+
+		if err := db.Create(ctx, feed); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	var createdBefore *time.Time
+	for i := 0; i < 20; i++ {
+		feeds, err := db.List(ctx, "user", 5, createdBefore)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if len(feeds) != 5 {
+			t.Errorf("expected 5 items, got %d", len(feeds))
+		}
+
+		for j, feed := range feeds {
+			expectedID := fmt.Sprint(99 - i*5 - j)
+			if feed.ID != expectedID {
+				t.Errorf("expected id %s, got %s", expectedID, feed.ID)
+			}
+			createdBefore = &feed.Created
+		}
 	}
 }
 

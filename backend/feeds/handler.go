@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
+	"time"
 
 	"github.com/ngalaiko/miniboard/backend/authorizations"
 	"github.com/ngalaiko/miniboard/backend/httpx"
@@ -49,6 +51,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		h.handlePost(w, r)
+	case http.MethodGet:
+		h.handleGet(w, r)
 	default:
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
@@ -60,6 +64,42 @@ func (h *Handler) handlePost(w http.ResponseWriter, r *http.Request) {
 		h.handleCreateFeed(w, r)
 	default:
 		http.NotFound(w, r)
+	}
+}
+
+func (h *Handler) handleGet(w http.ResponseWriter, r *http.Request) {
+	switch r.URL.Path {
+	case "/":
+		h.handleListFeeds(w, r)
+	default:
+		http.NotFound(w, r)
+	}
+}
+
+func (h *Handler) handleListFeeds(w http.ResponseWriter, r *http.Request) {
+	token, auth := authorizations.FromContext(r.Context())
+	if !auth {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	pageSize, err := strconv.Atoi(r.URL.Query().Get("page_size"))
+	if err != nil {
+		pageSize = 100
+	}
+
+	var before *time.Time
+	if parsedBefore, err := time.Parse(time.RFC3339, r.URL.Query().Get("before")); err == nil {
+		before = &parsedBefore
+	}
+
+	feeds, err := h.service.List(r.Context(), token.UserID, pageSize, before)
+	switch {
+	case err == nil:
+		httpx.JSON(w, h.logger, feeds, http.StatusOK)
+	default:
+		h.logger.Error("failed to list feeds: %s", err)
+		httpx.InternalError(w, h.logger)
 	}
 }
 

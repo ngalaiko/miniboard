@@ -3,6 +3,7 @@ package feeds
 import (
 	"context"
 	"database/sql"
+	"strings"
 	"time"
 )
 
@@ -80,6 +81,57 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*Feed, er
 	`, id, userID)
 
 	return d.scanRow(row)
+}
+
+// List returns a list of feeds from the database.
+func (d *database) List(ctx context.Context, userID string, limit int, createdBefore *time.Time) ([]*Feed, error) {
+	query := &strings.Builder{}
+	query.WriteString(`
+	SELECT
+		id,
+		user_id,
+		url,
+		title,
+		created_epoch,
+		updated_epoch
+	FROM
+		feeds
+	WHERE
+		user_id = $1
+	`)
+
+	args := []interface{}{userID}
+	if createdBefore != nil {
+		query.WriteString(`AND created_epoch < $2 ORDER BY created_epoch DESC LIMIT $3`)
+		args = append(args, createdBefore.UnixNano(), limit)
+	} else {
+		query.WriteString(`ORDER BY created_epoch DESC LIMIT $2`)
+		args = append(args, limit)
+	}
+
+	rows, err := d.db.QueryContext(ctx, query.String(), args...)
+	if err != nil {
+		return nil, err
+	}
+
+	feeds := []*Feed{}
+	for rows.Next() {
+		feed, err := d.scanRow(rows)
+		if err != nil {
+			return nil, err
+		}
+		feeds = append(feeds, feed)
+	}
+
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return feeds, nil
 }
 
 type scannable interface {

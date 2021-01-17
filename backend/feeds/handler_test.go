@@ -13,29 +13,6 @@ import (
 	"github.com/ngalaiko/miniboard/backend/operations"
 )
 
-func Test_Handler__Get(t *testing.T) {
-	ctx := context.Background()
-	logger := &testLogger{}
-	db := createTestDB(ctx, t)
-	crawler := &testCrawler{}
-	service := NewService(db, crawler)
-	handler := NewHandler(service, logger, &testOperationsService{})
-
-	req, err := http.NewRequest("GET", "/", strings.NewReader(`{"url":"https://console.org"}`))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rr := httptest.NewRecorder()
-
-	handler.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusMethodNotAllowed {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusMethodNotAllowed)
-	}
-}
-
 func Test_Handler__Post_404(t *testing.T) {
 	ctx := context.Background()
 	logger := &testLogger{}

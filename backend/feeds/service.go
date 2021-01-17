@@ -84,3 +84,14 @@ func (s *Service) Get(ctx context.Context, id string, userID string) (*Feed, err
 		return nil, err
 	}
 }
+
+// List returns a list of user feeds.
+func (s *Service) List(ctx context.Context, userID string, pageSize int, before *time.Time) ([]*Feed, error) {
+	feeds, err := s.db.List(ctx, userID, pageSize, before)
+	switch {
+	case err == nil:
+		return feeds, nil
+	default:
+		return nil, err
+	}
+}
