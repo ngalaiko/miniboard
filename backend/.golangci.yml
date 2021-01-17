@@ -42,7 +42,7 @@ linters:
     - prealloc
     - gosec
   # - wsl
-  # - funlen
+    - funlen
   # - gomnd
   # - godox
   # - lll
