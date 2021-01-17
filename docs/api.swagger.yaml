@@ -131,6 +131,14 @@ paths:
                       $ref: "#/components/schemas/Feed"
                   next_page_token:
                     type: string
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "failed to parse page_size"
         500:
           description: Internal error
           content:

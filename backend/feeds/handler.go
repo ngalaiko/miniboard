@@ -18,8 +18,10 @@ import (
 
 // Known errors.
 var (
-	errInvalidURL = fmt.Errorf("got invalid url")
-	errEmptyURL   = fmt.Errorf("got empty url")
+	errInvalidURL      = fmt.Errorf("got invalid url")
+	errEmptyURL        = fmt.Errorf("got empty url")
+	errInvalidPageSize = fmt.Errorf("failed to parse page_size")
+	errInvalidBefore   = fmt.Errorf("failed to parse before param")
 )
 
 type logger interface {
@@ -83,14 +85,24 @@ func (h *Handler) handleListFeeds(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pageSize, err := strconv.Atoi(r.URL.Query().Get("page_size"))
-	if err != nil {
-		pageSize = 100
+	var pageSize int = 100
+	if pageSizeRaw := r.URL.Query().Get("page_size"); len(pageSizeRaw) != 0 {
+		pageSizeParsed, err := strconv.Atoi(pageSizeRaw)
+		if err != nil {
+			httpx.Error(w, h.logger, errInvalidPageSize, http.StatusBadRequest)
+			return
+		}
+		pageSize = pageSizeParsed
 	}
 
 	var before *time.Time
-	if parsedBefore, err := time.Parse(time.RFC3339, r.URL.Query().Get("before")); err == nil {
-		before = &parsedBefore
+	if beforeParam := r.URL.Query().Get("before"); len(beforeParam) != 0 {
+		beforeParsed, err := time.Parse(time.RFC3339, beforeParam)
+		if err != nil {
+			httpx.Error(w, h.logger, errInvalidBefore, http.StatusBadRequest)
+			return
+		}
+		before = &beforeParsed
 	}
 
 	feeds, err := h.service.List(r.Context(), token.UserID, pageSize, before)
