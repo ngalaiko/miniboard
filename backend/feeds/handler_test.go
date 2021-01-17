@@ -31,8 +31,8 @@ func Test_Handler__Get(t *testing.T) {
 			StatusCode: http.StatusBadRequest,
 		},
 		{
-			URL:        "/?before=invalid",
-			Error:      errInvalidBefore,
+			URL:        "/?created_lt=invalid",
+			Error:      errInvalidCreatedLT,
 			StatusCode: http.StatusBadRequest,
 		},
 	}
@@ -62,36 +62,6 @@ func Test_Handler__Get(t *testing.T) {
 					rr.Body.String(), expected)
 			}
 		})
-	}
-}
-
-func Test_Handler__Get_invalid_before(t *testing.T) {
-	ctx := context.Background()
-	logger := &testLogger{}
-	db := createTestDB(ctx, t)
-	service := NewService(db, &testCrawler{})
-	handler := NewHandler(service, logger, &testOperationsService{})
-
-	req, err := http.NewRequest("GET", "/?before=invalid", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	req = req.WithContext(authorizations.NewContext(ctx, &authorizations.Token{
-		UserID: "user",
-	}))
-	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusBadRequest {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusBadRequest)
-	}
-
-	expected := fmt.Sprintf(`{"message":"%s"}`, errInvalidBefore)
-	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v",
-			rr.Body.String(), expected)
 	}
 }
 

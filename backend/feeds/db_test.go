@@ -118,9 +118,9 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 		}
 	}
 
-	var createdBefore *time.Time
+	var createdLT *time.Time
 	for i := 0; i < 20; i++ {
-		feeds, err := db.List(ctx, "user", 5, createdBefore)
+		feeds, err := db.List(ctx, "user", 5, createdLT)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -134,7 +134,7 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 			if feed.ID != expectedID {
 				t.Errorf("expected id %s, got %s", expectedID, feed.ID)
 			}
-			createdBefore = &feed.Created
+			createdLT = &feed.Created
 		}
 	}
 }

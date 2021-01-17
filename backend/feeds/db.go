@@ -84,7 +84,7 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*Feed, er
 }
 
 // List returns a list of feeds from the database.
-func (d *database) List(ctx context.Context, userID string, limit int, createdBefore *time.Time) ([]*Feed, error) {
+func (d *database) List(ctx context.Context, userID string, limit int, createdLT *time.Time) ([]*Feed, error) {
 	query := &strings.Builder{}
 	query.WriteString(`
 	SELECT
@@ -101,9 +101,9 @@ func (d *database) List(ctx context.Context, userID string, limit int, createdBe
 	`)
 
 	args := []interface{}{userID}
-	if createdBefore != nil {
+	if createdLT != nil {
 		query.WriteString(`AND created_epoch < $2 ORDER BY created_epoch DESC LIMIT $3`)
-		args = append(args, createdBefore.UnixNano(), limit)
+		args = append(args, createdLT.UnixNano(), limit)
 	} else {
 		query.WriteString(`ORDER BY created_epoch DESC LIMIT $2`)
 		args = append(args, limit)
