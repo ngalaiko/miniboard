@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-    <title>Miniboard</title>
+    <title>Log in - Miniboard</title>
 
     <link rel="stylesheet" href="/style.common.css" />
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="style.css" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png" />
@@ -30,8 +30,17 @@
 </head>
 
 <body>
-    <h1>Miniboard</h1>
-    <h2><a href="/login">Log in</a></h1>
+    <form id="login-form">
+        <label for="usrname">Username</label>
+        <input type="text" id="username" name="username"></input>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password"></input>
+
+        <button id="login-button">Log In</button>
+    </form>
+
+    <script src="script.js"></script>
 </body>
 
 </html>

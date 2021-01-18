@@ -4,6 +4,7 @@ body {
     flex-direction: column;
 }
 
-h1 {
+#login-form {
     display: flex;
+    flex-direction: column;
 }
