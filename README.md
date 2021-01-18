@@ -40,12 +40,23 @@ It is also possible to define any configuration value by setting an environment 
 
 ## Development
 
+### Backend
+
 1. Run server: 
 
 ```bash
 $ cd ./backend && go run \
     cmd/miniboard/main.go \
         --config config.dev.yaml
+```
+
+### Frontend
+
+1. Run file server:
+
+```bash
+$ cd frontend \
+    && python3 -m http.server 8080
 ```
 
 2. Open browser
