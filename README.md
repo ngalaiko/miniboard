@@ -9,13 +9,15 @@ Swagger description itsef is available [here](https://docs.miniboard.app/api.swa
 
 ## Configuration
 
-### Command line arguments
+### Backend
+
+#### Command line arguments
 
 | Command line            | Default                  | Description                     |
 | ----------------------- | ------------------------ | ------------------------------- |
 | config                  |                          | Path to the configuration file. |
 
-### Configuration file
+#### Configuration file
 
 ```yaml
 db:
@@ -32,7 +34,7 @@ users:
   bcrypt_cose: 14 # bcrypt cost
 ```
 
-### Environment variables
+#### Environment variables
 
 It is also possible to define any configuration value by setting an environment value, for example:
 * `MINIBOARD_HTTP_ADDR` will override `http.addr`
