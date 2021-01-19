@@ -1,0 +1,16 @@
+name: miniboard-frontend
+region: ams
+
+domains:
+- domain: miniboard.app
+  type: PRIMARY
+
+static_sites:
+- name: frontend
+  environment_slug: html
+  github:
+    repo: ngalaiko/miniboard
+    branch: master
+  source_dir: frontend
+  routes:
+  - path: /
