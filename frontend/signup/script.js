@@ -1,4 +1,4 @@
-const loginButton = document.getElementById('login-button')
+const signupButton = document.getElementById('signup-button')
 const inputUsername = document.getElementById('username')
 const inputPassword = document.getElementById('password')
 
@@ -9,7 +9,7 @@ const apiUrl = window.location.hostname == 'localhost'
 const handleButtonClick = async (e) => {
     e.preventDefault()
 
-    const response = await fetch(apiUrl + '/v1/authorizations', {
+    const response = await fetch(apiUrl + '/v1/users', {
         method: 'POST',
         body: JSON.stringify({
             username: inputUsername.value,
@@ -18,7 +18,7 @@ const handleButtonClick = async (e) => {
     })
 
     if (response.status === 200) {
-        alert(`logged in: ${await response.json()}`)
+        alert(`signed up: ${await response.json()}`)
         return
     }
 
@@ -30,4 +30,4 @@ const handleButtonClick = async (e) => {
     }
 }
 
-loginButton.addEventListener('click', handleButtonClick)
+signupButton.addEventListener('click', handleButtonClick)
