@@ -18,7 +18,7 @@ const handleButtonClick = async (e) => {
     })
 
     if (response.status === 200) {
-        alert(`signed up: ${await response.json()}`)
+        alert(`signed up: ${JSON.stringify(await response.json())}`)
         return
     }
 

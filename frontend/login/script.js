@@ -18,7 +18,7 @@ const handleButtonClick = async (e) => {
     })
 
     if (response.status === 200) {
-        alert(`logged in: ${await response.json()}`)
+        alert(`logged in: ${JSON.stringify(await response.json())}`)
         return
     }
 
