@@ -13,9 +13,9 @@ Swagger description itsef is available [here](https://docs.miniboard.app/api.swa
 
 #### Command line arguments
 
-| Command line            | Default                  | Description                     |
-| ----------------------- | ------------------------ | ------------------------------- |
-| config                  |                          | Path to the configuration file. |
+| Command line            | Default                  | Description                    |
+| ----------------------- | ------------------------ | ------------------------------ |
+| config                  |                          | Path to the configuration file |
 
 #### Configuration file
 
@@ -25,7 +25,7 @@ db:
   addr: "./db.sqilite3" # db address
 http:
   addr: ":8080" # address to listen on
-  tls:
+  tls:          # if not set, plaintext http will be used
     key_path: "key.pem"  # path to tls key
     cert_path: "crt.pem" # path to tls certificate
 operations:
@@ -47,8 +47,8 @@ It is also possible to define any configuration value by setting an environment 
 1. Run server: 
 
 ```bash
-$ cd ./backend && go run \
-    cmd/miniboard/main.go \
+$ cd ./backend \
+    && go run cmd/miniboard/main.go \
         --config config.dev.yaml
 ```
 
@@ -57,7 +57,7 @@ $ cd ./backend && go run \
 1. Run file server:
 
 ```bash
-$ cd frontend \
+$ cd ./frontend \
     && python3 -m http.server 8080
 ```
 
