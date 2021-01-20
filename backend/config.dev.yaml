@@ -1,5 +1,9 @@
+authorizations:
+  domain: "localhost"
 http:
   addr: ":80"
+cors:
+  domains: ["http://localhost:8080"]
 db:
   driver: sqlite3
   addr: ./db.dev.sqlite3

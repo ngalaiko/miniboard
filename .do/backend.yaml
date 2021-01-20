@@ -16,11 +16,20 @@ services:
     branch: master
   source_dir: backend
   envs:
+  - key: MINIBOARD_CORS_DOMAINS
+    scope: RUN_TIME
+    value: "https://miniboard.app,https://docs.miniboard.app"
   - key: MINIBOARD_DB_DRIVER
-    scope: RUN_AND_BUILD_TIME
+    scope: RUN_TIME
     value: sqlite3
   - key: MINIBOARD_DB_ADDR
-    scope: RUN_AND_BUILD_TIME
+    scope: RUN_TIME
     value: ./db.sqlite3
+  - key: MINIBOARD_AUTHORIZATIONS_DOMAIN
+    scope: RUN_TIME
+    value: "api.miniboard.app"
+  - key: MINIBOARD_AUTHORIZATIONS_SECURE
+    scope: RUN_TIME
+    value: "true"
   routes:
   - path: /

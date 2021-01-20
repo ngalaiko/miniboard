@@ -10,6 +10,7 @@ const handleButtonClick = async (e) => {
     e.preventDefault()
 
     const response = await fetch(apiUrl + '/v1/authorizations', {
+        credentials: 'include',
         method: 'POST',
         body: JSON.stringify({
             username: inputUsername.value,

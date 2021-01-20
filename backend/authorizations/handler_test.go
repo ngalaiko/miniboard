@@ -15,7 +15,7 @@ import (
 func Test_Handler__Get(t *testing.T) {
 	ctx := context.Background()
 	logger := &testLogger{}
-	handler := NewHandler(&testUsersService{}, NewService(createTestDB(ctx, t), logger), logger)
+	handler := NewHandler(&testUsersService{}, NewService(createTestDB(ctx, t), logger), logger, nil)
 
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
@@ -35,7 +35,7 @@ func Test_Handler__Get(t *testing.T) {
 func Test_Handler__Post_404(t *testing.T) {
 	ctx := context.Background()
 	logger := &testLogger{}
-	handler := NewHandler(&testUsersService{}, NewService(createTestDB(ctx, t), logger), logger)
+	handler := NewHandler(&testUsersService{}, NewService(createTestDB(ctx, t), logger), logger, nil)
 
 	req, err := http.NewRequest("POST", "/404", nil)
 	if err != nil {
@@ -56,7 +56,7 @@ func Test_Handler__Create_unknown_user(t *testing.T) {
 	ctx := context.Background()
 	logger := &testLogger{}
 	tus := &testUsersService{Error: users.ErrNotFound}
-	handler := NewHandler(tus, NewService(createTestDB(ctx, t), logger), logger)
+	handler := NewHandler(tus, NewService(createTestDB(ctx, t), logger), logger, nil)
 
 	req, err := http.NewRequest("POST", "/", bytes.NewReader([]byte(`
 		{"username": "404"}
@@ -88,7 +88,7 @@ func Test_Handler__Create_invalid_password(t *testing.T) {
 		Username: "username",
 		Hash:     []byte("$2a$14$.3JXNBhZzqfEKwqRZg8WV.kpelsYPEgs4wft/NgU9nRM1ZxomzXem"),
 	}}
-	handler := NewHandler(tus, NewService(createTestDB(ctx, t), logger), logger)
+	handler := NewHandler(tus, NewService(createTestDB(ctx, t), logger), logger, nil)
 
 	req, err := http.NewRequest("POST", "/", bytes.NewReader([]byte(`
 		{"username": "username", "password": "invalid"}
@@ -121,7 +121,7 @@ func Test_Handler__Create(t *testing.T) {
 		Username: "username",
 		Hash:     []byte("$2a$14$.3JXNBhZzqfEKwqRZg8WV.kpelsYPEgs4wft/NgU9nRM1ZxomzXem"),
 	}}
-	handler := NewHandler(tus, NewService(createTestDB(ctx, t), logger), logger)
+	handler := NewHandler(tus, NewService(createTestDB(ctx, t), logger), logger, nil)
 
 	req, err := http.NewRequest("POST", "/", bytes.NewReader([]byte(`
 		{"username": "username", "password": "password"}

@@ -11,6 +11,12 @@ import (
 	"github.com/ngalaiko/miniboard/backend/users"
 )
 
+// Config contains authorizations handler config.
+type Config struct {
+	Domain *string `yaml:"domain"`
+	Secure bool    `yaml:"secure"`
+}
+
 type usersService interface {
 	GetByUsername(context.Context, string) (*users.User, error)
 }
@@ -24,14 +30,19 @@ type Handler struct {
 	logger       logger
 	usersService usersService
 	jwtService   jwtService
+	config       *Config
 }
 
 // NewHandler initializes a new handler.
-func NewHandler(usersService usersService, jwtService jwtService, logger logger) *Handler {
+func NewHandler(usersService usersService, jwtService jwtService, logger logger, cfg *Config) *Handler {
+	if cfg == nil {
+		cfg = &Config{}
+	}
 	return &Handler{
 		logger:       logger,
 		usersService: usersService,
 		jwtService:   jwtService,
+		config:       cfg,
 	}
 }
 
@@ -106,6 +117,8 @@ func (h *Handler) handleCreateAuthorization(w http.ResponseWriter, r *http.Reque
 		httpx.InternalError(w, h.logger)
 		return
 	}
+
+	setCookie(w, h.config, token)
 
 	httpx.JSON(w, h.logger, token, http.StatusOK)
 }

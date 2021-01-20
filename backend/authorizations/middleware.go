@@ -29,7 +29,7 @@ var (
 func Authenticate(jwtService jwtValidator, logger errorLogger) httpx.Middleware {
 	return func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			tok := r.Header.Get("Authorization")
+			tok := getToken(r)
 			if tok == "" {
 				httpx.Error(w, logger, errNoToken, http.StatusUnauthorized)
 				return
@@ -69,4 +69,16 @@ func Authenticate(jwtService jwtValidator, logger errorLogger) httpx.Middleware 
 			handler.ServeHTTP(w, r)
 		})
 	}
+}
+
+func getToken(r *http.Request) string {
+	if token := r.Header.Get("Authorization"); token != "" {
+		return token
+	}
+
+	if cookie, err := r.Cookie(cookieName); err == nil {
+		return cookie.Value
+	}
+
+	return ""
 }

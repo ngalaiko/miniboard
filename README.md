@@ -20,6 +20,9 @@ Swagger description itsef is available [here](https://docs.miniboard.app/api.swa
 #### Configuration file
 
 ```yaml
+authorizations:
+  domain: "example.com" # domain to set cookie to
+  secure: false         # if cookie should be Secure
 db:
   driver: "sqlite3"     # available values: "sqlite3", "postgres"
   addr: "./db.sqilite3" # db address
@@ -28,6 +31,8 @@ http:
   tls:          # if not set, plaintext http will be used
     key_path: "key.pem"  # path to tls key
     cert_path: "crt.pem" # path to tls certificate
+cors:
+  domains: ["example.com"] # list of domains to allow CORS from
 operations:
   workers: 10 # number of workers that execute longrunning operations
 users:

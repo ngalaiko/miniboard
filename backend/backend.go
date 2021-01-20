@@ -15,12 +15,18 @@ import (
 	"github.com/ngalaiko/miniboard/backend/users"
 )
 
+type corsConfig struct {
+	Domains []string `yaml:"domains"`
+}
+
 // Config contains all server configuration.
 type Config struct {
-	DB         *db.Config         `yaml:"db"`
-	HTTP       *httpx.Config      `yaml:"http"`
-	Operations *operations.Config `yaml:"operations"`
-	Users      *users.Config      `yaml:"users"`
+	Authorizations *authorizations.Config `yaml:"authorizations"`
+	DB             *db.Config             `yaml:"db"`
+	HTTP           *httpx.Config          `yaml:"http"`
+	Cors           *corsConfig            `yaml:"cors"`
+	Operations     *operations.Config     `yaml:"operations"`
+	Users          *users.Config          `yaml:"users"`
 }
 
 // Server is the main object.
@@ -51,23 +57,28 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 
 	withAuth := authorizations.Authenticate(authorizationsService, logger)
 
+	corsDomains := []string{}
+	if cfg.Cors != nil {
+		corsDomains = append(corsDomains, cfg.Cors.Domains...)
+	}
+
 	httpServer.Route("/v1/authorizations", httpx.Chain(
-		authorizations.NewHandler(usersService, authorizationsService, logger),
-		httpx.WithCors(),
+		authorizations.NewHandler(usersService, authorizationsService, logger, cfg.Authorizations),
+		httpx.WithCors(corsDomains...),
 	))
 	httpServer.Route("/v1/feeds", httpx.Chain(
 		feeds.NewHandler(feedsService, logger, operationsService),
-		httpx.WithCors(),
+		httpx.WithCors(corsDomains...),
 		withAuth,
 	))
 	httpServer.Route("/v1/operations", httpx.Chain(
 		operations.NewHandler(operationsService, logger),
-		httpx.WithCors(),
+		httpx.WithCors(corsDomains...),
 		withAuth,
 	))
 	httpServer.Route("/v1/users", httpx.Chain(
 		users.NewHandler(usersService, logger),
-		httpx.WithCors(),
+		httpx.WithCors(corsDomains...),
 	))
 
 	return &Server{
