@@ -18,7 +18,8 @@ const handleButtonClick = async (e) => {
     })
 
     if (response.status === 200) {
-        alert(`signed up: ${JSON.stringify(await response.json())}`)
+        alert('You are now signed up')
+        document.location = '/login'
         return
     }
 
