@@ -10,7 +10,7 @@ const createFeedElement = (feed) => {
 
     const item = document.createElement('x-feed')
     item.setAttribute('title', feed.title)
-    if (item.iconUrl !== undefined) {
+    if (item.icon_url !== undefined) {
         item.setAttribute('icon', feed.icon_url)
     }
     listItem.appendChild(item)
