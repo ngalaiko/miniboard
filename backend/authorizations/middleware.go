@@ -29,25 +29,13 @@ var (
 func Authenticate(jwtService jwtValidator, logger errorLogger) httpx.Middleware {
 	return func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			tok := getToken(r)
-			if tok == "" {
-				httpx.Error(w, logger, errNoToken, http.StatusUnauthorized)
+			tok, err := getToken(r)
+			if err != nil {
+				httpx.Error(w, logger, err, http.StatusUnauthorized)
 				return
 			}
 
-			tokenParts := strings.Split(tok, " ")
-			if len(tokenParts) != 2 {
-				httpx.Error(w, logger, errInvalidTokenFormat, http.StatusUnauthorized)
-				return
-			}
-
-			tokenType := tokenParts[0]
-			if strings.ToLower(tokenType) != "bearer" {
-				httpx.Error(w, logger, errInvalidTokenFormat, http.StatusUnauthorized)
-				return
-			}
-
-			rawToken := tokenParts[1]
+			rawToken := tok
 			if rawToken == "" {
 				httpx.Error(w, logger, errNoToken, http.StatusUnauthorized)
 				return
@@ -71,14 +59,34 @@ func Authenticate(jwtService jwtValidator, logger errorLogger) httpx.Middleware 
 	}
 }
 
-func getToken(r *http.Request) string {
-	if token := r.Header.Get("Authorization"); token != "" {
-		return token
-	}
-
+func getToken(r *http.Request) (string, error) {
 	if cookie, err := r.Cookie(cookieName); err == nil {
-		return cookie.Value
+		return cookie.Value, nil
 	}
 
-	return ""
+	token, err := getTokenFromHeader(r)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+func getTokenFromHeader(r *http.Request) (string, error) {
+	token := r.Header.Get("Authorization")
+	if token == "" {
+		return "", errNoToken
+	}
+
+	tokenParts := strings.Split(token, " ")
+	if len(tokenParts) != 2 {
+		return "", errInvalidTokenFormat
+	}
+
+	tokenType := tokenParts[0]
+	if strings.ToLower(tokenType) != "bearer" {
+		return "", errInvalidTokenFormat
+	}
+
+	return tokenParts[1], nil
 }
