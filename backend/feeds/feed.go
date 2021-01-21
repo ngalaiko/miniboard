@@ -12,4 +12,5 @@ type Feed struct {
 	Title   string     `json:"title"`
 	Created time.Time  `json:"created"`
 	Updated *time.Time `json:"updated"`
+	IconURL *string    `json:"icon_url,omitempty"`
 }

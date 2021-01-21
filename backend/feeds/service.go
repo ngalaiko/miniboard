@@ -65,6 +65,10 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL) (*Fee
 		Created: time.Now().Truncate(time.Nanosecond),
 	}
 
+	if parsedFeed.Image != nil {
+		feed.IconURL = &parsedFeed.Image.URL
+	}
+
 	if err := s.db.Create(ctx, feed); err != nil {
 		return nil, fmt.Errorf("failed to store feed: %w", err)
 	}

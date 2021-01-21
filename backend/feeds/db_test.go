@@ -24,6 +24,8 @@ func Test_db__Create(t *testing.T) {
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour),
 	}
+	feed.IconURL = new(string)
+	*feed.IconURL = "https://icon.url"
 
 	if err := db.Create(ctx, feed); err != nil {
 		t.Fatalf("failed to create a feed: %s", err)
@@ -41,6 +43,8 @@ func Test_db__Create_twice(t *testing.T) {
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour),
 	}
+	feed.IconURL = new(string)
+	*feed.IconURL = "https://icon.url"
 	if err := db.Create(ctx, feed); err != nil {
 		t.Fatalf("failed to create a feed: %s", err)
 	}
@@ -61,6 +65,8 @@ func Test_db__Get_not_found(t *testing.T) {
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour),
 	}
+	feed.IconURL = new(string)
+	*feed.IconURL = "https://icon.url"
 
 	fromDB, err := db.Get(ctx, feed.UserID, feed.ID)
 	if fromDB != nil {
@@ -83,6 +89,8 @@ func Test_db__Get(t *testing.T) {
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
 	}
+	feed.IconURL = new(string)
+	*feed.IconURL = "https://icon.url"
 	feed.Updated = new(time.Time)
 	*feed.Updated = time.Now().Truncate(time.Nanosecond)
 
@@ -112,6 +120,8 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 			Title:   fmt.Sprintf("%d title", i),
 			Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
 		}
+		feed.IconURL = new(string)
+		*feed.IconURL = "https://icon.url"
 
 		if err := db.Create(ctx, feed); err != nil {
 			t.Fatal(err)

@@ -57,5 +57,12 @@ func migrations() []*migration {
 			)
 			`,
 		},
+		{
+			Name: "add feeds.icon_url",
+			Query: `
+			ALTER TABLE feeds
+			ADD COLUMN icon_url TEXT NULL
+			`,
+		},
 	}
 }

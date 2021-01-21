@@ -32,12 +32,13 @@ func (d *database) Create(ctx context.Context, feed *Feed) error {
 		url,
 		title,
 		created_epoch,
-		updated_epoch
+		updated_epoch,
+		icon_url
 	) VALUES (
-		$1, $2, $3, $4, $5, $6
+		$1, $2, $3, $4, $5, $6, $7
 	)`, feed.ID, feed.UserID, feed.URL, feed.Title,
 		feed.Created.UTC().UnixNano(),
-		updatedEpoch,
+		updatedEpoch, feed.IconURL,
 	)
 
 	return err
@@ -52,7 +53,8 @@ func (d *database) GetByURL(ctx context.Context, userID string, url string) (*Fe
 		url,
 		title,
 		created_epoch,
-		updated_epoch
+		updated_epoch,
+		icon_url
 	FROM
 		feeds
 	WHERE
@@ -72,7 +74,8 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*Feed, er
 		url,
 		title,
 		created_epoch,
-		updated_epoch
+		updated_epoch,
+		icon_url
 	FROM
 		feeds
 	WHERE
@@ -93,7 +96,8 @@ func (d *database) List(ctx context.Context, userID string, limit int, createdLT
 		url,
 		title,
 		created_epoch,
-		updated_epoch
+		updated_epoch,
+		icon_url
 	FROM
 		feeds
 	WHERE
@@ -149,6 +153,7 @@ func (d *database) scanRow(row scannable) (*Feed, error) {
 		&feed.Title,
 		&createdEpoch,
 		&updatedEpoch,
+		&feed.IconURL,
 	); err != nil {
 		return nil, err
 	}

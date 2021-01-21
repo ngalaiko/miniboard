@@ -108,7 +108,10 @@ func (h *Handler) handleListFeeds(w http.ResponseWriter, r *http.Request) {
 	feeds, err := h.service.List(r.Context(), token.UserID, pageSize, createdLT)
 	switch {
 	case err == nil:
-		httpx.JSON(w, h.logger, feeds, http.StatusOK)
+		type response struct {
+			Feeds []*Feed `json:"feeds"`
+		}
+		httpx.JSON(w, h.logger, &response{Feeds: feeds}, http.StatusOK)
 	default:
 		h.logger.Error("failed to list feeds: %s", err)
 		httpx.InternalError(w, h.logger)
