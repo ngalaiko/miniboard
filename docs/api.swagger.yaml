@@ -130,14 +130,11 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
+                type: array
                   feeds:
                     type: array
                     items:
                       $ref: "#/components/schemas/Feed"
-                  next_page_token:
-                    type: string
         400:
           description: Bad request
           content:
