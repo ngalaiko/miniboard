@@ -51,7 +51,47 @@ document.querySelector("#add-button").addEventListener('click', (e) => {
         .then(console.log)
     })
 
-    addModal.addEventListener('UrlAdded', (e) => console.log(e.detail.url))
+    addModal.addEventListener('UrlAdded', (e) => addFeed(e.detail.url))
 })
+
+const addFeed = async (url) => {
+    const response = await fetch(apiUrl + '/v1/feeds', {
+        credentials: 'include',
+        method: 'POST',
+        body: JSON.stringify({
+            url: url,
+        }),
+    })
+
+    const body = await response.json()
+    if (response.status !== 200) {
+        alert(`failed to create feed: ${body.message}`)
+        return
+    }
+
+    watchOperationStatus(url, body)
+}
+
+const watchOperationStatus = async (url, operation) => {
+    switch (true) {
+    case !operation.done:
+        const response = await fetch(apiUrl + `/v1/operations/${operation.id}`, {
+            credentials: 'include',
+        })
+        const body = await response.json()
+        if (response.status !== 200) {
+            console.error(`failed to fetch operation status: ${body.message}`)
+            return
+        }
+        window.setTimeout(() => watchOperationStatus(url, body), 1000)
+        break
+    case !(operation.result.error === undefined):
+        console.error(`${url}: ${operation.result.error.message}`)
+        break
+    case !(operation.result.response === undefined):
+        console.debug(`${url}: added`)
+        break
+    }
+}
 
 loadFeeds()
