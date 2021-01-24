@@ -55,7 +55,7 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 	operationsService := operations.NewService(logger, db, cfg.Operations)
 	feedsService := feeds.NewService(db, crawler.New())
 
-	withAuth := authorizations.Authenticate(authorizationsService, logger)
+	withAuth := authorizations.Authenticate(authorizationsService, cfg.Authorizations, logger)
 
 	corsDomains := []string{}
 	if cfg.Cors != nil {

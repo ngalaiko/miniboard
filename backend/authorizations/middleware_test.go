@@ -10,7 +10,7 @@ import (
 )
 
 func Test_Middleware__no_token(t *testing.T) {
-	middleware := Authenticate(&testJWValidator{}, &testErrorLogger{})
+	middleware := Authenticate(&testJWValidator{}, &Config{}, &testErrorLogger{})
 
 	handlerCalled := false
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +42,7 @@ func Test_Middleware__no_token(t *testing.T) {
 func Test_Middleware__internal(t *testing.T) {
 	middleware := Authenticate(&testJWValidator{
 		Error: fmt.Errorf("internal"),
-	}, &testErrorLogger{})
+	}, &Config{}, &testErrorLogger{})
 
 	handlerCalled := false
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +73,7 @@ func Test_Middleware__internal(t *testing.T) {
 }
 
 func Test_Middleware__invalid_token_type(t *testing.T) {
-	middleware := Authenticate(&testJWValidator{}, &testErrorLogger{})
+	middleware := Authenticate(&testJWValidator{}, &Config{}, &testErrorLogger{})
 
 	handlerCalled := false
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -106,7 +106,7 @@ func Test_Middleware__invalid_token_type(t *testing.T) {
 func Test_Middleware__invalid_token(t *testing.T) {
 	middleware := Authenticate(&testJWValidator{
 		Error: errInvalidToken,
-	}, &testErrorLogger{})
+	}, &Config{}, &testErrorLogger{})
 
 	handlerCalled := false
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -143,7 +143,7 @@ func Test_Middleware__valid_token(t *testing.T) {
 			UserID:    "id",
 			ExpiresAt: time.Now(),
 		},
-	}, &testErrorLogger{})
+	}, &Config{}, &testErrorLogger{})
 
 	handlerCalled := false
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -170,6 +170,10 @@ func Test_Middleware__valid_token(t *testing.T) {
 type testJWValidator struct {
 	Token *Token
 	Error error
+}
+
+func (tjv *testJWValidator) NewToken(context.Context, string) (*Token, error) {
+	return nil, fmt.Errorf("not implemented")
 }
 
 func (tjv *testJWValidator) Verify(context.Context, string) (*Token, error) {

@@ -23,6 +23,7 @@ type usersService interface {
 
 type jwtService interface {
 	NewToken(context.Context, string) (*Token, error)
+	Verify(context.Context, string) (*Token, error)
 }
 
 // Handler handlers authorization http requests.

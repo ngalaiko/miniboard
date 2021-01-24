@@ -20,11 +20,12 @@ import (
 // Known errors.
 var (
 	errInvalidToken = fmt.Errorf("token is invalid")
+	errTokenExpired = fmt.Errorf("token is expired")
 )
 
 const (
 	defaultIssuer = "miniboard.app"
-	validFor      = time.Hour
+	validFor      = 15 * time.Minute
 )
 
 type logger interface {
@@ -144,18 +145,26 @@ func (s *Service) Verify(ctx context.Context, token string) (*Token, error) {
 		return nil, errInvalidToken
 	}
 
-	if err := claims.ValidateWithLeeway(jwt.Expected{
+	validateErr := claims.ValidateWithLeeway(jwt.Expected{
 		Time:   time.Now(),
 		Issuer: defaultIssuer,
-	}, time.Second); err != nil {
+	}, time.Second)
+	switch validateErr {
+	case nil:
+		return &Token{
+			Token:     token,
+			UserID:    claims.Subject,
+			ExpiresAt: claims.Expiry.Time(),
+		}, nil
+	case jwt.ErrExpired:
+		return &Token{
+			Token:     token,
+			UserID:    claims.Subject,
+			ExpiresAt: claims.Expiry.Time(),
+		}, errTokenExpired
+	default:
 		return nil, errInvalidToken
 	}
-
-	return &Token{
-		Token:     token,
-		UserID:    claims.Subject,
-		ExpiresAt: claims.Expiry.Time(),
-	}, nil
 }
 
 func (s *Service) get(ctx context.Context, id string) (*ecdsa.PublicKey, error) {

@@ -1,7 +1,6 @@
 package authorizations
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -9,10 +8,6 @@ import (
 
 	"github.com/ngalaiko/miniboard/backend/httpx"
 )
-
-type jwtValidator interface {
-	Verify(context.Context, string) (*Token, error)
-}
 
 type errorLogger interface {
 	Error(string, ...interface{})
@@ -26,10 +21,10 @@ var (
 
 // Authenticate is a http middleware that validates request Authorization token
 // and populates a request context with the user id.
-func Authenticate(jwtService jwtValidator, logger errorLogger) httpx.Middleware {
+func Authenticate(jwtService jwtService, config *Config, logger errorLogger) httpx.Middleware {
 	return func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			tok, err := getToken(r)
+			tok, refreshable, err := getToken(r)
 			if err != nil {
 				httpx.Error(w, logger, err, http.StatusUnauthorized)
 				return
@@ -45,6 +40,16 @@ func Authenticate(jwtService jwtValidator, logger errorLogger) httpx.Middleware 
 			switch {
 			case err == nil:
 				r = r.WithContext(NewContext(r.Context(), token))
+			case errors.Is(err, errTokenExpired) && refreshable:
+				token, err := jwtService.NewToken(r.Context(), token.UserID)
+				if err != nil {
+					logger.Error("failed to renew a new token: %s", err)
+					httpx.InternalError(w, logger)
+					return
+				}
+
+				setCookie(w, config, token)
+				r = r.WithContext(NewContext(r.Context(), token))
 			case errors.Is(err, errInvalidToken):
 				httpx.Error(w, logger, errInvalidToken, http.StatusUnauthorized)
 				return
@@ -59,17 +64,17 @@ func Authenticate(jwtService jwtValidator, logger errorLogger) httpx.Middleware 
 	}
 }
 
-func getToken(r *http.Request) (string, error) {
+func getToken(r *http.Request) (string, bool, error) {
 	if cookie, err := r.Cookie(cookieName); err == nil {
-		return cookie.Value, nil
+		return cookie.Value, true, nil
 	}
 
 	token, err := getTokenFromHeader(r)
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 
-	return token, nil
+	return token, false, nil
 }
 
 func getTokenFromHeader(r *http.Request) (string, error) {
