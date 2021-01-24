@@ -39,19 +39,7 @@ document.querySelector("#add-button").addEventListener('click', (e) => {
         document.body.removeChild(addModal)
     })
 
-    addModal.addEventListener('FileAdded', (e) => {
-        new Promise((resolve, reject) => {
-            const reader = new FileReader()
-            reader.readAsBinaryString(e.detail.file)
-            reader.onload = e => {
-                resolve(e.target.result)
-            }
-            reader.onerror = () => reject(new Error('failed to read file'))
-        })
-        .then(console.log)
-    })
-
-    addModal.addEventListener('UrlAdded', (e) => addFeed(e.detail.url))
+    addModal.addEventListener('FeedAdded', (e) => addFeed(e.detail.url))
 })
 
 const addFeed = async (url) => {
