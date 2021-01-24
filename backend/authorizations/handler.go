@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/ngalaiko/miniboard/backend/httpx"
 	"github.com/ngalaiko/miniboard/backend/users"
@@ -13,8 +14,9 @@ import (
 
 // Config contains authorizations handler config.
 type Config struct {
-	Domain *string `yaml:"domain"`
-	Secure bool    `yaml:"secure"`
+	Domain         *string       `yaml:"domain"`
+	Secure         bool          `yaml:"secure"`
+	CookieLifetime time.Duration `yaml:"cookie_lifetime"`
 }
 
 type usersService interface {

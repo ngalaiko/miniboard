@@ -7,13 +7,11 @@ import (
 
 const cookieName = "authorization"
 
-var cookieLifetime = 30 * 25 * time.Hour
-
 func setCookie(w http.ResponseWriter, config *Config, token *Token) {
 	cookie := &http.Cookie{
 		Name:     cookieName,
 		Value:    token.Token,
-		Expires:  time.Now().Add(cookieLifetime),
+		Expires:  time.Now().Add(config.CookieLifetime),
 		HttpOnly: true,
 		Path:     "/",
 		Secure:   config.Secure,
