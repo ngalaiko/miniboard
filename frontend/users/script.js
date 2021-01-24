@@ -2,7 +2,7 @@ const apiUrl = window.location.hostname == 'localhost'
     ? 'http://localhost:80'
     : 'https://api.miniboard.app'
 
-const loadFeeds = async () => {
+(async () => {
     const response = await fetch(apiUrl + '/v1/feeds', {
         credentials: 'include',
     })
@@ -27,7 +27,7 @@ const loadFeeds = async () => {
             item.setAttribute('icon', feed.icon_url)
         }
     })
-}
+})()
 
 document.querySelector("#add-button").addEventListener('click', (e) => {
     import('./components/modal.js')
@@ -81,5 +81,3 @@ const watchOperationStatus = async (url, operation) => {
         break
     }
 }
-
-loadFeeds()
