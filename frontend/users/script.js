@@ -1,6 +1,6 @@
-const apiUrl = window.location.hostname == 'localhost'
-    ? 'http://localhost:80'
-    : 'https://api.miniboard.app'
+const apiUrl = window.location.hostname !== 'localhost'
+    ? 'https://api.miniboard.app'
+    : 'http://localhost:80';
 
 (async () => {
     const response = await fetch(apiUrl + '/v1/feeds', {
