@@ -31,5 +31,8 @@ services:
   - key: MINIBOARD_AUTHORIZATIONS_SECURE
     scope: RUN_TIME
     value: "true"
+  - key: MINIBOARD_AUTHORIZATIONS_COOKIE_LIFETIME
+    scope: RUN_TIME
+    value: "720h"
   routes:
   - path: /
