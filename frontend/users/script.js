@@ -39,7 +39,31 @@ document.querySelector("#add-button").addEventListener('click', (e) => {
         document.body.removeChild(addModal)
     })
 
-    addModal.addEventListener('FeedAdded', (e) => addFeed(e.detail.url))
+    addModal.addEventListener('FileAdded', (e) => {
+        new Promise((resolve, reject) => {
+            const reader = new FileReader()
+            reader.readAsBinaryString(e.detail.file)
+            reader.onload = e => {
+                resolve(e.target.result)
+            }
+            reader.onerror = () => reject(new Error('failed to read file'))
+        })
+        .then((raw) => {
+            const parser = new DOMParser()
+            const dom = parser.parseFromString(raw, "text/xml")
+
+            if (dom.documentElement.nodeName !== 'opml') {
+                throw new Error('only opml files supported')
+            }
+
+            Array.from(dom.getElementsByTagName('outline'))
+                .map(item => item.getAttribute('xmlUrl'))
+                .filter(item => item !== null)
+                .forEach(addFeed)
+        })
+    })
+
+    addModal.addEventListener('UrlAdded', (e) => addFeed(e.detail.url))
 })
 
 const addFeed = async (url) => {

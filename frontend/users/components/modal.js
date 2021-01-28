@@ -37,13 +37,25 @@
             outline: none;
         }
 
+        #input-file {
+            display: none;
+        }
+
         #input-icon {
             cursor: pointer;
         }
     </style>
     <div id="background"></div>
     <div id="content">
-        <input id="input-url" placeholder="RSS" />
+        <input id="input-url" placeholder="Link, RSS" />
+        <input type="file" id="input-file" />
+        <label for="input-file" id="input-icon">
+            <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+        </label>
     </div>
     `
 
@@ -61,6 +73,7 @@
             this.keydownEventHandler = _keydownEventHandler(this)
 
             window.addEventListener('keydown', this.keydownEventHandler)
+            this.shadowRoot.querySelector("#input-file").addEventListener('change', _fileInputEventHandler(this))
             this.shadowRoot.querySelector("#background").addEventListener('click', () => _close(this))
         }
 
@@ -74,7 +87,7 @@
             switch (e.key) {
             case 'Enter':
                 const url = self.shadowRoot.querySelector("#input-url").value
-                if (url !== '') self.dispatchEvent(new CustomEvent('FeedAdded', {
+                if (url !== '') self.dispatchEvent(new CustomEvent('UrlAdded', {
                     detail: {
                         url: url,
                     },
@@ -86,6 +99,23 @@
                 _close(self)
                 break
             }
+        }
+    }
+
+    const _fileInputEventHandler = (self) => {
+        return (e) => {
+            const files = e.target.files
+
+            if (files.length === 0) return
+
+            self.dispatchEvent(new CustomEvent('FileAdded', {
+                detail: {
+                    file: files[0],
+                },
+                bubbles: true,
+            }))
+
+            _close(self)
         }
     }
 
