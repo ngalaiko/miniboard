@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
@@ -136,7 +137,11 @@ func (s *Service) Verify(ctx context.Context, token string) (*Token, error) {
 	id := jwtoken.Headers[0].KeyID
 
 	pubicKey, err := s.get(ctx, id)
-	if err != nil {
+	switch {
+	case err == nil:
+	case errors.Is(err, sql.ErrNoRows):
+		return nil, errInvalidToken
+	default:
 		return nil, fmt.Errorf("failed to find key '%s': %w", id, err)
 	}
 
