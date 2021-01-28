@@ -182,7 +182,7 @@ func (h *Handler) createFeed(userID string, url *url.URL) operations.Task {
 			return nil
 		default:
 			h.logger.Error("failed to create feed: %s", err)
-			return err
+			return fmt.Errorf("internal error")
 		}
 	}
 }
