@@ -48,7 +48,7 @@ document.querySelector("#add-button").addEventListener('click', (e) => {
             }
             reader.onerror = () => reject(new Error('failed to read file'))
         })
-        .then((raw) => {
+        .then(async (raw) => {
             const parser = new DOMParser()
             const dom = parser.parseFromString(raw, "text/xml")
 
@@ -56,10 +56,15 @@ document.querySelector("#add-button").addEventListener('click', (e) => {
                 throw new Error('only opml files supported')
             }
 
-            Array.from(dom.getElementsByTagName('outline'))
+            const urls = Array.from(dom.getElementsByTagName('outline'))
                 .map(item => item.getAttribute('xmlUrl'))
                 .filter(item => item !== null)
-                .forEach(addFeed)
+
+            for (const url of urls) {
+                try {
+                    await addFeed(url)
+                } catch {}
+            }
         })
     })
 
