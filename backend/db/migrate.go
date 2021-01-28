@@ -22,7 +22,7 @@ func Migrate(ctx context.Context, db *sql.DB, logger logger) error {
 		return fmt.Errorf("failed to get applied migrations: %w", err)
 	}
 
-	for _, m := range migrations() {
+	for _, m := range migrations(db) {
 		if _, ok := applied[m.Name]; ok {
 			continue
 		}

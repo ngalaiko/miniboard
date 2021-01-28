@@ -66,7 +66,7 @@ func (d *database) getByURL(ctx context.Context, url string) (*Feed, error) {
 	row := d.db.QueryRowContext(ctx, `
 	SELECT
 		feeds.id,
-		"",
+		'',
 		feeds.url,
 		feeds.title,
 		feeds.created_epoch,
