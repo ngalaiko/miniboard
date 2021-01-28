@@ -44,7 +44,20 @@ jobs:
 
     - name: Run tests
       run: |
-        cd backend && go test -race -v ./...
+        cd backend \
+            && go test \
+                -race \
+                -coverprofile=coverage.out \
+                -covermode=atomic \
+                -v \
+                ./...
+
+    - name: Upload coverage
+      uses: shogo82148/actions-goveralls@v1
+      with:
+        working-directory: backend
+        path-to-profile: coverage.out
+
 
   deploy:
     name: Deploy
