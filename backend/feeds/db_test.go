@@ -54,6 +54,42 @@ func Test_db__Create_twice(t *testing.T) {
 	}
 }
 
+func Test_db__Create_twice_for_different_users(t *testing.T) {
+	ctx := context.TODO()
+	db := newDB(createTestDB(ctx, t))
+
+	feed1 := &Feed{
+		ID:      "test id",
+		UserID:  "user1",
+		URL:     "https://example.com",
+		Title:   "title",
+		Created: time.Now().Add(-1 * time.Hour).Truncate(time.Millisecond),
+	}
+	if err := db.Create(ctx, feed1); err != nil {
+		t.Fatalf("failed to create a feed: %s", err)
+	}
+	fromDB1, err := db.Get(ctx, "user1", feed1.ID)
+	if err != nil {
+		t.Fatalf("failed to get feed from the db: %s", err)
+	}
+	if !reflect.DeepEqual(feed1, fromDB1) {
+		t.Fatalf("expected %+v, got %+v", feed1, fromDB1)
+	}
+
+	feed2 := &(*feed1)
+	feed2.UserID = "user2"
+	if err := db.Create(ctx, feed1); err != nil {
+		t.Fatalf("failed to create a feed: %s", err)
+	}
+	fromDB2, err := db.Get(ctx, "user2", feed2.ID)
+	if err != nil {
+		t.Fatalf("failed to get feed from the db: %s", err)
+	}
+	if !reflect.DeepEqual(feed1, fromDB2) {
+		t.Fatalf("expected %+v, got %+v", feed1, fromDB2)
+	}
+}
+
 func Test_db__Get_not_found(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t))

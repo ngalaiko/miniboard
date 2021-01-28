@@ -34,7 +34,7 @@ func migrations() []*migration {
 			Query: `
 			CREATE TABLE operations (
 				id       TEXT NOT NULL,
-				user_id  TEXT NOT NULL,
+				user_id  TEXT NOT NULL REFERENCES users(id),
 				done     BOOLEAN NOT NULL,
 				error    TEXT NULL,
 				response TEXT NULL,
@@ -47,13 +47,22 @@ func migrations() []*migration {
 			Query: `
 			CREATE TABLE feeds (
 				id            TEXT   NOT NULL,
-				user_id       TEXT   NOT NULL,
 				url           TEXT   NOT NULL,
 				title         TEXT   NOT NULL,
 				created_epoch BIGINT NOT NULL,
 				updated_epoch BIGINT     NULL,
 				PRIMARY KEY (id),
-				UNIQUE (user_id, url)
+				UNIQUE (url)
+			)
+			`,
+		},
+		{
+			Name: "create users_feeds",
+			Query: `
+			CREATE TABLE users_feeds (
+				user_id TEXT NOT NULL REFERENCES users(id),
+				feed_id TEXT NOT NULL REFERENCES feeds(id),
+				UNIQUE(user_id, feed_id)
 			)
 			`,
 		},
