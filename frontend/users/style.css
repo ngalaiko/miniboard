@@ -1,9 +1,17 @@
+#feeds {
+    display: flex;
+    flex-direction: column;
+}
+
 #feeds-list {
     list-style: none;
     margin: 0;
     padding: 0;
+
+    overflow-y: auto;
 }
 
-#add-button {
+#feeds-add-button {
     font-size: larger;
+    height: 20%;
 }

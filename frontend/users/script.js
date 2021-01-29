@@ -29,7 +29,7 @@ const apiUrl = window.location.hostname !== 'localhost'
     })
 })()
 
-document.querySelector("#add-button").addEventListener('click', (e) => {
+document.querySelector("#feeds-add-button").addEventListener('click', (e) => {
     import('./components/modal.js')
 
     const addModal = document.createElement('add-modal')
