@@ -23,7 +23,7 @@ const apiUrl = window.location.hostname !== 'localhost'
         )
 
         item.setAttribute('title', feed.title)
-        if (item.icon_url !== undefined) {
+        if (feed.icon_url !== undefined) {
             item.setAttribute('icon', feed.icon_url)
         }
     })
