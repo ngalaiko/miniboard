@@ -19,6 +19,12 @@
             width: 20px;
             height: 20px;
         }
+
+        #feed-title {
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
     </style>
     <span id="feed-container">
         <img id="feed-icon" src="/img/rss.svg"></img>
