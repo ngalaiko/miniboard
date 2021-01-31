@@ -33,8 +33,8 @@ func (d *database) Create(ctx context.Context, feed *Feed) error {
 			id,
 			url,
 			title,
-			created_epoch,
-			updated_epoch,
+			created_epoch_utc,
+			updated_epoch_utc,
 			icon_url
 		) VALUES (
 			$1, $2, $3, $4, $5, $6
@@ -69,8 +69,8 @@ func (d *database) getByURL(ctx context.Context, url string) (*Feed, error) {
 		'',
 		feeds.url,
 		feeds.title,
-		feeds.created_epoch,
-		feeds.updated_epoch,
+		feeds.created_epoch_utc,
+		feeds.updated_epoch_utc,
 		feeds.icon_url
 	FROM
 		feeds
@@ -89,8 +89,8 @@ func (d *database) GetByURL(ctx context.Context, userID string, url string) (*Fe
 		users_feeds.user_id,
 		feeds.url,
 		feeds.title,
-		feeds.created_epoch,
-		feeds.updated_epoch,
+		feeds.created_epoch_utc,
+		feeds.updated_epoch_utc,
 		feeds.icon_url
 	FROM
 		feeds JOIN users_feeds ON feeds.id = users_feeds.feed_id AND users_feeds.user_id = $1
@@ -109,8 +109,8 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*Feed, er
 		users_feeds.user_id,
 		feeds.url,
 		feeds.title,
-		feeds.created_epoch,
-		feeds.updated_epoch,
+		feeds.created_epoch_utc,
+		feeds.updated_epoch_utc,
 		feeds.icon_url
 	FROM
 		feeds JOIN users_feeds ON feeds.id = users_feeds.feed_id AND users_feeds.user_id = $1
@@ -130,8 +130,8 @@ func (d *database) List(ctx context.Context, userID string, limit int, createdLT
 		users_feeds.user_id,
 		feeds.url,
 		feeds.title,
-		feeds.created_epoch,
-		feeds.updated_epoch,
+		feeds.created_epoch_utc,
+		feeds.updated_epoch_utc,
 		feeds.icon_url
 	FROM
 		feeds JOIN users_feeds ON feeds.id = users_feeds.feed_id AND users_feeds.user_id = $1
@@ -139,10 +139,10 @@ func (d *database) List(ctx context.Context, userID string, limit int, createdLT
 
 	args := []interface{}{userID}
 	if createdLT != nil {
-		query.WriteString(`WHERE feeds.created_epoch < $2 ORDER BY feeds.created_epoch DESC LIMIT $3`)
+		query.WriteString(`WHERE feeds.created_epoch_utc < $2 ORDER BY feeds.created_epoch_utc DESC LIMIT $3`)
 		args = append(args, createdLT.UnixNano(), limit)
 	} else {
-		query.WriteString(`ORDER BY feeds.created_epoch DESC LIMIT $2`)
+		query.WriteString(`ORDER BY feeds.created_epoch_utc DESC LIMIT $2`)
 		args = append(args, limit)
 	}
 

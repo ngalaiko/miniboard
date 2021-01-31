@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 type database struct {
@@ -21,10 +22,11 @@ func (d *database) Create(ctx context.Context, user *User) error {
 	INSERT INTO users (
 		id,
 		username,
-		hash
+		hash,
+		created_epoch_utc
 	) VALUES (
-		$1, $2, $3
-	)`, user.ID, user.Username, user.Hash)
+		$1, $2, $3, $4
+	)`, user.ID, user.Username, user.Hash, user.Created.UTC().UnixNano())
 
 	return err
 }
@@ -35,7 +37,8 @@ func (d *database) GetByID(ctx context.Context, id string) (*User, error) {
 	SELECT
 		id,
 		username,
-		hash
+		hash,
+		created_epoch_utc
 	FROM
 		users
 	WHERE
@@ -51,7 +54,8 @@ func (d *database) GetByUsername(ctx context.Context, username string) (*User, e
 	SELECT
 		id,
 		username,
-		hash
+		hash,
+		created_epoch_utc
 	FROM
 		users
 	WHERE
@@ -67,9 +71,12 @@ type scannable interface {
 
 func (d *database) scanRow(row scannable) (*User, error) {
 	user := &User{}
-	if err := row.Scan(&user.ID, &user.Username, &user.Hash); err != nil {
+	var createdEpoch int64
+	if err := row.Scan(&user.ID, &user.Username, &user.Hash, &createdEpoch); err != nil {
 		return nil, err
 	}
+
+	user.Created = time.Unix(0, createdEpoch).UTC().Round(time.Nanosecond)
 
 	return user, nil
 }

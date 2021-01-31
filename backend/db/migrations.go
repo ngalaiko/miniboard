@@ -23,9 +23,10 @@ func migrations(db *sql.DB) []*migration {
 			Name: "create users",
 			Query: fmt.Sprintf(`
 			CREATE TABLE users (
-				id       TEXT NOT NULL,
-				username TEXT NOT NULL,
-				hash     %s NOT NULL,
+				id                 TEXT   NOT NULL,
+				username           TEXT   NOT NULL,
+				hash               %s     NOT NULL,
+				created_epoch_utc  BIGINT NOT NULL,
 				PRIMARY KEY (id),
 				UNIQUE(username)
 			)
@@ -36,7 +37,7 @@ func migrations(db *sql.DB) []*migration {
 			Query: fmt.Sprintf(`
 			CREATE TABLE jwt_keys (
 				id         TEXT NOT NULL,
-				public_der %s NOT NULL,
+				public_der %s   NOT NULL,
 				PRIMARY KEY (id)
 			)
 			`, binaryTypeName),
@@ -45,11 +46,11 @@ func migrations(db *sql.DB) []*migration {
 			Name: "create operations",
 			Query: `
 			CREATE TABLE operations (
-				id       TEXT NOT NULL,
-				user_id  TEXT NOT NULL REFERENCES users(id),
+				id       TEXT    NOT NULL,
+				user_id  TEXT    NOT NULL REFERENCES users(id),
 				done     BOOLEAN NOT NULL,
-				error    TEXT NULL,
-				response TEXT NULL,
+				error    TEXT        NULL,
+				response TEXT        NULL,
 				PRIMARY KEY (id)
 			)
 			`,
@@ -58,13 +59,27 @@ func migrations(db *sql.DB) []*migration {
 			Name: "create feeds",
 			Query: `
 			CREATE TABLE feeds (
-				id            TEXT   NOT NULL,
-				url           TEXT   NOT NULL,
-				title         TEXT   NOT NULL,
-				created_epoch BIGINT NOT NULL,
-				updated_epoch BIGINT     NULL,
+				id                TEXT   NOT NULL,
+				url               TEXT   NOT NULL,
+				title             TEXT   NOT NULL,
+				created_epoch_utc BIGINT NOT NULL,
+				updated_epoch_utc BIGINT     NULL,
+				icon_url          TEXT       NULL,
 				PRIMARY KEY (id),
 				UNIQUE (url)
+			)
+			`,
+		},
+		{
+			Name: "create tags",
+			Query: `
+			CREATE TABLE tags (
+				id                TEXT   NOT NULL,
+				title             TEXT   NOT NULL,
+				user_id           TEXT   NOT NULL REFERENCES users(id),
+				created_epoch_utc BIGINT NOT NULL,
+				PRIMARY KEY (id),
+				UNIQUE (user_id, title)
 			)
 			`,
 		},
@@ -75,26 +90,6 @@ func migrations(db *sql.DB) []*migration {
 				user_id TEXT NOT NULL REFERENCES users(id),
 				feed_id TEXT NOT NULL REFERENCES feeds(id),
 				UNIQUE(user_id, feed_id)
-			)
-			`,
-		},
-		{
-			Name: "add feeds.icon_url",
-			Query: `
-			ALTER TABLE feeds
-			ADD COLUMN icon_url TEXT NULL
-			`,
-		},
-		{
-			Name: "create tags",
-			Query: `
-			CREATE TABLE tags (
-				id            TEXT NOT NULL,
-				title         TEXT NOT NULL,
-				user_id       TEXT NOT NULL REFERENCES users(id),
-				created_epoch BIGINT NOT NULL,
-				PRIMARY KEY (id),
-				UNIQUE (user_id, title)
 			)
 			`,
 		},

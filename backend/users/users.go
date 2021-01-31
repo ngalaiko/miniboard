@@ -2,6 +2,7 @@ package users
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -16,9 +17,10 @@ var (
 
 // User is the user model.
 type User struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	Hash     []byte `json:"-"`
+	ID       string    `json:"id"`
+	Username string    `json:"username"`
+	Hash     []byte    `json:"-"`
+	Created  time.Time `json:"-"`
 }
 
 func newUser(username string, password []byte, bcryptCost int) (*User, error) {
@@ -39,6 +41,7 @@ func newUser(username string, password []byte, bcryptCost int) (*User, error) {
 		ID:       uuid.New().String(),
 		Username: username,
 		Hash:     hash,
+		Created:  time.Now().UTC().Truncate(time.Millisecond),
 	}, nil
 }
 

@@ -7,6 +7,7 @@ import (
 	"os"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/ngalaiko/miniboard/backend/db"
 )
@@ -16,8 +17,9 @@ func Test_db__Create(t *testing.T) {
 	db := newDB(createTestDB(ctx, t))
 
 	user := &User{
-		ID:   "test id",
-		Hash: []byte("hash"),
+		ID:      "test id",
+		Hash:    []byte("hash"),
+		Created: time.Now().Truncate(time.Nanosecond),
 	}
 	if err := db.Create(ctx, user); err != nil {
 		t.Fatalf("failed to create a user: %s", err)
@@ -29,8 +31,9 @@ func Test_db__Create_twice(t *testing.T) {
 	db := newDB(createTestDB(ctx, t))
 
 	user := &User{
-		ID:   "test id",
-		Hash: []byte("hash"),
+		ID:      "test id",
+		Hash:    []byte("hash"),
+		Created: time.Now().Truncate(time.Nanosecond),
 	}
 	if err := db.Create(ctx, user); err != nil {
 		t.Fatalf("failed to create a user: %s", err)
@@ -46,8 +49,9 @@ func Test_db__GetByID_not_found(t *testing.T) {
 	db := newDB(createTestDB(ctx, t))
 
 	user := &User{
-		ID:   "test id",
-		Hash: []byte("hash"),
+		ID:      "test id",
+		Hash:    []byte("hash"),
+		Created: time.Now().Truncate(time.Nanosecond),
 	}
 
 	fromDB, err := db.GetByID(ctx, user.ID)
@@ -65,8 +69,9 @@ func Test_db__GetByID(t *testing.T) {
 	db := newDB(createTestDB(ctx, t))
 
 	user := &User{
-		ID:   "test id",
-		Hash: []byte("hash"),
+		ID:      "test id",
+		Hash:    []byte("hash"),
+		Created: time.Now().UTC().Truncate(time.Nanosecond),
 	}
 	if err := db.Create(ctx, user); err != nil {
 		t.Fatalf("failed to create a user: %s", err)
@@ -89,6 +94,7 @@ func Test_db__GetByUsername_not_found(t *testing.T) {
 		ID:       "test id",
 		Username: "username",
 		Hash:     []byte("hash"),
+		Created:  time.Now().Truncate(time.Nanosecond),
 	}
 
 	fromDB, err := db.GetByUsername(ctx, user.Username)
@@ -109,6 +115,7 @@ func Test_db__GetByUsername(t *testing.T) {
 		ID:       "test id",
 		Username: "username",
 		Hash:     []byte("hash"),
+		Created:  time.Now().UTC().Truncate(time.Nanosecond),
 	}
 	if err := db.Create(ctx, user); err != nil {
 		t.Fatalf("failed to create a user: %s", err)
