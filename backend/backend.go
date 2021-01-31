@@ -12,6 +12,7 @@ import (
 	"github.com/ngalaiko/miniboard/backend/httpx"
 	"github.com/ngalaiko/miniboard/backend/logger"
 	"github.com/ngalaiko/miniboard/backend/operations"
+	"github.com/ngalaiko/miniboard/backend/tags"
 	"github.com/ngalaiko/miniboard/backend/users"
 )
 
@@ -53,6 +54,7 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 	authorizationsService := authorizations.NewService(db, logger)
 	usersService := users.NewService(db, cfg.Users)
 	operationsService := operations.NewService(logger, db, cfg.Operations)
+	tagsService := tags.NewService(db)
 	feedsService := feeds.NewService(db, crawler.New())
 
 	withAuth := authorizations.Authenticate(authorizationsService, cfg.Authorizations, logger)
@@ -73,6 +75,11 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 	))
 	httpServer.Route("/v1/operations", httpx.Chain(
 		operations.NewHandler(operationsService, logger),
+		httpx.WithCors(corsDomains...),
+		withAuth,
+	))
+	httpServer.Route("/v1/tags", httpx.Chain(
+		tags.NewHandler(tagsService, logger),
 		httpx.WithCors(corsDomains...),
 		withAuth,
 	))

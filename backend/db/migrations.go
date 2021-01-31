@@ -85,5 +85,18 @@ func migrations(db *sql.DB) []*migration {
 			ADD COLUMN icon_url TEXT NULL
 			`,
 		},
+		{
+			Name: "create tags",
+			Query: `
+			CREATE TABLE tags (
+				id            TEXT NOT NULL,
+				title         TEXT NOT NULL,
+				user_id       TEXT NOT NULL REFERENCES users(id),
+				created_epoch BIGINT NOT NULL,
+				PRIMARY KEY (id),
+				UNIQUE (user_id, title)
+			)
+			`,
+		},
 	}
 }
