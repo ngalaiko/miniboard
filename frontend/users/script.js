@@ -2,8 +2,17 @@ const apiUrl = window.location.hostname !== 'localhost'
     ? 'https://api.miniboard.app'
     : 'http://localhost:80';
 
-(async () => {
-    const response = await fetch(apiUrl + '/v1/feeds', {
+const loadFeeds = async (pageSize, createdLt) => {
+    const pageSizeQuery = pageSize !== undefined
+        ? `&page_size=${pageSize}`
+        : ''
+
+    const createdLtQuery = createdLt !== undefined
+        ? `&created_lt=${encodeURIComponent(createdLt)}`
+        : ''
+
+    const url = apiUrl + '/v1/feeds?' + pageSizeQuery + createdLtQuery
+    const response = await fetch(url, {
         credentials: 'include',
     })
 
@@ -27,7 +36,11 @@ const apiUrl = window.location.hostname !== 'localhost'
             item.setAttribute('icon', feed.icon_url)
         }
     })
-})()
+
+    if (body.feeds.length < pageSize) return
+
+    loadFeeds(pageSize, body.feeds.pop().created)
+}
 
 document.querySelector("#feeds-add-button").addEventListener('click', (e) => {
     import('./components/modal.js')
@@ -110,3 +123,5 @@ const watchOperationStatus = async (url, operation) => {
         break
     }
 }
+
+loadFeeds(100)
