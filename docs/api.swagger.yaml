@@ -118,7 +118,7 @@ paths:
         required: false
         schema:
           type: integer
-      - name: before
+      - name: created_lt
         in: query
         required: false
         schema:
