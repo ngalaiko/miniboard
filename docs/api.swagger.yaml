@@ -81,6 +81,8 @@ paths:
                 url:
                   type: string
                   format: url
+              example:
+                url: "https://example.org/feed.xml"
         required: true
       responses:
         200:
@@ -181,6 +183,95 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 message: "operation not found"
+        500:
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: "internal server error"
+  /v1/tags/:
+    post:
+      tags:
+      - tag
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      summary: Creates a new tag
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+              example:
+                title: "Example"
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tag"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: "title is empty"
+        500:
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: "internal server error"
+    get:
+      tags:
+      - tag
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      summary: Returns a list of existing tags
+      parameters:
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: created_lt
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  feeds:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Tag"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: "failed to parse page_size"
         500:
           description: Internal error
           content:
@@ -298,6 +389,20 @@ components:
             properties:
               error:
                 $ref: "#/components/schemas/Error"
+    Tag:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "5efc772-6aaa-423d-b32a-96fab4312464"
+        title:
+          type: string
+          example: "Example"
+        created:
+          type: string
+          format: date-time
+          example: "2021-01-16T16:13:33Z"
     User:
       type: object
       properties:
