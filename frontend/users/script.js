@@ -69,13 +69,32 @@ document.querySelector("#feeds-add-button").addEventListener('click', (e) => {
                 throw new Error('only opml files supported')
             }
 
-            const urls = Array.from(dom.getElementsByTagName('outline'))
-                .map(item => item.getAttribute('xmlUrl'))
-                .filter(item => item !== null)
+            const tagIdsByUrl = {}
+            Array.from(dom.getElementsByTagName('outline'))
+                .filter(item => item.getAttribute('xmlUrl') === null)
+                .map(item => {
+                    const title = item.getAttribute('title')
+                    tag = tagsByTitle[title] !== undefined
+                        ? tagsByTitle[title]
+                        : createTag(title)
 
-            for (const url of urls) {
+                    return {
+                        tagId: tag.id,
+                        urls: Array.from(item.getElementsByTagName('outline'))
+                            .filter(item => item.getAttribute('xmlUrl') !== null)
+                            .map(item => item.getAttribute('xmlUrl')),
+                    }
+                })
+                .forEach(item => item.urls.forEach(
+                    url => {
+                        if (!tagIdsByUrl[url]) tagIdsByUrl[url] = []
+                        tagIdsByUrl[url].push(item.tagId)
+                    })
+                )
+
+            for (const url of Object.keys(tagIdsByUrl)) {
                 try {
-                    await addFeed(url)
+                    await addFeed(url, tagIdsByUrl[url])
                 } catch {}
             }
         })
@@ -84,18 +103,72 @@ document.querySelector("#feeds-add-button").addEventListener('click', (e) => {
     addModal.addEventListener('UrlAdded', (e) => addFeed(e.detail.url))
 })
 
-const addFeed = async (url) => {
-    const response = await fetch(apiUrl + '/v1/feeds', {
+const tagsByTitle = {}
+
+const loadTags = async (pageSize, createdLt) => {
+    const pageSizeQuery = pageSize !== undefined
+        ? `&page_size=${pageSize}`
+        : ''
+
+    const createdLtQuery = createdLt !== undefined
+        ? `&created_lt=${encodeURIComponent(createdLt)}`
+        : ''
+
+    const url = apiUrl + '/v1/tags?' + pageSizeQuery + createdLtQuery
+    const response = await fetch(url, {
+        credentials: 'include',
+    })
+
+    const body = await response.json()
+
+    if (response.status !== 200) {
+        throw new Exception(`failed to fetch feeds: ${body.message}`)
+        return
+    }
+
+    body.tags.forEach(tag => tagsByTitle[tag.title] = tag)
+
+    if (body.tags.length < pageSize) return
+
+    loadFeeds(pageSize, body.feeds.pop().created)
+}
+
+const createTag = async (title) => {
+    const response = await fetch(apiUrl + '/v1/tags', {
         credentials: 'include',
         method: 'POST',
         body: JSON.stringify({
-            url: url,
+            title: title,
         }),
     })
 
     const body = await response.json()
     if (response.status !== 200) {
-        alert(`failed to create feed: ${body.message}`)
+        throw new Exception(`failed to create feed: ${body.message}`)
+        return
+    }
+
+    return body
+}
+
+const addFeed = async (url, tagIds) => {
+    const request = {
+        url: url,
+    }
+
+    if (tagIds !== undefined) {
+        request.tag_ids = tagIds
+    }
+
+    const response = await fetch(apiUrl + '/v1/feeds', {
+        credentials: 'include',
+        method: 'POST',
+        body: JSON.stringify(request),
+    })
+
+    const body = await response.json()
+    if (response.status !== 200) {
+        throw new Exception(`failed to create feed: ${body.message}`)
         return
     }
 
@@ -125,3 +198,4 @@ const watchOperationStatus = async (url, operation) => {
 }
 
 loadFeeds(100)
+loadTags(100)
