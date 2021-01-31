@@ -81,6 +81,10 @@ paths:
                 url:
                   type: string
                   format: url
+                tag_ids:
+                  type: array
+                  items:
+                    type: string
               example:
                 url: "https://example.org/feed.xml"
         required: true
@@ -368,6 +372,11 @@ components:
           type: string
           format: date-time
           example: "2021-01-16T16:13:33Z"
+        tag_ids:
+          type: array
+          items:
+            type: string
+          example: ["5efc772-6aaa-423d-b32a-96fab4312464"]
     Operation:
       type: object
       properties:
