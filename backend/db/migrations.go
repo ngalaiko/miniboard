@@ -71,6 +71,16 @@ func migrations(db *sql.DB) []*migration {
 			`,
 		},
 		{
+			Name: "create users_feeds",
+			Query: `
+			CREATE TABLE users_feeds (
+				user_id TEXT NOT NULL REFERENCES users(id),
+				feed_id TEXT NOT NULL REFERENCES feeds(id),
+				UNIQUE(user_id, feed_id)
+			)
+			`,
+		},
+		{
 			Name: "create tags",
 			Query: `
 			CREATE TABLE tags (
@@ -84,12 +94,12 @@ func migrations(db *sql.DB) []*migration {
 			`,
 		},
 		{
-			Name: "create users_feeds",
+			Name: "create tags_feeds",
 			Query: `
-			CREATE TABLE users_feeds (
-				user_id TEXT NOT NULL REFERENCES users(id),
+			CREATE TABLE tags_feeds (
+				tag_id  TEXT NOT NULL REFERENCES tags(id),
 				feed_id TEXT NOT NULL REFERENCES feeds(id),
-				UNIQUE(user_id, feed_id)
+				UNIQUE(tag_id, feed_id)
 			)
 			`,
 		},

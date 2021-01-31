@@ -126,7 +126,8 @@ func (h *Handler) handleCreateFeed(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type request struct {
-		URL string `json:"url"`
+		URL    string   `json:"url"`
+		TagIDs []string `json:"tag_ids"`
 	}
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -156,7 +157,7 @@ func (h *Handler) handleCreateFeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	operation, err := h.operationService.Create(r.Context(), token.UserID, h.createFeed(token.UserID, url))
+	operation, err := h.operationService.Create(r.Context(), token.UserID, h.createFeed(token.UserID, url, req.TagIDs))
 	switch {
 	case err == nil:
 		httpx.JSON(w, h.logger, operation, http.StatusOK)
@@ -166,9 +167,9 @@ func (h *Handler) handleCreateFeed(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) createFeed(userID string, url *url.URL) operations.Task {
+func (h *Handler) createFeed(userID string, url *url.URL, tagIDs []string) operations.Task {
 	return func(ctx context.Context, operation *operations.Operation, status chan<- *operations.Operation) error {
-		feed, err := h.service.Create(ctx, userID, url)
+		feed, err := h.service.Create(ctx, userID, url, tagIDs)
 		switch {
 		case err == nil:
 			operation.Success(feed)

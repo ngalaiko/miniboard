@@ -55,7 +55,7 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 	usersService := users.NewService(db, cfg.Users)
 	operationsService := operations.NewService(logger, db, cfg.Operations)
 	tagsService := tags.NewService(db)
-	feedsService := feeds.NewService(db, crawler.New())
+	feedsService := feeds.NewService(db, crawler.New(), logger)
 
 	withAuth := authorizations.Authenticate(authorizationsService, cfg.Authorizations, logger)
 

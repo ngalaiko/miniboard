@@ -14,9 +14,9 @@ func Test__Create_feed_failed_to_parse_feed(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
 	cw.With("https://example.org", []byte("wrong"))
-	service := NewService(sqldb, cw)
+	service := NewService(sqldb, cw, &testLogger{})
 
-	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"))
+	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
 	if err != errFailedToParseFeed {
 		t.Fatalf("expected %s, got %s", errFailedToParseFeed, err)
 	}
@@ -27,9 +27,9 @@ func Test__Create_feed_not_found(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	service := NewService(sqldb, cw)
+	service := NewService(sqldb, cw, &testLogger{})
 
-	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"))
+	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
 	if err != errFailedToDownloadFeed {
 		t.Fatalf("expected %s, got %s", errFailedToDownloadFeed, err)
 	}
@@ -40,9 +40,9 @@ func Test__Create(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	service := NewService(sqldb, cw.With("https://example.org", feedData))
+	service := NewService(sqldb, cw.With("https://example.org", feedData), &testLogger{})
 
-	feed, err := service.Create(ctx, "user id", mustParseURL("https://example.org"))
+	feed, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
 	if err != nil {
 		t.Fatalf("failed to create a feed %s", err)
 	}
@@ -74,14 +74,14 @@ func Test__Create_twice(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
 	cw = cw.With("https://example.org", feedData)
-	service := NewService(sqldb, cw)
+	service := NewService(sqldb, cw, &testLogger{})
 
-	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"))
+	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
 	if err != nil {
 		t.Fatalf("failed to create a feed %s", err)
 	}
 
-	_, secondErr := service.Create(ctx, "user id", mustParseURL("https://example.org"))
+	_, secondErr := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
 	if secondErr != errAlreadyExists {
 		t.Fatalf("expected %s, got %s", errAlreadyExists, secondErr)
 	}
@@ -92,9 +92,9 @@ func Test__Get(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	service := NewService(sqldb, cw.With("https://example.org", feedData))
+	service := NewService(sqldb, cw.With("https://example.org", feedData), &testLogger{})
 
-	feed, err := service.Create(ctx, "user id", mustParseURL("https://example.org"))
+	feed, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{"id"})
 	if err != nil {
 		t.Fatalf("failed to create a feed: %s", err)
 	}
@@ -114,7 +114,7 @@ func Test__Get_not_found(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	service := NewService(sqldb, cw.With("https://example.org", feedData))
+	service := NewService(sqldb, cw.With("https://example.org", feedData), &testLogger{})
 
 	_, err := service.Get(ctx, "user id", "id")
 	if err != errNotFound {

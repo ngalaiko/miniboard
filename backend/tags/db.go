@@ -63,8 +63,8 @@ func (d *database) GetByTitle(ctx context.Context, userID string, title string) 
 	FROM
 		tags
 	WHERE
-		user_id = $2
-		AND title = $1
+		user_id = $1
+		AND title = $2
 	`, userID, title)
 
 	return d.scanRow(row)

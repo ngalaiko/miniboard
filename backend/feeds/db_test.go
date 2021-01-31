@@ -15,7 +15,7 @@ import (
 
 func Test_db__Create(t *testing.T) {
 	ctx := context.TODO()
-	db := newDB(createTestDB(ctx, t))
+	db := newDB(createTestDB(ctx, t), &testLogger{})
 
 	feed := &Feed{
 		ID:      "test id",
@@ -34,7 +34,7 @@ func Test_db__Create(t *testing.T) {
 
 func Test_db__Create_twice(t *testing.T) {
 	ctx := context.TODO()
-	db := newDB(createTestDB(ctx, t))
+	db := newDB(createTestDB(ctx, t), &testLogger{})
 
 	feed := &Feed{
 		ID:      "test id",
@@ -56,7 +56,7 @@ func Test_db__Create_twice(t *testing.T) {
 
 func Test_db__Create_twice_for_different_users(t *testing.T) {
 	ctx := context.TODO()
-	db := newDB(createTestDB(ctx, t))
+	db := newDB(createTestDB(ctx, t), &testLogger{})
 
 	feed1 := &Feed{
 		ID:      "test id",
@@ -92,7 +92,7 @@ func Test_db__Create_twice_for_different_users(t *testing.T) {
 
 func Test_db__Get_not_found(t *testing.T) {
 	ctx := context.TODO()
-	db := newDB(createTestDB(ctx, t))
+	db := newDB(createTestDB(ctx, t), &testLogger{})
 
 	feed := &Feed{
 		ID:      "test id",
@@ -116,7 +116,7 @@ func Test_db__Get_not_found(t *testing.T) {
 
 func Test_db__Get(t *testing.T) {
 	ctx := context.TODO()
-	db := newDB(createTestDB(ctx, t))
+	db := newDB(createTestDB(ctx, t), &testLogger{})
 
 	feed := &Feed{
 		ID:      "test id",
@@ -124,6 +124,7 @@ func Test_db__Get(t *testing.T) {
 		URL:     "https://example.com",
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
+		TagIDs:  []string{"id1", "id2"},
 	}
 	feed.IconURL = new(string)
 	*feed.IconURL = "https://icon.url"
@@ -146,7 +147,7 @@ func Test_db__Get(t *testing.T) {
 
 func Test_db__List_paginated_by_created(t *testing.T) {
 	ctx := context.TODO()
-	db := newDB(createTestDB(ctx, t))
+	db := newDB(createTestDB(ctx, t), &testLogger{})
 
 	for i := 0; i < 100; i++ {
 		feed := &Feed{

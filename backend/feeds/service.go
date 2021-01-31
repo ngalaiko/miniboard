@@ -33,16 +33,16 @@ type Service struct {
 }
 
 // NewService returns new feeds service.
-func NewService(db *sql.DB, crawler crawler) *Service {
+func NewService(db *sql.DB, crawler crawler, logger logger) *Service {
 	return &Service{
-		db:      newDB(db),
+		db:      newDB(db, logger),
 		crawler: crawler,
 		parser:  gofeed.NewParser(),
 	}
 }
 
 // Create creates a feed from URL.
-func (s *Service) Create(ctx context.Context, userID string, url *url.URL) (*Feed, error) {
+func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagIDs []string) (*Feed, error) {
 	if exists, err := s.db.GetByURL(ctx, userID, url.String()); err == nil && exists != nil {
 		return nil, errAlreadyExists
 	}
@@ -63,6 +63,7 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL) (*Fee
 		URL:     url.String(),
 		Title:   parsedFeed.Title,
 		Created: time.Now().Truncate(time.Nanosecond),
+		TagIDs:  tagIDs,
 	}
 
 	if parsedFeed.Image != nil {

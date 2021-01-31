@@ -16,12 +16,12 @@ var (
 	errAlreadyExists = fmt.Errorf("tag already exists")
 )
 
-// Service allows to manage feeds resource.
+// Service allows to manage tags resource.
 type Service struct {
 	db *database
 }
 
-// NewService returns new feeds service.
+// NewService returns new tags service.
 func NewService(db *sql.DB) *Service {
 	return &Service{
 		db: newDB(db),
@@ -42,7 +42,7 @@ func (s *Service) Create(ctx context.Context, userID string, title string) (*Tag
 	}
 
 	if err := s.db.Create(ctx, tag); err != nil {
-		return nil, fmt.Errorf("failed to store feed: %w", err)
+		return nil, fmt.Errorf("failed to store tag: %w", err)
 	}
 
 	return tag, nil
@@ -50,10 +50,10 @@ func (s *Service) Create(ctx context.Context, userID string, title string) (*Tag
 
 // Get returns a tag by it's id.
 func (s *Service) Get(ctx context.Context, id string, userID string) (*Tag, error) {
-	feed, err := s.db.GetByID(ctx, id, userID)
+	tag, err := s.db.GetByID(ctx, id, userID)
 	switch {
 	case err == nil:
-		return feed, nil
+		return tag, nil
 	case errors.Is(err, sql.ErrNoRows):
 		return nil, errNotFound
 	default:
@@ -61,12 +61,12 @@ func (s *Service) Get(ctx context.Context, id string, userID string) (*Tag, erro
 	}
 }
 
-// List returns a list of user feeds.
+// List returns a list of user tags.
 func (s *Service) List(ctx context.Context, userID string, pageSize int, createdLT *time.Time) ([]*Tag, error) {
-	feeds, err := s.db.List(ctx, userID, pageSize, createdLT)
+	tags, err := s.db.List(ctx, userID, pageSize, createdLT)
 	switch {
 	case err == nil:
-		return feeds, nil
+		return tags, nil
 	default:
 		return nil, err
 	}
