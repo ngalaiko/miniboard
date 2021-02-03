@@ -130,6 +130,13 @@ paths:
         schema:
           type: string
           format: date-time
+      - name: tag_ids
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
       responses:
         200:
           description: Success
