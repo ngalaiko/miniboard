@@ -145,6 +145,50 @@ func Test_db__Get(t *testing.T) {
 	}
 }
 
+func Test_db__List_tag_ids(t *testing.T) {
+	ctx := context.TODO()
+	db := newDB(createTestDB(ctx, t), &testLogger{})
+
+	for i := 0; i < 100; i++ {
+		feed := &Feed{
+			ID:      fmt.Sprint(i),
+			UserID:  "user",
+			URL:     fmt.Sprintf("https://example%d.com", i),
+			Title:   fmt.Sprintf("%d title", i),
+			Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
+			TagIDs: []string{
+				fmt.Sprintf("%d", i),
+				fmt.Sprintf("%d", i+1),
+			},
+		}
+
+		if err := db.Create(ctx, feed); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	feeds, err := db.List(ctx, "user", 5, nil, []string{"2", "7", "8"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ids := map[string]bool{}
+	for _, feed := range feeds {
+		ids[feed.ID] = true
+	}
+
+	expected := []string{"1", "2", "6", "7", "8"}
+	if len(ids) != len(expected) {
+		t.Fatalf("expected %d elements, got %d", len(expected), len(ids))
+	}
+
+	for _, id := range expected {
+		if _, found := ids[id]; !found {
+			t.Errorf("%s not found", id)
+		}
+	}
+}
+
 func Test_db__List_paginated_by_created(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
@@ -167,7 +211,7 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 
 	var createdLT *time.Time
 	for i := 0; i < 20; i++ {
-		feeds, err := db.List(ctx, "user", 5, createdLT)
+		feeds, err := db.List(ctx, "user", 5, createdLT, nil)
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -179,7 +179,12 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*Feed, er
 }
 
 // List returns a list of feeds from the database.
-func (d *database) List(ctx context.Context, userID string, limit int, createdLT *time.Time) ([]*Feed, error) {
+func (d *database) List(ctx context.Context,
+	userID string,
+	limit int,
+	createdLT *time.Time,
+	tagIDs []string,
+) ([]*Feed, error) {
 	query := &strings.Builder{}
 	query.WriteString(fmt.Sprintf(`
 	SELECT
@@ -191,24 +196,46 @@ func (d *database) List(ctx context.Context, userID string, limit int, createdLT
 	`, sqlFields(d.db)))
 
 	args := []interface{}{userID}
-	if createdLT != nil {
+
+	if len(tagIDs) != 0 || createdLT != nil {
 		query.WriteString(`
-		WHERE feeds.created_epoch_utc < $2
-		GROUP BY
-			feeds.id,
-			users_feeds.user_id,
-			feeds.url,
-			feeds.title,
-			feeds.created_epoch_utc,
-			feeds.updated_epoch_utc,
-			feeds.icon_url
-		ORDER BY
-			feeds.created_epoch_utc DESC
-		LIMIT $3
+		WHERE
 		`)
-		args = append(args, createdLT.UnixNano(), limit)
-	} else {
+	}
+
+	if len(tagIDs) != 0 {
 		query.WriteString(`
+			tags_feeds.tag_id IN (
+		`)
+
+		for i, tagID := range tagIDs {
+			args = append(args, tagID)
+			query.WriteString(fmt.Sprintf(`
+				$%d
+			`, len(args)))
+
+			if i != len(tagIDs)-1 {
+				query.WriteString(",")
+			}
+		}
+
+		query.WriteString(`
+			)
+		`)
+	}
+
+	if createdLT != nil {
+		if len(tagIDs) != 0 {
+			query.WriteString("AND")
+		}
+		args = append(args, createdLT.UnixNano())
+		query.WriteString(fmt.Sprintf(`
+			feeds.created_epoch_utc < $%d
+		`, len(args)))
+	}
+	args = append(args, limit)
+
+	query.WriteString(fmt.Sprintf(`
 		GROUP BY
 			feeds.id,
 			users_feeds.user_id,
@@ -219,9 +246,7 @@ func (d *database) List(ctx context.Context, userID string, limit int, createdLT
 			feeds.icon_url
 		ORDER BY
 			feeds.created_epoch_utc DESC
-		LIMIT $2`)
-		args = append(args, limit)
-	}
+		LIMIT $%d`, len(args)))
 
 	rows, err := d.db.QueryContext(ctx, query.String(), args...)
 	if err != nil {

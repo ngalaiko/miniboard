@@ -91,8 +91,8 @@ func (s *Service) Get(ctx context.Context, id string, userID string) (*Feed, err
 }
 
 // List returns a list of user feeds.
-func (s *Service) List(ctx context.Context, userID string, pageSize int, createdLT *time.Time) ([]*Feed, error) {
-	feeds, err := s.db.List(ctx, userID, pageSize, createdLT)
+func (s *Service) List(ctx context.Context, userID string, pageSize int, createdLT *time.Time, tagIDIn []string) ([]*Feed, error) {
+	feeds, err := s.db.List(ctx, userID, pageSize, createdLT, tagIDIn)
 	switch {
 	case err == nil:
 		return feeds, nil
