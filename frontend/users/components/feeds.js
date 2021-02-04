@@ -30,7 +30,7 @@ import FeedsService from '../services/feeds.js'
         }
 
         async connectedCallback() {
-            const feeds = await _loadAllFeeds(this._tagIds.split(","))
+            const feeds = await _loadAllFeeds(this._tagId)
             if (feeds.length == 0) return
 
             import('./feed.js')
@@ -39,19 +39,19 @@ import FeedsService from '../services/feeds.js'
         }
 
         static get observedAttributes() {
-            return ['tag_ids']
+            return ['tag_id']
         }
 
         attributeChangedCallback(attribute, oldValue, newValue) {
             switch (attribute) {
-            case 'tag_ids':
-                this.tagIds = newValue
+            case 'tag_id':
+                this.tagId = newValue
                 break
             }
         }
 
-        set tagIds(value) {
-            this._tagIds  = value
+        set tagId(value) {
+            this._tagId  = value
         }
     }
 
@@ -69,11 +69,11 @@ import FeedsService from '../services/feeds.js'
         li.appendChild(xFeed)
     }
 
-    const _loadAllFeeds = async (tagIds, pageSize, createdLt) => {
+    const _loadAllFeeds = async (tagId, pageSize, createdLt) => {
         const params = {}
 
         if (pageSize === undefined) pageSize = 100
-        if (tagIds !== undefined) params.tagIds = tagIds
+        if (tagId !== undefined) params.tagId = tagId
         if (pageSize !== undefined) params.pageSize = pageSize
         if (createdLt !== undefined) params.createdLt = createdLt
 

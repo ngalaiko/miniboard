@@ -149,7 +149,7 @@ func Test_db__List_tag_ids(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 10; i++ {
 		feed := &Feed{
 			ID:      fmt.Sprint(i),
 			UserID:  "user",
@@ -167,24 +167,28 @@ func Test_db__List_tag_ids(t *testing.T) {
 		}
 	}
 
-	feeds, err := db.List(ctx, "user", 5, nil, []string{"2", "7", "8"})
+	tagID := new(string)
+	*tagID = "5"
+
+	feeds, err := db.List(ctx, "user", 5, nil, tagID)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	ids := map[string]bool{}
+	if len(feeds) != 2 {
+		t.Errorf("expected 2 feeds")
+	}
+
 	for _, feed := range feeds {
-		ids[feed.ID] = true
-	}
-
-	expected := []string{"1", "2", "6", "7", "8"}
-	if len(ids) != len(expected) {
-		t.Fatalf("expected %d elements, got %d", len(expected), len(ids))
-	}
-
-	for _, id := range expected {
-		if _, found := ids[id]; !found {
-			t.Errorf("%s not found", id)
+		found := false
+		for _, tagID := range feed.TagIDs {
+			if tagID == "5" {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("expected '5', got %v", feed.TagIDs)
 		}
 	}
 }

@@ -105,9 +105,14 @@ func (h *Handler) handleListFeeds(w http.ResponseWriter, r *http.Request) {
 		createdLT = &createdLTParsed
 	}
 
-	tagIDIn := r.URL.Query()["tag_ids"]
+	var tagID *string
+	if tagIDEqParam, ok := r.URL.Query()["tag_id_eq"]; ok {
+		if len(tagIDEqParam[0]) > 0 {
+			tagID = &tagIDEqParam[0]
+		}
+	}
 
-	feeds, err := h.service.List(r.Context(), token.UserID, pageSize, createdLT, tagIDIn)
+	feeds, err := h.service.List(r.Context(), token.UserID, pageSize, createdLT, tagID)
 	switch {
 	case err == nil:
 		type response struct {

@@ -183,7 +183,7 @@ func (d *database) List(ctx context.Context,
 	userID string,
 	limit int,
 	createdLT *time.Time,
-	tagIDs []string,
+	tagID *string,
 ) ([]*Feed, error) {
 	query := &strings.Builder{}
 	query.WriteString(fmt.Sprintf(`
@@ -196,24 +196,10 @@ func (d *database) List(ctx context.Context,
 
 	args := []interface{}{userID}
 
-	if len(tagIDs) != 0 {
+	if tagID != nil {
+		args = append(args, *tagID)
 		query.WriteString(`
-			JOIN tags_feeds ON feeds.id = tags_feeds.feed_id AND tags_feeds.tag_id IN (
-		`)
-
-		for i, tagID := range tagIDs {
-			args = append(args, tagID)
-			query.WriteString(fmt.Sprintf(`
-				$%d
-			`, len(args)))
-
-			if i != len(tagIDs)-1 {
-				query.WriteString(",")
-			}
-		}
-
-		query.WriteString(`
-			)
+			JOIN tags_feeds ON feeds.id = tags_feeds.feed_id AND tags_feeds.tag_id = $2
 		`)
 	} else {
 		query.WriteString(`

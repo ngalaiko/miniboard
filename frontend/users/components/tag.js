@@ -65,7 +65,7 @@
 
             const xFeeds = document.createElement('x-feeds')
             this.shadowRoot.querySelector('details').appendChild(xFeeds)
-            xFeeds.setAttribute('tag_ids', [value])
+            xFeeds.setAttribute('tag_id', value)
         }
     }
 
