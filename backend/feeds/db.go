@@ -192,20 +192,13 @@ func (d *database) List(ctx context.Context,
 	FROM
 		feeds
 			JOIN users_feeds ON feeds.id = users_feeds.feed_id AND users_feeds.user_id = $1
-			LEFT JOIN tags_feeds ON feeds.id = tags_feeds.feed_id
 	`, sqlFields(d.db)))
 
 	args := []interface{}{userID}
 
-	if len(tagIDs) != 0 || createdLT != nil {
-		query.WriteString(`
-		WHERE
-		`)
-	}
-
 	if len(tagIDs) != 0 {
 		query.WriteString(`
-			tags_feeds.tag_id IN (
+			JOIN tags_feeds ON feeds.id = tags_feeds.feed_id AND tags_feeds.tag_id IN (
 		`)
 
 		for i, tagID := range tagIDs {
@@ -222,14 +215,16 @@ func (d *database) List(ctx context.Context,
 		query.WriteString(`
 			)
 		`)
+	} else {
+		query.WriteString(`
+			LEFT JOIN tags_feeds ON feeds.id = tags_feeds.feed_id
+		`)
 	}
 
 	if createdLT != nil {
-		if len(tagIDs) != 0 {
-			query.WriteString("AND")
-		}
 		args = append(args, createdLT.UnixNano())
 		query.WriteString(fmt.Sprintf(`
+		WHERE
 			feeds.created_epoch_utc < $%d
 		`, len(args)))
 	}
