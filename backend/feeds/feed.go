@@ -23,6 +23,7 @@ type stringsArray []string
 // Scan implements database Scanner.
 func (sa *stringsArray) Scan(value interface{}) error {
 	if value == nil {
+		*sa = []string{}
 		return nil
 	}
 
