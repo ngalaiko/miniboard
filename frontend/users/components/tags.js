@@ -28,7 +28,7 @@ import TagsService from '../services/tags.js'
         }
 
         async connectedCallback() {
-            const tags = await _loadAllTags()
+            const tags = await TagsService.listAll()
             if (tags.length == 0) return
 
             import('./tag.js')
@@ -47,24 +47,6 @@ import TagsService from '../services/tags.js'
         xTag.setAttribute('id', tag.id)
         xTag.setAttribute('title', tag.title)
         li.appendChild(xTag)
-    }
-
-    const _loadAllTags = async (pageSize, createdLt) => {
-        const params = {}
-
-        if (pageSize === undefined) pageSize = 100
-        if (pageSize !== undefined) params.pageSize = pageSize
-        if (createdLt !== undefined) params.createdLt = createdLt
-
-        const tags = await TagsService.list(params)
-        
-        if (tags.length < pageSize) {
-            return tags
-        }
-
-        params.createdLt = tags[tags.length - 1].created
-
-        return tags.concat(await TagsService.list(params))
     }
 
     customElements.define('x-tags', Tags)

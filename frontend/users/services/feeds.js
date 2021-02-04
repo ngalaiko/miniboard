@@ -23,6 +23,21 @@ class Feeds {
 
         return body.feeds
     }
+
+    async create(params) {
+        if (params === undefined) params = {}
+
+        const request = {
+            url: params.url,
+        }
+
+        if (params.tagIds !== undefined) {
+            request.tag_ids = params.tagIds
+        }
+
+        Api.post('/v1/feeds', request)
+        // todo: watch operation
+    }
 }
 
 export default new Feeds()
