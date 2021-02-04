@@ -178,6 +178,7 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*Feed, er
 	return d.scanRow(row)
 }
 
+// todo: do something with this mess
 // List returns a list of feeds from the database.
 func (d *database) List(ctx context.Context,
 	userID string,
@@ -196,21 +197,33 @@ func (d *database) List(ctx context.Context,
 
 	args := []interface{}{userID}
 
-	if tagID != nil {
+	hasWhere := false
+	switch {
+	case tagID == nil:
+		query.WriteString(`
+			LEFT JOIN tags_feeds ON feeds.id = tags_feeds.feed_id
+		`)
+	case *tagID == "":
+		hasWhere = true
+		query.WriteString(`
+			LEFT JOIN tags_feeds ON feeds.id = tags_feeds.feed_id
+			WHERE tags_feeds.feed_id is NULL
+		`)
+	case *tagID != "":
 		args = append(args, *tagID)
 		query.WriteString(`
 			JOIN tags_feeds ON feeds.id = tags_feeds.feed_id AND tags_feeds.tag_id = $2
-		`)
-	} else {
-		query.WriteString(`
-			LEFT JOIN tags_feeds ON feeds.id = tags_feeds.feed_id
 		`)
 	}
 
 	if createdLT != nil {
 		args = append(args, createdLT.UnixNano())
+		if !hasWhere {
+			query.WriteString("WHERE")
+		} else {
+			query.WriteString("AND")
+		}
 		query.WriteString(fmt.Sprintf(`
-		WHERE
 			feeds.created_epoch_utc < $%d
 		`, len(args)))
 	}

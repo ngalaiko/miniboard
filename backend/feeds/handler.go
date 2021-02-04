@@ -109,6 +109,9 @@ func (h *Handler) handleListFeeds(w http.ResponseWriter, r *http.Request) {
 	if tagIDEqParam, ok := r.URL.Query()["tag_id_eq"]; ok {
 		if len(tagIDEqParam[0]) > 0 {
 			tagID = &tagIDEqParam[0]
+		} else {
+			tagID = new(string)
+			*tagID = ""
 		}
 	}
 

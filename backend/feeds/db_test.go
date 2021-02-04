@@ -145,6 +145,57 @@ func Test_db__Get(t *testing.T) {
 	}
 }
 
+func Test_db__List_tag_id_empty(t *testing.T) {
+	ctx := context.TODO()
+	db := newDB(createTestDB(ctx, t), &testLogger{})
+
+	for i := 0; i < 10; i++ {
+		feed := &Feed{
+			ID:      fmt.Sprint(i),
+			UserID:  "user",
+			URL:     fmt.Sprintf("https://example%d.com", i),
+			Title:   fmt.Sprintf("%d title", i),
+			Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
+			TagIDs: []string{
+				fmt.Sprintf("%d", i),
+				fmt.Sprintf("%d", i+1),
+			},
+		}
+
+		if err := db.Create(ctx, feed); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	feed := &Feed{
+		ID:      "test id",
+		UserID:  "user",
+		URL:     "https://example.com",
+		Title:   "title",
+		Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
+	}
+
+	if err := db.Create(ctx, feed); err != nil {
+		t.Fatal(err)
+	}
+
+	tagID := new(string)
+	*tagID = ""
+
+	feeds, err := db.List(ctx, "user", 5, nil, tagID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(feeds) != 1 {
+		t.Fatalf("expected 1 feed, got %d", len(feeds))
+	}
+
+	if (len(feeds[0].TagIDs)) != 0 {
+		t.Errorf("no tags expected, got %v", feeds[0].TagIDs)
+	}
+}
+
 func Test_db__List_tag_ids(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
