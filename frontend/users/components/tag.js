@@ -37,6 +37,12 @@
             shadowRoot.appendChild(instance)
         }
 
+        connectedCallback() {
+            const xFeeds = document.createElement('x-feeds')
+            xFeeds.setAttribute('tag_id', this._id)
+            this.shadowRoot.querySelector('details').appendChild(xFeeds)
+        }
+
         static get observedAttributes() {
             return ['title', 'id']
         }
@@ -61,11 +67,7 @@
         set id(value) {
             if (!this.shadowRoot) return
 
-            import('./feeds.js')
-
-            const xFeeds = document.createElement('x-feeds')
-            this.shadowRoot.querySelector('details').appendChild(xFeeds)
-            xFeeds.setAttribute('tag_id', value)
+            this._id = value
         }
     }
 

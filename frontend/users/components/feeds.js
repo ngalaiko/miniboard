@@ -51,6 +51,8 @@ import FeedsService from '../services/feeds.js'
         }
 
         set tagId(value) {
+            if (!this.shadowRoot) return
+
             this._tagId  = value
         }
     }
