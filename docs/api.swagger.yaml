@@ -130,11 +130,6 @@ paths:
         schema:
           type: string
           format: date-time
-      - name: tag_id_eq
-        in: query
-        required: false
-        schema:
-          type: string
       responses:
         200:
           description: Success

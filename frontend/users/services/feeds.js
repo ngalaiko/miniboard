@@ -12,12 +12,7 @@ class Feeds {
             ? `&created_lt=${encodeURIComponent(params.createdLt)}`
             : ''
 
-
-        const tagIdQuery = params.tagId !== undefined
-            ? `&tag_id_eq=${encodeURIComponent(params.tagId)}`
-            : ''
-
-        const url = '/v1/feeds?' + pageSizeQuery + createdLtQuery + tagIdQuery
+        const url = '/v1/feeds?' + pageSizeQuery + createdLtQuery
 
         const body = await Api.get(url)
 

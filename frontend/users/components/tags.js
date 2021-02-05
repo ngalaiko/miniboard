@@ -18,7 +18,7 @@ import TagsService from '../services/tags.js'
     `
 
     class Tags extends HTMLElement {
-        constructor() { 
+        constructor() {
             super()
 
             const shadowRoot = this.attachShadow({ mode: 'open' })
@@ -28,23 +28,49 @@ import TagsService from '../services/tags.js'
         }
 
         async connectedCallback() {
-            const tags = await TagsService.listAll()
-            if (tags.length == 0) return
+            if (this._tags === undefined) throw 'tags not set'
+            if (this._feeds === undefined) throw 'feeds not set'
 
-            import('./tag.js')
+            await import('./tag.js')
 
-            tags.forEach(tag => _renderTag(this, tag))
+            const feedsByTagId = new Map()
+            this._feeds.forEach(feed => {
+                feed.tag_ids.forEach(tagId => {
+                    const feeds = feedsByTagId.get(tagId)
+                    if (feeds) {
+                        feeds.push(feed)
+                    } else {
+                        feedsByTagId.set(tagId, [feed])
+                    }
+                })
+            })
+
+            this._tags.forEach(tag => {
+                const feeds = feedsByTagId.has(tag.id)
+                    ? feedsByTagId.get(tag.id)
+                    : []
+
+                _renderTag(this, tag, feeds)
+            })
+        }
+
+        set feeds(feeds) {
+            this._feeds = feeds
+        }
+
+        set tags(tags) {
+            this._tags = tags
         }
     }
 
-    const _renderTag = (self, tag) => {
+    const _renderTag = (self, tag, feeds) => {
         const list = self.shadowRoot.querySelector('#tags-list')
 
         const li = document.createElement('li')
         list.appendChild(li)
 
         const xTag = document.createElement('x-tag')
-        xTag.setAttribute('id', tag.id)
+        xTag.feeds = feeds
         xTag.setAttribute('title', tag.title)
         li.appendChild(xTag)
     }

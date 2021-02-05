@@ -37,23 +37,24 @@
             shadowRoot.appendChild(instance)
         }
 
-        connectedCallback() {
+        async connectedCallback() {
+            if (this._feeds === undefined) throw 'feeds not set'
+
+            await import('./feeds.js')
+
             const xFeeds = document.createElement('x-feeds')
-            xFeeds.setAttribute('tag_id', this._id)
+            xFeeds.feeds = this._feeds
             this.shadowRoot.querySelector('details').appendChild(xFeeds)
         }
 
         static get observedAttributes() {
-            return ['title', 'id']
+            return ['title']
         }
 
         attributeChangedCallback(attribute, oldValue, newValue) {
             switch (attribute) {
             case 'title':
                 this.title = newValue
-                break
-            case 'id':
-                this.id = newValue
                 break
             }
         }
@@ -64,10 +65,8 @@
             this.shadowRoot.querySelector('#tag-title').innerText = value
         }
 
-        set id(value) {
-            if (!this.shadowRoot) return
-
-            this._id = value
+        set feeds(feeds) {
+            this._feeds = feeds
         }
     }
 

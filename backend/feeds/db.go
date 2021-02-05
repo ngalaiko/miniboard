@@ -178,13 +178,11 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*Feed, er
 	return d.scanRow(row)
 }
 
-// todo: do something with this mess
 // List returns a list of feeds from the database.
 func (d *database) List(ctx context.Context,
 	userID string,
 	limit int,
 	createdLT *time.Time,
-	tagID *string,
 ) ([]*Feed, error) {
 	query := &strings.Builder{}
 	query.WriteString(fmt.Sprintf(`
@@ -193,54 +191,32 @@ func (d *database) List(ctx context.Context,
 	FROM
 		feeds
 			JOIN users_feeds ON feeds.id = users_feeds.feed_id AND users_feeds.user_id = $1
+			LEFT JOIN tags_feeds ON feeds.id = tags_feeds.feed_id
 	`, sqlFields(d.db)))
 
 	args := []interface{}{userID}
 
-	hasWhere := false
-	switch {
-	case tagID == nil:
-		query.WriteString(`
-			LEFT JOIN tags_feeds ON feeds.id = tags_feeds.feed_id
-		`)
-	case *tagID == "":
-		hasWhere = true
-		query.WriteString(`
-			LEFT JOIN tags_feeds ON feeds.id = tags_feeds.feed_id
-			WHERE tags_feeds.feed_id is NULL
-		`)
-	case *tagID != "":
-		args = append(args, *tagID)
-		query.WriteString(`
-			JOIN tags_feeds ON feeds.id = tags_feeds.feed_id AND tags_feeds.tag_id = $2
-		`)
-	}
-
 	if createdLT != nil {
 		args = append(args, createdLT.UnixNano())
-		if !hasWhere {
-			query.WriteString("WHERE")
-		} else {
-			query.WriteString("AND")
-		}
 		query.WriteString(fmt.Sprintf(`
-			feeds.created_epoch_utc < $%d
+	WHERE
+		feeds.created_epoch_utc < $%d
 		`, len(args)))
 	}
 	args = append(args, limit)
 
 	query.WriteString(fmt.Sprintf(`
-		GROUP BY
-			feeds.id,
-			users_feeds.user_id,
-			feeds.url,
-			feeds.title,
-			feeds.created_epoch_utc,
-			feeds.updated_epoch_utc,
-			feeds.icon_url
-		ORDER BY
-			feeds.created_epoch_utc DESC
-		LIMIT $%d`, len(args)))
+	GROUP BY
+		feeds.id,
+		users_feeds.user_id,
+		feeds.url,
+		feeds.title,
+		feeds.created_epoch_utc,
+		feeds.updated_epoch_utc,
+		feeds.icon_url
+	ORDER BY
+		feeds.created_epoch_utc DESC
+	LIMIT $%d`, len(args)))
 
 	rows, err := d.db.QueryContext(ctx, query.String(), args...)
 	if err != nil {

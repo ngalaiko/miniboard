@@ -30,34 +30,22 @@ import FeedsService from '../services/feeds.js'
         }
 
         async connectedCallback() {
-            const feeds = await _loadAllFeeds(this._tagId)
-            if (feeds.length == 0) return
+            if (this._feeds === undefined) throw 'feeds not set'
 
-            import('./feed.js')
-
-            feeds.forEach(feed => _renderFeed(this, feed))
+            this._feeds.forEach(feed => _renderFeed(this, feed))
         }
 
         static get observedAttributes() {
             return ['tag_id']
         }
 
-        attributeChangedCallback(attribute, oldValue, newValue) {
-            switch (attribute) {
-            case 'tag_id':
-                this.tagId = newValue
-                break
-            }
-        }
-
-        set tagId(value) {
-            if (!this.shadowRoot) return
-
-            this._tagId  = value
+        set feeds(feeds) {
+            this._feeds = feeds
         }
     }
 
     const _renderFeed = async (self, feed) => {
+        await import('./feed.js')
         const list = self.shadowRoot.querySelector('#feeds-list')
 
         const li = document.createElement('li')
@@ -69,25 +57,6 @@ import FeedsService from '../services/feeds.js'
             xFeed.setAttribute('icon', feed.icon_url)
         }
         li.appendChild(xFeed)
-    }
-
-    const _loadAllFeeds = async (tagId, pageSize, createdLt) => {
-        const params = {}
-
-        if (pageSize === undefined) pageSize = 100
-        if (tagId !== undefined) params.tagId = tagId
-        if (pageSize !== undefined) params.pageSize = pageSize
-        if (createdLt !== undefined) params.createdLt = createdLt
-
-        const tags = await FeedsService.list(params)
-        
-        if (tags.length < pageSize) {
-            return tags
-        }
-
-        params.createdLt = tags[tags.length - 1].created
-
-        return tags.concat(await FeedsService.list(params))
     }
 
     customElements.define('x-feeds', Feeds)
