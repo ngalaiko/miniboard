@@ -37,13 +37,18 @@ const listAllFeeds = async (pageSize, createdLt) => {
     return tags.concat(await FeedsService.list(params))
 }
 
-const handleFeedCreateSucceeded = (feed) => {
-    console.log('succeeded', feed)
-}
+document.querySelector('#left').addEventListener('FeedCreateSucceded', (e) => {
+    const feed = e.detail.feed
 
-const handleFeedCreateFailed = (params, error) => {
-    console.log('failed', params, error)
-}
+    console.log('create feed succeeded', feed)
+})
+
+document.querySelector('#left').addEventListener('FeedCreateFailed', (e) => {
+    const params = e.detail.params
+    const error = e.detail.error
+
+    console.log('create feed failed', params, error)
+})
 
 Promise.all([listAllFeeds(), listAllTags()]).then((values) => {
     const feeds = values[0]
@@ -52,8 +57,6 @@ Promise.all([listAllFeeds(), listAllTags()]).then((values) => {
     const xAddButton = document.createElement('x-add-button')
     xAddButton.tags = tags
     document.querySelector('#left').appendChild(xAddButton)
-    xAddButton.addEventListener('FeedCreateSucceded', (e) => handleFeedCreateSucceeded(e.detail.feed))
-    xAddButton.addEventListener('FeedCreateFailed', (e) => handleFeedCreateFailed(e.detail.params, e.detail.error))
 
     const xTags = document.createElement('x-tags')
     xTags.tags = tags
