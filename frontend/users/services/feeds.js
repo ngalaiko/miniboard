@@ -30,8 +30,7 @@ class Feeds {
             request.tag_ids = params.tagIds
         }
 
-        Api.post('/v1/feeds', request)
-        // todo: watch operation
+        return await Api.post('/v1/feeds', request)
     }
 }
 

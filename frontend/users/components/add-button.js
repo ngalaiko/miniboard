@@ -1,5 +1,6 @@
 import TagsService from '../services/tags.js'
 import FeedsService from '../services/feeds.js'
+import OperationsService from '../services/operations.js'
 
 (async () => {
     const HTMLTemplate = document.createElement('template')
@@ -21,7 +22,7 @@ import FeedsService from '../services/feeds.js'
 
         connectedCallback() {
             this.shadowRoot.querySelector('#add-button')
-                .addEventListener('click', _clickHandler(this._tagsByTitle))
+                .addEventListener('click', _clickHandler(this, this._tagsByTitle))
         }
 
         set tags(tags) {
@@ -29,7 +30,7 @@ import FeedsService from '../services/feeds.js'
         }
     }
 
-    const _clickHandler = (tagsByTitle) => {
+    const _clickHandler = (self, tagsByTitle) => {
         return () => {
             import('./add-modal.js')
 
@@ -86,7 +87,7 @@ import FeedsService from '../services/feeds.js'
                     // one by one, ignoring errors
                     for (const url of Object.keys(tagIdsByUrl)) {
                         try {
-                            await FeedsService.create({
+                            await _createFeed(self, {
                                 url: url,
                                 tagIds: tagIdsByUrl[url],
                             })
@@ -97,8 +98,29 @@ import FeedsService from '../services/feeds.js'
                 })
             })
 
-            addModal.addEventListener('UrlAdded', (e) => FeedsService.create({
+            addModal.addEventListener('UrlAdded', (e) => _createFeed(self, {
                 url: e.detail.url,
+            }))
+        }
+    }
+
+    const _createFeed = async (self, params) => {
+        const operation = await FeedsService.create(params)
+
+        try {
+            self.dispatchEvent(new CustomEvent('FeedCreateSucceded', {
+                detail: {
+                    feed: await OperationsService.wait(operation.id),
+                },
+                bubbles: true,
+            }))
+        } catch (e) {
+            self.dispatchEvent(new CustomEvent('FeedCreateFailed', {
+                detail: {
+                    params: params,
+                    error: e,
+                },
+                bubbles: true,
             }))
         }
     }
