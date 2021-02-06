@@ -74,7 +74,7 @@ import OperationsService from '../services/operations.js'
                         const tag = tagsByTitle.get(item.tagTitle)
                         item.tag = tag
                             ? tag
-                            : await TagsService.create({
+                            : await _createTag(self, {
                                 title: item.tagTitle,
                             })
 
@@ -122,6 +122,28 @@ import OperationsService from '../services/operations.js'
                 },
                 bubbles: true,
             }))
+        }
+    }
+
+    const _createTag = async (self, params) => {
+        try {
+            const tag = await TagsService.create(params)
+            self.dispatchEvent(new CustomEvent('TagCreateSucceded', {
+                detail: {
+                    tag: tag,
+                },
+                bubbles: true,
+            }))
+            return tag
+        } catch (e) {
+            self.dispatchEvent(new CustomEvent('TagCreateFailed', {
+                detail: {
+                    params: params,
+                    error: e,
+                },
+                bubbles: true,
+            }))
+            throw e
         }
     }
 

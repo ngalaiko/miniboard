@@ -50,6 +50,19 @@ document.querySelector('#left').addEventListener('FeedCreateFailed', (e) => {
     console.log('create feed failed', params, error)
 })
 
+document.querySelector('#left').addEventListener('TagCreateSucceded', (e) => {
+    const tag = e.detail.tag
+
+    console.log('create tag succeeded', tag)
+})
+
+document.querySelector('#left').addEventListener('TagCreateFailed', (e) => {
+    const params = e.detail.params
+    const error = e.detail.error
+
+    console.log('create tag failed', params, error)
+})
+
 Promise.all([listAllFeeds(), listAllTags()]).then((values) => {
     const feeds = values[0]
     const tags = values[1]
