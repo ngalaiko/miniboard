@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
+	"github.com/ngalaiko/miniboard/backend/tags"
 )
 
 func Test__Create_feed_failed_to_parse_feed(t *testing.T) {
@@ -94,7 +96,13 @@ func Test__Get(t *testing.T) {
 	cw := &testCrawler{}
 	service := NewService(sqldb, cw.With("https://example.org", feedData), &testLogger{})
 
-	feed, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{"id"})
+	tagService := tags.NewService(sqldb)
+	tag, err := tagService.Create(ctx, "user id", "tag")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	feed, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{tag.ID})
 	if err != nil {
 		t.Fatalf("failed to create a feed: %s", err)
 	}
@@ -104,8 +112,8 @@ func Test__Get(t *testing.T) {
 		t.Fatalf("failed to get a feed: %s", err)
 	}
 
-	if !reflect.DeepEqual(feed, from) {
-		t.Errorf("unexpected response, expected %+v, got %+v", feed, from)
+	if !cmp.Equal(feed, from) {
+		t.Error(cmp.Diff(feed, from))
 	}
 }
 

@@ -36,7 +36,7 @@ func sqlFields(db *sql.DB) string {
 		feeds.created_epoch_utc,
 		feeds.updated_epoch_utc,
 		feeds.icon_url,
-		%s(tags_feeds.tag_id, ',')
+		%s(tags.id, ',')
 	`, groupFunc)
 }
 
@@ -139,6 +139,7 @@ func (d *database) GetByURL(ctx context.Context, userID string, url string) (*Fe
 		feeds
 			JOIN users_feeds ON feeds.id = users_feeds.feed_id AND users_feeds.user_id = $1
 			LEFT JOIN tags_feeds ON feeds.id = tags_feeds.feed_id
+			LEFT JOIN tags ON tags.id = tags_feeds.tag_id AND tags.user_id = users_feeds.user_id
 	WHERE
 		feeds.url = $2
 	GROUP BY
@@ -163,6 +164,7 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*Feed, er
 		feeds
 			JOIN users_feeds ON feeds.id = users_feeds.feed_id AND users_feeds.user_id = $1
 			LEFT JOIN tags_feeds ON feeds.id = tags_feeds.feed_id
+			LEFT JOIN tags ON tags.id = tags_feeds.tag_id AND tags.user_id = users_feeds.user_id
 	WHERE
 		feeds.id = $2
 	GROUP BY
@@ -192,6 +194,7 @@ func (d *database) List(ctx context.Context,
 		feeds
 			JOIN users_feeds ON feeds.id = users_feeds.feed_id AND users_feeds.user_id = $1
 			LEFT JOIN tags_feeds ON feeds.id = tags_feeds.feed_id
+			LEFT JOIN tags ON tags.id = tags_feeds.tag_id AND tags.user_id = users_feeds.user_id
 	`, sqlFields(d.db)))
 
 	args := []interface{}{userID}

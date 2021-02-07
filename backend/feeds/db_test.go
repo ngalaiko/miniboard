@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/ngalaiko/miniboard/backend/db"
+	"github.com/ngalaiko/miniboard/backend/tags"
 )
 
 func Test_db__Create(t *testing.T) {
@@ -114,10 +115,10 @@ func Test_db__Get_not_found(t *testing.T) {
 		t.Fatalf("expected %s, got %s", sql.ErrNoRows, err)
 	}
 }
-
-func Test_db__Get(t *testing.T) {
+func Test_db__Get_without_tags(t *testing.T) {
 	ctx := context.TODO()
-	db := newDB(createTestDB(ctx, t), &testLogger{})
+	sqldb := createTestDB(ctx, t)
+	db := newDB(sqldb, &testLogger{})
 
 	feed := &Feed{
 		ID:      "test id",
@@ -125,7 +126,50 @@ func Test_db__Get(t *testing.T) {
 		URL:     "https://example.com",
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
-		TagIDs:  []string{"id1", "id2"},
+		TagIDs:  []string{},
+	}
+	feed.IconURL = new(string)
+	*feed.IconURL = "https://icon.url"
+	feed.Updated = new(time.Time)
+	*feed.Updated = time.Now().Truncate(time.Nanosecond)
+
+	if err := db.Create(ctx, feed); err != nil {
+		t.Fatalf("failed to create a feed: %s", err)
+	}
+
+	fromDB, err := db.Get(ctx, feed.UserID, feed.ID)
+	if err != nil {
+		t.Fatalf("failed to get feed from the db: %s", err)
+	}
+
+	if !cmp.Equal(feed, fromDB) {
+		t.Error(cmp.Diff(feed, fromDB))
+	}
+}
+
+func Test_db__Get_with_tags(t *testing.T) {
+	ctx := context.TODO()
+	sqldb := createTestDB(ctx, t)
+	db := newDB(sqldb, &testLogger{})
+
+	tagService := tags.NewService(sqldb)
+	tag1, err := tagService.Create(ctx, "user", "id1")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tag2, err := tagService.Create(ctx, "user", "id2")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	feed := &Feed{
+		ID:      "test id",
+		UserID:  "user",
+		URL:     "https://example.com",
+		Title:   "title",
+		Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
+		TagIDs:  []string{tag1.ID, tag2.ID},
 	}
 	feed.IconURL = new(string)
 	*feed.IconURL = "https://icon.url"
