@@ -29,10 +29,6 @@ import FeedsService from '../services/feeds.js'
             shadowRoot.appendChild(instance)
         }
 
-        static get observedAttributes() {
-            return ['tag_id']
-        }
-
         async addFeed(feed) {
             await import('./feed.js')
             const list = this.shadowRoot.querySelector('#feeds-list')
