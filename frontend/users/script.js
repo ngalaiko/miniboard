@@ -70,12 +70,10 @@ Promise.all([listAllFeeds(), listAllTags()]).then((values) => {
     const xAddButton = document.querySelector('#add-button')
     xAddButton.addTags(tags)
 
-    const xTags = document.createElement('x-tags')
-    xTags.tags = tags
-    xTags.feeds = feeds.filter(feed => feed.tag_ids.length !== 0)
-    document.querySelector('#left').appendChild(xTags)
+    const xTags = document.querySelector('#tags')
+    xTags.addFeeds(feeds.filter(feed => feed.tag_ids.length !== 0))
+    xTags.addTags(tags)
 
-    const xFeeds = document.createElement('x-feeds')
-    xFeeds.feeds = feeds.filter(feed => feed.tag_ids.length === 0)
-    document.querySelector('#left').appendChild(xFeeds)
+    const xFeeds = document.querySelector('#feeds')
+    xFeeds.addFeeds(feeds.filter(feed => feed.tag_ids.length === 0))
 })

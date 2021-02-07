@@ -23,6 +23,7 @@
     <span id="tag-container">
         <details>
             <summary id="tag-title"></summary>
+            <x-feeds id="tag-feeds"></x-feeds>
         </details>
     </span>
     `
@@ -35,16 +36,6 @@
 
             const instance = HTMLTemplate.content.cloneNode(true)
             shadowRoot.appendChild(instance)
-        }
-
-        async connectedCallback() {
-            if (this._feeds === undefined) throw 'feeds not set'
-
-            await import('./feeds.js')
-
-            const xFeeds = document.createElement('x-feeds')
-            xFeeds.feeds = this._feeds
-            this.shadowRoot.querySelector('details').appendChild(xFeeds)
         }
 
         static get observedAttributes() {
@@ -65,8 +56,10 @@
             this.shadowRoot.querySelector('#tag-title').innerText = value
         }
 
-        set feeds(feeds) {
-            this._feeds = feeds
+        async addFeeds(feeds) {
+            await import('./feeds.js')
+            const xFeeds = this.shadowRoot.querySelector('#tag-feeds')
+            xFeeds.addFeeds(feeds)
         }
     }
 

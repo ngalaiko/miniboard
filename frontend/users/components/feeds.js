@@ -29,18 +29,12 @@ import FeedsService from '../services/feeds.js'
             shadowRoot.appendChild(instance)
         }
 
-        async connectedCallback() {
-            if (this._feeds === undefined) throw 'feeds not set'
-
-            this._feeds.forEach(feed => _renderFeed(this, feed))
-        }
-
         static get observedAttributes() {
             return ['tag_id']
         }
 
-        set feeds(feeds) {
-            this._feeds = feeds
+        addFeeds(feeds) {
+            feeds.forEach(feed => _renderFeed(this, feed))
         }
     }
 

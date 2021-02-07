@@ -25,52 +25,44 @@ import TagsService from '../services/tags.js'
 
             const instance = HTMLTemplate.content.cloneNode(true)
             shadowRoot.appendChild(instance)
+
+            this.feedsByTagId = new Map()
         }
 
-        async connectedCallback() {
-            if (this._tags === undefined) throw 'tags not set'
-            if (this._feeds === undefined) throw 'feeds not set'
-
-            await import('./tag.js')
-
-            const feedsByTagId = new Map()
-            this._feeds.forEach(feed => {
+        addFeeds(feeds) {
+            feeds.forEach(feed => {
                 feed.tag_ids.forEach(tagId => {
-                    const feeds = feedsByTagId.get(tagId)
+                    const feeds = this.feedsByTagId.get(tagId)
                     if (feeds) {
                         feeds.push(feed)
                     } else {
-                        feedsByTagId.set(tagId, [feed])
+                        this.feedsByTagId.set(tagId, [feed])
                     }
                 })
             })
+        }
 
-            this._tags.forEach(tag => {
-                const feeds = feedsByTagId.has(tag.id)
-                    ? feedsByTagId.get(tag.id)
+        addTags(tags) {
+            tags.forEach(tag => {
+                const feeds = this.feedsByTagId.has(tag.id)
+                    ? this.feedsByTagId.get(tag.id)
                     : []
 
                 _renderTag(this, tag, feeds)
             })
         }
-
-        set feeds(feeds) {
-            this._feeds = feeds
-        }
-
-        set tags(tags) {
-            this._tags = tags
-        }
     }
 
-    const _renderTag = (self, tag, feeds) => {
+    const _renderTag = async (self, tag, feeds) => {
+        await import('./tag.js')
+
         const list = self.shadowRoot.querySelector('#tags-list')
 
         const li = document.createElement('li')
         list.appendChild(li)
 
         const xTag = document.createElement('x-tag')
-        xTag.feeds = feeds
+        xTag.addFeeds(feeds)
         xTag.setAttribute('title', tag.title)
         li.appendChild(xTag)
     }
