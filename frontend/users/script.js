@@ -67,9 +67,8 @@ Promise.all([listAllFeeds(), listAllTags()]).then((values) => {
     const feeds = values[0]
     const tags = values[1]
 
-    const xAddButton = document.createElement('x-add-button')
-    xAddButton.tags = tags
-    document.querySelector('#left').appendChild(xAddButton)
+    const xAddButton = document.querySelector('#add-button')
+    xAddButton.addTags(tags)
 
     const xTags = document.createElement('x-tags')
     xTags.tags = tags

@@ -17,7 +17,7 @@ import OperationsService from '../services/operations.js'
             const instance = HTMLTemplate.content.cloneNode(true)
             shadowRoot.appendChild(instance)
 
-            this._tagsByTitle= new Map()
+            this._tagsByTitle = new Map()
         }
 
         connectedCallback() {
@@ -25,7 +25,7 @@ import OperationsService from '../services/operations.js'
                 .addEventListener('click', _clickHandler(this, this._tagsByTitle))
         }
 
-        set tags(tags) {
+        addTags(tags) {
             tags.forEach(tag => this._tagsByTitle.set(tag.title, tag))
         }
     }
