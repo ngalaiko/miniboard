@@ -73,6 +73,7 @@
             this.keydownEventHandler = _keydownEventHandler(this)
 
             window.addEventListener('keydown', this.keydownEventHandler)
+            this.shadowRoot.querySelector("#input-url").focus()
             this.shadowRoot.querySelector("#input-file").addEventListener('change', _fileInputEventHandler(this))
             this.shadowRoot.querySelector("#background").addEventListener('click', () => _close(this))
         }
