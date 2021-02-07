@@ -13,11 +13,11 @@ class Operations {
             await new Promise(r => setTimeout(r, 1000))
             return await this.wait(id)
         case operation.result.error !== undefined:
-            throw operation.result.error.message
+            throw new Error(operation.result.error.message)
         case operation.result.response !== undefined:
             return operation.result.response
         default:
-            throw `invalid state for operation ${id}`
+            throw new Error(`invalid state for operation ${id}`)
         }
     }
 }

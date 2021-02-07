@@ -25,8 +25,8 @@ import OperationsService from '../services/operations.js'
                 .addEventListener('click', _clickHandler(this, this._tagsByTitle))
         }
 
-        addTags(tags) {
-            tags.forEach(tag => this._tagsByTitle.set(tag.title, tag))
+        addTag(tag) {
+            this._tagsByTitle.set(tag.title, tag)
         }
     }
 

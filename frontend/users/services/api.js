@@ -22,7 +22,7 @@ const _fetch = async(url, params) => {
     const response = await fetch(apiUrl + url, params)
     const body = await response.json()
     if (response.status !== 200) {
-        throw new body.message
+        throw new Error(body.message)
     }
 
     return body

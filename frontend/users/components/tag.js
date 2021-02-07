@@ -56,10 +56,10 @@
             this.shadowRoot.querySelector('#tag-title').innerText = value
         }
 
-        async addFeeds(feeds) {
+        async addFeed(feed) {
             await import('./feeds.js')
             const xFeeds = this.shadowRoot.querySelector('#tag-feeds')
-            xFeeds.addFeeds(feeds)
+            xFeeds.addFeed(feed)
         }
     }
 

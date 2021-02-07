@@ -40,7 +40,7 @@ const listAllFeeds = async (pageSize, createdLt) => {
 document.querySelector('#left').addEventListener('FeedCreateSucceded', (e) => {
     const feed = e.detail.feed
 
-    console.log('create feed succeeded', feed)
+    addFeed(feed)
 })
 
 document.querySelector('#left').addEventListener('FeedCreateFailed', (e) => {
@@ -53,7 +53,7 @@ document.querySelector('#left').addEventListener('FeedCreateFailed', (e) => {
 document.querySelector('#left').addEventListener('TagCreateSucceded', (e) => {
     const tag = e.detail.tag
 
-    console.log('create tag succeeded', tag)
+    addTag(tag)
 })
 
 document.querySelector('#left').addEventListener('TagCreateFailed', (e) => {
@@ -63,17 +63,31 @@ document.querySelector('#left').addEventListener('TagCreateFailed', (e) => {
     console.log('create tag failed', params, error)
 })
 
-Promise.all([listAllFeeds(), listAllTags()]).then((values) => {
+Promise.all([listAllFeeds(), listAllTags()]).then(async (values) => {
     const feeds = values[0]
     const tags = values[1]
 
+    for (const tag of tags) {
+        await addTag(tag)
+    }
+
+    for (const feed of feeds) {
+        await addFeed(feed)
+    }
+})
+
+const addFeed = async (feed) => {
+    if (feed.tag_ids === null || feed.tag_ids.length === 0) {
+        document.querySelector('#feeds').addFeed(feed)
+    } else {
+        document.querySelector('#tags').addFeed(feed)
+    }
+}
+
+const addTag = async (tag) => {
     const xAddButton = document.querySelector('#add-button')
-    xAddButton.addTags(tags)
+    xAddButton.addTag(tag)
 
     const xTags = document.querySelector('#tags')
-    xTags.addFeeds(feeds.filter(feed => feed.tag_ids.length !== 0))
-    xTags.addTags(tags)
-
-    const xFeeds = document.querySelector('#feeds')
-    xFeeds.addFeeds(feeds.filter(feed => feed.tag_ids.length === 0))
-})
+    await xTags.addTag(tag)
+}

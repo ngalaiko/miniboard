@@ -25,46 +25,28 @@ import TagsService from '../services/tags.js'
 
             const instance = HTMLTemplate.content.cloneNode(true)
             shadowRoot.appendChild(instance)
-
-            this.feedsByTagId = new Map()
         }
 
-        addFeeds(feeds) {
-            feeds.forEach(feed => {
-                feed.tag_ids.forEach(tagId => {
-                    const feeds = this.feedsByTagId.get(tagId)
-                    if (feeds) {
-                        feeds.push(feed)
-                    } else {
-                        this.feedsByTagId.set(tagId, [feed])
-                    }
-                })
-            })
+        async addFeed(feed) {
+            for (const tagId of feed.tag_ids) {
+                const tag = this.shadowRoot.querySelector(`#tag-${tagId}`)
+                await tag.addFeed(feed)
+            }
         }
 
-        addTags(tags) {
-            tags.forEach(tag => {
-                const feeds = this.feedsByTagId.has(tag.id)
-                    ? this.feedsByTagId.get(tag.id)
-                    : []
+        async addTag(tag) {
+            await import('./tag.js')
 
-                _renderTag(this, tag, feeds)
-            })
+            const list = this.shadowRoot.querySelector('#tags-list')
+
+            const li = document.createElement('li')
+            list.appendChild(li)
+
+            const xTag = document.createElement('x-tag')
+            xTag.setAttribute('id', `tag-${tag.id}`)
+            xTag.setAttribute('title', tag.title)
+            li.appendChild(xTag)
         }
-    }
-
-    const _renderTag = async (self, tag, feeds) => {
-        await import('./tag.js')
-
-        const list = self.shadowRoot.querySelector('#tags-list')
-
-        const li = document.createElement('li')
-        list.appendChild(li)
-
-        const xTag = document.createElement('x-tag')
-        xTag.addFeeds(feeds)
-        xTag.setAttribute('title', tag.title)
-        li.appendChild(xTag)
     }
 
     customElements.define('x-tags', Tags)

@@ -33,24 +33,20 @@ import FeedsService from '../services/feeds.js'
             return ['tag_id']
         }
 
-        addFeeds(feeds) {
-            feeds.forEach(feed => _renderFeed(this, feed))
+        async addFeed(feed) {
+            await import('./feed.js')
+            const list = this.shadowRoot.querySelector('#feeds-list')
+
+            const li = document.createElement('li')
+            list.appendChild(li)
+
+            const xFeed = document.createElement('x-feed')
+            xFeed.setAttribute('title', feed.title)
+            if (feed.icon_url !== undefined) {
+                xFeed.setAttribute('icon', feed.icon_url)
+            }
+            li.appendChild(xFeed)
         }
-    }
-
-    const _renderFeed = async (self, feed) => {
-        await import('./feed.js')
-        const list = self.shadowRoot.querySelector('#feeds-list')
-
-        const li = document.createElement('li')
-        list.appendChild(li)
-
-        const xFeed = document.createElement('x-feed')
-        xFeed.setAttribute('title', feed.title)
-        if (feed.icon_url !== undefined) {
-            xFeed.setAttribute('icon', feed.icon_url)
-        }
-        li.appendChild(xFeed)
     }
 
     customElements.define('x-feeds', Feeds)
