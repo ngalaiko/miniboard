@@ -37,30 +37,26 @@ const listAllSubscriptions = async (pageSize, createdLt) => {
     return tags.concat(await SubscriptionsService.list(params))
 }
 
-document.querySelector('#left').addEventListener('SubscriptionCreateSucceded', (e) => {
-    const subscription = e.detail.subscription
-
-    addSubscription(subscription)
-})
-
-document.querySelector('#left').addEventListener('SubscriptionCreateFailed', (e) => {
+document.querySelector('#left').addEventListener('SubscriptionCreate', (e) => {
     const params = e.detail.params
-    const error = e.detail.error
+    const promise = e.detail.promise
 
-    console.log('create subscription failed', params, error)
+    promise.then(addSubscription)
+
+    document.querySelector('#toasts').promise(`Subscribing: ${params.url}`, promise,
+        (subscription) => `Subscribed: ${subscription.title}`,
+    )
 })
 
-document.querySelector('#left').addEventListener('TagCreateSucceded', (e) => {
-    const tag = e.detail.tag
-
-    addTag(tag)
-})
-
-document.querySelector('#left').addEventListener('TagCreateFailed', (e) => {
+document.querySelector('#left').addEventListener('TagCreate', (e) => {
     const params = e.detail.params
-    const error = e.detail.error
+    const promise = e.detail.promise
 
-    console.log('create tag failed', params, error)
+    promise.then(addTag)
+
+    document.querySelector('#toasts').promise(`Creating tag: ${params.title}`, promise,
+        (tag) => `New tag: ${tag.title}`,
+    )
 })
 
 Promise.all([listAllSubscriptions(), listAllTags()]).then(async (values) => {

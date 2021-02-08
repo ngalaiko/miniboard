@@ -105,46 +105,24 @@ import OperationsService from '../services/operations.js'
     }
 
     const _createSubscription = async (self, params) => {
-        const operation = await SubscriptionsService.create(params)
-
-        try {
-            self.dispatchEvent(new CustomEvent('SubscriptionCreateSucceded', {
-                detail: {
-                    subscription: await OperationsService.wait(operation.id),
-                },
-                bubbles: true,
-            }))
-        } catch (e) {
-            self.dispatchEvent(new CustomEvent('SubscriptionCreateFailed', {
-                detail: {
-                    params: params,
-                    error: e,
-                },
-                bubbles: true,
-            }))
-        }
+        self.dispatchEvent(new CustomEvent('SubscriptionCreate', {
+            detail: {
+                params: params,
+                promise: SubscriptionsService.create(params)
+                    .then(operation => OperationsService.wait(operation.id)),
+            },
+            bubbles: true,
+        }))
     }
 
     const _createTag = async (self, params) => {
-        try {
-            const tag = await TagsService.create(params)
-            self.dispatchEvent(new CustomEvent('TagCreateSucceded', {
-                detail: {
-                    tag: tag,
-                },
-                bubbles: true,
-            }))
-            return tag
-        } catch (e) {
-            self.dispatchEvent(new CustomEvent('TagCreateFailed', {
-                detail: {
-                    params: params,
-                    error: e,
-                },
-                bubbles: true,
-            }))
-            throw e
-        }
+        self.dispatchEvent(new CustomEvent('TagCreate', {
+            detail: {
+                params: params,
+                promise: TagsService.create(params),
+            },
+            bubbles: true,
+        }))
     }
 
     customElements.define('x-add-button', AddModal)
