@@ -1,4 +1,4 @@
-package feeds
+package subscriptions
 
 import (
 	"fmt"
@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-// Feed is the feed model.
-type Feed struct {
+// Subscription is the subscription model.
+type Subscription struct {
 	ID      string       `json:"id"`
 	UserID  string       `json:"-"`
 	URL     string       `json:"url"`

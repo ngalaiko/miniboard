@@ -10,8 +10,8 @@ servers:
 tags:
 - name: authorization
   description: Operations about authorization
-- name: feed
-  description: Operations about feed
+- name: subscription
+  description: Operations about subscription
 - name: operation
   description: Operations about longrunning operations
 - name: user
@@ -64,14 +64,14 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 message: "internal server error"
-  /v1/feeds/:
+  /v1/subscriptions/:
     post:
       tags:
-      - feed
+      - subscription
       security:
       - bearerAuth: []
       - cookieAuth: []
-      summary: Creates a new feed
+      summary: Creates a new subscription
       requestBody:
         content:
           application/json:
@@ -86,7 +86,7 @@ paths:
                   items:
                     type: string
               example:
-                url: "https://example.org/feed.xml"
+                url: "https://example.org/subscription.xml"
         required: true
       responses:
         200:
@@ -102,7 +102,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
               example:
-                message: "feed not found"
+                message: "subscription not found"
         500:
           description: Internal error
           content:
@@ -113,11 +113,11 @@ paths:
                 message: "internal server error"
     get:
       tags:
-      - feed
+      - subscription
       security:
       - bearerAuth: []
       - cookieAuth: []
-      summary: Returns a list of existing feeds
+      summary: Returns a list of existing subscriptions
       parameters:
       - name: page_size
         in: query
@@ -138,10 +138,10 @@ paths:
               schema:
                 type: object
                 properties:
-                  feeds:
+                  subscriptions:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Feed"
+                      $ref: "#/components/schemas/Subscription"
         400:
           description: Bad request
           content:
@@ -264,7 +264,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  feeds:
+                  subscriptions:
                     type: array
                     items:
                       $ref: "#/components/schemas/Tag"
@@ -351,7 +351,7 @@ components:
           type: string
           format: date-time
           example: "2021-01-16T16:13:33Z"
-    Feed:
+    Subscription:
       type: object
       properties:
         id:
@@ -360,10 +360,10 @@ components:
         url:
           type: string
           format: url
-          example: "https://example.org/feed.xml"
+          example: "https://example.org/subscription.xml"
         title:
           type: string
-          example: "Example Feed"
+          example: "Example Subscription"
         created:
           type: string
           format: date-time
@@ -393,7 +393,7 @@ components:
               response:
                 type: object
                 anyOf:
-                - $ref: "#/components/schemas/Feed"
+                - $ref: "#/components/schemas/Subscription"
           - type: object
             properties:
               error:

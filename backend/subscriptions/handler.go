@@ -1,4 +1,4 @@
-package feeds
+package subscriptions
 
 import (
 	"context"
@@ -63,7 +63,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handlePost(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/":
-		h.handleCreateFeed(w, r)
+		h.handleCreateSubscription(w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -72,13 +72,13 @@ func (h *Handler) handlePost(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) handleGet(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/":
-		h.handleListFeeds(w, r)
+		h.handleListSubscriptions(w, r)
 	default:
 		http.NotFound(w, r)
 	}
 }
 
-func (h *Handler) handleListFeeds(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleListSubscriptions(w http.ResponseWriter, r *http.Request) {
 	token, auth := authorizations.FromContext(r.Context())
 	if !auth {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -105,20 +105,20 @@ func (h *Handler) handleListFeeds(w http.ResponseWriter, r *http.Request) {
 		createdLT = &createdLTParsed
 	}
 
-	feeds, err := h.service.List(r.Context(), token.UserID, pageSize, createdLT)
+	subscriptions, err := h.service.List(r.Context(), token.UserID, pageSize, createdLT)
 	switch {
 	case err == nil:
 		type response struct {
-			Feeds []*Feed `json:"feeds"`
+			Subscriptions []*Subscription `json:"subscriptions"`
 		}
-		httpx.JSON(w, h.logger, &response{Feeds: feeds}, http.StatusOK)
+		httpx.JSON(w, h.logger, &response{Subscriptions: subscriptions}, http.StatusOK)
 	default:
-		h.logger.Error("failed to list feeds: %s", err)
+		h.logger.Error("failed to list subscriptions: %s", err)
 		httpx.InternalError(w, h.logger)
 	}
 }
 
-func (h *Handler) handleCreateFeed(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) handleCreateSubscription(w http.ResponseWriter, r *http.Request) {
 	token, auth := authorizations.FromContext(r.Context())
 	if !auth {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -157,32 +157,32 @@ func (h *Handler) handleCreateFeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	operation, err := h.operationService.Create(r.Context(), token.UserID, h.createFeed(token.UserID, url, req.TagIDs))
+	operation, err := h.operationService.Create(r.Context(), token.UserID, h.createSubscription(token.UserID, url, req.TagIDs))
 	switch {
 	case err == nil:
 		httpx.JSON(w, h.logger, operation, http.StatusOK)
 	default:
-		h.logger.Error("failed to create feed: %s", err)
+		h.logger.Error("failed to create subscription: %s", err)
 		httpx.InternalError(w, h.logger)
 	}
 }
 
-func (h *Handler) createFeed(userID string, url *url.URL, tagIDs []string) operations.Task {
+func (h *Handler) createSubscription(userID string, url *url.URL, tagIDs []string) operations.Task {
 	return func(ctx context.Context, operation *operations.Operation, status chan<- *operations.Operation) error {
-		feed, err := h.service.Create(ctx, userID, url, tagIDs)
+		subscription, err := h.service.Create(ctx, userID, url, tagIDs)
 		switch {
 		case err == nil:
-			operation.Success(feed)
+			operation.Success(subscription)
 			status <- operation
 			return nil
-		case errors.Is(err, errFailedToDownloadFeed),
+		case errors.Is(err, errFailedToDownloadSubscription),
 			errors.Is(err, errAlreadyExists),
-			errors.Is(err, errFailedToParseFeed):
+			errors.Is(err, errFailedToParseSubscription):
 			operation.Error(err.Error())
 			status <- operation
 			return nil
 		default:
-			h.logger.Error("failed to create feed: %s", err)
+			h.logger.Error("failed to create subscription: %s", err)
 			return fmt.Errorf("internal error")
 		}
 	}

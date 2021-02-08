@@ -61,6 +61,6 @@ issues:
     - path: db/migrations.go
       linters:
         - funlen
-    - path: feeds/db.go
+    - path: subscriptions/db.go
       linters:
         - funlen

@@ -1,4 +1,4 @@
-package feeds
+package subscriptions
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/ngalaiko/miniboard/backend/tags"
 )
 
-func Test__Create_feed_failed_to_parse_feed(t *testing.T) {
+func Test__Create_subscription_failed_to_parse_subscription(t *testing.T) {
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -19,12 +19,12 @@ func Test__Create_feed_failed_to_parse_feed(t *testing.T) {
 	service := NewService(sqldb, cw, &testLogger{})
 
 	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
-	if err != errFailedToParseFeed {
-		t.Fatalf("expected %s, got %s", errFailedToParseFeed, err)
+	if err != errFailedToParseSubscription {
+		t.Fatalf("expected %s, got %s", errFailedToParseSubscription, err)
 	}
 }
 
-func Test__Create_feed_not_found(t *testing.T) {
+func Test__Create_subscription_not_found(t *testing.T) {
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -32,8 +32,8 @@ func Test__Create_feed_not_found(t *testing.T) {
 	service := NewService(sqldb, cw, &testLogger{})
 
 	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
-	if err != errFailedToDownloadFeed {
-		t.Fatalf("expected %s, got %s", errFailedToDownloadFeed, err)
+	if err != errFailedToDownloadSubscription {
+		t.Fatalf("expected %s, got %s", errFailedToDownloadSubscription, err)
 	}
 }
 
@@ -42,31 +42,31 @@ func Test__Create(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	service := NewService(sqldb, cw.With("https://example.org", feedData), &testLogger{})
+	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{})
 
-	feed, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
+	subscription, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
 	if err != nil {
-		t.Fatalf("failed to create a feed %s", err)
+		t.Fatalf("failed to create a subscription %s", err)
 	}
 
-	if feed.UserID != "user id" {
-		t.Errorf("user id expected: %s, got %s", "user id", feed.UserID)
+	if subscription.UserID != "user id" {
+		t.Errorf("user id expected: %s, got %s", "user id", subscription.UserID)
 	}
 
-	if feed.Title != "Sample Feed" {
-		t.Errorf("title expected: %s, got %s", "Sample Feed", feed.Title)
+	if subscription.Title != "Sample Subscription" {
+		t.Errorf("title expected: %s, got %s", "Sample Subscription", subscription.Title)
 	}
 
-	if feed.Updated != nil {
-		t.Errorf("updated expected to be nil, got %+v", feed.Updated)
+	if subscription.Updated != nil {
+		t.Errorf("updated expected to be nil, got %+v", subscription.Updated)
 	}
 
-	if feed.ID == "" {
+	if subscription.ID == "" {
 		t.Errorf("id expected to not be empty")
 	}
 
-	if feed.URL != "https://example.org" {
-		t.Errorf("url should be https://example.org, got %s", feed.URL)
+	if subscription.URL != "https://example.org" {
+		t.Errorf("url should be https://example.org, got %s", subscription.URL)
 	}
 }
 
@@ -75,12 +75,12 @@ func Test__Create_twice(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	cw = cw.With("https://example.org", feedData)
+	cw = cw.With("https://example.org", subscriptionData)
 	service := NewService(sqldb, cw, &testLogger{})
 
 	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
 	if err != nil {
-		t.Fatalf("failed to create a feed %s", err)
+		t.Fatalf("failed to create a subscription %s", err)
 	}
 
 	_, secondErr := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
@@ -94,7 +94,7 @@ func Test__Get(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	service := NewService(sqldb, cw.With("https://example.org", feedData), &testLogger{})
+	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{})
 
 	tagService := tags.NewService(sqldb)
 	tag, err := tagService.Create(ctx, "user id", "tag")
@@ -102,18 +102,18 @@ func Test__Get(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	feed, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{tag.ID})
+	subscription, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{tag.ID})
 	if err != nil {
-		t.Fatalf("failed to create a feed: %s", err)
+		t.Fatalf("failed to create a subscription: %s", err)
 	}
 
-	from, err := service.Get(ctx, "user id", feed.ID)
+	from, err := service.Get(ctx, "user id", subscription.ID)
 	if err != nil {
-		t.Fatalf("failed to get a feed: %s", err)
+		t.Fatalf("failed to get a subscription: %s", err)
 	}
 
-	if !cmp.Equal(feed, from) {
-		t.Error(cmp.Diff(feed, from))
+	if !cmp.Equal(subscription, from) {
+		t.Error(cmp.Diff(subscription, from))
 	}
 }
 
@@ -122,7 +122,7 @@ func Test__Get_not_found(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	service := NewService(sqldb, cw.With("https://example.org", feedData), &testLogger{})
+	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{})
 
 	_, err := service.Get(ctx, "user id", "id")
 	if err != errNotFound {
@@ -130,9 +130,9 @@ func Test__Get_not_found(t *testing.T) {
 	}
 }
 
-var feedData = []byte(`<rss version="2.0">
+var subscriptionData = []byte(`<rss version="2.0">
 <channel>
-<title>Sample Feed</title>
+<title>Sample Subscription</title>
 </channel>
 </rss>`)
 

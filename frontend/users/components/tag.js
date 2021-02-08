@@ -23,7 +23,7 @@
     <span id="tag-container">
         <details>
             <summary id="tag-title"></summary>
-            <x-feeds id="tag-feeds"></x-feeds>
+            <x-subscriptions id="tag-subscriptions"></x-subscriptions>
         </details>
     </span>
     `
@@ -56,10 +56,10 @@
             this.shadowRoot.querySelector('#tag-title').innerText = value
         }
 
-        async addFeed(feed) {
-            await import('./feeds.js')
-            const xFeeds = this.shadowRoot.querySelector('#tag-feeds')
-            xFeeds.addFeed(feed)
+        async addSubscription(subscription) {
+            await import('./subscriptions.js')
+            const xSubscriptions = this.shadowRoot.querySelector('#tag-subscriptions')
+            xSubscriptions.addSubscription(subscription)
         }
     }
 

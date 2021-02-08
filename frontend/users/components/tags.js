@@ -27,10 +27,10 @@ import TagsService from '../services/tags.js'
             shadowRoot.appendChild(instance)
         }
 
-        async addFeed(feed) {
-            for (const tagId of feed.tag_ids) {
+        async addSubscription(subscription) {
+            for (const tagId of subscription.tag_ids) {
                 const tag = this.shadowRoot.querySelector(`#tag-${tagId}`)
-                await tag.addFeed(feed)
+                await tag.addSubscription(subscription)
             }
         }
 

@@ -1,4 +1,4 @@
-package feeds
+package subscriptions
 
 import (
 	"context"
@@ -18,18 +18,18 @@ func Test_db__Create(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	feed := &Feed{
+	subscription := &Subscription{
 		ID:      "test id",
 		UserID:  "user",
 		URL:     "https://example.com",
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour),
 	}
-	feed.IconURL = new(string)
-	*feed.IconURL = "https://icon.url"
+	subscription.IconURL = new(string)
+	*subscription.IconURL = "https://icon.url"
 
-	if err := db.Create(ctx, feed); err != nil {
-		t.Fatalf("failed to create a feed: %s", err)
+	if err := db.Create(ctx, subscription); err != nil {
+		t.Fatalf("failed to create a subscription: %s", err)
 	}
 }
 
@@ -37,20 +37,20 @@ func Test_db__Create_twice(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	feed := &Feed{
+	subscription := &Subscription{
 		ID:      "test id",
 		UserID:  "user",
 		URL:     "https://example.com",
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour),
 	}
-	feed.IconURL = new(string)
-	*feed.IconURL = "https://icon.url"
-	if err := db.Create(ctx, feed); err != nil {
-		t.Fatalf("failed to create a feed: %s", err)
+	subscription.IconURL = new(string)
+	*subscription.IconURL = "https://icon.url"
+	if err := db.Create(ctx, subscription); err != nil {
+		t.Fatalf("failed to create a subscription: %s", err)
 	}
 
-	if err := db.Create(ctx, feed); err == nil {
+	if err := db.Create(ctx, subscription); err == nil {
 		t.Fatalf("second create shoud've failed")
 	}
 }
@@ -59,7 +59,7 @@ func Test_db__Create_twice_for_different_users(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	feed1 := &Feed{
+	subscription1 := &Subscription{
 		ID:      "test id",
 		UserID:  "user1",
 		URL:     "https://example.com",
@@ -67,28 +67,28 @@ func Test_db__Create_twice_for_different_users(t *testing.T) {
 		Created: time.Now().Add(-1 * time.Hour).Truncate(time.Millisecond),
 		TagIDs:  []string{},
 	}
-	if err := db.Create(ctx, feed1); err != nil {
-		t.Fatalf("failed to create a feed: %s", err)
+	if err := db.Create(ctx, subscription1); err != nil {
+		t.Fatalf("failed to create a subscription: %s", err)
 	}
-	fromDB1, err := db.Get(ctx, "user1", feed1.ID)
+	fromDB1, err := db.Get(ctx, "user1", subscription1.ID)
 	if err != nil {
-		t.Fatalf("failed to get feed from the db: %s", err)
+		t.Fatalf("failed to get subscription from the db: %s", err)
 	}
-	if !cmp.Equal(feed1, fromDB1) {
-		t.Error(cmp.Diff(feed1, fromDB1))
+	if !cmp.Equal(subscription1, fromDB1) {
+		t.Error(cmp.Diff(subscription1, fromDB1))
 	}
 
-	feed2 := &(*feed1)
-	feed2.UserID = "user2"
-	if err := db.Create(ctx, feed1); err != nil {
-		t.Fatalf("failed to create a feed: %s", err)
+	subscription2 := &(*subscription1)
+	subscription2.UserID = "user2"
+	if err := db.Create(ctx, subscription1); err != nil {
+		t.Fatalf("failed to create a subscription: %s", err)
 	}
-	fromDB2, err := db.Get(ctx, "user2", feed2.ID)
+	fromDB2, err := db.Get(ctx, "user2", subscription2.ID)
 	if err != nil {
-		t.Fatalf("failed to get feed from the db: %s", err)
+		t.Fatalf("failed to get subscription from the db: %s", err)
 	}
-	if !cmp.Equal(feed1, fromDB2) {
-		t.Error(cmp.Diff(feed1, fromDB1))
+	if !cmp.Equal(subscription1, fromDB2) {
+		t.Error(cmp.Diff(subscription1, fromDB1))
 	}
 }
 
@@ -96,17 +96,17 @@ func Test_db__Get_not_found(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	feed := &Feed{
+	subscription := &Subscription{
 		ID:      "test id",
 		UserID:  "user",
 		URL:     "https://example.com",
 		Title:   "title",
 		Created: time.Now().Add(-1 * time.Hour),
 	}
-	feed.IconURL = new(string)
-	*feed.IconURL = "https://icon.url"
+	subscription.IconURL = new(string)
+	*subscription.IconURL = "https://icon.url"
 
-	fromDB, err := db.Get(ctx, feed.UserID, feed.ID)
+	fromDB, err := db.Get(ctx, subscription.UserID, subscription.ID)
 	if fromDB != nil {
 		t.Fatalf("nothing should be returned, got %+v", fromDB)
 	}
@@ -120,7 +120,7 @@ func Test_db__Get_without_tags(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	db := newDB(sqldb, &testLogger{})
 
-	feed := &Feed{
+	subscription := &Subscription{
 		ID:      "test id",
 		UserID:  "user",
 		URL:     "https://example.com",
@@ -128,22 +128,22 @@ func Test_db__Get_without_tags(t *testing.T) {
 		Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
 		TagIDs:  []string{},
 	}
-	feed.IconURL = new(string)
-	*feed.IconURL = "https://icon.url"
-	feed.Updated = new(time.Time)
-	*feed.Updated = time.Now().Truncate(time.Nanosecond)
+	subscription.IconURL = new(string)
+	*subscription.IconURL = "https://icon.url"
+	subscription.Updated = new(time.Time)
+	*subscription.Updated = time.Now().Truncate(time.Nanosecond)
 
-	if err := db.Create(ctx, feed); err != nil {
-		t.Fatalf("failed to create a feed: %s", err)
+	if err := db.Create(ctx, subscription); err != nil {
+		t.Fatalf("failed to create a subscription: %s", err)
 	}
 
-	fromDB, err := db.Get(ctx, feed.UserID, feed.ID)
+	fromDB, err := db.Get(ctx, subscription.UserID, subscription.ID)
 	if err != nil {
-		t.Fatalf("failed to get feed from the db: %s", err)
+		t.Fatalf("failed to get subscription from the db: %s", err)
 	}
 
-	if !cmp.Equal(feed, fromDB) {
-		t.Error(cmp.Diff(feed, fromDB))
+	if !cmp.Equal(subscription, fromDB) {
+		t.Error(cmp.Diff(subscription, fromDB))
 	}
 }
 
@@ -163,7 +163,7 @@ func Test_db__Get_with_tags(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	feed := &Feed{
+	subscription := &Subscription{
 		ID:      "test id",
 		UserID:  "user",
 		URL:     "https://example.com",
@@ -171,22 +171,22 @@ func Test_db__Get_with_tags(t *testing.T) {
 		Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
 		TagIDs:  []string{tag1.ID, tag2.ID},
 	}
-	feed.IconURL = new(string)
-	*feed.IconURL = "https://icon.url"
-	feed.Updated = new(time.Time)
-	*feed.Updated = time.Now().Truncate(time.Nanosecond)
+	subscription.IconURL = new(string)
+	*subscription.IconURL = "https://icon.url"
+	subscription.Updated = new(time.Time)
+	*subscription.Updated = time.Now().Truncate(time.Nanosecond)
 
-	if err := db.Create(ctx, feed); err != nil {
-		t.Fatalf("failed to create a feed: %s", err)
+	if err := db.Create(ctx, subscription); err != nil {
+		t.Fatalf("failed to create a subscription: %s", err)
 	}
 
-	fromDB, err := db.Get(ctx, feed.UserID, feed.ID)
+	fromDB, err := db.Get(ctx, subscription.UserID, subscription.ID)
 	if err != nil {
-		t.Fatalf("failed to get feed from the db: %s", err)
+		t.Fatalf("failed to get subscription from the db: %s", err)
 	}
 
-	if !cmp.Equal(feed, fromDB) {
-		t.Error(cmp.Diff(feed, fromDB))
+	if !cmp.Equal(subscription, fromDB) {
+		t.Error(cmp.Diff(subscription, fromDB))
 	}
 }
 
@@ -194,9 +194,9 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	created := map[string]*Feed{}
+	created := map[string]*Subscription{}
 	for i := 0; i < 100; i++ {
-		feed := &Feed{
+		subscription := &Subscription{
 			ID:      fmt.Sprint(i),
 			UserID:  "user",
 			URL:     fmt.Sprintf("https://example%d.com", i),
@@ -204,36 +204,36 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 			Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
 			TagIDs:  []string{},
 		}
-		feed.IconURL = new(string)
-		*feed.IconURL = "https://icon.url"
+		subscription.IconURL = new(string)
+		*subscription.IconURL = "https://icon.url"
 
-		if err := db.Create(ctx, feed); err != nil {
+		if err := db.Create(ctx, subscription); err != nil {
 			t.Fatal(err)
 		}
-		created[feed.ID] = feed
+		created[subscription.ID] = subscription
 	}
 
 	var createdLT *time.Time
 	for i := 0; i < 20; i++ {
-		feeds, err := db.List(ctx, "user", 5, createdLT)
+		subscriptions, err := db.List(ctx, "user", 5, createdLT)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if len(feeds) != 5 {
-			t.Errorf("expected 5 items, got %d", len(feeds))
+		if len(subscriptions) != 5 {
+			t.Errorf("expected 5 items, got %d", len(subscriptions))
 		}
 
-		for j, feed := range feeds {
+		for j, subscription := range subscriptions {
 			expectedID := fmt.Sprint(99 - i*5 - j)
-			if feed.ID != expectedID {
-				t.Fatalf("expected id %s, got %s", expectedID, feed.ID)
+			if subscription.ID != expectedID {
+				t.Fatalf("expected id %s, got %s", expectedID, subscription.ID)
 				break
 			}
-			if !cmp.Equal(feed, created[feed.ID]) {
-				t.Fatal(cmp.Diff(feed, created[feed.ID]))
+			if !cmp.Equal(subscription, created[subscription.ID]) {
+				t.Fatal(cmp.Diff(subscription, created[subscription.ID]))
 			}
-			createdLT = &feed.Created
+			createdLT = &subscription.Created
 		}
 	}
 }

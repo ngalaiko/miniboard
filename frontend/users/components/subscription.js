@@ -2,37 +2,37 @@
     const HTMLTemplate = document.createElement('template')
     HTMLTemplate.innerHTML = `
     <style>
-        #feed-container {
+        #subscription-container {
             display: flex;
             cursor: pointer;
             align-items: center;
             padding: 0.2em;
         }
 
-        #feed-container:hover {
+        #subscription-container:hover {
             background: #cccccc;
         }
 
-        #feed-icon {
+        #subscription-icon {
             margin-right: 0.2em;
             min-width: 20px;
             width: 20px;
             height: 20px;
         }
 
-        #feed-title {
+        #subscription-title {
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
         }
     </style>
-    <span id="feed-container">
-        <img id="feed-icon" src="/img/rss.svg"></img>
-        <span id="feed-title"></span>
+    <span id="subscription-container">
+        <img id="subscription-icon" src="/img/rss.svg"></img>
+        <span id="subscription-title"></span>
     </span>
     `
 
-    class Feed extends HTMLElement {
+    class Subscription extends HTMLElement {
         constructor() { 
             super()
 
@@ -60,7 +60,7 @@
         set title(value) {
             if (!this.shadowRoot) return
 
-            this.shadowRoot.querySelector('#feed-title').innerText = value
+            this.shadowRoot.querySelector('#subscription-title').innerText = value
         }
 
         set icon(value) {
@@ -68,9 +68,9 @@
 
             if (value === '') return
 
-            this.shadowRoot.querySelector('#feed-icon').src = value
+            this.shadowRoot.querySelector('#subscription-icon').src = value
         }
     }
 
-    customElements.define('x-feed', Feed)
+    customElements.define('x-subscription', Subscription)
 })()

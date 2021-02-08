@@ -1,5 +1,5 @@
 import TagsService from './services/tags.js'
-import FeedsService from './services/feeds.js'
+import SubscriptionsService from './services/subscriptions.js'
 
 const listAllTags = async (pageSize, createdLt) => {
     const params = {}
@@ -19,14 +19,14 @@ const listAllTags = async (pageSize, createdLt) => {
     return tags.concat(await TagsService.list(params))
 }
 
-const listAllFeeds = async (pageSize, createdLt) => {
+const listAllSubscriptions = async (pageSize, createdLt) => {
     const params = {}
 
     if (pageSize === undefined) pageSize = 100
     if (pageSize !== undefined) params.pageSize = pageSize
     if (createdLt !== undefined) params.createdLt = createdLt
 
-    const tags = await FeedsService.list(params)
+    const tags = await SubscriptionsService.list(params)
     
     if (tags.length < pageSize) {
         return tags
@@ -34,20 +34,20 @@ const listAllFeeds = async (pageSize, createdLt) => {
 
     params.createdLt = tags[tags.length - 1].created
 
-    return tags.concat(await FeedsService.list(params))
+    return tags.concat(await SubscriptionsService.list(params))
 }
 
-document.querySelector('#left').addEventListener('FeedCreateSucceded', (e) => {
-    const feed = e.detail.feed
+document.querySelector('#left').addEventListener('SubscriptionCreateSucceded', (e) => {
+    const subscription = e.detail.subscription
 
-    addFeed(feed)
+    addSubscription(subscription)
 })
 
-document.querySelector('#left').addEventListener('FeedCreateFailed', (e) => {
+document.querySelector('#left').addEventListener('SubscriptionCreateFailed', (e) => {
     const params = e.detail.params
     const error = e.detail.error
 
-    console.log('create feed failed', params, error)
+    console.log('create subscription failed', params, error)
 })
 
 document.querySelector('#left').addEventListener('TagCreateSucceded', (e) => {
@@ -63,24 +63,24 @@ document.querySelector('#left').addEventListener('TagCreateFailed', (e) => {
     console.log('create tag failed', params, error)
 })
 
-Promise.all([listAllFeeds(), listAllTags()]).then(async (values) => {
-    const feeds = values[0]
+Promise.all([listAllSubscriptions(), listAllTags()]).then(async (values) => {
+    const subscriptions = values[0]
     const tags = values[1]
 
     for (const tag of tags) {
         await addTag(tag)
     }
 
-    for (const feed of feeds) {
-        await addFeed(feed)
+    for (const subscription of subscriptions) {
+        await addSubscription(subscription)
     }
 })
 
-const addFeed = async (feed) => {
-    if (feed.tag_ids === null || feed.tag_ids.length === 0) {
-        document.querySelector('#feeds').addFeed(feed)
+const addSubscription = async (subscription) => {
+    if (subscription.tag_ids === null || subscription.tag_ids.length === 0) {
+        document.querySelector('#subscriptions').addSubscription(subscription)
     } else {
-        document.querySelector('#tags').addFeed(feed)
+        document.querySelector('#tags').addSubscription(subscription)
     }
 }
 

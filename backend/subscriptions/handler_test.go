@@ -1,4 +1,4 @@
-package feeds
+package subscriptions
 
 import (
 	"context"
@@ -93,7 +93,7 @@ func Test_Handler__Post_create_failed_create_operation(t *testing.T) {
 	logger := &testLogger{}
 	db := createTestDB(ctx, t)
 	crawler := &testCrawler{}
-	crawler = crawler.With("https://example.org", feedData)
+	crawler = crawler.With("https://example.org", subscriptionData)
 	service := NewService(db, crawler, &testLogger{})
 	handler := NewHandler(service, logger, &testOperationsService{
 		Error: fmt.Errorf("failed"),
@@ -128,7 +128,7 @@ func Test_Handler__Post_create_already_exists(t *testing.T) {
 	logger := &testLogger{}
 	db := createTestDB(ctx, t)
 	crawler := &testCrawler{}
-	crawler = crawler.With("https://example.org", feedData)
+	crawler = crawler.With("https://example.org", subscriptionData)
 	service := NewService(db, crawler, &testLogger{})
 	handler := NewHandler(service, logger, &testOperationsService{})
 
@@ -236,8 +236,8 @@ func Test_Handler__Post_create_url_not_found(t *testing.T) {
 		t.Fatal("expected error")
 	}
 
-	if err := fmt.Sprint(returned.Result.Error.Message); err != errFailedToDownloadFeed.Error() {
-		t.Fatalf("expected %s, got %s", errFailedToDownloadFeed, err)
+	if err := fmt.Sprint(returned.Result.Error.Message); err != errFailedToDownloadSubscription.Error() {
+		t.Fatalf("expected %s, got %s", errFailedToDownloadSubscription, err)
 	}
 }
 
@@ -246,7 +246,7 @@ func Test_Handler__Post_create_success(t *testing.T) {
 	logger := &testLogger{}
 	db := createTestDB(ctx, t)
 	crawler := &testCrawler{}
-	crawler = crawler.With("https://example.org", feedData)
+	crawler = crawler.With("https://example.org", subscriptionData)
 	service := NewService(db, crawler, &testLogger{})
 	handler := NewHandler(service, logger, &testOperationsService{})
 
@@ -285,8 +285,8 @@ func Test_Handler__Post_create_success(t *testing.T) {
 	}
 
 	title := fmt.Sprint(returned.Result.Response.(map[string]interface{})["title"])
-	if title != "Sample Feed" {
-		t.Errorf("expected title %s, got %s", "Sample Feed", title)
+	if title != "Sample Subscription" {
+		t.Errorf("expected title %s, got %s", "Sample Subscription", title)
 	}
 }
 

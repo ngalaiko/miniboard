@@ -1,5 +1,5 @@
 import TagsService from '../services/tags.js'
-import FeedsService from '../services/feeds.js'
+import SubscriptionsService from '../services/subscriptions.js'
 import OperationsService from '../services/operations.js'
 
 (async () => {
@@ -87,7 +87,7 @@ import OperationsService from '../services/operations.js'
                     // one by one, ignoring errors
                     for (const url of Object.keys(tagIdsByUrl)) {
                         try {
-                            await _createFeed(self, {
+                            await _createSubscription(self, {
                                 url: url,
                                 tagIds: tagIdsByUrl[url],
                             })
@@ -98,24 +98,24 @@ import OperationsService from '../services/operations.js'
                 })
             })
 
-            addModal.addEventListener('UrlAdded', (e) => _createFeed(self, {
+            addModal.addEventListener('UrlAdded', (e) => _createSubscription(self, {
                 url: e.detail.url,
             }))
         }
     }
 
-    const _createFeed = async (self, params) => {
-        const operation = await FeedsService.create(params)
+    const _createSubscription = async (self, params) => {
+        const operation = await SubscriptionsService.create(params)
 
         try {
-            self.dispatchEvent(new CustomEvent('FeedCreateSucceded', {
+            self.dispatchEvent(new CustomEvent('SubscriptionCreateSucceded', {
                 detail: {
-                    feed: await OperationsService.wait(operation.id),
+                    subscription: await OperationsService.wait(operation.id),
                 },
                 bubbles: true,
             }))
         } catch (e) {
-            self.dispatchEvent(new CustomEvent('FeedCreateFailed', {
+            self.dispatchEvent(new CustomEvent('SubscriptionCreateFailed', {
                 detail: {
                     params: params,
                     error: e,

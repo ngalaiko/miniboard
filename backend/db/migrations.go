@@ -56,9 +56,9 @@ func migrations(db *sql.DB) []*migration {
 			`,
 		},
 		{
-			Name: "create feeds",
+			Name: "create subscriptions",
 			Query: `
-			CREATE TABLE feeds (
+			CREATE TABLE subscriptions (
 				id                TEXT   NOT NULL,
 				url               TEXT   NOT NULL,
 				title             TEXT   NOT NULL,
@@ -71,12 +71,12 @@ func migrations(db *sql.DB) []*migration {
 			`,
 		},
 		{
-			Name: "create users_feeds",
+			Name: "create users_subscriptions",
 			Query: `
-			CREATE TABLE users_feeds (
+			CREATE TABLE users_subscriptions (
 				user_id TEXT NOT NULL REFERENCES users(id),
-				feed_id TEXT NOT NULL REFERENCES feeds(id),
-				UNIQUE(user_id, feed_id)
+				subscription_id TEXT NOT NULL REFERENCES subscriptions(id),
+				UNIQUE(user_id, subscription_id)
 			)
 			`,
 		},
@@ -94,12 +94,12 @@ func migrations(db *sql.DB) []*migration {
 			`,
 		},
 		{
-			Name: "create tags_feeds",
+			Name: "create tags_subscriptions",
 			Query: `
-			CREATE TABLE tags_feeds (
+			CREATE TABLE tags_subscriptions (
 				tag_id  TEXT NOT NULL REFERENCES tags(id),
-				feed_id TEXT NOT NULL REFERENCES feeds(id),
-				UNIQUE(tag_id, feed_id)
+				subscription_id TEXT NOT NULL REFERENCES subscriptions(id),
+				UNIQUE(tag_id, subscription_id)
 			)
 			`,
 		},

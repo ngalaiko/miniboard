@@ -1,6 +1,6 @@
 import Api from '/users/services/api.js'
 
-class Feeds {
+class Subscriptions {
     async list(params) {
         if (params === undefined) params = {}
 
@@ -12,11 +12,11 @@ class Feeds {
             ? `&created_lt=${encodeURIComponent(params.createdLt)}`
             : ''
 
-        const url = '/v1/feeds?' + pageSizeQuery + createdLtQuery
+        const url = '/v1/subscriptions?' + pageSizeQuery + createdLtQuery
 
         const body = await Api.get(url)
 
-        return body.feeds
+        return body.subscriptions
     }
 
     async create(params) {
@@ -30,8 +30,8 @@ class Feeds {
             request.tag_ids = params.tagIds
         }
 
-        return await Api.post('/v1/feeds', request)
+        return await Api.post('/v1/subscriptions', request)
     }
 }
 
-export default new Feeds()
+export default new Subscriptions()
