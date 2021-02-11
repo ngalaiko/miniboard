@@ -14,8 +14,12 @@ tags:
   description: Operations about subscription
 - name: operation
   description: Operations about longrunning operations
+- name: item
+  description: Operations about items
 - name: user
-  description: Operations about user
+  description: Operations about users
+- name: tag
+  description: Operations about tags
 paths:
   /v1/authorizations/:
     post:
@@ -284,6 +288,56 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 message: "internal server error"
+  /v1/items/:
+    post:
+      tags:
+      - item
+      summary: Returns a list of existing items
+      parameters:
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: created_lt
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: subscription_id_eq
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Item"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: "failed to parse page_size"
+        500:
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: "internal server error"
   /v1/users/:
     post:
       tags:
@@ -408,6 +462,27 @@ components:
         title:
           type: string
           example: "Example"
+        created:
+          type: string
+          format: date-time
+          example: "2021-01-16T16:13:33Z"
+    Item:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "5efc772-6aaa-423d-b32a-96fab4312464"
+        url:
+          type: string
+          example: "https://example.org/article.html"
+        title:
+          type: string
+          example: "Article about stuff"
+        subscription_id:
+          type: string
+          format: uuid
+          example: "5efc772-6aaa-423d-b32a-96fab4312464"
         created:
           type: string
           format: date-time
