@@ -64,3 +64,6 @@ issues:
     - path: subscriptions/db.go
       linters:
         - funlen
+    - path: items/db.go
+      linters:
+        - funlen
