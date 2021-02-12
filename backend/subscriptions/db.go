@@ -60,7 +60,7 @@ func (d *database) Create(ctx context.Context, subscription *Subscription) error
 		return err
 	}
 
-	existingSubscription, err := d.getByURL(ctx, subscription.URL)
+	existingSubscription, err := getByURL(ctx, tx, subscription.URL)
 	switch err {
 	case sql.ErrNoRows:
 		if _, err := tx.ExecContext(ctx, `
@@ -110,8 +110,8 @@ func (d *database) Create(ctx context.Context, subscription *Subscription) error
 	}
 }
 
-func (d *database) getByURL(ctx context.Context, url string) (*Subscription, error) {
-	row := d.db.QueryRowContext(ctx, `
+func getByURL(ctx context.Context, tx *sql.Tx, url string) (*Subscription, error) {
+	row := tx.QueryRowContext(ctx, `
 	SELECT
 		subscriptions.id,
 		'',
@@ -127,7 +127,7 @@ func (d *database) getByURL(ctx context.Context, url string) (*Subscription, err
 		subscriptions.url = $1
 	`, url)
 
-	return d.scanRow(row)
+	return scanRow(row)
 }
 
 // Get returns a subscription from the db with the given url and user id.
@@ -152,7 +152,7 @@ func (d *database) GetByURL(ctx context.Context, userID string, url string) (*Su
 		subscriptions.icon_url
 	`, sqlFields(d.db)), userID, url)
 
-	return d.scanRow(row)
+	return scanRow(row)
 }
 
 // Get returns a subscription from the db with the given id and user id.
@@ -177,7 +177,7 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*Subscrip
 		subscriptions.icon_url
 	`, sqlFields(d.db)), userID, id)
 
-	return d.scanRow(row)
+	return scanRow(row)
 }
 
 // List returns a list of subscriptions from the database.
@@ -228,7 +228,7 @@ func (d *database) List(ctx context.Context,
 
 	subscriptions := []*Subscription{}
 	for rows.Next() {
-		subscription, err := d.scanRow(rows)
+		subscription, err := scanRow(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -250,7 +250,7 @@ type scannable interface {
 	Scan(...interface{}) error
 }
 
-func (d *database) scanRow(row scannable) (*Subscription, error) {
+func scanRow(row scannable) (*Subscription, error) {
 	subscription := &Subscription{}
 	var createdEpoch int64
 	var updatedEpoch *int64
