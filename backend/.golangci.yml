@@ -67,3 +67,6 @@ issues:
     - path: items/db.go
       linters:
         - funlen
+    - path: backend.go
+      linters:
+        - funlen
