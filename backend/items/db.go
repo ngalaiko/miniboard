@@ -42,6 +42,26 @@ func (d *database) Create(ctx context.Context, item *Item) error {
 	return err
 }
 
+// GetByURL returns a item from the db with the given url and user id.
+func (d *database) GetByURL(ctx context.Context, userID string, url string) (*Item, error) {
+	row := d.db.QueryRowContext(ctx, `
+	SELECT
+		id,
+		user_id,
+		url,
+		title,
+		subscription_id,
+		created_epoch_utc
+	FROM
+		items
+	WHERE
+		user_id = $1
+		AND url = $2
+	`, userID, url)
+
+	return d.scanRow(row)
+}
+
 // Get returns a item from the db with the given id and user id.
 func (d *database) Get(ctx context.Context, userID string, id string) (*Item, error) {
 	row := d.db.QueryRowContext(ctx, `
