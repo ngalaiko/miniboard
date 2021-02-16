@@ -2,6 +2,7 @@ package operations
 
 import (
 	"context"
+	"fmt"
 )
 
 type worker struct {
@@ -23,29 +24,32 @@ func newWorker(processQueue <-chan *Operation, logger logger, db *database) *wor
 	}
 }
 
-func (w *worker) Start(ctx context.Context) {
-	go func() {
-		for {
-			select {
-			case op := <-w.processQueue:
-				w.run(ctx, op)
-			case <-w.shutdown:
-				close(w.stopped)
-				return
+// Start starts the worker.
+func (w *worker) Start(ctx context.Context) error {
+	for {
+		select {
+		case op := <-w.processQueue:
+			if err := w.run(ctx, op); err != nil {
+				return err
 			}
+		case <-w.shutdown:
+			close(w.stopped)
+			return nil
 		}
-	}()
+	}
 }
 
-func (w *worker) Shutdown(ctx context.Context) {
+// Shutdown stops the worker.
+func (w *worker) Shutdown(ctx context.Context) error {
 	close(w.shutdown)
 	<-w.stopped
+	return nil
 }
 
-func (w *worker) run(ctx context.Context, operation *Operation) {
+func (w *worker) run(ctx context.Context, operation *Operation) error {
 	statusChan := make(chan *Operation, 10)
-
 	errChan := make(chan error)
+
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
@@ -59,9 +63,8 @@ func (w *worker) run(ctx context.Context, operation *Operation) {
 			}
 		}()
 
-		if err := operation.task(ctx, operation.copy(), statusChan); err != nil {
-			errChan <- err
-		}
+		errChan <- operation.task(ctx, operation.copy(), statusChan)
+
 		close(errChan)
 	}()
 
@@ -69,19 +72,20 @@ func (w *worker) run(ctx context.Context, operation *Operation) {
 		select {
 		case status := <-statusChan:
 			if err := w.db.Update(ctx, status); err != nil {
-				w.logger.Error("failed to update operation: %s", err)
+				return fmt.Errorf("failed to update operation: %s", err)
 			}
 		case err := <-errChan:
-			switch {
-			case err != nil:
-				operation.Error(err.Error())
-			default:
-				return
+			if err == nil {
+				return nil
 			}
 
+			operation.Error(err.Error())
+
 			if err := w.db.Update(ctx, operation); err != nil {
-				w.logger.Error("failed to update operation: %s", err)
+				return fmt.Errorf("failed to update operation: %s", err)
 			}
+
+			return nil
 		}
 	}
 }

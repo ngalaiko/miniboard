@@ -13,7 +13,7 @@ import (
 	"github.com/ngalaiko/miniboard/backend/db"
 )
 
-func Test_Create(t *testing.T) {
+func Test_db__Create(t *testing.T) {
 	ctx := context.TODO()
 	database := newDatabase(testDB(ctx, t))
 	if err := database.Create(ctx, New("user")); err != nil {
@@ -21,7 +21,7 @@ func Test_Create(t *testing.T) {
 	}
 }
 
-func Test_Create_twice(t *testing.T) {
+func Test_db__Create_twice(t *testing.T) {
 	ctx := context.TODO()
 	database := newDatabase(testDB(ctx, t))
 	operation := New("user")
@@ -33,7 +33,7 @@ func Test_Create_twice(t *testing.T) {
 	}
 }
 
-func Test_Get(t *testing.T) {
+func Test_db__Get(t *testing.T) {
 	ctx := context.TODO()
 	database := newDatabase(testDB(ctx, t))
 	operation := New("user")
@@ -51,7 +51,7 @@ func Test_Get(t *testing.T) {
 	}
 }
 
-func Test_Get_not_exists(t *testing.T) {
+func Test_db__Get_not_exists(t *testing.T) {
 	ctx := context.TODO()
 	database := newDatabase(testDB(ctx, t))
 	operation := New("user")
@@ -62,7 +62,7 @@ func Test_Get_not_exists(t *testing.T) {
 	}
 }
 
-func Test_Update_response(t *testing.T) {
+func Test_db__Update_response(t *testing.T) {
 	ctx := context.TODO()
 	database := newDatabase(testDB(ctx, t))
 	operation := New("user")
@@ -96,7 +96,7 @@ func Test_Update_response(t *testing.T) {
 	}
 }
 
-func Test_Update_error(t *testing.T) {
+func Test_db__Update_error(t *testing.T) {
 	ctx := context.TODO()
 	database := newDatabase(testDB(ctx, t))
 	operation := New("user")
@@ -120,7 +120,7 @@ func Test_Update_error(t *testing.T) {
 	}
 }
 
-func Test_Update_not_exists(t *testing.T) {
+func Test_db__Update_not_exists(t *testing.T) {
 	ctx := context.TODO()
 	database := newDatabase(testDB(ctx, t))
 	operation := New("user")

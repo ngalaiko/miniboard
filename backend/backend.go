@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 
+	"golang.org/x/sync/errgroup"
+
 	"github.com/ngalaiko/miniboard/backend/authorizations"
 	"github.com/ngalaiko/miniboard/backend/crawler"
 	"github.com/ngalaiko/miniboard/backend/db"
@@ -113,13 +115,20 @@ func (s *Server) Start(ctx context.Context) error {
 	if err := s.authorizationsService.Init(ctx); err != nil {
 		return fmt.Errorf("failed to init jwt service: %w", err)
 	}
-	if err := s.operationsService.Start(ctx); err != nil {
-		return fmt.Errorf("failed to start operations service: %w", err)
-	}
-	if err := s.httpServer.Start(); err != nil {
-		return fmt.Errorf("failed to start http server: %w", err)
-	}
-	return nil
+	g, ctx := errgroup.WithContext(ctx)
+	g.Go(func() error {
+		if err := s.operationsService.Start(ctx); err != nil {
+			return fmt.Errorf("failed to start operations service: %w", err)
+		}
+		return nil
+	})
+	g.Go(func() error {
+		if err := s.httpServer.Start(); err != nil {
+			return fmt.Errorf("failed to start http server: %w", err)
+		}
+		return nil
+	})
+	return g.Wait()
 }
 
 // Shutdown gracefully stops all components of the server.
@@ -127,7 +136,9 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	if err := s.httpServer.Shutdown(ctx); err != nil {
 		return fmt.Errorf("failed to stop http server: %w", err)
 	}
-	s.operationsService.Shutdown(ctx)
+	if err := s.operationsService.Shutdown(ctx); err != nil {
+		return fmt.Errorf("failed to shutdown operations: %w", err)
+	}
 	if err := s.db.Close(); err != nil {
 		return fmt.Errorf("failed to close db: %w", err)
 	}

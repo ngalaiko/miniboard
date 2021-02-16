@@ -7,14 +7,16 @@ import (
 	"time"
 )
 
-func Test_Get_done(t *testing.T) {
+func Test_service__Get_done(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
 
 	service := NewService(&testLogger{}, testDB(ctx, t), nil)
-	if err := service.Start(ctx); err != nil {
-		t.Fatal(err)
-	}
+	go func(t *testing.T) {
+		if err := service.Start(ctx); err != nil {
+			t.Error(err)
+		}
+	}(t)
 
 	f := func(ctx context.Context, operation *Operation, status chan<- *Operation) error {
 		operation.Done = true
@@ -37,14 +39,16 @@ func Test_Get_done(t *testing.T) {
 	}, time.Second, 10*time.Millisecond)
 }
 
-func Test_Get_panic(t *testing.T) {
+func Test_service__Get_panic(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
 
 	service := NewService(&testLogger{}, testDB(ctx, t), nil)
-	if err := service.Start(ctx); err != nil {
-		t.Fatal(err)
-	}
+	go func(t *testing.T) {
+		if err := service.Start(ctx); err != nil {
+			t.Error(err)
+		}
+	}(t)
 
 	f := func(ctx context.Context, operation *Operation, status chan<- *Operation) error {
 		panic("test")
@@ -67,14 +71,16 @@ func Test_Get_panic(t *testing.T) {
 	}, time.Second, 10*time.Millisecond)
 }
 
-func Test_Get_error(t *testing.T) {
+func Test_service__Get_error(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
 
 	service := NewService(&testLogger{}, testDB(ctx, t), nil)
-	if err := service.Start(ctx); err != nil {
-		t.Fatal(err)
-	}
+	go func(t *testing.T) {
+		if err := service.Start(ctx); err != nil {
+			t.Error(err)
+		}
+	}(t)
 
 	f := func(ctx context.Context, operation *Operation, status chan<- *Operation) error {
 		return fmt.Errorf("test error")
@@ -97,14 +103,16 @@ func Test_Get_error(t *testing.T) {
 	}, time.Second, 10*time.Millisecond)
 }
 
-func Test_Get_no_updates(t *testing.T) {
+func Test_service__Get_no_updates(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.TODO())
 	defer cancel()
 
 	service := NewService(&testLogger{}, testDB(ctx, t), nil)
-	if err := service.Start(ctx); err != nil {
-		t.Fatal(err)
-	}
+	go func(t *testing.T) {
+		if err := service.Start(ctx); err != nil {
+			t.Error(err)
+		}
+	}(t)
 
 	f := func(ctx context.Context, operation *Operation, status chan<- *Operation) error {
 		return nil
