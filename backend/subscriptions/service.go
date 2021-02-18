@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/mmcdole/gofeed"
+	"golang.org/x/sync/errgroup"
 )
 
 // Known errors.
@@ -21,6 +22,13 @@ var (
 	errFailedToParseSubscription    = fmt.Errorf("failed to parse subscription")
 )
 
+// Config is a subscriptions service configuration.
+type Config struct {
+	Update *struct {
+		Workers int `yaml:"workers"`
+	} `yaml:"update"`
+}
+
 type crawler interface {
 	Crawl(context.Context, *url.URL) ([]byte, error)
 }
@@ -30,14 +38,24 @@ type Service struct {
 	db      *database
 	crawler crawler
 	parser  *gofeed.Parser
+	cfg     *Config
+
+	logger logger
+
+	workers []*worker
 }
 
 // NewService returns new subscriptions service.
-func NewService(db *sql.DB, crawler crawler, logger logger) *Service {
+func NewService(db *sql.DB, crawler crawler, logger logger, cfg *Config) *Service {
+	if cfg == nil {
+		cfg = &Config{}
+	}
 	return &Service{
 		db:      newDB(db, logger),
 		crawler: crawler,
 		parser:  gofeed.NewParser(),
+		cfg:     cfg,
+		logger:  logger,
 	}
 }
 
@@ -99,4 +117,49 @@ func (s *Service) List(ctx context.Context, userID string, pageSize int, created
 	default:
 		return nil, err
 	}
+}
+
+// Start starts background subscriptions updates.
+func (s *Service) Start(ctx context.Context) error {
+	nWorkers := 10
+	if s.cfg.Update != nil && s.cfg.Update.Workers > 0 {
+		nWorkers = s.cfg.Update.Workers
+	}
+
+	subscriptionIDsToUpdate := make(chan string)
+
+	g, ctx := errgroup.WithContext(ctx)
+	for i := 0; i < nWorkers; i++ {
+		worker := newWorker(subscriptionIDsToUpdate, s.db)
+		s.workers = append(s.workers, worker)
+
+		g.Go(restartingWorker(ctx, worker, s.logger))
+	}
+
+	return g.Wait()
+}
+
+func restartingWorker(ctx context.Context, worker *worker, logger logger) func() error {
+	return func() error {
+		if err := worker.Start(ctx); err != nil {
+			logger.Error("subscriptions worker: %w", err)
+			return restartingWorker(ctx, worker, logger)()
+		}
+		return nil
+	}
+}
+
+// Shutdown stops background subscriptions updates.
+func (s *Service) Shutdown(ctx context.Context) error {
+	g, ctx := errgroup.WithContext(ctx)
+	for _, worker := range s.workers {
+		worker := worker
+		g.Go(func() error {
+			if err := worker.Shutdown(ctx); err != nil {
+				return fmt.Errorf("failed to shutdown a worker")
+			}
+			return nil
+		})
+	}
+	return g.Wait()
 }

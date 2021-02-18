@@ -37,6 +37,9 @@ cors:
   domains: ["example.com"] # list of domains to allow CORS from
 operations:
   workers: 10 # number of workers that execute longrunning operations
+subsciptions:
+  updates:
+    workers: 10 # number of workers that update subscriptions in background
 users:
   bcrypt_cose: 14 # bcrypt cost
 ```

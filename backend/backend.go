@@ -30,6 +30,7 @@ type Config struct {
 	HTTP           *httpx.Config          `yaml:"http"`
 	Cors           *corsConfig            `yaml:"cors"`
 	Operations     *operations.Config     `yaml:"operations"`
+	Subscriptions  *subscriptions.Config  `yaml:"subscriptions"`
 	Users          *users.Config          `yaml:"users"`
 }
 
@@ -39,6 +40,7 @@ type Server struct {
 	db                    *sql.DB
 	httpServer            *httpx.Server
 	authorizationsService *authorizations.Service
+	subscriptionsService  *subscriptions.Service
 	operationsService     *operations.Service
 }
 
@@ -59,7 +61,7 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 	operationsService := operations.NewService(logger, db, cfg.Operations)
 	tagsService := tags.NewService(db)
 	itemsService := items.NewService(db, logger)
-	subscriptionsService := subscriptions.NewService(db, crawler.New(), logger)
+	subscriptionsService := subscriptions.NewService(db, crawler.New(), logger, cfg.Subscriptions)
 
 	withAuth := authorizations.Authenticate(authorizationsService, cfg.Authorizations, logger)
 
@@ -103,6 +105,7 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 		db:                    db,
 		httpServer:            httpServer,
 		authorizationsService: authorizationsService,
+		subscriptionsService:  subscriptionsService,
 		operationsService:     operationsService,
 	}, nil
 }
@@ -123,6 +126,12 @@ func (s *Server) Start(ctx context.Context) error {
 		return nil
 	})
 	g.Go(func() error {
+		if err := s.subscriptionsService.Start(ctx); err != nil {
+			return fmt.Errorf("failed to start subscroptions service: %w", err)
+		}
+		return nil
+	})
+	g.Go(func() error {
 		if err := s.httpServer.Start(); err != nil {
 			return fmt.Errorf("failed to start http server: %w", err)
 		}
@@ -138,6 +147,9 @@ func (s *Server) Shutdown(ctx context.Context) error {
 	}
 	if err := s.operationsService.Shutdown(ctx); err != nil {
 		return fmt.Errorf("failed to shutdown operations: %w", err)
+	}
+	if err := s.subscriptionsService.Shutdown(ctx); err != nil {
+		return fmt.Errorf("failed to shutdown subscriptions: %w", err)
 	}
 	if err := s.db.Close(); err != nil {
 		return fmt.Errorf("failed to close db: %w", err)
