@@ -246,6 +246,35 @@ func (d *database) List(ctx context.Context,
 	return subscriptions, nil
 }
 
+// ListAllIDs returns a list of all subscription ids from the database.
+func (d *database) ListAllIDs(ctx context.Context) ([]string, error) {
+	query := "SELECT id FROM subscriptions"
+
+	rows, err := d.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	ids := []string{}
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return ids, nil
+}
+
 type scannable interface {
 	Scan(...interface{}) error
 }

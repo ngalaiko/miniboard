@@ -16,7 +16,7 @@ func Test__Create_subscription_failed_to_parse_subscription(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
 	cw.With("https://example.org", []byte("wrong"))
-	service := NewService(sqldb, cw, &testLogger{})
+	service := NewService(sqldb, cw, &testLogger{}, nil)
 
 	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
 	if err != errFailedToParseSubscription {
@@ -29,7 +29,7 @@ func Test__Create_subscription_not_found(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	service := NewService(sqldb, cw, &testLogger{})
+	service := NewService(sqldb, cw, &testLogger{}, nil)
 
 	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
 	if err != errFailedToDownloadSubscription {
@@ -42,7 +42,7 @@ func Test__Create(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{})
+	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{}, nil)
 
 	subscription, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
 	if err != nil {
@@ -76,7 +76,7 @@ func Test__Create_twice(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
 	cw = cw.With("https://example.org", subscriptionData)
-	service := NewService(sqldb, cw, &testLogger{})
+	service := NewService(sqldb, cw, &testLogger{}, nil)
 
 	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
 	if err != nil {
@@ -94,7 +94,7 @@ func Test__Get(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{})
+	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{}, nil)
 
 	tagService := tags.NewService(sqldb)
 	tag, err := tagService.Create(ctx, "user id", "tag")
@@ -122,7 +122,7 @@ func Test__Get_not_found(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{})
+	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{}, nil)
 
 	_, err := service.Get(ctx, "user id", "id")
 	if err != errNotFound {

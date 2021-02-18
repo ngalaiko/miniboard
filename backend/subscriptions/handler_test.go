@@ -17,7 +17,7 @@ func Test_Handler__Get(t *testing.T) {
 	ctx := context.Background()
 	logger := &testLogger{}
 	db := createTestDB(ctx, t)
-	service := NewService(db, &testCrawler{}, &testLogger{})
+	service := NewService(db, &testCrawler{}, &testLogger{}, nil)
 	handler := NewHandler(service, logger, &testOperationsService{})
 
 	tc := []struct {
@@ -70,7 +70,7 @@ func Test_Handler__Post_404(t *testing.T) {
 	logger := &testLogger{}
 	db := createTestDB(ctx, t)
 	crawler := &testCrawler{}
-	service := NewService(db, crawler, &testLogger{})
+	service := NewService(db, crawler, &testLogger{}, nil)
 	handler := NewHandler(service, logger, &testOperationsService{})
 
 	req, err := http.NewRequest("POST", "/404", strings.NewReader(`{"url":"https://console.org"}`))
@@ -94,7 +94,7 @@ func Test_Handler__Post_create_failed_create_operation(t *testing.T) {
 	db := createTestDB(ctx, t)
 	crawler := &testCrawler{}
 	crawler = crawler.With("https://example.org", subscriptionData)
-	service := NewService(db, crawler, &testLogger{})
+	service := NewService(db, crawler, &testLogger{}, nil)
 	handler := NewHandler(service, logger, &testOperationsService{
 		Error: fmt.Errorf("failed"),
 	})
@@ -129,7 +129,7 @@ func Test_Handler__Post_create_already_exists(t *testing.T) {
 	db := createTestDB(ctx, t)
 	crawler := &testCrawler{}
 	crawler = crawler.With("https://example.org", subscriptionData)
-	service := NewService(db, crawler, &testLogger{})
+	service := NewService(db, crawler, &testLogger{}, nil)
 	handler := NewHandler(service, logger, &testOperationsService{})
 
 	var rr *httptest.ResponseRecorder
@@ -171,7 +171,7 @@ func Test_Handler__Post_create_url_empty(t *testing.T) {
 	logger := &testLogger{}
 	db := createTestDB(ctx, t)
 	crawler := &testCrawler{}
-	service := NewService(db, crawler, &testLogger{})
+	service := NewService(db, crawler, &testLogger{}, nil)
 	handler := NewHandler(service, logger, &testOperationsService{})
 
 	req, err := http.NewRequest("POST", "/", strings.NewReader(`{}`))
@@ -203,7 +203,7 @@ func Test_Handler__Post_create_url_not_found(t *testing.T) {
 	logger := &testLogger{}
 	db := createTestDB(ctx, t)
 	crawler := &testCrawler{}
-	service := NewService(db, crawler, &testLogger{})
+	service := NewService(db, crawler, &testLogger{}, nil)
 	handler := NewHandler(service, logger, &testOperationsService{})
 
 	req, err := http.NewRequest("POST", "/", strings.NewReader(`{"url": "https://example.org"}`))
@@ -247,7 +247,7 @@ func Test_Handler__Post_create_success(t *testing.T) {
 	db := createTestDB(ctx, t)
 	crawler := &testCrawler{}
 	crawler = crawler.With("https://example.org", subscriptionData)
-	service := NewService(db, crawler, &testLogger{})
+	service := NewService(db, crawler, &testLogger{}, nil)
 	handler := NewHandler(service, logger, &testOperationsService{})
 
 	req, err := http.NewRequest("POST", "/", strings.NewReader(`{"url": "https://example.org"}`))

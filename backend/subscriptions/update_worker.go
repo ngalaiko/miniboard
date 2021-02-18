@@ -6,7 +6,6 @@ import (
 )
 
 type worker struct {
-	logger                   logger
 	subscriptionsIDsToUpdate <-chan string
 	db                       *database
 
