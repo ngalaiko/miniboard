@@ -87,8 +87,6 @@ func (s *Service) Init(ctx context.Context) error {
 		return err
 	}
 
-	s.logger.Info("new signer with id '%s' created", key.ID)
-
 	s.signer = signer
 
 	return nil

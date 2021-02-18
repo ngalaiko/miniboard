@@ -45,7 +45,5 @@ func New(cfg *Config, logger logger) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	logger.Info("connected to %s", cfg.Driver)
-
 	return db, nil
 }
