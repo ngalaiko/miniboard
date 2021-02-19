@@ -78,5 +78,5 @@ jobs:
     - name: Deploy
       run: |
         APP_ID="$(doctl apps list | grep miniboard-${{ matrix.app }} | awk '{print $1}')"
-        doctl apps update --spec "deployment/${{ matrix.app }}.yaml" "$APP_ID"
+        doctl apps update --spec "deployment/digitalocean/${{ matrix.app }}.yaml" "$APP_ID"
         doctl apps create-deployment "${APP_ID}"
