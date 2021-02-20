@@ -109,7 +109,7 @@ func (h *Handler) handleListSubscriptions(w http.ResponseWriter, r *http.Request
 	switch {
 	case err == nil:
 		type response struct {
-			Subscriptions []*Subscription `json:"subscriptions"`
+			Subscriptions []*UserSubscription `json:"subscriptions"`
 		}
 		httpx.JSON(w, h.logger, &response{Subscriptions: subscriptions}, http.StatusOK)
 	default:

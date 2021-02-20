@@ -14,19 +14,24 @@ import (
 	"github.com/ngalaiko/miniboard/backend/tags"
 )
 
+func testSubscription() *UserSubscription {
+	subscription := &UserSubscription{}
+	subscription.ID = "test id"
+	subscription.UserID = "user"
+	subscription.URL = "https://example.com"
+	subscription.Title = "title"
+	subscription.Created = time.Now().Add(-1 * time.Hour)
+	subscription.IconURL = new(string)
+	subscription.TagIDs = []string{}
+	*subscription.IconURL = "https://icon.url"
+	return subscription
+}
+
 func Test_db__Create(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	subscription := &Subscription{
-		ID:      "test id",
-		UserID:  "user",
-		URL:     "https://example.com",
-		Title:   "title",
-		Created: time.Now().Add(-1 * time.Hour),
-	}
-	subscription.IconURL = new(string)
-	*subscription.IconURL = "https://icon.url"
+	subscription := testSubscription()
 
 	if err := db.Create(ctx, subscription); err != nil {
 		t.Fatalf("failed to create a subscription: %s", err)
@@ -37,15 +42,8 @@ func Test_db__Create_twice(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	subscription := &Subscription{
-		ID:      "test id",
-		UserID:  "user",
-		URL:     "https://example.com",
-		Title:   "title",
-		Created: time.Now().Add(-1 * time.Hour),
-	}
-	subscription.IconURL = new(string)
-	*subscription.IconURL = "https://icon.url"
+	subscription := testSubscription()
+
 	if err := db.Create(ctx, subscription); err != nil {
 		t.Fatalf("failed to create a subscription: %s", err)
 	}
@@ -59,14 +57,9 @@ func Test_db__Create_twice_for_different_users(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	subscription1 := &Subscription{
-		ID:      "test id",
-		UserID:  "user1",
-		URL:     "https://example.com",
-		Title:   "title",
-		Created: time.Now().Add(-1 * time.Hour).Truncate(time.Millisecond),
-		TagIDs:  []string{},
-	}
+	subscription1 := testSubscription()
+	subscription1.UserID = "user1"
+
 	if err := db.Create(ctx, subscription1); err != nil {
 		t.Fatalf("failed to create a subscription: %s", err)
 	}
@@ -96,15 +89,7 @@ func Test_db__Get_not_found(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	subscription := &Subscription{
-		ID:      "test id",
-		UserID:  "user",
-		URL:     "https://example.com",
-		Title:   "title",
-		Created: time.Now().Add(-1 * time.Hour),
-	}
-	subscription.IconURL = new(string)
-	*subscription.IconURL = "https://icon.url"
+	subscription := testSubscription()
 
 	fromDB, err := db.Get(ctx, subscription.UserID, subscription.ID)
 	if fromDB != nil {
@@ -120,16 +105,7 @@ func Test_db__Get_without_tags(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	db := newDB(sqldb, &testLogger{})
 
-	subscription := &Subscription{
-		ID:      "test id",
-		UserID:  "user",
-		URL:     "https://example.com",
-		Title:   "title",
-		Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
-		TagIDs:  []string{},
-	}
-	subscription.IconURL = new(string)
-	*subscription.IconURL = "https://icon.url"
+	subscription := testSubscription()
 	subscription.Updated = new(time.Time)
 	*subscription.Updated = time.Now().Truncate(time.Nanosecond)
 
@@ -163,16 +139,8 @@ func Test_db__Get_with_tags(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	subscription := &Subscription{
-		ID:      "test id",
-		UserID:  "user",
-		URL:     "https://example.com",
-		Title:   "title",
-		Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
-		TagIDs:  []string{tag1.ID, tag2.ID},
-	}
-	subscription.IconURL = new(string)
-	*subscription.IconURL = "https://icon.url"
+	subscription := testSubscription()
+	subscription.TagIDs = []string{tag1.ID, tag2.ID}
 	subscription.Updated = new(time.Time)
 	*subscription.Updated = time.Now().Truncate(time.Nanosecond)
 
@@ -194,18 +162,12 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	created := map[string]*Subscription{}
+	created := map[string]*UserSubscription{}
 	for i := 0; i < 100; i++ {
-		subscription := &Subscription{
-			ID:      fmt.Sprint(i),
-			UserID:  "user",
-			URL:     fmt.Sprintf("https://example%d.com", i),
-			Title:   fmt.Sprintf("%d title", i),
-			Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
-			TagIDs:  []string{},
-		}
-		subscription.IconURL = new(string)
-		*subscription.IconURL = "https://icon.url"
+		subscription := testSubscription()
+		subscription.ID = fmt.Sprint(i)
+		subscription.URL = fmt.Sprintf("https://example%d.com", i)
+		subscription.Title = fmt.Sprintf("%d title", i)
 
 		if err := db.Create(ctx, subscription); err != nil {
 			t.Fatal(err)

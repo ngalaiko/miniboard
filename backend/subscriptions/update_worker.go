@@ -45,6 +45,12 @@ func (w *worker) Shutdown(ctx context.Context) error {
 }
 
 func (w *worker) update(ctx context.Context, subscriptionID string) error {
-	fmt.Printf("test: updating %s\n", subscriptionID)
+	subscription, err := w.db.GetByID(ctx, subscriptionID)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("\nnikitag: %+v\n\n", subscription)
+
 	return fmt.Errorf("not implemented")
 }
