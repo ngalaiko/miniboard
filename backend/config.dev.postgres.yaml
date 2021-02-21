@@ -8,3 +8,6 @@ cors:
 db:
   driver: postgres
   addr: "postgres://miniboard:miniboard@localhost/miniboard?sslmode=disable"
+subscriptions:
+  update:
+    interval: 5s

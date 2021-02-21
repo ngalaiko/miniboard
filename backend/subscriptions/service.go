@@ -26,7 +26,8 @@ var (
 // Config is a subscriptions service configuration.
 type Config struct {
 	Update *struct {
-		Workers int `yaml:"workers"`
+		Workers  int           `yaml:"workers"`
+		Interval time.Duration `yaml:"interval"`
 	} `yaml:"update"`
 }
 
@@ -51,6 +52,9 @@ type Service struct {
 func NewService(db *sql.DB, crawler crawler, logger logger, cfg *Config) *Service {
 	if cfg == nil {
 		cfg = &Config{}
+	}
+	if cfg.Update.Interval == 0 {
+		cfg.Update.Interval = 5 * time.Minute
 	}
 	return &Service{
 		db:      newDB(db, logger),
@@ -142,7 +146,11 @@ func (s *Service) Start(ctx context.Context) error {
 }
 
 func (s *Service) watchUpdates(subscription *Subscription) {
-	s.subscriptionIDs.Store(subscription.ID, time.Now())
+	updated := subscription.Created
+	if subscription.Updated != nil {
+		updated = *subscription.Updated
+	}
+	s.subscriptionIDs.Store(subscription.ID, updated)
 }
 
 func (s *Service) startUpdating(ctx context.Context, subscriptionIDsToUpdate chan<- string) {
@@ -153,8 +161,8 @@ func (s *Service) startUpdating(ctx context.Context, subscriptionIDsToUpdate cha
 			ticker.Stop()
 			return
 		case <-ticker.C:
-			s.subscriptionIDs.Range(func(id interface{}, ts interface{}) bool {
-				due := ts.(time.Time).Add(10 * time.Second)
+			s.subscriptionIDs.Range(func(id interface{}, updated interface{}) bool {
+				due := updated.(time.Time).Add(s.cfg.Update.Interval)
 				if due.Before(time.Now()) {
 					subscriptionIDsToUpdate <- id.(string)
 					s.subscriptionIDs.Store(id, time.Now())
@@ -173,7 +181,7 @@ func (s *Service) startWorkers(ctx context.Context, subscriptionIDsToUpdate chan
 
 	g, ctx := errgroup.WithContext(ctx)
 	for i := 0; i < nWorkers; i++ {
-		worker := newWorker(subscriptionIDsToUpdate, s.db)
+		worker := newWorker(subscriptionIDsToUpdate, s.db, s.parser, s.crawler)
 		s.workers = append(s.workers, worker)
 
 		g.Go(restartingWorker(ctx, worker, s.logger))

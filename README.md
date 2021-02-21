@@ -40,6 +40,7 @@ operations:
 subsciptions:
   updates:
     workers: 10 # number of workers that update subscriptions in background
+    interval: 5m # interval between feed updates
 users:
   bcrypt_cose: 14 # bcrypt cost
 ```
