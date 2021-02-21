@@ -56,12 +56,13 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 		return nil, fmt.Errorf("failed to initialize http server: %w", err)
 	}
 
+	crawler := crawler.WithConcurrencyLimit(crawler.New(), 10)
 	authorizationsService := authorizations.NewService(db, logger)
 	usersService := users.NewService(db, cfg.Users)
 	operationsService := operations.NewService(logger, db, cfg.Operations)
 	tagsService := tags.NewService(db)
 	itemsService := items.NewService(db, logger)
-	subscriptionsService := subscriptions.NewService(db, crawler.New(), logger, cfg.Subscriptions, itemsService)
+	subscriptionsService := subscriptions.NewService(db, crawler, logger, cfg.Subscriptions, itemsService)
 
 	withAuth := authorizations.Authenticate(authorizationsService, cfg.Authorizations, logger)
 

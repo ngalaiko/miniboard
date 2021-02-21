@@ -8,3 +8,6 @@ cors:
 db:
   driver: sqlite3
   addr: ./db.dev.sqlite3
+subscriptions:
+  update:
+    interval: 5s
