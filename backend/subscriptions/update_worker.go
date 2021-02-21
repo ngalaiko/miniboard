@@ -60,29 +60,29 @@ func (w *worker) Shutdown(ctx context.Context) error {
 func (w *worker) update(ctx context.Context, subscriptionID string) error {
 	subscription, err := w.db.GetByID(ctx, subscriptionID)
 	if err != nil {
-		return err
+		return fmt.Errorf("get subscription %s: %w", subscriptionID, err)
 	}
 
 	sURL, err := url.Parse(subscription.URL)
 	if err != nil {
-		return err
+		return fmt.Errorf("%s: %w", sURL, err)
 	}
 
 	data, err := w.crawler.Crawl(ctx, sURL)
 	if err != nil {
-		return errFailedToDownloadSubscription
+		return fmt.Errorf("%s: %w", sURL, errFailedToDownloadSubscription)
 	}
 
 	parsedSubscription, err := w.parser.Parse(bytes.NewReader(data))
 	if err != nil {
-		return errFailedToParseSubscription
+		return fmt.Errorf("%s: %w", sURL, errFailedToParseSubscription)
 	}
 
 	for _, item := range parsedSubscription.Items {
 		if _, err := w.itemsService.Create(ctx, subscription.ID, item.Link, item.Title); err != nil && err != items.ErrAlreadyExists {
-			return err
+			return fmt.Errorf("%s: %w", item.Link, err)
 		}
 	}
 
-	return fmt.Errorf("not implemented")
+	return nil
 }

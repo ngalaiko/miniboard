@@ -110,7 +110,7 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagID
 	}
 
 	for _, item := range parsedSubscription.Items {
-		if _, err := s.itemsService.Create(ctx, subscription.ID, item.Link, item.Title); err != nil {
+		if _, err := s.itemsService.Create(ctx, subscription.ID, item.Link, item.Title); err != nil && err != items.ErrAlreadyExists {
 			return nil, err
 		}
 	}
