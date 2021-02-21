@@ -116,13 +116,16 @@ import OperationsService from '../services/operations.js'
     }
 
     const _createTag = async (self, params) => {
+        const tagPromise = TagsService.create(params)
         self.dispatchEvent(new CustomEvent('TagCreate', {
             detail: {
                 params: params,
-                promise: TagsService.create(params),
+                promise: tagPromise,
             },
             bubbles: true,
         }))
+
+        return await tagPromise
     }
 
     customElements.define('x-add-button', AddModal)
