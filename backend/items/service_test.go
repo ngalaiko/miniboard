@@ -2,25 +2,20 @@ package items
 
 import (
 	"context"
-	"net/url"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 )
 
-func Test__Create(t *testing.T) {
+func Test_service__Create(t *testing.T) {
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
 	service := NewService(sqldb, &testLogger{})
 
-	item, err := service.Create(ctx, "user id", "sid", mustParseURL("https://example.org"), "title")
+	item, err := service.Create(ctx, "sid", "https://example.org", "title")
 	if err != nil {
 		t.Fatalf("failed to create a item %s", err)
-	}
-
-	if item.UserID != "user id" {
-		t.Errorf("user id expected: %s, got %s", "user id", item.UserID)
 	}
 
 	if item.Title != "title" {
@@ -40,30 +35,38 @@ func Test__Create(t *testing.T) {
 	}
 }
 
-func Test__Create_twice(t *testing.T) {
+func Test_service__Create_twice(t *testing.T) {
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
 	service := NewService(sqldb, &testLogger{})
 
-	_, err := service.Create(ctx, "user id", "sid", mustParseURL("https://example.org"), "title")
+	if _, err := sqldb.Exec(`INSERT INTO users_subscriptions (user_id, subscription_id) VALUES ("user id", "sid")`); err != nil {
+		t.Fatal(err)
+	}
+
+	_, err := service.Create(ctx, "sid", "https://example.org", "title")
 	if err != nil {
 		t.Fatalf("failed to create a item %s", err)
 	}
 
-	_, secondErr := service.Create(ctx, "user id", "sid", mustParseURL("https://example.org"), "title")
-	if secondErr != errAlreadyExists {
-		t.Fatalf("expected %s, got %s", errAlreadyExists, secondErr)
+	_, secondErr := service.Create(ctx, "sid", "https://example.org", "title")
+	if secondErr != ErrAlreadyExists {
+		t.Fatalf("expected %s, got %s", ErrAlreadyExists, secondErr)
 	}
 }
 
-func Test__Get(t *testing.T) {
+func Test_service__Get(t *testing.T) {
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
 	service := NewService(sqldb, &testLogger{})
 
-	item, err := service.Create(ctx, "user id", "sid", mustParseURL("https://example.org"), "title")
+	if _, err := sqldb.Exec(`INSERT INTO users_subscriptions (user_id, subscription_id) VALUES ("user id", "sid")`); err != nil {
+		t.Fatal(err)
+	}
+
+	item, err := service.Create(ctx, "sid", "https://example.org", "title")
 	if err != nil {
 		t.Fatalf("failed to create a item: %s", err)
 	}
@@ -73,12 +76,12 @@ func Test__Get(t *testing.T) {
 		t.Fatalf("failed to get a item: %s", err)
 	}
 
-	if !cmp.Equal(item, from) {
-		t.Error(cmp.Diff(item, from))
+	if !cmp.Equal(*item, from.Item) {
+		t.Error(cmp.Diff(*item, from.Item))
 	}
 }
 
-func Test__Get_not_found(t *testing.T) {
+func Test_service__Get_not_found(t *testing.T) {
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -88,12 +91,4 @@ func Test__Get_not_found(t *testing.T) {
 	if err != errNotFound {
 		t.Errorf("expected %s, got %s", errNotFound, err)
 	}
-}
-
-func mustParseURL(raw string) *url.URL {
-	url, err := url.Parse(raw)
-	if err != nil {
-		panic(err)
-	}
-	return url
 }

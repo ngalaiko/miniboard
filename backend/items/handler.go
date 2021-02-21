@@ -85,7 +85,7 @@ func (h *Handler) handleListItems(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case err == nil:
 		type response struct {
-			Items []*Item `json:"items"`
+			Items []*UserItem `json:"items"`
 		}
 		httpx.JSON(w, h.logger, &response{Items: items}, http.StatusOK)
 	default:

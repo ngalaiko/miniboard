@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/ngalaiko/miniboard/backend/items"
 	"github.com/ngalaiko/miniboard/backend/tags"
 )
 
@@ -16,7 +17,7 @@ func Test__Create_subscription_failed_to_parse_subscription(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
 	cw.With("https://example.org", []byte("wrong"))
-	service := NewService(sqldb, cw, &testLogger{}, nil)
+	service := NewService(sqldb, cw, &testLogger{}, nil, &testItemsService{})
 
 	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
 	if err != errFailedToParseSubscription {
@@ -29,7 +30,7 @@ func Test__Create_subscription_not_found(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	service := NewService(sqldb, cw, &testLogger{}, nil)
+	service := NewService(sqldb, cw, &testLogger{}, nil, &testItemsService{})
 
 	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
 	if err != errFailedToDownloadSubscription {
@@ -42,7 +43,7 @@ func Test__Create(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{}, nil)
+	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{}, nil, &testItemsService{})
 
 	subscription, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
 	if err != nil {
@@ -76,7 +77,7 @@ func Test__Create_twice(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
 	cw = cw.With("https://example.org", subscriptionData)
-	service := NewService(sqldb, cw, &testLogger{}, nil)
+	service := NewService(sqldb, cw, &testLogger{}, nil, &testItemsService{})
 
 	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
 	if err != nil {
@@ -94,7 +95,7 @@ func Test__Get(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{}, nil)
+	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{}, nil, &testItemsService{})
 
 	tagService := tags.NewService(sqldb)
 	tag, err := tagService.Create(ctx, "user id", "tag")
@@ -122,7 +123,7 @@ func Test__Get_not_found(t *testing.T) {
 
 	sqldb := createTestDB(ctx, t)
 	cw := &testCrawler{}
-	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{}, nil)
+	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{}, nil, &testItemsService{})
 
 	_, err := service.Get(ctx, "user id", "id")
 	if err != errNotFound {
@@ -165,4 +166,10 @@ func mustParseURL(raw string) *url.URL {
 		panic(err)
 	}
 	return url
+}
+
+type testItemsService struct{}
+
+func (*testItemsService) Create(ctx context.Context, subscriptionID string, url string, title string) (*items.Item, error) {
+	return nil, nil
 }

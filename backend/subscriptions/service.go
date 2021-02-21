@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/mmcdole/gofeed"
+	"github.com/ngalaiko/miniboard/backend/items"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -23,16 +24,22 @@ var (
 	errFailedToParseSubscription    = fmt.Errorf("failed to parse subscription")
 )
 
+type updateConfig struct {
+	Workers  int           `yaml:"workers"`
+	Interval time.Duration `yaml:"interval"`
+}
+
 // Config is a subscriptions service configuration.
 type Config struct {
-	Update *struct {
-		Workers  int           `yaml:"workers"`
-		Interval time.Duration `yaml:"interval"`
-	} `yaml:"update"`
+	Update *updateConfig `yaml:"update"`
 }
 
 type crawler interface {
 	Crawl(context.Context, *url.URL) ([]byte, error)
+}
+
+type itemsService interface {
+	Create(ctx context.Context, subscriptionID string, url string, title string) (*items.Item, error)
 }
 
 // Service allows to manage subscriptions resource.
@@ -42,26 +49,31 @@ type Service struct {
 	parser  *gofeed.Parser
 	cfg     *Config
 
-	logger logger
+	logger       logger
+	itemsService itemsService
 
 	workers         []*worker
 	subscriptionIDs sync.Map
 }
 
 // NewService returns new subscriptions service.
-func NewService(db *sql.DB, crawler crawler, logger logger, cfg *Config) *Service {
+func NewService(db *sql.DB, crawler crawler, logger logger, cfg *Config, itemsService itemsService) *Service {
 	if cfg == nil {
 		cfg = &Config{}
+	}
+	if cfg.Update == nil {
+		cfg.Update = &updateConfig{}
 	}
 	if cfg.Update.Interval == 0 {
 		cfg.Update.Interval = 5 * time.Minute
 	}
 	return &Service{
-		db:      newDB(db, logger),
-		crawler: crawler,
-		parser:  gofeed.NewParser(),
-		cfg:     cfg,
-		logger:  logger,
+		db:           newDB(db, logger),
+		crawler:      crawler,
+		parser:       gofeed.NewParser(),
+		cfg:          cfg,
+		logger:       logger,
+		itemsService: itemsService,
 	}
 }
 
@@ -95,6 +107,12 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagID
 
 	if err := s.db.Create(ctx, subscription); err != nil {
 		return nil, fmt.Errorf("failed to store subscription: %w", err)
+	}
+
+	for _, item := range parsedSubscription.Items {
+		if _, err := s.itemsService.Create(ctx, subscription.ID, item.Link, item.Title); err != nil {
+			return nil, err
+		}
 	}
 
 	s.watchUpdates(&subscription.Subscription)
@@ -181,7 +199,7 @@ func (s *Service) startWorkers(ctx context.Context, subscriptionIDsToUpdate chan
 
 	g, ctx := errgroup.WithContext(ctx)
 	for i := 0; i < nWorkers; i++ {
-		worker := newWorker(subscriptionIDsToUpdate, s.db, s.parser, s.crawler)
+		worker := newWorker(subscriptionIDsToUpdate, s.logger, s.db, s.parser, s.crawler, s.itemsService)
 		s.workers = append(s.workers, worker)
 
 		g.Go(restartingWorker(ctx, worker, s.logger))

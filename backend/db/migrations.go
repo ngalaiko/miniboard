@@ -108,13 +108,12 @@ func migrations(db *sql.DB) []*migration {
 			Query: `
 			CREATE TABLE items (
 				id                TEXT   NOT NULL,
-				user_id           TEXT   NOT NULL REFERENCES users(id),
 				url               TEXT   NOT NULL,
 				title             TEXT   NOT NULL,
 				subscription_id   TEXT   NOT NULL REFERENCES subscriptions(id),
 				created_epoch_utc BIGINT NOT NULL,
 				PRIMARY KEY (id),
-				UNIQUE (user_id, subscription_id, url)
+				UNIQUE (subscription_id, url)
 			)
 			`,
 		},

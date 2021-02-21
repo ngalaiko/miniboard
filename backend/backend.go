@@ -61,7 +61,7 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 	operationsService := operations.NewService(logger, db, cfg.Operations)
 	tagsService := tags.NewService(db)
 	itemsService := items.NewService(db, logger)
-	subscriptionsService := subscriptions.NewService(db, crawler.New(), logger, cfg.Subscriptions)
+	subscriptionsService := subscriptions.NewService(db, crawler.New(), logger, cfg.Subscriptions, itemsService)
 
 	withAuth := authorizations.Authenticate(authorizationsService, cfg.Authorizations, logger)
 

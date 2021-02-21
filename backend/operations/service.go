@@ -69,7 +69,7 @@ func (s *Service) Start(ctx context.Context) error {
 func restartingWorker(ctx context.Context, worker *worker, logger logger) func() error {
 	return func() error {
 		if err := worker.Start(ctx); err != nil {
-			logger.Error("operations worker: %w", err)
+			logger.Error("operations worker: %s", err)
 			return restartingWorker(ctx, worker, logger)()
 		}
 		return nil

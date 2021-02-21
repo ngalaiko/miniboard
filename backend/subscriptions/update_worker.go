@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	"github.com/mmcdole/gofeed"
+	"github.com/ngalaiko/miniboard/backend/items"
 )
 
 type worker struct {
@@ -14,19 +15,23 @@ type worker struct {
 	db                       *database
 	parser                   *gofeed.Parser
 	crawler                  crawler
+	itemsService             itemsService
+	logger                   logger
 
 	shutdown chan struct{}
 	stopped  chan struct{}
 }
 
-func newWorker(subscriptionsIDsToUpdate <-chan string, db *database, parser *gofeed.Parser, crawler crawler) *worker {
+func newWorker(subscriptionsIDsToUpdate <-chan string, logger logger, db *database, parser *gofeed.Parser, crawler crawler, itemsService itemsService) *worker {
 	return &worker{
 		subscriptionsIDsToUpdate: subscriptionsIDsToUpdate,
 		db:                       db,
 		parser:                   parser,
 		crawler:                  crawler,
+		itemsService:             itemsService,
 		shutdown:                 make(chan struct{}),
 		stopped:                  make(chan struct{}),
+		logger:                   logger,
 	}
 }
 
@@ -68,8 +73,15 @@ func (w *worker) update(ctx context.Context, subscriptionID string) error {
 		return errFailedToDownloadSubscription
 	}
 
-	if _, err := w.parser.Parse(bytes.NewReader(data)); err != nil {
+	parsedSubscription, err := w.parser.Parse(bytes.NewReader(data))
+	if err != nil {
 		return errFailedToParseSubscription
+	}
+
+	for _, item := range parsedSubscription.Items {
+		if _, err := w.itemsService.Create(ctx, subscription.ID, item.Link, item.Title); err != nil && err != items.ErrAlreadyExists {
+			return err
+		}
 	}
 
 	return fmt.Errorf("not implemented")
