@@ -22,6 +22,7 @@ var (
 	errAlreadyExists                = fmt.Errorf("subscription already exists")
 	errFailedToDownloadSubscription = fmt.Errorf("failed to download subscription")
 	errFailedToParseSubscription    = fmt.Errorf("failed to parse subscription")
+	errFailedToStoreItem            = fmt.Errorf("failed to store item")
 )
 
 type updateConfig struct {
@@ -85,11 +86,13 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagID
 
 	data, err := s.crawler.Crawl(ctx, url)
 	if err != nil {
+		s.logger.Error("failed to fetch subscription %s: %s", url, err)
 		return nil, errFailedToDownloadSubscription
 	}
 
 	parsedSubscription, err := s.parser.Parse(bytes.NewReader(data))
 	if err != nil {
+		s.logger.Error("failed to parse subscription %s: %s", url, err)
 		return nil, errFailedToParseSubscription
 	}
 
@@ -111,7 +114,8 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagID
 
 	for _, item := range parsedSubscription.Items {
 		if _, err := s.itemsService.Create(ctx, subscription.ID, item.Link, item.Title); err != nil && err != items.ErrAlreadyExists {
-			return nil, err
+			s.logger.Error("failed to store feed %s item %s: %s", subscription.ID, item.Link, err)
+			return nil, errFailedToStoreItem
 		}
 	}
 
