@@ -8,6 +8,10 @@
             bottom: 1em;
             left: 1em;
         }
+
+        x-toast {
+            padding: 0.1em;
+        }
     </style>
     <span id="toasts-container">
     </span>
