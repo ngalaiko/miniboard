@@ -5,8 +5,6 @@
         #toasts-container {
             position: fixed;
 
-            width: 80%;
-
             bottom: 1em;
             left: 1em;
         }
