@@ -5,6 +5,12 @@ import OperationsService from '../services/operations.js'
 (async () => {
     const HTMLTemplate = document.createElement('template')
     HTMLTemplate.innerHTML = `
+    <style>
+        #add-button {
+            width: 100%;
+            font-size: larger;
+        }
+    </style>
     <button id="add-button" type="button">Add</button>
     `
 
