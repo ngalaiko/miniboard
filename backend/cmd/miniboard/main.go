@@ -10,29 +10,33 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/vrischmann/envconfig"
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/ngalaiko/miniboard/backend"
 	"github.com/ngalaiko/miniboard/backend/logger"
-	"github.com/vrischmann/envconfig"
 )
 
 func main() {
 	configPath := flag.String("config", "", "Path to the configuration file, required")
+	verbose := flag.Bool("v", false, "Enable verbose logging")
 	flag.Parse()
 
-	logger := logger.New()
+	log := logger.New(logger.Info)
+	if *verbose {
+		log = logger.New(logger.Debug)
+	}
 
 	cfg, err := parseConfiguration(configPath)
 	if err != nil {
-		logger.Fatal("failed to parse configuration: %s", err)
+		log.Fatal("failed to parse configuration: %s", err)
 	}
 
-	logger.Info("application is starting")
+	log.Info("application is starting")
 
-	srv, err := backend.New(logger, cfg)
+	srv, err := backend.New(log, cfg)
 	if err != nil {
-		logger.Fatal("failed to initialize server: %s", err)
+		log.Fatal("failed to initialize server: %s", err)
 	}
 
 	// Wait for shut down in a separate goroutine.
@@ -42,7 +46,7 @@ func main() {
 		signal.Notify(shutdownCh, os.Interrupt, syscall.SIGTERM)
 		sig := <-shutdownCh
 
-		logger.Info("received %s, shutting down", sig)
+		log.Info("received %s, shutting down", sig)
 
 		shutdownTimeout := 15 * time.Second
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
@@ -53,15 +57,15 @@ func main() {
 
 	mainCtx := context.Background()
 	if err := srv.Start(mainCtx); err != nil {
-		logger.Fatal("failed to start the server: %s", err)
+		log.Fatal("failed to start the server: %s", err)
 	}
 
 	// Handle shutdown errors.
 	if err := <-errCh; err != nil {
-		logger.Warn("error during shutdown: %s", err)
+		log.Error("error during shutdown: %s", err)
 	}
 
-	logger.Info("application stopped")
+	log.Info("application stopped")
 }
 
 func parseConfiguration(path *string) (*backend.Config, error) {

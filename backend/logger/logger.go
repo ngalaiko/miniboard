@@ -7,13 +7,22 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
+// Level defines logger level.
+type Level int8
+
+// Available log levels.
+const (
+	Debug = iota
+	Info
+)
+
 // Logger writes logs.
 type Logger struct {
 	logger zerolog.Logger
 }
 
 // New returns new logger.
-func New() *Logger {
+func New(level Level) *Logger {
 	outFile := os.Stdout
 
 	logger := zerolog.New(outFile)
@@ -27,21 +36,22 @@ func New() *Logger {
 	logger = logger.With().
 		Timestamp().
 		CallerWithSkipFrameCount(3).
-		Logger()
+		Logger().
+		Level(zerolog.Level(level))
 
 	return &Logger{
 		logger: logger,
 	}
 }
 
+// Debug writes debug log.
+func (l *Logger) Debug(format string, vv ...interface{}) {
+	l.logger.Debug().Msgf(format, vv...)
+}
+
 // Info writes information log.
 func (l *Logger) Info(format string, vv ...interface{}) {
 	l.logger.Info().Msgf(format, vv...)
-}
-
-// Warn writes warning log.
-func (l *Logger) Warn(format string, vv ...interface{}) {
-	l.logger.Warn().Msgf(format, vv...)
 }
 
 // Error writes error log.

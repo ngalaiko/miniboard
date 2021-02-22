@@ -25,6 +25,7 @@ var (
 )
 
 type logger interface {
+	Debug(string, ...interface{})
 	Error(string, ...interface{})
 }
 

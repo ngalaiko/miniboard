@@ -17,6 +17,7 @@ Swagger description itsef is available [here](https://docs.miniboard.app/api.swa
 | Command line            | Default                  | Description                    |
 | ----------------------- | ------------------------ | ------------------------------ |
 | config                  |                          | Path to the configuration file |
+| v                       |                          | Enable verbose logging         |
 
 #### Configuration file
 

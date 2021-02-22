@@ -58,6 +58,8 @@ func (w *worker) Shutdown(ctx context.Context) error {
 }
 
 func (w *worker) update(ctx context.Context, subscriptionID string) error {
+	w.logger.Debug("updating: subscription %s", subscriptionID)
+
 	subscription, err := w.db.GetByID(ctx, subscriptionID)
 	if err != nil {
 		return fmt.Errorf("get subscription %s: %w", subscriptionID, err)
@@ -83,6 +85,8 @@ func (w *worker) update(ctx context.Context, subscriptionID string) error {
 			return fmt.Errorf("%s: %w", item.Link, err)
 		}
 	}
+
+	w.logger.Debug("updated: subscription %s", subscriptionID)
 
 	return nil
 }
