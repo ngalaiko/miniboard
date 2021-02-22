@@ -30,7 +30,7 @@ func (w *worker) Start(ctx context.Context) error {
 		select {
 		case op := <-w.processQueue:
 			if err := w.run(ctx, op); err != nil {
-				return err
+				w.logger.Error("operations worker: %s", err)
 			}
 		case <-w.shutdown:
 			close(w.stopped)

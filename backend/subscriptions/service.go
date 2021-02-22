@@ -206,20 +206,12 @@ func (s *Service) startWorkers(ctx context.Context, subscriptionIDsToUpdate chan
 		worker := newWorker(subscriptionIDsToUpdate, s.logger, s.db, s.parser, s.crawler, s.itemsService)
 		s.workers = append(s.workers, worker)
 
-		g.Go(restartingWorker(ctx, worker, s.logger))
+		g.Go(func() error {
+			return worker.Start(ctx)
+		})
 	}
 
 	return g.Wait()
-}
-
-func restartingWorker(ctx context.Context, worker *worker, logger logger) func() error {
-	return func() error {
-		if err := worker.Start(ctx); err != nil {
-			logger.Error("subscriptions worker: %s", err)
-			return restartingWorker(ctx, worker, logger)()
-		}
-		return nil
-	}
 }
 
 // Shutdown stops background subscriptions updates.

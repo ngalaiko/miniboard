@@ -41,7 +41,7 @@ func (w *worker) Start(ctx context.Context) error {
 		select {
 		case subscriptionID := <-w.subscriptionsIDsToUpdate:
 			if err := w.update(ctx, subscriptionID); err != nil {
-				return err
+				w.logger.Error("subscriptions worker: %s", err)
 			}
 		case <-w.shutdown:
 			close(w.stopped)

@@ -60,20 +60,12 @@ func (s *Service) Start(ctx context.Context) error {
 		worker := newWorker(s.processQueue, s.logger, s.db)
 		s.workers = append(s.workers, worker)
 
-		g.Go(restartingWorker(ctx, worker, s.logger))
+		g.Go(func() error {
+			return worker.Start(ctx)
+		})
 	}
 
 	return g.Wait()
-}
-
-func restartingWorker(ctx context.Context, worker *worker, logger logger) func() error {
-	return func() error {
-		if err := worker.Start(ctx); err != nil {
-			logger.Error("operations worker: %s", err)
-			return restartingWorker(ctx, worker, logger)()
-		}
-		return nil
-	}
 }
 
 // Shutdown stops all running workers.
