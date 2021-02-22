@@ -82,8 +82,12 @@ func (w *worker) update(ctx context.Context, subscriptionID string) error {
 
 	for _, item := range parsedSubscription.Items {
 		if _, err := w.itemsService.Create(ctx, subscription.ID, item.Link, item.Title); err != nil && err != items.ErrAlreadyExists {
-			return fmt.Errorf("%s: %w", item.Link, err)
+			return fmt.Errorf("subscription %s, item %s: %w", subscription.ID, item.Link, err)
 		}
+	}
+
+	if err := w.db.Update(ctx, subscription); err != nil {
+		return fmt.Errorf("failed to update subscription %s: %w", subscription.ID, err)
 	}
 
 	w.logger.Debug("updated: subscription %s", subscriptionID)

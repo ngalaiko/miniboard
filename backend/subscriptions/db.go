@@ -110,6 +110,21 @@ func (d *database) Create(ctx context.Context, subscription *UserSubscription) e
 	}
 }
 
+// Update updates the subscription.
+func (d *database) Update(ctx context.Context, subscription *Subscription) error {
+	query := `
+	UPDATE
+		subscriptions
+	SET
+		updated_epoch_utc = $1
+	WHERE
+		id = $2
+	`
+	args := []interface{}{time.Now().Truncate(time.Millisecond).UnixNano(), subscription.ID}
+	_, err := d.db.ExecContext(ctx, query, args...)
+	return err
+}
+
 func getByURL(ctx context.Context, tx *sql.Tx, url string) (*Subscription, error) {
 	row := tx.QueryRowContext(ctx, `
 	SELECT
