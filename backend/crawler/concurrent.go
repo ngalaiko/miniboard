@@ -6,15 +6,19 @@ import (
 	"net/url"
 )
 
+type crawler interface {
+	Crawl(context.Context, *url.URL) ([]byte, error)
+}
+
 // ConcurrentCrawler limits number of concurrent requests.
 type ConcurrentCrawler struct {
-	crawler *Crawler
+	crawler crawler
 
 	sem chan struct{}
 }
 
 // WithConcurrencyLimit adds concurrency limit to the crawler.
-func WithConcurrencyLimit(crawler *Crawler, limit int) *ConcurrentCrawler {
+func WithConcurrencyLimit(crawler crawler, limit int) *ConcurrentCrawler {
 	return &ConcurrentCrawler{
 		crawler: crawler,
 		sem:     make(chan struct{}, limit),
@@ -26,8 +30,8 @@ func (c *ConcurrentCrawler) Crawl(ctx context.Context, u *url.URL) ([]byte, erro
 	results := make(chan []byte)
 	errors := make(chan error)
 
-	c.sem <- struct{}{}
 	go func(ctx context.Context, u *url.URL) {
+		c.sem <- struct{}{}
 		defer func() { <-c.sem }()
 		res, err := c.crawler.Crawl(ctx, u)
 		if err != nil {
