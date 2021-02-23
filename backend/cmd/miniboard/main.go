@@ -19,7 +19,7 @@ import (
 
 func main() {
 	configPath := flag.String("config", "", "Path to the configuration file, required")
-	verbose := flag.Bool("v", false, "Enable verbose logging")
+	verbose := flag.Bool("verbose", false, "Enable verbose logging")
 	flag.Parse()
 
 	log := logger.New(logger.Info)
