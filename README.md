@@ -1,6 +1,4 @@
-[![CI Status](https://github.com/ngalaiko/miniboard/workflows/CI/badge.svg)](https://github.com/ngalaiko/miniboard/actions)
-[![Coverage Status](https://coveralls.io/repos/github/ngalaiko/miniboard/badge.svg?branch=master)](https://coveralls.io/github/ngalaiko/miniboard?branch=master)
-[![Go Report Card](https://goreportcard.com/badge/github.com/ngalaiko/miniboard)](https://goreportcard.com/report/github.com/ngalaiko/miniboard)
+# Miniboard [![CI Status](https://github.com/ngalaiko/miniboard/workflows/CI/badge.svg)](https://github.com/ngalaiko/miniboard/actions)[![Coverage Status](https://coveralls.io/repos/github/ngalaiko/miniboard/badge.svg?branch=master)](https://coveralls.io/github/ngalaiko/miniboard?branch=master)[![Go Report Card](https://goreportcard.com/badge/github.com/ngalaiko/miniboard)](https://goreportcard.com/report/github.com/ngalaiko/miniboard)
 
 ## API
 
@@ -49,14 +47,16 @@ users:
 #### Environment variables
 
 It is also possible to define any configuration value by setting an environment value, for example:
+
 * `MINIBOARD_HTTP_ADDR` will override `http.addr`
 * `MINIBOARD_DB_DRIVER` will override `db.driver`
+* etc.
 
 ## Development
 
 ### Backend
 
-1. Run server: 
+1. Run server:
 
 ```bash
 $ cd ./backend \
