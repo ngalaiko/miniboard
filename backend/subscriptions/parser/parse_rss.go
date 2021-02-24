@@ -103,14 +103,13 @@ func parseImage(z *html.Tokenizer) (*Image, error) {
 			return nil, z.Err()
 		case html.StartTagToken:
 			tn, _ := z.TagName()
-			switch string(tn) {
-			case "link", "url":
-				text, err := parseText(z)
+			if string(tn) == "url" {
+				url, err := parseText(z)
 				if err != nil {
 					return nil, err
 				}
 				image = &Image{
-					URL: text,
+					URL: url,
 				}
 			}
 		}
