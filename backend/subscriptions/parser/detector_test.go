@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func Test_detctType(t *testing.T) {
+func Test_detectType(t *testing.T) {
 	testCases := []struct {
 		file string
 		out  feedType
@@ -16,7 +16,7 @@ func Test_detctType(t *testing.T) {
 		{"rss_feed.xml", feedTypeRSS},
 		{"rss_feed_bom.xml", feedTypeRSS},
 		{"rss_feed_leading_spaces.xml", feedTypeRSS},
-		{"rdf_feed.xml", feedTypeRSS},
+		{"rdf_feed.xml", feedTypeRDF},
 		{"unknown_feed.xml", feedTypeUnknown},
 		{"empty_feed.xml", feedTypeUnknown},
 		{"json_feed.json", feedTypeJSON},

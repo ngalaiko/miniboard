@@ -11,6 +11,7 @@ require (
 	github.com/rs/zerolog v1.20.0
 	github.com/vrischmann/envconfig v1.3.0
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
+	golang.org/x/net v0.0.0-20210224082022-3d97a244fca7
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	gopkg.in/square/go-jose.v2 v2.5.1
 	gopkg.in/yaml.v2 v2.4.0

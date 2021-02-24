@@ -10,6 +10,7 @@ type feedType int8
 const (
 	feedTypeUnknown feedType = iota
 	feedTypeRSS
+	feedTypeRDF
 	feedTypeAtom
 	feedTypeJSON
 )
@@ -58,7 +59,7 @@ loop:
 		case xml.Unmarshal(data, &rss) == nil:
 			return feedTypeRSS
 		case xml.Unmarshal(data, &rdf) == nil:
-			return feedTypeRSS
+			return feedTypeRDF
 		case xml.Unmarshal(data, &atom) == nil:
 			return feedTypeAtom
 		default:
