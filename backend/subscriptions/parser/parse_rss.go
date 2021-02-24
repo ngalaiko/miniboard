@@ -18,7 +18,7 @@ func parseRSS(data []byte) (*Feed, error) {
 		case html.StartTagToken:
 			tn, _ := z.TagName()
 			if string(tn) == "channel" {
-				f, err := parseChannel(z)
+				f, err := parseRSSChannel(z)
 				if err != nil {
 					return nil, err
 				}
@@ -33,7 +33,7 @@ func parseRSS(data []byte) (*Feed, error) {
 	}
 }
 
-func parseChannel(z *html.Tokenizer) (*Feed, error) {
+func parseRSSChannel(z *html.Tokenizer) (*Feed, error) {
 	feed := &Feed{
 		Items: []*Item{},
 	}
@@ -42,7 +42,7 @@ func parseChannel(z *html.Tokenizer) (*Feed, error) {
 		case html.StartTagToken:
 			tn, _ := z.TagName()
 			switch string(tn) {
-			case "title":
+			case tagTitle:
 				title, err := parseText(z)
 				if err != nil {
 					return nil, err

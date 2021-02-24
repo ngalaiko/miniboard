@@ -11,37 +11,41 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func Test_Parser__rss(t *testing.T) {
-	files, _ := filepath.Glob("./testdata/rss/*.xml")
-	for _, f := range files {
-		t.Run(f, func(t *testing.T) {
-			base := filepath.Base(f)
-			name := strings.TrimSuffix(base, filepath.Ext(base))
+func Test_Parser(t *testing.T) {
+	for _, ext := range []string{"rss", "rdf"} {
+		prefix := "./testdata/" + ext
+		files, _ := filepath.Glob(prefix + "/*.xml")
+		for _, f := range files {
+			t.Run(f, func(t *testing.T) {
+				base := filepath.Base(f)
+				name := strings.TrimSuffix(base, filepath.Ext(base))
 
-			// Get actual source feed
-			ff := fmt.Sprintf("./testdata/rss/%s.xml", name)
-			f, _ := ioutil.ReadFile(ff)
+				// Get actual source feed
+				ff := fmt.Sprintf(prefix+"/%s.xml", name)
+				f, _ := ioutil.ReadFile(ff)
 
-			// Parse actual feed
-			actual, err := Parse(f)
-			if err != nil {
-				t.Error(err)
-			}
+				// Parse actual feed
+				actual, err := Parse(f)
+				if err != nil {
+					t.Error(err)
+				}
 
-			// Get json encoded expected feed result
-			ef := fmt.Sprintf("./testdata/rss/%s.json", name)
-			e, _ := ioutil.ReadFile(ef)
+				// Get json encoded expected feed result
+				ef := fmt.Sprintf(prefix+"/%s.json", name)
 
-			// Unmarshal expected feed
-			expected := &Feed{}
+				e, _ := ioutil.ReadFile(ef)
 
-			if err := json.Unmarshal(e, &expected); err != nil {
-				t.Error(err)
-			}
+				// Unmarshal expected feed
+				expected := &Feed{}
 
-			if !cmp.Equal(expected, actual) {
-				t.Error(cmp.Diff(expected, actual))
-			}
-		})
+				if err := json.Unmarshal(e, &expected); err != nil {
+					t.Error(err)
+				}
+
+				if !cmp.Equal(expected, actual) {
+					t.Error(cmp.Diff(expected, actual))
+				}
+			})
+		}
 	}
 }
