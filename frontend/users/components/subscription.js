@@ -40,14 +40,28 @@
 
             const instance = HTMLTemplate.content.cloneNode(true)
             shadowRoot.appendChild(instance)
+
+            shadowRoot.querySelector('#subscription-container').addEventListener('click', () => {
+                const event = new CustomEvent('SubscriptionSelected', {
+                    detail: {
+                        id: this._id,
+                    },
+                    bubbles: true,
+                    composed: true
+                })
+                this.shadowRoot.dispatchEvent(event)
+            })
         }
 
         static get observedAttributes() {
-            return ['title', 'icon']
+            return ['id', 'title', 'icon']
         }
 
         attributeChangedCallback(attribute, oldValue, newValue) {
             switch (attribute) {
+            case 'id':
+                this.id = newValue
+                break
             case 'title':
                 this.title = newValue
                 break
@@ -55,6 +69,10 @@
                 this.icon = newValue
                 break
             }
+        }
+
+        set id(value) {
+            this._id = value
         }
 
         set title(value) {

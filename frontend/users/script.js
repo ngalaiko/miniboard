@@ -1,5 +1,38 @@
 import TagsService from './services/tags.js'
 import SubscriptionsService from './services/subscriptions.js'
+import ItemsService from './services/items.js'
+
+const storeState = (key, value) => {
+    const urlParams = new URLSearchParams(window.location.search.slice(1))
+
+    if (urlParams.get(key) === value) return 
+
+    urlParams.set(key, value)
+
+    let refresh = window.location.protocol +
+        "//" + window.location.host + window.location.pathname +
+        `?${urlParams.toString()}`
+    window.history.pushState({ path: refresh }, '', refresh)
+}
+
+const listAllItems = async (pageSize, createdLt, subscriptionIdEq) => {
+    const params = {}
+
+    if (pageSize === undefined) pageSize = 100
+    if (pageSize !== undefined) params.pageSize = pageSize
+    if (createdLt !== undefined) params.createdLt = createdLt
+    if (subscriptionIdEq !== undefined) params.subscriptionIdEq = subscriptionIdEq 
+
+    const items = await ItemsService.list(params)
+
+    if (items.length < pageSize) {
+        return items
+    }
+
+    params.createdLt = items[items.length - 1].created
+
+    return items.concat(await ItemsService.list(params))
+}
 
 const listAllTags = async (pageSize, createdLt) => {
     const params = {}
@@ -37,7 +70,7 @@ const listAllSubscriptions = async (pageSize, createdLt) => {
     return tags.concat(await SubscriptionsService.list(params))
 }
 
-document.querySelector('#left').addEventListener('SubscriptionCreate', (e) => {
+document.querySelector('#tags-menu').addEventListener('SubscriptionCreate', (e) => {
     const params = e.detail.params
     const promise = e.detail.promise
 
@@ -48,7 +81,7 @@ document.querySelector('#left').addEventListener('SubscriptionCreate', (e) => {
     )
 })
 
-document.querySelector('#left').addEventListener('TagCreate', (e) => {
+document.querySelector('#tags-menu').addEventListener('TagCreate', (e) => {
     const params = e.detail.params
     const promise = e.detail.promise
 
@@ -57,6 +90,15 @@ document.querySelector('#left').addEventListener('TagCreate', (e) => {
     document.querySelector('#toasts').promise(`Creating tag: ${params.title}`, promise,
         (tag) => `New tag: ${tag.title}`,
     )
+})
+
+document.querySelector('#tags-menu').addEventListener('SubscriptionSelected', async (e) => {
+    const subscriptionId = e.detail.id
+
+    storeState('subscription', subscriptionId)
+    await ItemsService.list({
+        subscriptionIdEq: subscriptionId,
+    })
 })
 
 Promise.all([listAllSubscriptions(), listAllTags()]).then(async (values) => {

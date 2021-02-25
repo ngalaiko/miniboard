@@ -1,4 +1,4 @@
-#left {
+#tags-menu,#items-menu {
     display: flex;
     flex-direction: column;
 

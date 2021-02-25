@@ -37,6 +37,7 @@ import SubscriptionsService from '../services/subscriptions.js'
             list.appendChild(li)
 
             const xSubscription = document.createElement('x-subscription')
+            xSubscription.setAttribute('id', subscription.id)
             xSubscription.setAttribute('title', subscription.title)
             if (subscription.icon_url !== undefined) {
                 xSubscription.setAttribute('icon', subscription.icon_url)
