@@ -1,34 +1,20 @@
+import AuthorizationsService from '/users/services/authorizations.js'
+
 const loginButton = document.getElementById('login-button')
 const inputUsername = document.getElementById('username')
 const inputPassword = document.getElementById('password')
 
-const apiUrl = window.location.hostname == 'localhost'
-    ? 'http://localhost:80'
-    : 'https://api.miniboard.app'
-
 const handleButtonClick = async (e) => {
     e.preventDefault()
 
-    const response = await fetch(apiUrl + '/v1/authorizations', {
-        credentials: 'include',
-        method: 'POST',
-        body: JSON.stringify({
-            username: inputUsername.value,
-            password: inputPassword.value,
-        })
-    })
-
-    if (response.status === 200) {
+    AuthorizationsService.create({
+        username: inputUsername.value,
+        password: inputPassword.value,
+    }).then(() => {
         document.location = '/users'
-        return
-    }
-
-    const body = await response.json()
-    if (body.message) {
-        alert(`error: ${body.message}`)
-    } else {
-        alert(`error: something went very wrong`)
-    }
+    }).catch((error) => {
+        alert(`error: ${error}`)
+    })
 }
 
 loginButton.addEventListener('click', handleButtonClick)

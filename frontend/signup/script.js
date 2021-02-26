@@ -1,3 +1,5 @@
+import UsersService from '/users/services/users.js'
+
 const signupButton = document.getElementById('signup-button')
 const inputUsername = document.getElementById('username')
 const inputPassword = document.getElementById('password')
@@ -9,26 +11,15 @@ const apiUrl = window.location.hostname == 'localhost'
 const handleButtonClick = async (e) => {
     e.preventDefault()
 
-    const response = await fetch(apiUrl + '/v1/users', {
-        method: 'POST',
-        body: JSON.stringify({
-            username: inputUsername.value,
-            password: inputPassword.value,
-        })
-    })
-
-    if (response.status === 200) {
+    UsersService.create({
+        username: inputUsername.value,
+        password: inputPassword.value,
+    }).then(() => {
         alert('You are now signed up')
         document.location = '/login'
-        return
-    }
-
-    const body = await response.json()
-    if (body.message) {
-        alert(`error: ${body.message}`)
-    } else {
-        alert(`error: something went very wrong`)
-    }
+    }).catch((error) => {
+        alert(`error: ${error}`)
+    })
 }
 
 signupButton.addEventListener('click', handleButtonClick)
