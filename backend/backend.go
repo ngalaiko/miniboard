@@ -132,12 +132,9 @@ func (s *Server) Start(ctx context.Context) error {
 		}
 		return nil
 	})
-	g.Go(func() error {
-		if err := s.httpServer.Start(); err != nil {
-			return fmt.Errorf("failed to start http server: %w", err)
-		}
-		return nil
-	})
+	if err := s.httpServer.Start(); err != nil {
+		return fmt.Errorf("failed to start http server: %w", err)
+	}
 	return g.Wait()
 }
 
