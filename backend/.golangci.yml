@@ -58,6 +58,7 @@ issues:
         - unparam
         - gochecknoglobals
         - goconst
+        - funlen
     - path: db/migrations.go
       linters:
         - funlen
