@@ -28,6 +28,8 @@ func Parse(data []byte) (*Feed, error) {
 		return parseRSS(data)
 	case feedTypeRDF:
 		return parseRDF(data)
+	case feedTypeJSON:
+		return parseJSON(data)
 	default:
 		return nil, fmt.Errorf("unkwown type")
 	}
