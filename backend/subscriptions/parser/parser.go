@@ -26,6 +26,8 @@ func Parse(data []byte) (*Feed, error) {
 	switch detectType(data) {
 	case feedTypeRSS:
 		return parseRSS(data)
+	case feedTypeRDF:
+		return parseRDF(data)
 	default:
 		return nil, fmt.Errorf("unkwown type")
 	}
