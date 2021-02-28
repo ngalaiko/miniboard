@@ -81,3 +81,8 @@ $ cd ./frontend \
 ```bash
 $ open http://localhost:8080
 ```
+
+## Acknowledgments 
+
+* [Miniflux](https://miniflux.app)
+* [Pinboard](https://pinboard.in)
