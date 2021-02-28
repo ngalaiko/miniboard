@@ -30,6 +30,8 @@ func Parse(data []byte) (*Feed, error) {
 		return parseRDF(data)
 	case feedTypeJSON:
 		return parseJSON(data)
+	case feedTypeAtom03:
+		return parseAtom03(data)
 	case feedTypeAtom10:
 		return parseAtom10(data)
 	default:
