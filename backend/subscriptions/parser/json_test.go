@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestParseJsonFeed(t *testing.T) {
+func Test_Parse_json__JsonFeed(t *testing.T) {
 	data := `{
 		"version": "https://jsonfeed.org/version/1",
 		"title": "My Example Feed",
@@ -64,7 +64,7 @@ func TestParseJsonFeed(t *testing.T) {
 	}
 }
 
-func TestParsePodcast(t *testing.T) {
+func Test_Parse_json__Podcast(t *testing.T) {
 	data := `{
 		"version": "https://jsonfeed.org/version/1",
 		"user_comment": "This is a podcast feed. You can add this feed to your podcast client using the following URL: http://therecord.co/feed.json",
@@ -118,7 +118,7 @@ func TestParsePodcast(t *testing.T) {
 	}
 }
 
-func TestParseFeedWithRelativeURL(t *testing.T) {
+func Test_Parse_json__FeedWithRelativeURL(t *testing.T) {
 	data := `{
 		"version": "https://jsonfeed.org/version/1",
 		"title": "Example",
@@ -143,7 +143,7 @@ func TestParseFeedWithRelativeURL(t *testing.T) {
 	}
 }
 
-func TestParseFeedWithoutTitle(t *testing.T) {
+func Test_Parse_json__FeedWithoutTitle(t *testing.T) {
 	data := `{
 		"version": "https://jsonfeed.org/version/1",
 		"home_page_url": "https://example.org/",
@@ -168,7 +168,7 @@ func TestParseFeedWithoutTitle(t *testing.T) {
 	}
 }
 
-func TestParseFeedItemWithoutTitle(t *testing.T) {
+func Test_Parse_json__FeedItemWithoutTitle(t *testing.T) {
 	data := `{
 		"version": "https://jsonfeed.org/version/1",
 		"title": "My Example Feed",
@@ -195,7 +195,7 @@ func TestParseFeedItemWithoutTitle(t *testing.T) {
 	}
 }
 
-func TestParseTruncateItemTitle(t *testing.T) {
+func Test_Parse_json__TruncateItemTitle(t *testing.T) {
 	data := `{
 		"version": "https://jsonfeed.org/version/1",
 		"title": "My Example Feed",
@@ -222,7 +222,7 @@ func TestParseTruncateItemTitle(t *testing.T) {
 	}
 }
 
-func TestParseItemTitleWithXMLTags(t *testing.T) {
+func Test_Parse_json__ItemTitleWithXMLTags(t *testing.T) {
 	data := `{
 		"version": "https://jsonfeed.org/version/1",
 		"title": "My Example Feed",
@@ -249,7 +249,7 @@ func TestParseItemTitleWithXMLTags(t *testing.T) {
 	}
 }
 
-func TestParseInvalidJSON(t *testing.T) {
+func Test_Parse_json__InvalidJSON(t *testing.T) {
 	data := `garbage`
 	_, err := Parse([]byte(data))
 	if err == nil {

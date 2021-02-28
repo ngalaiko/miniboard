@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestParseRDFSample(t *testing.T) {
+func Test_Parse_rdf__RDFSample(t *testing.T) {
 	data := `
 	<?xml version="1.0"?>
 	<rdf:RDF
@@ -88,7 +88,7 @@ func TestParseRDFSample(t *testing.T) {
 	}
 }
 
-func TestParseRDFSampleWithDublinCore(t *testing.T) {
+func Test_Parse_rdf__RDFSampleWithDublinCore(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<rdf:RDF
 	  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -173,7 +173,7 @@ func TestParseRDFSampleWithDublinCore(t *testing.T) {
 	}
 }
 
-func TestParseItemRelativeURL(t *testing.T) {
+func Test_Parse_rdf__ItemRelativeURL(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://purl.org/rss/1.0/">
 	  <channel>
@@ -197,7 +197,7 @@ func TestParseItemRelativeURL(t *testing.T) {
 	}
 }
 
-func TestParseItemWithoutLink(t *testing.T) {
+func Test_Parse_rdf__ItemWithoutLink(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<rdf:RDF
 	  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -223,7 +223,7 @@ func TestParseItemWithoutLink(t *testing.T) {
 	}
 }
 
-func TestParseInvalidXml(t *testing.T) {
+func Test_Parse_rdf__InvalidXml(t *testing.T) {
 	data := `garbage`
 	_, err := Parse([]byte(data))
 	if err == nil {
@@ -231,7 +231,7 @@ func TestParseInvalidXml(t *testing.T) {
 	}
 }
 
-func TestParseFeedWithURLWrappedInSpaces(t *testing.T) {
+func Test_Parse_rdf__FeedWithURLWrappedInSpaces(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<rdf:RDF xmlns:admin="http://webns.net/mvcb/" xmlns="http://purl.org/rss/1.0/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:prism="http://purl.org/rss/1.0/modules/prism/" xmlns:taxo="http://purl.org/rss/1.0/modules/taxonomy/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:syn="http://purl.org/rss/1.0/modules/syndication/">
 	<channel rdf:about="http://biorxiv.org">

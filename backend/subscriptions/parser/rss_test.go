@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func Test_Parse__Rss2Sample(t *testing.T) {
+func Test_Parse_rss__Rss2Sample(t *testing.T) {
 	data := `
 		<?xml version="1.0"?>
 		<rss version="2.0">
@@ -85,7 +85,7 @@ func Test_Parse__Rss2Sample(t *testing.T) {
 	}
 }
 
-func Test_Parse__FeedWithoutTitle(t *testing.T) {
+func Test_Parse_rss__FeedWithoutTitle(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0">
 		<channel>
@@ -103,7 +103,7 @@ func Test_Parse__FeedWithoutTitle(t *testing.T) {
 	}
 }
 
-func Test_Parse__ItemWithoutTitle(t *testing.T) {
+func Test_Parse_rss__ItemWithoutTitle(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0">
 		<channel>
@@ -124,7 +124,7 @@ func Test_Parse__ItemWithoutTitle(t *testing.T) {
 	}
 }
 
-func Test_Parse__ItemWithMediaTitle(t *testing.T) {
+func Test_Parse_rss__ItemWithMediaTitle(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
 		<channel>
@@ -147,7 +147,7 @@ func Test_Parse__ItemWithMediaTitle(t *testing.T) {
 	}
 }
 
-func Test_Parse__ItemWithDCTitleOnly(t *testing.T) {
+func Test_Parse_rss__ItemWithDCTitleOnly(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/" xmlns:dc="http://purl.org/dc/elements/1.1/">
 		<channel>
@@ -169,7 +169,7 @@ func Test_Parse__ItemWithDCTitleOnly(t *testing.T) {
 	}
 }
 
-func Test_Parse__ItemWithoutLink(t *testing.T) {
+func Test_Parse_rss__ItemWithoutLink(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0">
 		<channel>
@@ -190,7 +190,7 @@ func Test_Parse__ItemWithoutLink(t *testing.T) {
 	}
 }
 
-func Test_Parse__ItemWithAtomLink(t *testing.T) {
+func Test_Parse_rss__ItemWithAtomLink(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 		<channel>
@@ -216,7 +216,7 @@ func Test_Parse__ItemWithAtomLink(t *testing.T) {
 	}
 }
 
-func Test_Parse__ItemWithMultipleAtomLinks(t *testing.T) {
+func Test_Parse_rss__ItemWithMultipleAtomLinks(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 		<channel>
@@ -239,7 +239,7 @@ func Test_Parse__ItemWithMultipleAtomLinks(t *testing.T) {
 	}
 }
 
-func Test_Parse__ItemWithFeedBurnerLink(t *testing.T) {
+func Test_Parse_rss__ItemWithFeedBurnerLink(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:feedburner="http://rssnamespace.org/feedburner/ext/1.0">
 		<channel>
@@ -263,7 +263,7 @@ func Test_Parse__ItemWithFeedBurnerLink(t *testing.T) {
 	}
 }
 
-func Test_Parse__ItemTitleWithWhitespaces(t *testing.T) {
+func Test_Parse_rss__ItemTitleWithWhitespaces(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<rss version="2.0">
 	<channel>
@@ -289,7 +289,7 @@ func Test_Parse__ItemTitleWithWhitespaces(t *testing.T) {
 	}
 }
 
-func Test_Parse__ItemWithRelativeLink(t *testing.T) {
+func Test_Parse_rss__ItemWithRelativeLink(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0">
 		<channel>
@@ -310,7 +310,7 @@ func Test_Parse__ItemWithRelativeLink(t *testing.T) {
 	}
 }
 
-func Test_Parse__InvalidXml(t *testing.T) {
+func Test_Parse_rss__InvalidXml(t *testing.T) {
 	data := `garbage`
 	_, err := Parse([]byte(data))
 	if err == nil {
@@ -318,7 +318,7 @@ func Test_Parse__InvalidXml(t *testing.T) {
 	}
 }
 
-func Test_Parse__ItemTitleWithHTMLEntity(t *testing.T) {
+func Test_Parse_rss__ItemTitleWithHTMLEntity(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:slash="http://purl.org/rss/1.0/modules/slash/">
 		<channel>
@@ -341,7 +341,7 @@ func Test_Parse__ItemTitleWithHTMLEntity(t *testing.T) {
 	}
 }
 
-func Test_Parse__ItemTitleWithNumericCharacterReference(t *testing.T) {
+func Test_Parse_rss__ItemTitleWithNumericCharacterReference(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:slash="http://purl.org/rss/1.0/modules/slash/">
 		<channel>
@@ -364,7 +364,7 @@ func Test_Parse__ItemTitleWithNumericCharacterReference(t *testing.T) {
 	}
 }
 
-func Test_Parse__ItemTitleWithDoubleEncodedEntities(t *testing.T) {
+func Test_Parse_rss__ItemTitleWithDoubleEncodedEntities(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:slash="http://purl.org/rss/1.0/modules/slash/">
 		<channel>
