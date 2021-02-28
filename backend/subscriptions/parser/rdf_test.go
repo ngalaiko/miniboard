@@ -58,7 +58,7 @@ func TestParseRDFSample(t *testing.T) {
 	  </textinput>
 	</rdf:RDF>`
 
-	feed, err := parseRDF([]byte(data))
+	feed, err := Parse([]byte(data))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -147,7 +147,7 @@ func TestParseRDFSampleWithDublinCore(t *testing.T) {
 	  </textinput>
 	</rdf:RDF>`
 
-	feed, err := parseRDF([]byte(data))
+	feed, err := Parse([]byte(data))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -187,7 +187,7 @@ func TestParseItemRelativeURL(t *testing.T) {
 	  </item>
 	</rdf:RDF>`
 
-	feed, err := parseRDF([]byte(data))
+	feed, err := Parse([]byte(data))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -213,7 +213,7 @@ func TestParseItemWithoutLink(t *testing.T) {
 	  </item>
 	</rdf:RDF>`
 
-	feed, err := parseRDF([]byte(data))
+	feed, err := Parse([]byte(data))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -225,7 +225,7 @@ func TestParseItemWithoutLink(t *testing.T) {
 
 func TestParseInvalidXml(t *testing.T) {
 	data := `garbage`
-	_, err := parseRDF([]byte(data))
+	_, err := Parse([]byte(data))
 	if err == nil {
 		t.Fatal("Parse should returns an error")
 	}
@@ -277,7 +277,7 @@ func TestParseFeedWithURLWrappedInSpaces(t *testing.T) {
 	</item>
 	</rdf:RDF>`
 
-	feed, err := parseRDF([]byte(data))
+	feed, err := Parse([]byte(data))
 	if err != nil {
 		t.Fatal(err)
 	}
