@@ -1,7 +1,6 @@
 package subscriptions
 
 import (
-	"bytes"
 	"context"
 	"database/sql"
 	"errors"
@@ -11,9 +10,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/mmcdole/gofeed"
-	"github.com/ngalaiko/miniboard/backend/items"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/ngalaiko/miniboard/backend/items"
+	"github.com/ngalaiko/miniboard/backend/subscriptions/parser"
 )
 
 // Known errors.
@@ -47,7 +47,6 @@ type itemsService interface {
 type Service struct {
 	db      *database
 	crawler crawler
-	parser  *gofeed.Parser
 	cfg     *Config
 
 	logger       logger
@@ -71,7 +70,6 @@ func NewService(db *sql.DB, crawler crawler, logger logger, cfg *Config, itemsSe
 	return &Service{
 		db:           newDB(db, logger),
 		crawler:      crawler,
-		parser:       gofeed.NewParser(),
 		cfg:          cfg,
 		logger:       logger,
 		itemsService: itemsService,
@@ -90,7 +88,7 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagID
 		return nil, errFailedToDownloadSubscription
 	}
 
-	parsedSubscription, err := s.parser.Parse(bytes.NewReader(data))
+	parsedSubscription, err := parser.Parse(data)
 	if err != nil {
 		s.logger.Error("failed to parse subscription %s: %s", url, err)
 		return nil, errFailedToParseSubscription
@@ -203,7 +201,7 @@ func (s *Service) startWorkers(ctx context.Context, subscriptionIDsToUpdate chan
 
 	g, ctx := errgroup.WithContext(ctx)
 	for i := 0; i < nWorkers; i++ {
-		worker := newWorker(subscriptionIDsToUpdate, s.logger, s.db, s.parser, s.crawler, s.itemsService)
+		worker := newWorker(subscriptionIDsToUpdate, s.logger, s.db, s.crawler, s.itemsService)
 		s.workers = append(s.workers, worker)
 
 		g.Go(func() error {

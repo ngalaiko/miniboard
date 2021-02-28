@@ -1,19 +1,17 @@
 package subscriptions
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"net/url"
 
-	"github.com/mmcdole/gofeed"
 	"github.com/ngalaiko/miniboard/backend/items"
+	"github.com/ngalaiko/miniboard/backend/subscriptions/parser"
 )
 
 type worker struct {
 	subscriptionsIDsToUpdate <-chan string
 	db                       *database
-	parser                   *gofeed.Parser
 	crawler                  crawler
 	itemsService             itemsService
 	logger                   logger
@@ -22,11 +20,10 @@ type worker struct {
 	stopped  chan struct{}
 }
 
-func newWorker(subscriptionsIDsToUpdate <-chan string, logger logger, db *database, parser *gofeed.Parser, crawler crawler, itemsService itemsService) *worker {
+func newWorker(subscriptionsIDsToUpdate <-chan string, logger logger, db *database, crawler crawler, itemsService itemsService) *worker {
 	return &worker{
 		subscriptionsIDsToUpdate: subscriptionsIDsToUpdate,
 		db:                       db,
-		parser:                   parser,
 		crawler:                  crawler,
 		itemsService:             itemsService,
 		shutdown:                 make(chan struct{}),
@@ -75,7 +72,7 @@ func (w *worker) update(ctx context.Context, subscriptionID string) error {
 		return fmt.Errorf("%s: %w", sURL, errFailedToDownloadSubscription)
 	}
 
-	parsedSubscription, err := w.parser.Parse(bytes.NewReader(data))
+	parsedSubscription, err := parser.Parse(data)
 	if err != nil {
 		return fmt.Errorf("%s: %w", sURL, errFailedToParseSubscription)
 	}
