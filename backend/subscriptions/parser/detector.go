@@ -11,7 +11,8 @@ const (
 	feedTypeUnknown feedType = iota
 	feedTypeRSS
 	feedTypeRDF
-	feedTypeAtom
+	feedTypeAtom03
+	feedTypeAtom10
 	feedTypeJSON
 )
 
@@ -53,6 +54,7 @@ loop:
 
 		var atom struct {
 			XMLName xml.Name `xml:"feed"`
+			Version string   `xml:"version,attr"`
 		}
 
 		switch {
@@ -61,7 +63,10 @@ loop:
 		case xml.Unmarshal(data, &rdf) == nil:
 			return feedTypeRDF
 		case xml.Unmarshal(data, &atom) == nil:
-			return feedTypeAtom
+			if atom.Version == "0.3" {
+				return feedTypeAtom03
+			}
+			return feedTypeAtom10
 		default:
 			return feedTypeUnknown
 		}

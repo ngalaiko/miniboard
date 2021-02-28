@@ -11,8 +11,8 @@ func Test_detectType(t *testing.T) {
 		file string
 		out  feedType
 	}{
-		{"atom03_feed.xml", feedTypeAtom},
-		{"atom10_feed.xml", feedTypeAtom},
+		{"atom03_feed.xml", feedTypeAtom03},
+		{"atom10_feed.xml", feedTypeAtom10},
 		{"rss_feed.xml", feedTypeRSS},
 		{"rss_feed_bom.xml", feedTypeRSS},
 		{"rss_feed_leading_spaces.xml", feedTypeRSS},
