@@ -172,11 +172,11 @@ func (i *rssItem) date() time.Time {
 	}
 
 	for _, layout := range []string{
+		time.RFC3339,
 		time.RFC822,
 		time.RFC822Z,
-		time.RFC3339,
-		"Mon, 02 Jan 2006 15:04:05 MST",
-		"Mon, 02 Jan 06 15:04:05 MST",
+		time.RFC1123,
+		time.RFC1123Z,
 	} {
 		result, err := time.Parse(layout, value)
 		if err == nil {
