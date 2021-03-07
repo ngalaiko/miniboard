@@ -1,11 +1,15 @@
 package parser
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 // Item contains relevant feed item information.
 type Item struct {
 	Title string
 	Link  string
+	Date  time.Time
 }
 
 // Image is a feed's image.

@@ -3,6 +3,7 @@ package parser
 import (
 	"strings"
 	"testing"
+	"time"
 )
 
 func Test_Parse_json__JsonFeed(t *testing.T) {
@@ -254,5 +255,36 @@ func Test_Parse_json__InvalidJSON(t *testing.T) {
 	_, err := Parse([]byte(data))
 	if err == nil {
 		t.Error("Parse should returns an error")
+	}
+}
+
+func TestParseFeedItemWithInvalidDate(t *testing.T) {
+	data := `{
+		"version": "https://jsonfeed.org/version/1",
+		"title": "My Example Feed",
+		"home_page_url": "https://example.org/",
+		"feed_url": "https://example.org/feed.json",
+		"items": [
+			{
+				"id": "2347259",
+				"url": "https://example.org/2347259",
+				"content_text": "Cats are neat. \n\nhttps://example.org/cats",
+				"date_published": "Tomorrow"
+			}
+		]
+	}`
+
+	feed, err := Parse([]byte(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(feed.Items) != 1 {
+		t.Errorf("Incorrect number of entries, got: %d", len(feed.Items))
+	}
+
+	duration := time.Since(feed.Items[0].Date)
+	if duration.Seconds() > 1 {
+		t.Errorf("Incorrect entry date, got: %v", feed.Items[0].Date)
 	}
 }

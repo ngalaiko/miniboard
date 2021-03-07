@@ -2,6 +2,7 @@ package parser
 
 import (
 	"testing"
+	"time"
 )
 
 func Test_Parse_rss__Rss2Sample(t *testing.T) {
@@ -82,6 +83,11 @@ func Test_Parse_rss__Rss2Sample(t *testing.T) {
 
 	if feed.Items[0].Title != "Star City" {
 		t.Errorf("Incorrect entry title, got: %s", feed.Items[0].Title)
+	}
+
+	expectedDate := time.Date(2003, time.June, 3, 9, 39, 21, 0, time.UTC)
+	if !feed.Items[0].Date.Equal(expectedDate) {
+		t.Errorf("Incorrect entry date, got: %v, want: %v", feed.Items[0].Date, expectedDate)
 	}
 }
 
@@ -384,5 +390,33 @@ func Test_Parse_rss__ItemTitleWithDoubleEncodedEntities(t *testing.T) {
 
 	if feed.Items[0].Title != "'Text'" {
 		t.Errorf(`Incorrect title, got: %q`, feed.Items[0].Title)
+	}
+}
+
+func TestParseEntryWithDublinCoreDate(t *testing.T) {
+	data := `<?xml version="1.0" encoding="utf-8"?>
+				<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+				<channel>
+					<title>Example</title>
+					<link>http://example.org/</link>
+					<item>
+						<title>Item 1</title>
+						<link>http://example.org/item1</link>
+						<description>Description.</description>
+						<guid isPermaLink="false">UUID</guid>
+						<dc:date>2002-09-29T23:40:06-05:00</dc:date>
+					</item>
+				</channel>
+			</rss>`
+
+	feed, err := Parse([]byte(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	location, _ := time.LoadLocation("EST")
+	expectedDate := time.Date(2002, time.September, 29, 23, 40, 06, 0, location)
+	if !feed.Items[0].Date.Equal(expectedDate) {
+		t.Errorf("Incorrect entry date, got: %v, want: %v", feed.Items[0].Date, expectedDate)
 	}
 }

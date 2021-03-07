@@ -2,6 +2,7 @@ package parser
 
 import (
 	"testing"
+	"time"
 )
 
 func Test_Parse_rdf__RDFSample(t *testing.T) {
@@ -85,6 +86,10 @@ func Test_Parse_rdf__RDFSample(t *testing.T) {
 
 	if feed.Items[1].Title != "Putting RDF to Work" {
 		t.Errorf("Incorrect entry title, got: %s", feed.Items[0].Title)
+	}
+
+	if feed.Items[1].Date.Year() != time.Now().Year() {
+		t.Errorf("Entry date should not be empty")
 	}
 }
 
@@ -288,5 +293,58 @@ func Test_Parse_rdf__FeedWithURLWrappedInSpaces(t *testing.T) {
 
 	if feed.Items[0].Link != `http://biorxiv.org/cgi/content/short/857789v1?rss=1` {
 		t.Errorf(`Unexpected entry URL, got %q`, feed.Items[0].Link)
+	}
+}
+
+func TestParseItemWithDublicCoreDate(t *testing.T) {
+	data := `<?xml version="1.0" encoding="utf-8"?>
+	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://purl.org/rss/1.0/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:slash="http://purl.org/rss/1.0/modules/slash/">
+	  <channel>
+			<title>Example</title>
+			<link>http://example.org</link>
+	  </channel>
+	  <item>
+			<title>Title</title>
+			<description>Test</description>
+			<link>http://example.org/test.html</link>
+			<dc:creator>Tester</dc:creator>
+			<dc:date>2018-04-10T05:00:00+00:00</dc:date>
+	  </item>
+	</rdf:RDF>`
+
+	feed, err := Parse([]byte(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expectedDate := time.Date(2018, time.April, 10, 5, 0, 0, 0, time.UTC)
+	if !feed.Items[0].Date.Equal(expectedDate) {
+		t.Errorf("Incorrect entry date, got: %v, want: %v", feed.Items[0].Date, expectedDate)
+	}
+}
+
+func TestParseItemWithoutDate(t *testing.T) {
+	data := `<?xml version="1.0" encoding="utf-8"?>
+	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://purl.org/rss/1.0/">
+	  <channel>
+			<title>Example</title>
+			<link>http://example.org</link>
+	  </channel>
+	  <item>
+			<title>Title</title>
+			<description>Test</description>
+			<link>http://example.org/test.html</link>
+	  </item>
+	</rdf:RDF>`
+
+	feed, err := Parse([]byte(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expectedDate := time.Now().In(time.Local)
+	diff := expectedDate.Sub(feed.Items[0].Date)
+	if diff > time.Second {
+		t.Errorf("Incorrect entry date, got: %v", diff)
 	}
 }

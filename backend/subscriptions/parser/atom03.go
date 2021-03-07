@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html"
 	"strings"
+	"time"
 )
 
 func parseAtom03(data []byte) (*Feed, error) {
@@ -75,13 +76,38 @@ func (a *atom03Text) String() string {
 }
 
 type atom03Item struct {
-	Title atom03Text `xml:"title"`
-	Links atomLinks  `xml:"link"`
+	Title    atom03Text `xml:"title"`
+	Links    atomLinks  `xml:"link"`
+	Modified string     `xml:"modified"`
+	Issued   string     `xml:"issued"`
+	Created  string     `xml:"created"`
 }
 
 func (i *atom03Item) Convert() (*Item, error) {
 	return &Item{
 		Title: i.Title.String(),
 		Link:  i.Links.originalLink(),
+		Date:  i.date(),
 	}, nil
+}
+
+func (i *atom03Item) date() time.Time {
+	dateText := ""
+	for _, value := range []string{i.Issued, i.Modified, i.Created} {
+		if value != "" {
+			dateText = value
+			break
+		}
+	}
+
+	if dateText != "" {
+		result, err := time.Parse(time.RFC3339, dateText)
+		if err != nil {
+			return time.Now()
+		}
+
+		return result
+	}
+
+	return time.Now()
 }

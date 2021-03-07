@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"strings"
+	"time"
 )
 
 func parseRDF(data []byte) (*Feed, error) {
@@ -67,13 +68,28 @@ func (i *rdfImage) Convert() (*Image, error) {
 }
 
 type rdfItem struct {
-	Title string `xml:"title"`
-	Link  string `xml:"link"`
+	Title          string `xml:"title"`
+	Link           string `xml:"link"`
+	DublinCoreDate string `xml:"http://purl.org/dc/elements/1.1/ date"`
 }
 
 func (i *rdfItem) Convert() (*Item, error) {
 	return &Item{
 		Title: strings.TrimSpace(i.Title),
 		Link:  strings.TrimSpace(i.Link),
+		Date:  i.date(),
 	}, nil
+}
+
+func (i *rdfItem) date() time.Time {
+	if i.DublinCoreDate != "" {
+		result, err := time.Parse(time.RFC3339, i.DublinCoreDate)
+		if err != nil {
+			return time.Now()
+		}
+
+		return result
+	}
+
+	return time.Now()
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"strings"
+	"time"
 )
 
 func parseAtom10(data []byte) (*Feed, error) {
@@ -57,15 +58,36 @@ func (f *atom10Feed) Convert() (*Feed, error) {
 }
 
 type atom10Item struct {
-	Title atom10Text `xml:"title"`
-	Links atomLinks  `xml:"link"`
+	Title     atom10Text `xml:"title"`
+	Links     atomLinks  `xml:"link"`
+	Published string     `xml:"published"`
+	Updated   string     `xml:"updated"`
 }
 
 func (i *atom10Item) Convert() (*Item, error) {
 	return &Item{
 		Title: i.Title.String(),
 		Link:  i.Links.originalLink(),
+		Date:  i.date(),
 	}, nil
+}
+
+func (i *atom10Item) date() time.Time {
+	dateText := i.Published
+	if dateText == "" {
+		dateText = i.Updated
+	}
+
+	if dateText != "" {
+		result, err := time.Parse(time.RFC3339, dateText)
+		if err != nil {
+			return time.Now()
+		}
+
+		return result
+	}
+
+	return time.Now()
 }
 
 type atomLinks []*atomLink

@@ -2,6 +2,7 @@ package parser
 
 import (
 	"testing"
+	"time"
 )
 
 func Test_Parse_atom03__Atom03(t *testing.T) {
@@ -45,6 +46,12 @@ func Test_Parse_atom03__Atom03(t *testing.T) {
 
 	if feed.Items[0].Title != "Atom 0.3 snapshot" {
 		t.Errorf("Incorrect entry title, got: %s", feed.Items[0].Title)
+	}
+
+	tz := time.FixedZone("Test Case Time", -int((4 * time.Hour).Seconds()))
+	expected := time.Date(2003, time.December, 13, 8, 29, 29, 0, tz)
+	if !feed.Items[0].Date.Equal(expected) {
+		t.Errorf("Incorrect entry date, got: %v", feed.Items[0].Date)
 	}
 }
 

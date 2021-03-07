@@ -6,6 +6,7 @@ import (
 	"html"
 	"net/url"
 	"strings"
+	"time"
 )
 
 func parseRSS(data []byte) (*Feed, error) {
@@ -115,6 +116,7 @@ func (i *rssItem) Convert() (*Item, error) {
 	return &Item{
 		Title: i.title(),
 		Link:  i.link(),
+		Date:  i.date(),
 	}, nil
 }
 
@@ -168,6 +170,32 @@ func (i *rssItem) title() string {
 	return html.UnescapeString(strings.TrimSpace(title))
 }
 
+func (i *rssItem) date() time.Time {
+	value := i.PubDate
+	if i.DublinCoreDate != "" {
+		value = i.DublinCoreDate
+	}
+
+	if value == "" {
+		return time.Now()
+	}
+
+	for _, layout := range []string{
+		time.RFC822,
+		time.RFC822Z,
+		time.RFC3339,
+		"Mon, 02 Jan 2006 15:04:05 MST",
+		"Mon, 02 Jan 06 15:04:05 MST",
+	} {
+		result, err := time.Parse(layout, value)
+		if err == nil {
+			return result
+		}
+	}
+
+	return time.Now()
+}
+
 type rssFeed struct {
 	XMLName xml.Name   `xml:"rss"`
 	Title   string     `xml:"channel>title"`
@@ -181,10 +209,11 @@ type rssImage struct {
 }
 
 type rssItem struct {
-	GUID    string         `xml:"guid"`
-	Title   []rssItemtitle `xml:"title"`
-	Links   []rssLink      `xml:"link"`
-	PubDate string         `xml:"pubDate"`
+	GUID           string         `xml:"guid"`
+	Title          []rssItemtitle `xml:"title"`
+	Links          []rssLink      `xml:"link"`
+	PubDate        string         `xml:"pubDate"`
+	DublinCoreDate string         `xml:"http://purl.org/dc/elements/1.1/ date"`
 	feedBurnerRssItem
 }
 
