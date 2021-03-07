@@ -4,14 +4,13 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/vrischmann/envconfig"
-	yaml "gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v3"
 
 	"github.com/ngalaiko/miniboard/backend"
 	"github.com/ngalaiko/miniboard/backend/logger"
@@ -97,13 +96,15 @@ func parseConfigurationFromEnvironment(cfg *backend.Config) error {
 }
 
 func parseConfigurationFromYaml(path string) (*backend.Config, error) {
-	data, err := ioutil.ReadFile(path)
+	file, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read file: %w", err)
+		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
 
 	cfg := &backend.Config{}
-	if err := yaml.UnmarshalStrict(data, cfg); err != nil {
+	d := yaml.NewDecoder(file)
+	d.KnownFields(true)
+	if err := d.Decode(cfg); err != nil {
 		return nil, fmt.Errorf("failed to parse file: %w", err)
 	}
 
