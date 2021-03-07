@@ -45,7 +45,7 @@ func (s *Service) Create(
 		return nil, errURLIsEmpty
 	}
 
-	if url == "" {
+	if title == "" {
 		return nil, errTitleIsEmpty
 	}
 
