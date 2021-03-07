@@ -40,7 +40,7 @@ type crawler interface {
 }
 
 type itemsService interface {
-	Create(ctx context.Context, subscriptionID string, url string, title string) (*items.Item, error)
+	Create(ctx context.Context, subscriptionID string, url string, title string, date time.Time) (*items.Item, error)
 }
 
 // Service allows to manage subscriptions resource.
@@ -111,7 +111,7 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagID
 	}
 
 	for _, item := range parsedSubscription.Items {
-		if _, err := s.itemsService.Create(ctx, subscription.ID, item.Link, item.Title); err != nil && err != items.ErrAlreadyExists {
+		if _, err := s.itemsService.Create(ctx, subscription.ID, item.Link, item.Title, item.Date); err != nil && err != items.ErrAlreadyExists {
 			s.logger.Error("failed to store feed %s item %s: %s", subscription.ID, item.Link, err)
 			return nil, errFailedToStoreItem
 		}

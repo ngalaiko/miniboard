@@ -3,6 +3,7 @@ package items
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 )
@@ -13,7 +14,7 @@ func Test_service__Create(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	service := NewService(sqldb, &testLogger{})
 
-	item, err := service.Create(ctx, "sid", "https://example.org", "title")
+	item, err := service.Create(ctx, "sid", "https://example.org", "title", time.Now())
 	if err != nil {
 		t.Fatalf("failed to create a item %s", err)
 	}
@@ -45,12 +46,12 @@ func Test_service__Create_twice(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err := service.Create(ctx, "sid", "https://example.org", "title")
+	_, err := service.Create(ctx, "sid", "https://example.org", "title", time.Now())
 	if err != nil {
 		t.Fatalf("failed to create a item %s", err)
 	}
 
-	_, secondErr := service.Create(ctx, "sid", "https://example.org", "title")
+	_, secondErr := service.Create(ctx, "sid", "https://example.org", "title", time.Now())
 	if secondErr != ErrAlreadyExists {
 		t.Fatalf("expected %s, got %s", ErrAlreadyExists, secondErr)
 	}
@@ -66,7 +67,7 @@ func Test_service__Get(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	item, err := service.Create(ctx, "sid", "https://example.org", "title")
+	item, err := service.Create(ctx, "sid", "https://example.org", "title", time.Now())
 	if err != nil {
 		t.Fatalf("failed to create a item: %s", err)
 	}

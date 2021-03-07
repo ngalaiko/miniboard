@@ -36,6 +36,7 @@ func (s *Service) Create(
 	subscriptionID string,
 	url string,
 	title string,
+	date time.Time,
 ) (*Item, error) {
 	if exists, err := s.db.GetByURL(ctx, url); err == nil && exists != nil {
 		return nil, ErrAlreadyExists
@@ -54,7 +55,7 @@ func (s *Service) Create(
 		URL:            url,
 		Title:          title,
 		SubscriptionID: subscriptionID,
-		Created:        time.Now().Truncate(time.Nanosecond),
+		Created:        date,
 	}
 
 	if err := s.db.Create(ctx, item); err != nil {
