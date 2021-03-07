@@ -41,10 +41,7 @@ func (f *atom10Feed) Convert() (*Feed, error) {
 		}
 	}
 	for _, i := range f.Items {
-		item, err := i.Convert()
-		if err != nil {
-			return nil, err
-		}
+		item := i.Convert()
 		itemLink, err := absoluteURL(feed.Link, item.Link)
 		if err == nil {
 			item.Link = itemLink
@@ -64,12 +61,12 @@ type atom10Item struct {
 	Updated   string     `xml:"updated"`
 }
 
-func (i *atom10Item) Convert() (*Item, error) {
+func (i *atom10Item) Convert() *Item {
 	return &Item{
 		Title: i.Title.String(),
 		Link:  i.Links.originalLink(),
 		Date:  i.date(),
-	}, nil
+	}
 }
 
 func (i *atom10Item) date() time.Time {

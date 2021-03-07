@@ -14,7 +14,7 @@ func parseAtom03(data []byte) (*Feed, error) {
 	if err := xml.Unmarshal(data, feed); err != nil {
 		return nil, fmt.Errorf("unable to parse atom10 feed: %s", err)
 	}
-	return feed.Convert()
+	return feed.Convert(), nil
 }
 
 type atom03Feed struct {
@@ -23,7 +23,7 @@ type atom03Feed struct {
 	Items []atom03Item `xml:"entry"`
 }
 
-func (f *atom03Feed) Convert() (*Feed, error) {
+func (f *atom03Feed) Convert() *Feed {
 	feed := &Feed{
 		Title: f.Title.String(),
 		Link:  f.Links.originalLink(),
@@ -32,16 +32,13 @@ func (f *atom03Feed) Convert() (*Feed, error) {
 		feed.Title = feed.Link
 	}
 	for _, i := range f.Items {
-		item, err := i.Convert()
-		if err != nil {
-			return nil, err
-		}
+		item := i.Convert()
 		if item.Title == "" {
 			item.Title = item.Link
 		}
 		feed.Items = append(feed.Items, item)
 	}
-	return feed, nil
+	return feed
 }
 
 type atom03Text struct {
@@ -83,12 +80,12 @@ type atom03Item struct {
 	Created  string     `xml:"created"`
 }
 
-func (i *atom03Item) Convert() (*Item, error) {
+func (i *atom03Item) Convert() *Item {
 	return &Item{
 		Title: i.Title.String(),
 		Link:  i.Links.originalLink(),
 		Date:  i.date(),
-	}, nil
+	}
 }
 
 func (i *atom03Item) date() time.Time {

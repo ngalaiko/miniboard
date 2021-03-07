@@ -13,7 +13,7 @@ func parseJSON(data []byte) (*Feed, error) {
 		return nil, fmt.Errorf("unable to parse JSON feed: %s", err)
 	}
 
-	return feed.Convert()
+	return feed.Convert(), nil
 }
 
 type jsonFeed struct {
@@ -32,7 +32,7 @@ type jsonItem struct {
 	DateModified  string `json:"date_modified"`
 }
 
-func (f *jsonFeed) Convert() (*Feed, error) {
+func (f *jsonFeed) Convert() *Feed {
 	feed := &Feed{}
 	feed.Link = f.Link
 	feed.Title = strings.TrimSpace(f.Title)
@@ -47,10 +47,7 @@ func (f *jsonFeed) Convert() (*Feed, error) {
 	}
 
 	for _, i := range f.Items {
-		item, err := i.Convert()
-		if err != nil {
-			return nil, err
-		}
+		item := i.Convert()
 		itemLink, err := absoluteURL(feed.Link, item.Link)
 		if err == nil {
 			item.Link = itemLink
@@ -58,10 +55,10 @@ func (f *jsonFeed) Convert() (*Feed, error) {
 		feed.Items = append(feed.Items, item)
 	}
 
-	return feed, nil
+	return feed
 }
 
-func (i *jsonItem) Convert() (*Item, error) {
+func (i *jsonItem) Convert() *Item {
 	item := &Item{
 		Link:  i.Link,
 		Title: i.title(),
@@ -70,7 +67,7 @@ func (i *jsonItem) Convert() (*Item, error) {
 	if item.Title == "" {
 		item.Title = item.Link
 	}
-	return item, nil
+	return item
 }
 
 func (i *jsonItem) date() time.Time {

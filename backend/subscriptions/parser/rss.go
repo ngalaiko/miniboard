@@ -15,31 +15,22 @@ func parseRSS(data []byte) (*Feed, error) {
 		return nil, fmt.Errorf("unable to parse RSS feed: %s", err)
 	}
 
-	return feed.Convert()
+	return feed.Convert(), nil
 }
 
-func (f *rssFeed) Convert() (*Feed, error) {
+func (f *rssFeed) Convert() *Feed {
 	feed := &Feed{
 		Title: f.Title,
 		Link:  f.link(),
+		Image: f.Image.Convert(),
 	}
 
 	if feed.Title == "" {
 		feed.Title = feed.Link
 	}
 
-	image, err := f.Image.Convert()
-	if err != nil {
-		return nil, err
-	}
-
-	feed.Image = image
-
 	for _, item := range f.Items {
-		i, err := item.Convert()
-		if err != nil {
-			return nil, err
-		}
+		i := item.Convert()
 
 		if i.Link == "" {
 			i.Link = feed.Link
@@ -57,7 +48,7 @@ func (f *rssFeed) Convert() (*Feed, error) {
 		feed.Items = append(feed.Items, i)
 	}
 
-	return feed, nil
+	return feed
 }
 
 func absoluteURL(baseURL, input string) (string, error) {
@@ -82,14 +73,14 @@ func absoluteURL(baseURL, input string) (string, error) {
 	return base.ResolveReference(u).String(), nil
 }
 
-func (i *rssImage) Convert() (*Image, error) {
+func (i *rssImage) Convert() *Image {
 	if i == nil {
-		return nil, nil
+		return nil
 	}
 
 	return &Image{
 		URL: i.url(),
-	}, nil
+	}
 }
 
 func (i *rssImage) url() string {
@@ -112,12 +103,12 @@ func (f *rssFeed) link() string {
 	return ""
 }
 
-func (i *rssItem) Convert() (*Item, error) {
+func (i *rssItem) Convert() *Item {
 	return &Item{
 		Title: i.title(),
 		Link:  i.link(),
 		Date:  i.date(),
-	}, nil
+	}
 }
 
 func (i *rssItem) link() string {
