@@ -177,6 +177,8 @@ func (i *rssItem) date(logger logger) time.Time {
 		time.RFC822Z,
 		time.RFC1123,
 		time.RFC1123Z,
+		"Mon, 2 Jan 2006 15:04:05 -0700", // time.RFC1123Z but single-digit date
+		"Mon, 2 Jan 2006 15:04:05 MST",   // time.RFC1123 but single-digit date
 	} {
 		result, err := time.Parse(layout, value)
 		if err == nil {
