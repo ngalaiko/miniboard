@@ -25,7 +25,7 @@ func Test_Parse_atom10__AtomSample(t *testing.T) {
 	  </entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +67,7 @@ func Test_Parse_atom10__FeedWithoutTitle(t *testing.T) {
 			<updated>2003-12-13T18:30:02Z</updated>
 		</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,7 +95,7 @@ func Test_Parse_atom10__EntryWithoutTitle(t *testing.T) {
 	  </entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -114,7 +114,7 @@ func Test_Parse_atom10__FeedURL(t *testing.T) {
 	  <updated>2003-12-13T18:30:02Z</updated>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -138,7 +138,7 @@ func Test_Parse_atom10__EntryWithRelativeURL(t *testing.T) {
 	  </entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -164,7 +164,7 @@ func Test_Parse_atom10__EntryTitleWithWhitespaces(t *testing.T) {
 	  </entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -188,7 +188,7 @@ func Test_Parse_atom10__EntryTitleWithHTMLAndCDATA(t *testing.T) {
 	  </entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -212,7 +212,7 @@ func Test_Parse_atom10__EntryTitleWithHTML(t *testing.T) {
 	  </entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -236,7 +236,7 @@ func Test_Parse_atom10__EntryTitleWithXHTML(t *testing.T) {
 	  </entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -260,7 +260,7 @@ func Test_Parse_atom10__EntryTitleWithNumericCharacterReference(t *testing.T) {
 	  </entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -284,7 +284,7 @@ func Test_Parse_atom10__EntryTitleWithDoubleEncodedEntities(t *testing.T) {
 	  </entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -296,7 +296,7 @@ func Test_Parse_atom10__EntryTitleWithDoubleEncodedEntities(t *testing.T) {
 
 func Test_Parse_atom10__InvalidXml(t *testing.T) {
 	data := `garbage`
-	_, err := Parse([]byte(data))
+	_, err := Parse([]byte(data), &testLogger{})
 	if err == nil {
 		t.Error("Parse should returns an error")
 	}
@@ -311,7 +311,7 @@ func Test_Parse_atom10__TitleWithSingleQuote(t *testing.T) {
 		</feed>
 	`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -330,7 +330,7 @@ func Test_Parse_atom10__TitleWithEncodedSingleQuote(t *testing.T) {
 		</feed>
 	`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -349,7 +349,7 @@ func Test_Parse_atom10__TitleWithSingleQuoteAndHTMLType(t *testing.T) {
 		</feed>
 	`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -385,7 +385,7 @@ func Test_Parse_atom10__RepliesLinkRelationWithHTMLType(t *testing.T) {
 		</entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -425,7 +425,7 @@ func Test_Parse_atom10__RepliesLinkRelationWithXHTMLType(t *testing.T) {
 		</entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -460,7 +460,7 @@ func Test_Parse_atom10__RepliesLinkRelationWithNoType(t *testing.T) {
 		</entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -487,7 +487,7 @@ func TestParseEntryWithPublished(t *testing.T) {
 	  </entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -511,7 +511,7 @@ func TestParseEntryWithPublishedAndUpdated(t *testing.T) {
 	  </entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-func parseJSON(data []byte) (*Feed, error) {
+func parseJSON(data []byte, logger logger) (*Feed, error) {
 	feed := &jsonFeed{}
 	if err := json.Unmarshal(data, feed); err != nil {
 		return nil, fmt.Errorf("unable to parse JSON feed: %s", err)
 	}
 
-	return feed.Convert(), nil
+	return feed.Convert(logger), nil
 }
 
 type jsonFeed struct {
@@ -32,7 +32,7 @@ type jsonItem struct {
 	DateModified  string `json:"date_modified"`
 }
 
-func (f *jsonFeed) Convert() *Feed {
+func (f *jsonFeed) Convert(logger logger) *Feed {
 	feed := &Feed{}
 	feed.Link = f.Link
 	feed.Title = strings.TrimSpace(f.Title)
@@ -47,7 +47,7 @@ func (f *jsonFeed) Convert() *Feed {
 	}
 
 	for _, i := range f.Items {
-		item := i.Convert()
+		item := i.Convert(logger)
 		itemLink, err := absoluteURL(feed.Link, item.Link)
 		if err == nil {
 			item.Link = itemLink
@@ -58,11 +58,11 @@ func (f *jsonFeed) Convert() *Feed {
 	return feed
 }
 
-func (i *jsonItem) Convert() *Item {
+func (i *jsonItem) Convert(logger logger) *Item {
 	item := &Item{
 		Link:  i.Link,
 		Title: i.title(),
-		Date:  i.date(),
+		Date:  i.date(logger),
 	}
 	if item.Title == "" {
 		item.Title = item.Link
@@ -70,11 +70,12 @@ func (i *jsonItem) Convert() *Item {
 	return item
 }
 
-func (i *jsonItem) date() time.Time {
+func (i *jsonItem) date(logger logger) time.Time {
 	for _, value := range []string{i.DatePublished, i.DateModified} {
 		if value != "" {
 			d, err := time.Parse(time.RFC3339, value)
 			if err != nil {
+				logger.Error("json: failed to parse date '%s'", value)
 				return time.Now()
 			}
 

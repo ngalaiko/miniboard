@@ -25,7 +25,7 @@ func Test_Parser(t *testing.T) {
 				f, _ := ioutil.ReadFile(ff)
 
 				// Parse actual feed
-				actual, err := Parse(f)
+				actual, err := Parse(f, &testLogger{})
 				if err != nil {
 					t.Error(err)
 				}
@@ -48,4 +48,9 @@ func Test_Parser(t *testing.T) {
 			})
 		}
 	}
+}
+
+type testLogger struct{}
+
+func (tl *testLogger) Error(string, ...interface{}) {
 }

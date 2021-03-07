@@ -25,19 +25,23 @@ type Feed struct {
 	Items []*Item
 }
 
+type logger interface {
+	Error(string, ...interface{})
+}
+
 // Parse returns a parsed feed.
-func Parse(data []byte) (*Feed, error) {
+func Parse(data []byte, logger logger) (*Feed, error) {
 	switch detectType(data) {
 	case feedTypeRSS:
-		return parseRSS(data)
+		return parseRSS(data, logger)
 	case feedTypeRDF:
-		return parseRDF(data)
+		return parseRDF(data, logger)
 	case feedTypeJSON:
-		return parseJSON(data)
+		return parseJSON(data, logger)
 	case feedTypeAtom03:
-		return parseAtom03(data)
+		return parseAtom03(data, logger)
 	case feedTypeAtom10:
-		return parseAtom10(data)
+		return parseAtom10(data, logger)
 	default:
 		return nil, fmt.Errorf("unkwown type")
 	}

@@ -23,7 +23,7 @@ func Test_Parse_atom03__Atom03(t *testing.T) {
 		</entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -68,7 +68,7 @@ func Test_Parse_atom03__Atom03WithoutFeedTitle(t *testing.T) {
 		</entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +91,7 @@ func Test_Parse_atom03__Atom03WithoutEntryTitle(t *testing.T) {
 		</entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -122,7 +122,7 @@ func Test_Parse_atom03__Atom03WithSummaryOnly(t *testing.T) {
 		</entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -149,7 +149,7 @@ func Test_Parse_atom03__Atom03WithXMLContent(t *testing.T) {
 		</entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -176,7 +176,7 @@ func Test_Parse_atom03__Atom03WithBase64Content(t *testing.T) {
 		</entry>
 	</feed>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}

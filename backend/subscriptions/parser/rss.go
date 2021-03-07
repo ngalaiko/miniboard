@@ -9,16 +9,16 @@ import (
 	"time"
 )
 
-func parseRSS(data []byte) (*Feed, error) {
+func parseRSS(data []byte, logger logger) (*Feed, error) {
 	feed := &rssFeed{}
 	if err := xml.Unmarshal(data, feed); err != nil {
 		return nil, fmt.Errorf("unable to parse RSS feed: %s", err)
 	}
 
-	return feed.Convert(), nil
+	return feed.Convert(logger), nil
 }
 
-func (f *rssFeed) Convert() *Feed {
+func (f *rssFeed) Convert(logger logger) *Feed {
 	feed := &Feed{
 		Title: f.Title,
 		Link:  f.link(),
@@ -30,7 +30,7 @@ func (f *rssFeed) Convert() *Feed {
 	}
 
 	for _, item := range f.Items {
-		i := item.Convert()
+		i := item.Convert(logger)
 
 		if i.Link == "" {
 			i.Link = feed.Link
@@ -103,11 +103,11 @@ func (f *rssFeed) link() string {
 	return ""
 }
 
-func (i *rssItem) Convert() *Item {
+func (i *rssItem) Convert(logger logger) *Item {
 	return &Item{
 		Title: i.title(),
 		Link:  i.link(),
-		Date:  i.date(),
+		Date:  i.date(logger),
 	}
 }
 
@@ -161,7 +161,7 @@ func (i *rssItem) title() string {
 	return html.UnescapeString(strings.TrimSpace(title))
 }
 
-func (i *rssItem) date() time.Time {
+func (i *rssItem) date(logger logger) time.Time {
 	value := i.PubDate
 	if i.DublinCoreDate != "" {
 		value = i.DublinCoreDate
@@ -183,6 +183,8 @@ func (i *rssItem) date() time.Time {
 			return result
 		}
 	}
+
+	logger.Error("rss: failed to parse date '%s'", value)
 
 	return time.Now()
 }

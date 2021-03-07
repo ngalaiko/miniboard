@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
@@ -52,7 +53,7 @@ func Test_Parse_rss__Rss2Sample(t *testing.T) {
 		</channel>
 		</rss>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -99,7 +100,7 @@ func Test_Parse_rss__FeedWithoutTitle(t *testing.T) {
 		</channel>
 		</rss>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -120,7 +121,7 @@ func Test_Parse_rss__ItemWithoutTitle(t *testing.T) {
 		</channel>
 		</rss>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,7 +144,7 @@ func Test_Parse_rss__ItemWithMediaTitle(t *testing.T) {
 		</channel>
 		</rss>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -165,7 +166,7 @@ func Test_Parse_rss__ItemWithDCTitleOnly(t *testing.T) {
 		</channel>
 		</rss>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -186,7 +187,7 @@ func Test_Parse_rss__ItemWithoutLink(t *testing.T) {
 		</channel>
 		</rss>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -208,7 +209,7 @@ func Test_Parse_rss__ItemWithAtomLink(t *testing.T) {
 		</channel>
 		</rss>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -235,7 +236,7 @@ func Test_Parse_rss__ItemWithMultipleAtomLinks(t *testing.T) {
 		</channel>
 		</rss>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -259,7 +260,7 @@ func Test_Parse_rss__ItemWithFeedBurnerLink(t *testing.T) {
 		</channel>
 	</rss>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -285,7 +286,7 @@ func Test_Parse_rss__ItemTitleWithWhitespaces(t *testing.T) {
 	</channel>
 	</rss>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -306,7 +307,7 @@ func Test_Parse_rss__ItemWithRelativeLink(t *testing.T) {
 		</channel>
 		</rss>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -318,7 +319,7 @@ func Test_Parse_rss__ItemWithRelativeLink(t *testing.T) {
 
 func Test_Parse_rss__InvalidXml(t *testing.T) {
 	data := `garbage`
-	_, err := Parse([]byte(data))
+	_, err := Parse([]byte(data), &testLogger{})
 	if err == nil {
 		t.Error("Parse should returns an error")
 	}
@@ -337,7 +338,7 @@ func Test_Parse_rss__ItemTitleWithHTMLEntity(t *testing.T) {
 		</channel>
 		</rss>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -360,7 +361,7 @@ func Test_Parse_rss__ItemTitleWithNumericCharacterReference(t *testing.T) {
 		</channel>
 		</rss>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -383,7 +384,7 @@ func Test_Parse_rss__ItemTitleWithDoubleEncodedEntities(t *testing.T) {
 		</channel>
 		</rss>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -409,7 +410,7 @@ func TestParseEntryWithDublinCoreDate(t *testing.T) {
 				</channel>
 			</rss>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -418,5 +419,41 @@ func TestParseEntryWithDublinCoreDate(t *testing.T) {
 	expectedDate := time.Date(2002, time.September, 29, 23, 40, 06, 0, location)
 	if !feed.Items[0].Date.Equal(expectedDate) {
 		t.Errorf("Incorrect entry date, got: %v, want: %v", feed.Items[0].Date, expectedDate)
+	}
+}
+func TestParseEntryWithDifferentDateFormats(t *testing.T) {
+	testCases := []struct {
+		In  string
+		Out time.Time
+	}{
+		{
+			In:  "Tue, 17 Jan 2017 21:19:47 +0000",
+			Out: time.Date(2017, time.January, 17, 21, 19, 47, 0, time.UTC),
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.In, func(t *testing.T) {
+			data := fmt.Sprintf(`<?xml version="1.0" encoding="utf-8"?>
+				<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+				<channel>
+					<title>Example</title>
+					<link>http://example.org/</link>
+					<item>
+						<title>Item 1</title>
+						<link>http://example.org/item1</link>
+						<pubDate>%s</pubDate>
+					</item>
+				</channel>
+			</rss>`, tc.In)
+
+			feed, err := Parse([]byte(data), &testLogger{})
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if !feed.Items[0].Date.Equal(tc.Out) {
+				t.Errorf("Incorrect entry date, got: %v, want: %v", feed.Items[0].Date, tc.Out)
+			}
+		})
 	}
 }

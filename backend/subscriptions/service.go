@@ -88,7 +88,7 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagID
 		return nil, errFailedToDownloadSubscription
 	}
 
-	parsedSubscription, err := parser.Parse(data)
+	parsedSubscription, err := parser.Parse(data, s.logger)
 	if err != nil {
 		s.logger.Error("failed to parse subscription %s: %s", url, err)
 		return nil, errFailedToParseSubscription

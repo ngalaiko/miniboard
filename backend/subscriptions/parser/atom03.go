@@ -9,12 +9,12 @@ import (
 	"time"
 )
 
-func parseAtom03(data []byte) (*Feed, error) {
+func parseAtom03(data []byte, logger logger) (*Feed, error) {
 	feed := &atom03Feed{}
 	if err := xml.Unmarshal(data, feed); err != nil {
 		return nil, fmt.Errorf("unable to parse atom10 feed: %s", err)
 	}
-	return feed.Convert(), nil
+	return feed.Convert(logger), nil
 }
 
 type atom03Feed struct {
@@ -23,7 +23,7 @@ type atom03Feed struct {
 	Items []atom03Item `xml:"entry"`
 }
 
-func (f *atom03Feed) Convert() *Feed {
+func (f *atom03Feed) Convert(logger logger) *Feed {
 	feed := &Feed{
 		Title: f.Title.String(),
 		Link:  f.Links.originalLink(),
@@ -32,7 +32,7 @@ func (f *atom03Feed) Convert() *Feed {
 		feed.Title = feed.Link
 	}
 	for _, i := range f.Items {
-		item := i.Convert()
+		item := i.Convert(logger)
 		if item.Title == "" {
 			item.Title = item.Link
 		}
@@ -80,15 +80,15 @@ type atom03Item struct {
 	Created  string     `xml:"created"`
 }
 
-func (i *atom03Item) Convert() *Item {
+func (i *atom03Item) Convert(logger logger) *Item {
 	return &Item{
 		Title: i.Title.String(),
 		Link:  i.Links.originalLink(),
-		Date:  i.date(),
+		Date:  i.date(logger),
 	}
 }
 
-func (i *atom03Item) date() time.Time {
+func (i *atom03Item) date(logger logger) time.Time {
 	dateText := ""
 	for _, value := range []string{i.Issued, i.Modified, i.Created} {
 		if value != "" {
@@ -100,6 +100,7 @@ func (i *atom03Item) date() time.Time {
 	if dateText != "" {
 		result, err := time.Parse(time.RFC3339, dateText)
 		if err != nil {
+			logger.Error("atom03: failed to parse data '%s'", dateText)
 			return time.Now()
 		}
 

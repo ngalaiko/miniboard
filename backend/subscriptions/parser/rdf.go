@@ -7,13 +7,13 @@ import (
 	"time"
 )
 
-func parseRDF(data []byte) (*Feed, error) {
+func parseRDF(data []byte, logger logger) (*Feed, error) {
 	feed := &rdfFeed{}
 	if err := xml.Unmarshal(data, feed); err != nil {
 		return nil, fmt.Errorf("unable to parse RDF feed: %s", err)
 	}
 
-	return feed.Convert(), nil
+	return feed.Convert(logger), nil
 }
 
 type rdfFeed struct {
@@ -24,14 +24,14 @@ type rdfFeed struct {
 	Items   []*rdfItem `xml:"item"`
 }
 
-func (f *rdfFeed) Convert() *Feed {
+func (f *rdfFeed) Convert(logger logger) *Feed {
 	feed := &Feed{
 		Title: strings.TrimSpace(f.Title),
 		Link:  strings.TrimSpace(f.Link),
 		Image: f.Image.Convert(),
 	}
 	for _, i := range f.Items {
-		item := i.Convert()
+		item := i.Convert(logger)
 
 		if item.Link == "" {
 			item.Link = feed.Link
@@ -66,18 +66,19 @@ type rdfItem struct {
 	DublinCoreDate string `xml:"http://purl.org/dc/elements/1.1/ date"`
 }
 
-func (i *rdfItem) Convert() *Item {
+func (i *rdfItem) Convert(logger logger) *Item {
 	return &Item{
 		Title: strings.TrimSpace(i.Title),
 		Link:  strings.TrimSpace(i.Link),
-		Date:  i.date(),
+		Date:  i.date(logger),
 	}
 }
 
-func (i *rdfItem) date() time.Time {
+func (i *rdfItem) date(logger logger) time.Time {
 	if i.DublinCoreDate != "" {
 		result, err := time.Parse(time.RFC3339, i.DublinCoreDate)
 		if err != nil {
+			logger.Error("rdf: failed to parse date '%s'", i.DublinCoreDate)
 			return time.Now()
 		}
 

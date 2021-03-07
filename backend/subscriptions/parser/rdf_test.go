@@ -59,7 +59,7 @@ func Test_Parse_rdf__RDFSample(t *testing.T) {
 	  </textinput>
 	</rdf:RDF>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -152,7 +152,7 @@ func Test_Parse_rdf__RDFSampleWithDublinCore(t *testing.T) {
 	  </textinput>
 	</rdf:RDF>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -192,7 +192,7 @@ func Test_Parse_rdf__ItemRelativeURL(t *testing.T) {
 	  </item>
 	</rdf:RDF>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -218,7 +218,7 @@ func Test_Parse_rdf__ItemWithoutLink(t *testing.T) {
 	  </item>
 	</rdf:RDF>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -230,7 +230,7 @@ func Test_Parse_rdf__ItemWithoutLink(t *testing.T) {
 
 func Test_Parse_rdf__InvalidXml(t *testing.T) {
 	data := `garbage`
-	_, err := Parse([]byte(data))
+	_, err := Parse([]byte(data), &testLogger{})
 	if err == nil {
 		t.Fatal("Parse should returns an error")
 	}
@@ -282,7 +282,7 @@ func Test_Parse_rdf__FeedWithURLWrappedInSpaces(t *testing.T) {
 	</item>
 	</rdf:RDF>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -312,7 +312,7 @@ func TestParseItemWithDublicCoreDate(t *testing.T) {
 	  </item>
 	</rdf:RDF>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -337,7 +337,7 @@ func TestParseItemWithoutDate(t *testing.T) {
 	  </item>
 	</rdf:RDF>`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -27,7 +27,7 @@ func Test_Parse_json__JsonFeed(t *testing.T) {
 		]
 	}`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,7 +93,7 @@ func Test_Parse_json__Podcast(t *testing.T) {
 		]
 	}`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -134,7 +134,7 @@ func Test_Parse_json__FeedWithRelativeURL(t *testing.T) {
 		]
 	}`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -159,7 +159,7 @@ func Test_Parse_json__FeedWithoutTitle(t *testing.T) {
 		]
 	}`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -182,7 +182,7 @@ func Test_Parse_json__FeedItemWithoutTitle(t *testing.T) {
 		]
 	}`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -209,7 +209,7 @@ func Test_Parse_json__TruncateItemTitle(t *testing.T) {
 		]
 	}`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -236,7 +236,7 @@ func Test_Parse_json__ItemTitleWithXMLTags(t *testing.T) {
 		]
 	}`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -252,7 +252,7 @@ func Test_Parse_json__ItemTitleWithXMLTags(t *testing.T) {
 
 func Test_Parse_json__InvalidJSON(t *testing.T) {
 	data := `garbage`
-	_, err := Parse([]byte(data))
+	_, err := Parse([]byte(data), &testLogger{})
 	if err == nil {
 		t.Error("Parse should returns an error")
 	}
@@ -274,7 +274,7 @@ func TestParseFeedItemWithInvalidDate(t *testing.T) {
 		]
 	}`
 
-	feed, err := Parse([]byte(data))
+	feed, err := Parse([]byte(data), &testLogger{})
 	if err != nil {
 		t.Fatal(err)
 	}

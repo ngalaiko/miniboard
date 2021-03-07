@@ -72,7 +72,7 @@ func (w *worker) update(ctx context.Context, subscriptionID string) error {
 		return fmt.Errorf("%s: %w", sURL, errFailedToDownloadSubscription)
 	}
 
-	parsedSubscription, err := parser.Parse(data)
+	parsedSubscription, err := parser.Parse(data, w.logger)
 	if err != nil {
 		return fmt.Errorf("%s: %w", sURL, errFailedToParseSubscription)
 	}
