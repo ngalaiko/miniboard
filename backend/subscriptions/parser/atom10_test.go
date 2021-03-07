@@ -10,6 +10,7 @@ func Test_Parse_atom10__AtomSample(t *testing.T) {
 	  <title>Example Feed</title>
 	  <link href="http://example.org/"/>
 	  <updated>2003-12-13T18:30:02Z</updated>
+	  <icon>/icon.png</icon>
 	  <author>
 		<name>John Doe</name>
 	  </author>
@@ -34,6 +35,10 @@ func Test_Parse_atom10__AtomSample(t *testing.T) {
 
 	if feed.Link != "http://example.org/" {
 		t.Errorf("Incorrect site URL, got: %s", feed.Link)
+	}
+
+	if feed.Image.URL != "http://example.org/icon.png" {
+		t.Errorf("Incorrect image URL, got: %s", feed.Image.URL)
 	}
 
 	if len(feed.Items) != 1 {

@@ -19,6 +19,7 @@ type atom10Feed struct {
 	XMLName xml.Name      `xml:"http://www.w3.org/2005/Atom feed"`
 	Title   atom10Text    `xml:"title"`
 	Links   atomLinks     `xml:"link"`
+	IconURL atom10Text    `xml:"icon"`
 	Items   []*atom10Item `xml:"entry"`
 }
 
@@ -28,6 +29,15 @@ func (f *atom10Feed) Convert() (*Feed, error) {
 	feed.Title = f.Title.String()
 	if feed.Title == "" {
 		feed.Title = feed.Link
+	}
+	if iconURL := f.IconURL.String(); iconURL != "" {
+		feedIconURL, err := absoluteURL(feed.Link, iconURL)
+		if err != nil {
+			return nil, err
+		}
+		feed.Image = &Image{
+			URL: feedIconURL,
+		}
 	}
 	for _, i := range f.Items {
 		item, err := i.Convert()
