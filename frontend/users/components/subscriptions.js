@@ -1,4 +1,4 @@
-import SubscriptionsService from '../services/subscriptions.js'
+import SubscriptionsService from '/services/subscriptions.js'
 
 (async () => {
     const HTMLTemplate = document.createElement('template')

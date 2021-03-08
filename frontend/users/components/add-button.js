@@ -1,6 +1,6 @@
-import TagsService from '../services/tags.js'
-import SubscriptionsService from '../services/subscriptions.js'
-import OperationsService from '../services/operations.js'
+import TagsService from '/services/tags.js'
+import SubscriptionsService from '/services/subscriptions.js'
+import OperationsService from '/services/operations.js'
 
 (async () => {
     const HTMLTemplate = document.createElement('template')

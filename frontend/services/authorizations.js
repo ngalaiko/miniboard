@@ -1,4 +1,4 @@
-import Api from '/users/services/api.js'
+import Api from '/services/api.js'
 
 class Authorizations {
     async create(params) {

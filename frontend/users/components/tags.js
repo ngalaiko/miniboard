@@ -1,4 +1,4 @@
-import TagsService from '../services/tags.js'
+import TagsService from '/services/tags.js'
 
 (async () => {
     const HTMLTemplate = document.createElement('template')

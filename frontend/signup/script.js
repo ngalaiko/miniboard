@@ -1,4 +1,4 @@
-import UsersService from '/users/services/users.js'
+import UsersService from '/services/users.js'
 
 const signupButton = document.getElementById('signup-button')
 const inputUsername = document.getElementById('username')

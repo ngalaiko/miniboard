@@ -1,6 +1,6 @@
-import TagsService from './services/tags.js'
-import SubscriptionsService from './services/subscriptions.js'
-import ItemsService from './services/items.js'
+import TagsService from '/services/tags.js'
+import SubscriptionsService from '/services/subscriptions.js'
+import ItemsService from '/services/items.js'
 
 const storeState = (key, value) => {
     const urlParams = new URLSearchParams(window.location.search.slice(1))

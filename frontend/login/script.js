@@ -1,4 +1,4 @@
-import AuthorizationsService from '/users/services/authorizations.js'
+import AuthorizationsService from '/services/authorizations.js'
 
 const loginButton = document.getElementById('login-button')
 const inputUsername = document.getElementById('username')
