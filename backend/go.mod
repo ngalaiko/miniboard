@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/google/go-cmp v0.5.4
 	github.com/google/uuid v1.2.0
-	github.com/lib/pq v1.9.0
+	github.com/lib/pq v1.10.0
 	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/rs/zerolog v1.20.0
 	github.com/vrischmann/envconfig v1.3.0
