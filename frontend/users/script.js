@@ -74,7 +74,7 @@ document.querySelector('#tags-menu').addEventListener('SubscriptionCreate', (e) 
     const params = e.detail.params
     const promise = e.detail.promise
 
-    promise.then(addSubscription)
+    promise.then(renderSubscription)
 
     document.querySelector('#toasts').promise(`Subscribing: ${params.url}`, promise,
         (subscription) => `Subscribed: ${subscription.title}`,
@@ -106,15 +106,15 @@ Promise.all([listAllSubscriptions(), listAllTags()]).then(async (values) => {
     const tags = values[1]
 
     for (const tag of tags) {
-        await addTag(tag)
+        await renderTag(tag)
     }
 
     for (const subscription of subscriptions) {
-        await addSubscription(subscription)
+        await renderSubscription(subscription)
     }
 })
 
-const addSubscription = async (subscription) => {
+const renderSubscription = async (subscription) => {
     if (subscription.tag_ids === null || subscription.tag_ids.length === 0) {
         document.querySelector('#subscriptions').addSubscription(subscription)
     } else {
@@ -124,7 +124,7 @@ const addSubscription = async (subscription) => {
     }
 }
 
-const addTag = async (tag) => {
+const renderTag = async (tag) => {
     document.querySelector('#add-button')
         .addTag(tag)
 
