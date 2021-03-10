@@ -15,23 +15,10 @@ const storeState = (key, value) => {
     window.history.pushState({ path: refresh }, '', refresh)
 }
 
-const listAllItems = async (pageSize, createdLt, subscriptionIdEq) => {
-    const params = {}
+const getState = (key) => {
+    const urlParams = new URLSearchParams(window.location.search.slice(1))
 
-    if (pageSize === undefined) pageSize = 100
-    if (pageSize !== undefined) params.pageSize = pageSize
-    if (createdLt !== undefined) params.createdLt = createdLt
-    if (subscriptionIdEq !== undefined) params.subscriptionIdEq = subscriptionIdEq 
-
-    const items = await ItemsService.list(params)
-
-    if (items.length < pageSize) {
-        return items
-    }
-
-    params.createdLt = items[items.length - 1].created
-
-    return items.concat(await ItemsService.list(params))
+    return urlParams.get(key)
 }
 
 const listAllTags = async (pageSize, createdLt) => {
@@ -94,6 +81,18 @@ const renderTag = async (tag) => {
     xtag.setAttribute('title', tag.title)
 }
 
+const renderItems = async (subscriptionId) => {
+    const items = await ItemsService.list({
+        subscriptionIdEq: subscriptionId,
+    })
+
+    items.forEach(renderItem)
+}
+
+const renderItem = (item) => {
+    console.log(item)
+}
+
 const renderToastMessage = async (promise, message,onSucess) => {
     await import('./components/toast.js')
     
@@ -139,10 +138,11 @@ document.querySelector('#tags-menu').addEventListener('SubscriptionSelected', as
     const subscriptionId = e.detail.id
 
     storeState('subscription', subscriptionId)
-    await ItemsService.list({
-        subscriptionIdEq: subscriptionId,
-    })
+    renderItems(subscriptionId)
 })
+
+const subscriptionId = getState('subscription')
+if (subscriptionId !== "") renderItems(subscriptionId)
 
 Promise.all([listAllSubscriptions(), listAllTags()]).then(async (values) => {
     const subscriptions = values[0]
@@ -156,4 +156,3 @@ Promise.all([listAllSubscriptions(), listAllTags()]).then(async (values) => {
         await renderSubscription(subscription)
     }
 })
-
