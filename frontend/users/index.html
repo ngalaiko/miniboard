@@ -29,7 +29,6 @@
     <meta name="msapplication-config" content="/browserconfig.xml">
 
     <script type="module" src="/users/components/add-button.js"></script>
-    <script type="module" src="/users/components/tags.js"></script>
     <script type="module" src="/users/components/subscriptions.js"></script>
     <script type="module" src="/users/components/toasts.js"></script>
 </head>
@@ -37,7 +36,7 @@
 <body>
     <div id="tags-menu">
         <x-add-button id="add-button"></x-add-button>
-        <x-tags id="tags"></x-tags>
+        <ul id="tags-list"></ul>
         <x-subscriptions id="subscriptions"></x-subscriptions>
     </div>
     <div id="items-menu">

@@ -118,14 +118,22 @@ const addSubscription = async (subscription) => {
     if (subscription.tag_ids === null || subscription.tag_ids.length === 0) {
         document.querySelector('#subscriptions').addSubscription(subscription)
     } else {
-        document.querySelector('#tags').addSubscription(subscription)
+        subscription.tag_ids
+            .map((tagId) => document.getElementById(tagId))
+            .forEach((xTag) => xTag.addSubscription(subscription))
     }
 }
 
 const addTag = async (tag) => {
-    const xAddButton = document.querySelector('#add-button')
-    xAddButton.addTag(tag)
+    document.querySelector('#add-button')
+        .addTag(tag)
 
-    const xTags = document.querySelector('#tags')
-    await xTags.addTag(tag)
+    await import('./components/tag.js')
+
+    const xtag = document.querySelector('#tags-list')
+        .appendChild(document.createElement('li'))
+        .appendChild(document.createElement('x-tag'))
+
+    xtag.setAttribute('id', tag.id)
+    xtag.setAttribute('title', tag.title)
 }
