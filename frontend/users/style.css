@@ -16,3 +16,14 @@
     margin: 0;
     padding: 0;
 }
+
+#toasts-container {
+    position: fixed;
+
+    bottom: 1em;
+    left: 1em;
+}
+
+x-toast {
+    padding: 0.1em;
+}

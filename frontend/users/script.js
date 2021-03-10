@@ -70,13 +70,55 @@ const listAllSubscriptions = async (pageSize, createdLt) => {
     return tags.concat(await SubscriptionsService.list(params))
 }
 
+const renderSubscription = async (subscription) => {
+    if (subscription.tag_ids === null || subscription.tag_ids.length === 0) {
+        document.querySelector('#subscriptions').addSubscription(subscription)
+    } else {
+        subscription.tag_ids
+            .map((tagId) => document.getElementById(tagId))
+            .forEach((xTag) => xTag.addSubscription(subscription))
+    }
+}
+
+const renderTag = async (tag) => {
+    document.querySelector('#add-button')
+        .addTag(tag)
+
+    await import('./components/tag.js')
+
+    const xtag = document.querySelector('#tags-list')
+        .appendChild(document.createElement('li'))
+        .appendChild(document.createElement('x-tag'))
+
+    xtag.setAttribute('id', tag.id)
+    xtag.setAttribute('title', tag.title)
+}
+
+const renderToastMessage = async (promise, message,onSucess) => {
+    await import('./components/toast.js')
+    
+    const toast = document.createElement('x-toast')
+    toast.setAttribute('message', message)
+
+    if (promise) promise.then((v) => {
+        if (messageOnSuccess) toast.setAttribute('message', messageOnSuccess(v))
+    }).catch(e => {
+        toast.setAttribute('message', e)
+    }).finally(() => {
+        toast.close()
+    })
+
+    document.querySelector('#toasts-container').appendChild(toast)
+}
+
 document.querySelector('#tags-menu').addEventListener('SubscriptionCreate', (e) => {
     const params = e.detail.params
     const promise = e.detail.promise
 
     promise.then(renderSubscription)
 
-    document.querySelector('#toasts').promise(`Subscribing: ${params.url}`, promise,
+    renderToastMessage(promise,
+        `Subscribing: ${params.url}`,
         (subscription) => `Subscribed: ${subscription.title}`,
     )
 })
@@ -87,7 +129,8 @@ document.querySelector('#tags-menu').addEventListener('TagCreate', (e) => {
 
     promise.then(addTag)
 
-    document.querySelector('#toasts').promise(`Creating tag: ${params.title}`, promise,
+    renderToastMessage(promise,
+        `Creating tag: ${params.title}`,
         (tag) => `New tag: ${tag.title}`,
     )
 })
@@ -114,26 +157,3 @@ Promise.all([listAllSubscriptions(), listAllTags()]).then(async (values) => {
     }
 })
 
-const renderSubscription = async (subscription) => {
-    if (subscription.tag_ids === null || subscription.tag_ids.length === 0) {
-        document.querySelector('#subscriptions').addSubscription(subscription)
-    } else {
-        subscription.tag_ids
-            .map((tagId) => document.getElementById(tagId))
-            .forEach((xTag) => xTag.addSubscription(subscription))
-    }
-}
-
-const renderTag = async (tag) => {
-    document.querySelector('#add-button')
-        .addTag(tag)
-
-    await import('./components/tag.js')
-
-    const xtag = document.querySelector('#tags-list')
-        .appendChild(document.createElement('li'))
-        .appendChild(document.createElement('x-tag'))
-
-    xtag.setAttribute('id', tag.id)
-    xtag.setAttribute('title', tag.title)
-}
