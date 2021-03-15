@@ -158,7 +158,12 @@ func (h *Handler) handleCreateSubscription(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	operation, err := h.operationService.Create(r.Context(), token.UserID, h.createSubscription(token.UserID, url, req.TagIDs))
+	tagIDs := []string{}
+	if req.TagIDs != nil {
+		tagIDs = req.TagIDs
+	}
+
+	operation, err := h.operationService.Create(r.Context(), token.UserID, h.createSubscription(token.UserID, url, tagIDs))
 	switch {
 	case err == nil:
 		httpx.JSON(w, h.logger, operation, http.StatusOK)
