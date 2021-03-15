@@ -29,18 +29,17 @@
     <meta name="msapplication-config" content="/browserconfig.xml">
 
     <script type="module" src="/users/components/add-button.js"></script>
-    <script type="module" src="/users/components/subscriptions.js"></script>
 </head>
 
 <body>
     <div id="tags-menu">
         <x-add-button id="add-button"></x-add-button>
-        <ul id="tags-list"></ul>
-        <x-subscriptions id="subscriptions"></x-subscriptions>
+        <div id="tags-list"></div>
+        <div id="no-tags-list"></div>
     </div>
-    <ul id="items-list">
+    <div id="items-list" class="list">
         items...
-    </ul>
+    </div>
     <span id="toasts-container"></span>
 
     <script type="module" src="/users/script.js"></script>

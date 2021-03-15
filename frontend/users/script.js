@@ -57,50 +57,50 @@ const listAllSubscriptions = async (pageSize, createdLt) => {
     return tags.concat(await SubscriptionsService.list(params))
 }
 
-const renderSubscription = async (subscription) => {
-    if (subscription.tag_ids === null || subscription.tag_ids.length === 0) {
-        document.querySelector('#subscriptions').addSubscription(subscription)
-    } else {
-        subscription.tag_ids
-            .map((tagId) => document.getElementById(tagId))
-            .forEach((xTag) => xTag.addSubscription(subscription))
-    }
+const renderSubscription = (subscription) => `
+    <span class="subscription-container">
+        <img class="subscription-icon" src="${!!subscription.icon_url ? subscription.icon_url : '/img/rss.svg'}"></img>
+        <span class="subscription-title">${subscription.title}</span>
+    </span>
+`
+
+const renderSubscriptions = (tagId, subscriptions) => `
+    <div id="${tagId}">
+        ${subscriptions.map(renderSubscription).join('')}
+    </div>
+`
+
+const renderTag = (tag, subscriptions) => `
+    <details class="tag-container">
+        <summary class="tag-title">${tag.title}</summary>
+        ${renderSubscriptions(tag.id, subscriptions)}
+    </details>
+`
+
+const renderTags = (tags, subscriptions) => {
+    const subscriptionsByTagId = subscriptions.reduce((map, subscription) => {
+        subscription.tag_ids.forEach((tagId) => {
+            const list = map.get(tagId)
+            if (!list) {
+                map.set(tagId, [subscription])
+            } else {
+                list.push(subscription)
+            }
+        })
+        return map
+    }, new Map())
+
+    return tags.map((tag) => renderTag(tag, subscriptionsByTagId.get(tag.id) || [])).join('')
 }
 
-const renderTag = async (tag) => {
-    document.querySelector('#add-button')
-        .addTag(tag)
-
-    await import('./components/tag.js')
-
-    const xtag = document.querySelector('#tags-list')
-        .appendChild(document.createElement('li'))
-        .appendChild(document.createElement('x-tag'))
-
-    xtag.setAttribute('id', tag.id)
-    xtag.setAttribute('title', tag.title)
-}
-
-const renderItems = async (subscriptionId) => {
-    const items = await ItemsService.list({
-        subscriptionIdEq: subscriptionId,
-    })
-
-    items.forEach(renderItem)
-}
-
-const renderItem = (item) => {
-    console.log(item)
-}
-
-const renderToastMessage = async (promise, message,onSucess) => {
+const addToastMessage = async (promise, message, onSuccess) => {
     await import('./components/toast.js')
     
     const toast = document.createElement('x-toast')
     toast.setAttribute('message', message)
 
     if (promise) promise.then((v) => {
-        if (messageOnSuccess) toast.setAttribute('message', messageOnSuccess(v))
+        if (onSuccess) toast.setAttribute('message', onSuccess(v))
     }).catch(e => {
         toast.setAttribute('message', e)
     }).finally(() => {
@@ -114,9 +114,18 @@ document.querySelector('#tags-menu').addEventListener('SubscriptionCreate', (e) 
     const params = e.detail.params
     const promise = e.detail.promise
 
-    promise.then(renderSubscription)
+    promise.then((subscription) => {
+        const html = renderSubscription(subscription)
+        if (subscription.tag_ids.length == 0) {
+            document.getElementById('no-tags-list').insertAdjacentHTML('afterbegin', html)
+        } else {
+            subscription.tag_ids.forEach((tagId) => {
+                document.getElementById(tagId).insertAdjacentHTML('afterbegin', html)
+            })
+        }
+    })
 
-    renderToastMessage(promise,
+    addToastMessage(promise,
         `Subscribing: ${params.url}`,
         (subscription) => `Subscribed: ${subscription.title}`,
     )
@@ -126,33 +135,25 @@ document.querySelector('#tags-menu').addEventListener('TagCreate', (e) => {
     const params = e.detail.params
     const promise = e.detail.promise
 
-    promise.then(addTag)
+    promise.then((tag) => {
+        const html = renderTag(tag, [])
+        document.getElementById('tags-list').insertAdjacentHTML('afterbegin', html)
+    })
 
-    renderToastMessage(promise,
+    addToastMessage(promise,
         `Creating tag: ${params.title}`,
         (tag) => `New tag: ${tag.title}`,
     )
 })
 
-document.querySelector('#tags-menu').addEventListener('SubscriptionSelected', async (e) => {
-    const subscriptionId = e.detail.id
-
-    storeState('subscription', subscriptionId)
-    renderItems(subscriptionId)
-})
-
-const subscriptionId = getState('subscription')
-if (subscriptionId !== "") renderItems(subscriptionId)
-
 Promise.all([listAllSubscriptions(), listAllTags()]).then(async (values) => {
     const subscriptions = values[0]
     const tags = values[1]
 
-    for (const tag of tags) {
-        await renderTag(tag)
-    }
+    document.querySelector("#tags-list").innerHTML = renderTags(tags, subscriptions)
+    document.querySelector("#no-tags-list").innerHTML = subscriptions.filter(s => s.tag_ids.length === 0)
+        .map(renderSubscription).join('')
 
-    for (const subscription of subscriptions) {
-        await renderSubscription(subscription)
-    }
+    const addButton = document.querySelector('#add-button')
+    tags.forEach(tag => addButton.addTag(tag))
 })
