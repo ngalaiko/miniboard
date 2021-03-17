@@ -58,12 +58,17 @@ const listAllSubscriptions = async (pageSize, createdLt) => {
 }
 
 const renderSubscription = (subscription) => `
-    <span class="subscription-container">
+    <span class="subscription-container" onclick="this.dispatchEvent(new CustomEvent('SubscriptionSelected', {
+        detail: {
+            id: '${subscription.id}',
+        },
+        bubbles: true,
+    }))">
         <img class="subscription-icon" src="${!!subscription.icon_url ? subscription.icon_url : '/img/rss.svg'}"></img>
         <span class="subscription-title">${subscription.title}</span>
     </span>
 `
-
+    
 const renderSubscriptions = (tagId, subscriptions) => `
     <div id="${tagId}">
         ${subscriptions.map(renderSubscription).join('')}
@@ -101,7 +106,7 @@ const renderToastMessage = (promise, message, onSuccess) => {
     span.innerText = message
 
     if (promise) promise.then((v) => {
-        if (onSuccess)  document.getElementById(id).innerText = onSuccess(v)
+        if (onSuccess) document.getElementById(id).innerText = onSuccess(v)
     }).catch(e => {
         document.getElementById(id).innerText = e
     }).finally(() => {
@@ -127,6 +132,16 @@ const addToastMessage = async (promise, message, onSuccess) => {
     const html = renderToast(promise, message, onSuccess)
     document.querySelector('#toasts-container').insertAdjacentHTML('afterbegin', html)
 }
+
+document.querySelector('#tags-menu').addEventListener('SubscriptionSelected', async (e) => {
+    const subscriptionId = e.detail.id
+
+    storeState('subscription', subscriptionId)
+
+    await ItemsService.list({
+        subscriptionIdEq: subscriptionId,
+    })
+})
 
 document.querySelector('#tags-menu').addEventListener('SubscriptionCreate', (e) => {
     const params = e.detail.params
