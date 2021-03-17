@@ -93,21 +93,39 @@ const renderTags = (tags, subscriptions) => {
     return tags.map((tag) => renderTag(tag, subscriptionsByTagId.get(tag.id) || [])).join('')
 }
 
-const addToastMessage = async (promise, message, onSuccess) => {
-    await import('./components/toast.js')
-    
-    const toast = document.createElement('x-toast')
-    toast.setAttribute('message', message)
+const renderToastMessage = (promise, message, onSuccess) => {
+    const id = `toast-${performance.now()}`
+    const span = document.createElement('span')
+    span.id = id
+    span.classList.add('toast-message')
+    span.innerText = message
 
     if (promise) promise.then((v) => {
-        if (onSuccess) toast.setAttribute('message', onSuccess(v))
+        if (onSuccess)  document.getElementById(id).innerText = onSuccess(v)
     }).catch(e => {
-        toast.setAttribute('message', e)
+        document.getElementById(id).innerText = e
     }).finally(() => {
-        toast.close()
+        setTimeout(() => document.getElementById(id).parentNode.remove(), 3000)
     })
 
-    document.querySelector('#toasts-container').appendChild(toast)
+    return span.outerHTML
+}
+
+const renderToast = (promise, message, onSuccess) => `
+    <span class="toast-container show">
+        ${renderToastMessage(promise, message, onSuccess)}
+        <button class="toast-button" type="button" onclick="const parent = this.parentNode; parentNode.remove();">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    </span>
+`
+
+const addToastMessage = async (promise, message, onSuccess) => {
+    const html = renderToast(promise, message, onSuccess)
+    document.querySelector('#toasts-container').insertAdjacentHTML('afterbegin', html)
 }
 
 document.querySelector('#tags-menu').addEventListener('SubscriptionCreate', (e) => {
