@@ -58,14 +58,14 @@ const listAllSubscriptions = async (pageSize, createdLt) => {
 }
 
 const renderSubscription = (subscription) => `
-    <span class="subscription-container" onclick="this.dispatchEvent(new CustomEvent('SubscriptionSelected', {
+    <span class="container onhover" onclick="this.dispatchEvent(new CustomEvent('SubscriptionSelected', {
         detail: {
             id: '${subscription.id}',
         },
         bubbles: true,
     }))">
-        <img class="subscription-icon" src="${!!subscription.icon_url ? subscription.icon_url : '/img/rss.svg'}"></img>
-        <span class="subscription-title">${subscription.title}</span>
+        <img class="icon" src="${!!subscription.icon_url ? subscription.icon_url : '/img/rss.svg'}"></img>
+        <span class="title">${subscription.title}</span>
     </span>
 `
     
@@ -76,8 +76,8 @@ const renderSubscriptions = (tagId, subscriptions) => `
 `
 
 const renderTag = (tag, subscriptions) => `
-    <details class="tag-container">
-        <summary class="tag-title">${tag.title}</summary>
+    <details class="container">
+        <summary class="title">${tag.title}</summary>
         ${renderSubscriptions(tag.id, subscriptions)}
     </details>
 `
@@ -133,14 +133,27 @@ const addToastMessage = async (promise, message, onSuccess) => {
     document.querySelector('#toasts-container').insertAdjacentHTML('afterbegin', html)
 }
 
+const renderItem = (item) => `
+    <span class="container onhover">
+        <span class="title">${item.title}</span>
+    </span>
+`
+
+const listItems = (subscriptionId) => {
+    if (!subscriptionId) return
+
+    ItemsService.list({
+        subscriptionIdEq: subscriptionId,
+    }).then((items) => {
+        document.querySelector('#items-list').innerHTML = items.map(renderItem).join('')
+    })
+}
+
 document.querySelector('#tags-menu').addEventListener('SubscriptionSelected', async (e) => {
     const subscriptionId = e.detail.id
 
     storeState('subscription', subscriptionId)
-
-    await ItemsService.list({
-        subscriptionIdEq: subscriptionId,
-    })
+    listItems(subscriptionId)
 })
 
 document.querySelector('#tags-menu').addEventListener('SubscriptionCreate', (e) => {
@@ -178,6 +191,9 @@ document.querySelector('#tags-menu').addEventListener('TagCreate', (e) => {
         (tag) => `New tag: ${tag.title}`,
     )
 })
+
+
+listItems(getState('subscription'))
 
 Promise.all([listAllSubscriptions(), listAllTags()]).then(async (values) => {
     const subscriptions = values[0]
