@@ -134,7 +134,7 @@ const addToastMessage = async (promise, message, onSuccess) => {
 }
 
 const renderItem = (item) => `
-    <span class="container onhover">
+    <span class="container onhover" created="${item.created}">
         <span class="title">${item.title}</span>
     </span>
 `
@@ -192,6 +192,30 @@ document.querySelector('#tags-menu').addEventListener('TagCreate', (e) => {
     )
 })
 
+document.querySelector('#items-list').addEventListener('scroll', (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target
+    const needMore = scrollTop + clientHeight >= scrollHeight - 50
+    if (!needMore) return
+
+    const subscriptionId = getState('subscription')
+    if (!subscriptionId) return
+
+    const noMore = document.querySelector('#items-list').lastElementChild.getAttribute('last') === 'true'
+    if (noMore) return
+
+    const pageSize = 100
+    ItemsService.list({
+        pageSize: pageSize,
+        subscriptionIdEq: subscriptionId,
+        createdLt: document.querySelector('#items-list').lastElementChild.getAttribute('created'),
+    }).then((items) => {
+        return items.length === pageSize
+            ? items.map(renderItem).join('')
+            : items.map(renderItem).join('') + `<div last="true"></div>`
+    }).then((html) => {
+        document.querySelector('#items-list').insertAdjacentHTML('beforeend', html)
+    })
+})
 
 listItems(getState('subscription'))
 
