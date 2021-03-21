@@ -15,4 +15,5 @@ type Item struct {
 	Title          string    `json:"title"`
 	SubscriptionID string    `json:"subscription_id"`
 	Created        time.Time `json:"created"`
+	Summary        string    `json:"summary,omitempty"`
 }

@@ -59,14 +59,31 @@ type atom10Item struct {
 	Links     atomLinks  `xml:"link"`
 	Published string     `xml:"published"`
 	Updated   string     `xml:"updated"`
+	Summary   atom10Text `xml:"summary"`
+	Content   atom10Text `xml:"http://www.w3.org/2005/Atom content"`
 }
 
 func (i *atom10Item) Convert(logger logger) *Item {
 	return &Item{
-		Title: i.Title.String(),
-		Link:  i.Links.originalLink(),
-		Date:  i.date(logger),
+		Title:   i.Title.String(),
+		Link:    i.Links.originalLink(),
+		Date:    i.date(logger),
+		Content: i.content(),
 	}
+}
+
+func (i *atom10Item) content() string {
+	content := i.Content.String()
+	if content != "" {
+		return content
+	}
+
+	summary := i.Summary.String()
+	if summary != "" {
+		return summary
+	}
+
+	return ""
 }
 
 func (i *atom10Item) date(logger logger) time.Time {

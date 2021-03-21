@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"strings"
 	"testing"
 	"time"
 )
@@ -78,6 +79,10 @@ func Test_Parse_rdf__RDFSample(t *testing.T) {
 
 	if len(feed.Items) != 2 {
 		t.Errorf("Incorrect number of entries, got: %d", len(feed.Items))
+	}
+
+	if strings.HasSuffix(feed.Items[1].Content, "Tool and API support") {
+		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
 	}
 
 	if feed.Items[1].Link != "http://xml.com/pub/2000/08/09/rdfdb/index.html" {
@@ -175,6 +180,10 @@ func Test_Parse_rdf__RDFSampleWithDublinCore(t *testing.T) {
 
 	if feed.Items[0].Title != "XML: A Disruptive Technology" {
 		t.Errorf("Incorrect entry title, got: %s", feed.Items[0].Title)
+	}
+
+	if strings.HasSuffix(feed.Items[0].Content, "XML is placing increasingly") {
+		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
 	}
 }
 
@@ -296,7 +305,7 @@ func Test_Parse_rdf__FeedWithURLWrappedInSpaces(t *testing.T) {
 	}
 }
 
-func TestParseItemWithDublicCoreDate(t *testing.T) {
+func Test_Parse_rdf_ItemWithDublicCoreDate(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://purl.org/rss/1.0/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:slash="http://purl.org/rss/1.0/modules/slash/">
 	  <channel>
@@ -323,7 +332,7 @@ func TestParseItemWithDublicCoreDate(t *testing.T) {
 	}
 }
 
-func TestParseItemWithoutDate(t *testing.T) {
+func Test_Parse_rdf_ItemWithoutDate(t *testing.T) {
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://purl.org/rss/1.0/">
 	  <channel>
@@ -346,5 +355,38 @@ func TestParseItemWithoutDate(t *testing.T) {
 	diff := expectedDate.Sub(feed.Items[0].Date)
 	if diff > time.Second {
 		t.Errorf("Incorrect entry date, got: %v", diff)
+	}
+}
+
+func Test_Parse_rdf_WithContentEncoded(t *testing.T) {
+	data := `<?xml version="1.0" encoding="utf-8"?>
+	<rdf:RDF
+		xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+		xmlns="http://purl.org/rss/1.0/"
+		xmlns:content="http://purl.org/rss/1.0/modules/content/">
+		<channel>
+			<title>Example Feed</title>
+			<link>http://example.org/</link>
+		</channel>
+		<item>
+			<title>Item Title</title>
+			<link>http://example.org/</link>
+			<content:encoded><![CDATA[<p>Test</p>]]></content:encoded>
+		</item>
+	</rdf:RDF>`
+
+	feed, err := Parse([]byte(data), &testLogger{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(feed.Items) != 1 {
+		t.Fatalf(`Unexpected number of entries, got %d`, len(feed.Items))
+	}
+
+	expected := `<p>Test</p>`
+	result := feed.Items[0].Content
+	if result != expected {
+		t.Errorf(`Unexpected entry URL, got %q instead of %q`, result, expected)
 	}
 }

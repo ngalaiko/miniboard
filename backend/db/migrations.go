@@ -112,6 +112,7 @@ func migrations(db *sql.DB) []*migration {
 				title             TEXT   NOT NULL,
 				subscription_id   TEXT   NOT NULL REFERENCES subscriptions(id),
 				created_epoch_utc BIGINT NOT NULL,
+				summary           TEXT   NULL,
 				PRIMARY KEY (id),
 				UNIQUE (subscription_id, url)
 			)

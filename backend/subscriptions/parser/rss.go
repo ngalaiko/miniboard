@@ -105,10 +105,20 @@ func (f *rssFeed) link() string {
 
 func (i *rssItem) Convert(logger logger) *Item {
 	return &Item{
-		Title: i.title(),
-		Link:  i.link(),
-		Date:  i.date(logger),
+		Title:   i.title(),
+		Link:    i.link(),
+		Date:    i.date(logger),
+		Content: i.content(),
 	}
+}
+
+func (i *rssItem) content() string {
+	for _, value := range []string{i.DublinCoreContent, i.Description} {
+		if value != "" {
+			return value
+		}
+	}
+	return ""
 }
 
 func (i *rssItem) link() string {
@@ -204,11 +214,13 @@ type rssImage struct {
 }
 
 type rssItem struct {
-	GUID           string         `xml:"guid"`
-	Title          []rssItemtitle `xml:"title"`
-	Links          []rssLink      `xml:"link"`
-	PubDate        string         `xml:"pubDate"`
-	DublinCoreDate string         `xml:"http://purl.org/dc/elements/1.1/ date"`
+	GUID              string         `xml:"guid"`
+	Title             []rssItemtitle `xml:"title"`
+	Links             []rssLink      `xml:"link"`
+	PubDate           string         `xml:"pubDate"`
+	Description       string         `xml:"description"`
+	DublinCoreDate    string         `xml:"http://purl.org/dc/elements/1.1/ date"`
+	DublinCoreContent string         `xml:"http://purl.org/rss/1.0/modules/content/ encoded"`
 	feedBurnerRssItem
 }
 

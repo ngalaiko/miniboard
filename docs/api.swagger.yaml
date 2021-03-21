@@ -487,6 +487,9 @@ components:
           type: string
           format: date-time
           example: "2021-01-16T16:13:33Z"
+        summary:
+          type: string
+          example: "Item summary."
     User:
       type: object
       properties:

@@ -54,8 +54,36 @@ func Test_Parse_atom10__AtomSample(t *testing.T) {
 		t.Errorf("Incorrect entry title, got: %s", feed.Items[0].Title)
 	}
 
+	if feed.Items[0].Content != "Some text." {
+		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
+	}
+
 	if !feed.Items[0].Date.Equal(time.Date(2003, time.December, 13, 18, 30, 2, 0, time.UTC)) {
 		t.Errorf("Incorrect entry date, got: %v", feed.Items[0].Date)
+	}
+}
+
+func Test_Parse_atom10_EntrySummaryWithXHTML(t *testing.T) {
+	data := `<?xml version="1.0" encoding="utf-8"?>
+	<feed xmlns="http://www.w3.org/2005/Atom">
+	  <title>Example Feed</title>
+	  <link href="http://example.org/"/>
+	  <entry>
+		<title type="xhtml"><code>Test</code> Test</title>
+		<link href="http://example.org/2003/12/13/atom03"/>
+		<id>urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6a</id>
+		<updated>2003-12-13T18:30:02Z</updated>
+		<summary type="xhtml"><p>Some text.</p></summary>
+	  </entry>
+	</feed>`
+
+	feed, err := Parse([]byte(data), &testLogger{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if feed.Items[0].Content != "<p>Some text.</p>" {
+		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
 	}
 }
 
@@ -74,6 +102,54 @@ func Test_Parse_atom10__FeedWithoutTitle(t *testing.T) {
 
 	if feed.Title != "https://example.org/" {
 		t.Errorf("Incorrect feed title, got: %s", feed.Title)
+	}
+}
+
+func Test_Parse_atom10_EntrySummaryWithHTML(t *testing.T) {
+	data := `<?xml version="1.0" encoding="utf-8"?>
+	<feed xmlns="http://www.w3.org/2005/Atom">
+	  <title>Example Feed</title>
+	  <link href="http://example.org/"/>
+	  <entry>
+		<title type="html">&lt;code&gt;Test&lt;/code&gt; Test</title>
+		<link href="http://example.org/2003/12/13/atom03"/>
+		<id>urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6a</id>
+		<updated>2003-12-13T18:30:02Z</updated>
+		<summary type="html"><![CDATA[<p>Some text.</p>]]></summary>
+	  </entry>
+	</feed>`
+
+	feed, err := Parse([]byte(data), &testLogger{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if feed.Items[0].Content != "<p>Some text.</p>" {
+		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
+	}
+}
+
+func Test_Parse_atom10_EntrySummaryWithPlainText(t *testing.T) {
+	data := `<?xml version="1.0" encoding="utf-8"?>
+	<feed xmlns="http://www.w3.org/2005/Atom">
+	  <title>Example Feed</title>
+	  <link href="http://example.org/"/>
+	  <entry>
+		<title type="html">&lt;code&gt;Test&lt;/code&gt; Test</title>
+		<link href="http://example.org/2003/12/13/atom03"/>
+		<id>urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6a</id>
+		<updated>2003-12-13T18:30:02Z</updated>
+		<summary type="text"><![CDATA[<Some text.>]]></summary>
+	  </entry>
+	</feed>`
+
+	feed, err := Parse([]byte(data), &testLogger{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if feed.Items[0].Content != "<Some text.>" {
+		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
 	}
 }
 

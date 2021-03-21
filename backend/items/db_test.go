@@ -22,6 +22,7 @@ func testUserItem() *UserItem {
 			Title:          "title",
 			SubscriptionID: "sid",
 			Created:        time.Now().Add(-1 * time.Hour),
+			Summary:        "example summary",
 		},
 	}
 }

@@ -90,6 +90,36 @@ func Test_Parse_rss__Rss2Sample(t *testing.T) {
 	if !feed.Items[0].Date.Equal(expectedDate) {
 		t.Errorf("Incorrect entry date, got: %v, want: %v", feed.Items[0].Date, expectedDate)
 	}
+
+	if feed.Items[0].Content != `How do Americans get ready to work with Russians aboard the International Space Station? They take a crash course in culture, language and protocol at Russia's <a href="http://howe.iki.rssi.ru/GCTC/gctc_e.htm">Star City</a>.` {
+		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
+	}
+}
+
+func Test_Parse_rss_EntryWithContentEncoded(t *testing.T) {
+	data := `<?xml version="1.0" encoding="utf-8"?>
+		<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+		<channel>
+			<title>Example</title>
+			<link>http://example.org/</link>
+			<item>
+				<title>Item 1</title>
+				<link>http://example.org/item1</link>
+				<description>Description.</description>
+				<guid isPermaLink="false">UUID</guid>
+				<content:encoded><![CDATA[<p><a href="http://www.example.org/">Example</a>.</p>]]></content:encoded>
+			</item>
+		</channel>
+	</rss>`
+
+	feed, err := Parse([]byte(data), &testLogger{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if feed.Items[0].Content != `<p><a href="http://www.example.org/">Example</a>.</p>` {
+		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
+	}
 }
 
 func Test_Parse_rss__FeedWithoutTitle(t *testing.T) {

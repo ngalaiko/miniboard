@@ -32,11 +32,12 @@ func (d *database) Create(ctx context.Context, item *Item) error {
 			url,
 			title,
 			subscription_id,
-			created_epoch_utc
+			created_epoch_utc,
+			summary
 		) VALUES (
-			$1, $2, $3, $4, $5
+			$1, $2, $3, $4, $5, $6
 		)`, item.ID, item.URL, item.Title,
-		item.SubscriptionID, item.Created.UTC().UnixNano(),
+		item.SubscriptionID, item.Created.UTC().UnixNano(), item.Summary,
 	)
 	return err
 }
@@ -49,7 +50,8 @@ func (d *database) GetByURL(ctx context.Context, url string) (*Item, error) {
 		items.url,
 		items.title,
 		items.subscription_id,
-		items.created_epoch_utc
+		items.created_epoch_utc,
+		items.summary
 	FROM
 		items
 	WHERE
@@ -68,7 +70,8 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*UserItem
 		items.url,
 		items.title,
 		items.subscription_id,
-		items.created_epoch_utc
+		items.created_epoch_utc,
+		items.summary
 	FROM
 		items
 			JOIN users_subscriptions on users_subscriptions.subscription_id = items.subscription_id AND users_subscriptions.user_id = $1
@@ -94,7 +97,8 @@ func (d *database) List(ctx context.Context,
 		items.url,
 		items.title,
 		items.subscription_id,
-		items.created_epoch_utc
+		items.created_epoch_utc,
+		items.summary
 	FROM
 		items
 			JOIN users_subscriptions on users_subscriptions.subscription_id = items.subscription_id AND users_subscriptions.user_id = $1
@@ -159,6 +163,7 @@ func (d *database) scanItemRow(row scannable) (*Item, error) {
 		&item.Title,
 		&item.SubscriptionID,
 		&createdEpoch,
+		&item.Summary,
 	); err != nil {
 		return nil, err
 	}
@@ -178,6 +183,7 @@ func (d *database) scanUserItemRow(row scannable) (*UserItem, error) {
 		&item.Title,
 		&item.SubscriptionID,
 		&createdEpoch,
+		&item.Summary,
 	); err != nil {
 		return nil, err
 	}

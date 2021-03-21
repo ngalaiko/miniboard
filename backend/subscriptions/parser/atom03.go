@@ -78,14 +78,31 @@ type atom03Item struct {
 	Modified string     `xml:"modified"`
 	Issued   string     `xml:"issued"`
 	Created  string     `xml:"created"`
+	Content  atom03Text `xml:"content"`
+	Summary  atom03Text `xml:"summary"`
 }
 
 func (i *atom03Item) Convert(logger logger) *Item {
 	return &Item{
-		Title: i.Title.String(),
-		Link:  i.Links.originalLink(),
-		Date:  i.date(logger),
+		Title:   i.Title.String(),
+		Link:    i.Links.originalLink(),
+		Date:    i.date(logger),
+		Content: i.content(),
 	}
+}
+
+func (i *atom03Item) content() string {
+	content := i.Content.String()
+	if content != "" {
+		return content
+	}
+
+	summary := i.Summary.String()
+	if summary != "" {
+		return summary
+	}
+
+	return ""
 }
 
 func (i *atom03Item) date(logger logger) time.Time {

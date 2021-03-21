@@ -61,16 +61,28 @@ func (i *rdfImage) Convert() *Image {
 }
 
 type rdfItem struct {
-	Title          string `xml:"title"`
-	Link           string `xml:"link"`
-	DublinCoreDate string `xml:"http://purl.org/dc/elements/1.1/ date"`
+	Title             string `xml:"title"`
+	Link              string `xml:"link"`
+	Description       string `xml:"description"`
+	DublinCoreDate    string `xml:"http://purl.org/dc/elements/1.1/ date"`
+	DublinCoreContent string `xml:"http://purl.org/rss/1.0/modules/content/ encoded"`
 }
 
 func (i *rdfItem) Convert(logger logger) *Item {
 	return &Item{
-		Title: strings.TrimSpace(i.Title),
-		Link:  strings.TrimSpace(i.Link),
-		Date:  i.date(logger),
+		Title:   strings.TrimSpace(i.Title),
+		Link:    strings.TrimSpace(i.Link),
+		Date:    i.date(logger),
+		Content: i.content(),
+	}
+}
+
+func (i *rdfItem) content() string {
+	switch {
+	case i.DublinCoreContent != "":
+		return i.DublinCoreContent
+	default:
+		return i.Description
 	}
 }
 

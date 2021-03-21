@@ -14,7 +14,7 @@ func Test_service__Create(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	service := NewService(sqldb, &testLogger{})
 
-	item, err := service.Create(ctx, "sid", "https://example.org", "title", time.Now())
+	item, err := service.Create(ctx, "sid", "https://example.org", "title", time.Now(), "content")
 	if err != nil {
 		t.Fatalf("failed to create a item %s", err)
 	}
@@ -46,12 +46,12 @@ func Test_service__Create_twice(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err := service.Create(ctx, "sid", "https://example.org", "title", time.Now())
+	_, err := service.Create(ctx, "sid", "https://example.org", "title", time.Now(), "content")
 	if err != nil {
 		t.Fatalf("failed to create a item %s", err)
 	}
 
-	_, secondErr := service.Create(ctx, "sid", "https://example.org", "title", time.Now())
+	_, secondErr := service.Create(ctx, "sid", "https://example.org", "title", time.Now(), "content")
 	if secondErr != ErrAlreadyExists {
 		t.Fatalf("expected %s, got %s", ErrAlreadyExists, secondErr)
 	}
@@ -67,7 +67,7 @@ func Test_service__Get(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	item, err := service.Create(ctx, "sid", "https://example.org", "title", time.Now())
+	item, err := service.Create(ctx, "sid", "https://example.org", "title", time.Now(), "content")
 	if err != nil {
 		t.Fatalf("failed to create a item: %s", err)
 	}

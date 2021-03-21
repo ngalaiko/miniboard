@@ -28,6 +28,7 @@ type jsonItem struct {
 	Title         string `json:"title"`
 	Summary       string `json:"summary"`
 	Text          string `json:"content_text"`
+	HTML          string `json:"content_html"`
 	DatePublished string `json:"date_published"`
 	DateModified  string `json:"date_modified"`
 }
@@ -60,14 +61,25 @@ func (f *jsonFeed) Convert(logger logger) *Feed {
 
 func (i *jsonItem) Convert(logger logger) *Item {
 	item := &Item{
-		Link:  i.Link,
-		Title: i.title(),
-		Date:  i.date(logger),
+		Link:    i.Link,
+		Title:   i.title(),
+		Date:    i.date(logger),
+		Content: i.content(),
 	}
 	if item.Title == "" {
 		item.Title = item.Link
 	}
 	return item
+}
+
+func (i *jsonItem) content() string {
+	for _, value := range []string{i.HTML, i.Text, i.Summary} {
+		if value != "" {
+			return value
+		}
+	}
+
+	return ""
 }
 
 func (i *jsonItem) date(logger logger) time.Time {

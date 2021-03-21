@@ -7,9 +7,10 @@ import (
 
 // Item contains relevant feed item information.
 type Item struct {
-	Title string
-	Link  string
-	Date  time.Time
+	Title   string
+	Link    string
+	Date    time.Time
+	Content string
 }
 
 // Image is a feed's image.
