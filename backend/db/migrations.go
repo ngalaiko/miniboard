@@ -23,10 +23,10 @@ func migrations(db *sql.DB) []*migration {
 			Name: "create users",
 			Query: fmt.Sprintf(`
 			CREATE TABLE users (
-				id                 TEXT   NOT NULL,
-				username           TEXT   NOT NULL,
-				hash               %s     NOT NULL,
-				created_epoch_utc  BIGINT NOT NULL,
+				id            TEXT   NOT NULL,
+				username      TEXT   NOT NULL,
+				hash          %s     NOT NULL,
+				created_epoch BIGINT NOT NULL,
 				PRIMARY KEY (id),
 				UNIQUE(username)
 			)
@@ -59,11 +59,11 @@ func migrations(db *sql.DB) []*migration {
 			Name: "create subscriptions",
 			Query: `
 			CREATE TABLE subscriptions (
-				id                TEXT   NOT NULL,
-				url               TEXT   NOT NULL,
-				title             TEXT   NOT NULL,
-				created_epoch_utc BIGINT NOT NULL,
-				updated_epoch_utc BIGINT     NULL,
+				id            TEXT   NOT NULL,
+				url           TEXT   NOT NULL,
+				title         TEXT   NOT NULL,
+				created_epoch BIGINT NOT NULL,
+				updated_epoch BIGINT     NULL,
 				icon_url          TEXT       NULL,
 				PRIMARY KEY (id),
 				UNIQUE (url)
@@ -84,10 +84,10 @@ func migrations(db *sql.DB) []*migration {
 			Name: "create tags",
 			Query: `
 			CREATE TABLE tags (
-				id                TEXT   NOT NULL,
-				title             TEXT   NOT NULL,
-				user_id           TEXT   NOT NULL REFERENCES users(id),
-				created_epoch_utc BIGINT NOT NULL,
+				id            TEXT   NOT NULL,
+				title         TEXT   NOT NULL,
+				user_id       TEXT   NOT NULL REFERENCES users(id),
+				created_epoch BIGINT NOT NULL,
 				PRIMARY KEY (id),
 				UNIQUE (user_id, title)
 			)
@@ -107,12 +107,12 @@ func migrations(db *sql.DB) []*migration {
 			Name: "create items",
 			Query: `
 			CREATE TABLE items (
-				id                TEXT   NOT NULL,
-				url               TEXT   NOT NULL,
-				title             TEXT   NOT NULL,
-				subscription_id   TEXT   NOT NULL REFERENCES subscriptions(id),
-				created_epoch_utc BIGINT NOT NULL,
-				summary           TEXT   NULL,
+				id              TEXT   NOT NULL,
+				url             TEXT   NOT NULL,
+				title           TEXT   NOT NULL,
+				subscription_id TEXT   NOT NULL REFERENCES subscriptions(id),
+				created_epoch   BIGINT NOT NULL,
+				summary         TEXT   NULL,
 				PRIMARY KEY (id),
 				UNIQUE (subscription_id, url)
 			)

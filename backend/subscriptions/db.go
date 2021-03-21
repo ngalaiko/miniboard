@@ -33,8 +33,8 @@ func sqlFields(db *sql.DB) string {
 		users_subscriptions.user_id,
 		subscriptions.url,
 		subscriptions.title,
-		subscriptions.created_epoch_utc,
-		subscriptions.updated_epoch_utc,
+		subscriptions.created_epoch,
+		subscriptions.updated_epoch,
 		subscriptions.icon_url,
 		%s(tags.id, ',')
 	`, groupFunc)
@@ -68,8 +68,8 @@ func (d *database) Create(ctx context.Context, subscription *UserSubscription) e
 			id,
 			url,
 			title,
-			created_epoch_utc,
-			updated_epoch_utc,
+			created_epoch,
+			updated_epoch,
 			icon_url
 		) VALUES (
 			$1, $2, $3, $4, $5, $6
@@ -116,7 +116,7 @@ func (d *database) Update(ctx context.Context, subscription *Subscription) error
 	UPDATE
 		subscriptions
 	SET
-		updated_epoch_utc = $1
+		updated_epoch = $1
 	WHERE
 		id = $2
 	`
@@ -131,8 +131,8 @@ func getByURL(ctx context.Context, tx *sql.Tx, url string) (*Subscription, error
 		subscriptions.id,
 		subscriptions.url,
 		subscriptions.title,
-		subscriptions.created_epoch_utc,
-		subscriptions.updated_epoch_utc,
+		subscriptions.created_epoch,
+		subscriptions.updated_epoch,
 		subscriptions.icon_url
 	FROM
 		subscriptions
@@ -150,8 +150,8 @@ func (d *database) GetByID(ctx context.Context, id string) (*Subscription, error
 		subscriptions.id,
 		subscriptions.url,
 		subscriptions.title,
-		subscriptions.created_epoch_utc,
-		subscriptions.updated_epoch_utc,
+		subscriptions.created_epoch,
+		subscriptions.updated_epoch,
 		subscriptions.icon_url
 	FROM
 		subscriptions
@@ -179,8 +179,8 @@ func (d *database) GetByURL(ctx context.Context, userID string, url string) (*Us
 		users_subscriptions.user_id,
 		subscriptions.url,
 		subscriptions.title,
-		subscriptions.created_epoch_utc,
-		subscriptions.updated_epoch_utc,
+		subscriptions.created_epoch,
+		subscriptions.updated_epoch,
 		subscriptions.icon_url
 	`, sqlFields(d.db)), userID, url)
 
@@ -204,8 +204,8 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*UserSubs
 		users_subscriptions.user_id,
 		subscriptions.url,
 		subscriptions.title,
-		subscriptions.created_epoch_utc,
-		subscriptions.updated_epoch_utc,
+		subscriptions.created_epoch,
+		subscriptions.updated_epoch,
 		subscriptions.icon_url
 	`, sqlFields(d.db)), userID, id)
 
@@ -235,7 +235,7 @@ func (d *database) List(ctx context.Context,
 		args = append(args, createdLT.UnixNano())
 		query.WriteString(fmt.Sprintf(`
 	WHERE
-		subscriptions.created_epoch_utc < $%d
+		subscriptions.created_epoch < $%d
 		`, len(args)))
 	}
 	args = append(args, limit)
@@ -246,11 +246,11 @@ func (d *database) List(ctx context.Context,
 		users_subscriptions.user_id,
 		subscriptions.url,
 		subscriptions.title,
-		subscriptions.created_epoch_utc,
-		subscriptions.updated_epoch_utc,
+		subscriptions.created_epoch,
+		subscriptions.updated_epoch,
 		subscriptions.icon_url
 	ORDER BY
-		subscriptions.created_epoch_utc DESC
+		subscriptions.created_epoch DESC
 	LIMIT $%d`, len(args)))
 
 	rows, err := d.db.QueryContext(ctx, query.String(), args...)
@@ -285,8 +285,8 @@ func (d *database) ListAll(ctx context.Context) ([]*Subscription, error) {
 		subscriptions.id,
 		subscriptions.url,
 		subscriptions.title,
-		subscriptions.created_epoch_utc,
-		subscriptions.updated_epoch_utc,
+		subscriptions.created_epoch,
+		subscriptions.updated_epoch,
 		subscriptions.icon_url
 	FROM
 		subscriptions`

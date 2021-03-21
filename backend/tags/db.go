@@ -24,7 +24,7 @@ func (d *database) Create(ctx context.Context, tag *Tag) error {
 			id,
 			user_id,
 			title,
-			created_epoch_utc
+			created_epoch
 		) VALUES (
 			$1, $2, $3, $4
 		)`, tag.ID, tag.UserID, tag.Title, tag.Created.UTC().UnixNano(),
@@ -41,7 +41,7 @@ func (d *database) GetByID(ctx context.Context, userID string, id string) (*Tag,
 		id,
 		user_id,
 		title,
-		created_epoch_utc
+		created_epoch
 	FROM
 		tags
 	WHERE
@@ -59,7 +59,7 @@ func (d *database) GetByTitle(ctx context.Context, userID string, title string) 
 		id,
 		user_id,
 		title,
-		created_epoch_utc
+		created_epoch
 	FROM
 		tags
 	WHERE
@@ -78,7 +78,7 @@ func (d *database) List(ctx context.Context, userID string, limit int, createdLT
 		id,
 		user_id,
 		title,
-		created_epoch_utc
+		created_epoch
 	FROM
 		tags
 	WHERE
@@ -87,10 +87,10 @@ func (d *database) List(ctx context.Context, userID string, limit int, createdLT
 
 	args := []interface{}{userID}
 	if createdLT != nil {
-		query.WriteString(`AND created_epoch_utc < $2 ORDER BY created_epoch_utc DESC LIMIT $3`)
+		query.WriteString(`AND created_epoch < $2 ORDER BY created_epoch DESC LIMIT $3`)
 		args = append(args, createdLT.UnixNano(), limit)
 	} else {
-		query.WriteString(`ORDER BY created_epoch_utc DESC LIMIT $2`)
+		query.WriteString(`ORDER BY created_epoch DESC LIMIT $2`)
 		args = append(args, limit)
 	}
 

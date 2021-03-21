@@ -32,7 +32,7 @@ func (d *database) Create(ctx context.Context, item *Item) error {
 			url,
 			title,
 			subscription_id,
-			created_epoch_utc,
+			created_epoch,
 			summary
 		) VALUES (
 			$1, $2, $3, $4, $5, $6
@@ -50,7 +50,7 @@ func (d *database) GetByURL(ctx context.Context, url string) (*Item, error) {
 		items.url,
 		items.title,
 		items.subscription_id,
-		items.created_epoch_utc,
+		items.created_epoch,
 		items.summary
 	FROM
 		items
@@ -70,7 +70,7 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*UserItem
 		items.url,
 		items.title,
 		items.subscription_id,
-		items.created_epoch_utc,
+		items.created_epoch,
 		items.summary
 	FROM
 		items
@@ -97,7 +97,7 @@ func (d *database) List(ctx context.Context,
 		items.url,
 		items.title,
 		items.subscription_id,
-		items.created_epoch_utc,
+		items.created_epoch,
 		items.summary
 	FROM
 		items
@@ -115,14 +115,14 @@ func (d *database) List(ctx context.Context,
 	if createdLT != nil {
 		args = append(args, createdLT.UnixNano())
 		query.WriteString(fmt.Sprintf(`
-		AND items.created_epoch_utc < $%d
+		AND items.created_epoch < $%d
 		`, len(args)))
 	}
 
 	args = append(args, limit)
 	query.WriteString(fmt.Sprintf(`
 	ORDER BY
-		items.created_epoch_utc DESC
+		items.created_epoch DESC
 	LIMIT $%d`, len(args)))
 
 	rows, err := d.db.QueryContext(ctx, query.String(), args...)

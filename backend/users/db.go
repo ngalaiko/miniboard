@@ -23,7 +23,7 @@ func (d *database) Create(ctx context.Context, user *User) error {
 		id,
 		username,
 		hash,
-		created_epoch_utc
+		created_epoch
 	) VALUES (
 		$1, $2, $3, $4
 	)`, user.ID, user.Username, user.Hash, user.Created.UTC().UnixNano())
@@ -38,7 +38,7 @@ func (d *database) GetByID(ctx context.Context, id string) (*User, error) {
 		id,
 		username,
 		hash,
-		created_epoch_utc
+		created_epoch
 	FROM
 		users
 	WHERE
@@ -55,7 +55,7 @@ func (d *database) GetByUsername(ctx context.Context, username string) (*User, e
 		id,
 		username,
 		hash,
-		created_epoch_utc
+		created_epoch
 	FROM
 		users
 	WHERE
