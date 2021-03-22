@@ -1,3 +1,7 @@
+summary:focus {
+    outline-style: none;
+}
+
 #tags-menu,#items-list {
     display: flex;
     flex-direction: column;
