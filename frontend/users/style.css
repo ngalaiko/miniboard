@@ -42,6 +42,10 @@ summary:focus {
     align-self: flex-end;
 }
 
+.rotate {
+    transform: rotate(90deg);
+}
+
 button {
     cursor: pointer;
 }

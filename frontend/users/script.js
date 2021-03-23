@@ -72,17 +72,12 @@ const renderSubscription = (subscription) => `
 const renderTag = (tag, subscriptions) => `
     <div style="display:flex;align-items:center;cursor:pointer;">
         <button type="button" style="background:none;border:none;padding:0;" onclick="
-            // looks stupid, investigate
             const el = document.getElementById('${tag.id}');
             el.hidden = !el.hidden;
-            if (el.hidden) {
-                document.getElementById('${tag.id}-arrow').setAttribute('points', '9 18 15 12 9 6');
-            } else {
-                document.getElementById('${tag.id}-arrow').setAttribute('points', '6 9 12 15 18 9');
-            }
+            document.getElementById('${tag.id}-arrow').classList.toggle('rotate');
             ">
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <polyline id="${tag.id}-arrow" points="9 18 15 12 9 6"></polyline>
+            <svg id="${tag.id}-arrow" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
         </button>
         <span class="title">${tag.title}</span>
