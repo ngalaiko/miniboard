@@ -42,8 +42,12 @@ summary:focus {
     align-self: flex-end;
 }
 
-.onhover:hover {
-    background: #cccccc;
+button {
+    cursor: pointer;
+}
+
+button:active {
+    color: black;
 }
 
 .container .title {

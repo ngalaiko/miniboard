@@ -58,7 +58,7 @@ const listAllSubscriptions = async (pageSize, createdLt) => {
 }
 
 const renderSubscription = (subscription) => `
-    <span class="container onhover" onclick="this.dispatchEvent(new CustomEvent('SubscriptionSelected', {
+    <span class="container" onclick="this.dispatchEvent(new CustomEvent('SubscriptionSelected', {
         detail: {
             id: '${subscription.id}',
         },
@@ -69,17 +69,18 @@ const renderSubscription = (subscription) => `
     </span>
 `
     
-const renderSubscriptions = (tagId, subscriptions) => `
-    <div id="${tagId}">
+const renderTag = (tag, subscriptions) => `
+    <div style="display:flex;align-items:center;cursor:pointer;">
+        <button type="button" style="background:none;border:none;padding:0;" onclick="const el = document.getElementById('${tag.id}'); el.hidden = !el.hidden;">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+        <span class="title">${tag.title}</span>
+    </div>
+    <div id="${tag.id}" hidden>
         ${subscriptions.map(renderSubscription).join('')}
     </div>
-`
-
-const renderTag = (tag, subscriptions) => `
-    <details class="container">
-        <summary class="title">${tag.title}</summary>
-        ${renderSubscriptions(tag.id, subscriptions)}
-    </details>
 `
 
 const renderTags = (tags, subscriptions) => {
@@ -134,7 +135,7 @@ const addToastMessage = async (promise, message, onSuccess) => {
 }
 
 const renderItem = (item) => `
-    <span class="container item-container onhover" created="${item.created}">
+    <span class="container item-container" created="${item.created}">
         <span class="item-title">${item.title}</span>
         <span class="container-footer">
             <span title="${new Date(item.created).toLocaleString()}" class="item-date">
