@@ -20,6 +20,28 @@ summary:focus {
     padding: 0.2em;
 }
 
+.item-container {
+    flex-direction: column;
+}
+
+.item-container .item-title {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+}
+
+.item-container .item-date {
+    font-size: smaller;
+}
+
+.item-container .container-footer {
+    display: flex;
+    align-self: flex-end;
+}
+
 .onhover:hover {
     background: #cccccc;
 }

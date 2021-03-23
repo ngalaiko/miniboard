@@ -134,8 +134,17 @@ const addToastMessage = async (promise, message, onSuccess) => {
 }
 
 const renderItem = (item) => `
-    <span class="container onhover" created="${item.created}">
-        <span class="title">${item.title}</span>
+    <span class="container item-container onhover" created="${item.created}">
+        <span class="item-title">${item.title}</span>
+        <span class="container-footer">
+            <span title="${new Date(item.created).toLocaleString()}" class="item-date">
+                ${Intl.DateTimeFormat(undefined, {
+                    year: 'numeric',
+                    month: 'numeric',
+                    day: 'numeric',
+                }).format(new Date(item.created))}
+            </span>
+        </span>
     </span>
 `
 
