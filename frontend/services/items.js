@@ -16,7 +16,11 @@ class Items {
             ? `&subscription_id_eq=${encodeURIComponent(params.subscriptionIdEq)}`
             : ''
 
-        const url = '/v1/items?' + pageSizeQuery + createdLtQuery + subscriptionIdQuery
+        const tagIdQuery = params.tagIdEq !== undefined
+            ? `&tag_id_eq=${encodeURIComponent(params.tagIdEq)}`
+            : ''
+
+        const url = '/v1/items?' + pageSizeQuery + createdLtQuery + subscriptionIdQuery + tagIdQuery
 
         const body = await Api.get(url)
 

@@ -17,8 +17,17 @@ const storeState = (key, value) => {
 
 const getState = (key) => {
     const urlParams = new URLSearchParams(window.location.search.slice(1))
-
     return urlParams.get(key)
+}
+
+const deleteState = (key) => {
+    const urlParams = new URLSearchParams(window.location.search.slice(1))
+    urlParams.delete(key)
+
+    let refresh = window.location.protocol +
+        "//" + window.location.host + window.location.pathname +
+        `?${urlParams.toString()}`
+    window.history.pushState({ path: refresh }, '', refresh)
 }
 
 const listAllTags = async (pageSize, createdLt) => {
@@ -80,7 +89,12 @@ const renderTag = (tag, subscriptions) => `
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
         </button>
-        <span class="title">${tag.title}</span>
+        <span class="title" onclick="this.dispatchEvent(new CustomEvent('TagSelected', {
+        detail: {
+            id: '${tag.id}',
+        },
+        bubbles: true,
+    }))">${tag.title}</span>
     </div>
     <div id="${tag.id}" hidden>
         ${subscriptions.map(renderSubscription).join('')}
@@ -153,7 +167,7 @@ const renderItem = (item) => `
     </span>
 `
 
-const listItems = (subscriptionId) => {
+const listItemsBySubscription = (subscriptionId) => {
     if (!subscriptionId) return
 
     ItemsService.list({
@@ -163,11 +177,30 @@ const listItems = (subscriptionId) => {
     })
 }
 
+const listItemsByTag = (tagId) => {
+    if (!tagId) return
+
+    ItemsService.list({
+        tagIdEq: tagId,
+    }).then((items) => {
+        document.querySelector('#items-list').innerHTML = items.map(renderItem).join('')
+    })
+}
+
 document.querySelector('#tags-menu').addEventListener('SubscriptionSelected', async (e) => {
     const subscriptionId = e.detail.id
 
+    deleteState('tag')
     storeState('subscription', subscriptionId)
-    listItems(subscriptionId)
+    listItemsBySubscription(subscriptionId)
+})
+
+document.querySelector('#tags-menu').addEventListener('TagSelected', async (e) => {
+    const tagId = e.detail.id
+
+    deleteState('subscription')
+    storeState('tag', tagId)
+    listItemsByTag(tagId)
 })
 
 document.querySelector('#tags-menu').addEventListener('SubscriptionCreate', (e) => {
@@ -231,7 +264,8 @@ document.querySelector('#items-list').addEventListener('scroll', (e) => {
     })
 })
 
-listItems(getState('subscription'))
+listItemsBySubscription(getState('subscription'))
+listItemsByTag(getState('tag'))
 
 Promise.all([listAllSubscriptions(), listAllTags()]).then(async (values) => {
     const subscriptions = values[0]
