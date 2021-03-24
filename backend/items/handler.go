@@ -81,7 +81,12 @@ func (h *Handler) handleListItems(w http.ResponseWriter, r *http.Request) {
 		subscriptionID = &subscriptionIDParam
 	}
 
-	items, err := h.service.List(r.Context(), token.UserID, pageSize, createdLT, subscriptionID)
+	var tagID *string
+	if tagIDParam := r.URL.Query().Get("tag_id_eq"); len(tagIDParam) != 0 {
+		tagID = &tagIDParam
+	}
+
+	items, err := h.service.List(r.Context(), token.UserID, pageSize, createdLT, subscriptionID, tagID)
 	switch {
 	case err == nil:
 		type response struct {

@@ -88,6 +88,7 @@ func (d *database) List(ctx context.Context,
 	limit int,
 	createdLT *time.Time,
 	subscriptionID *string,
+	tagID *string,
 ) ([]*UserItem, error) {
 	query := &strings.Builder{}
 	query.WriteString(`
@@ -104,6 +105,13 @@ func (d *database) List(ctx context.Context,
 			JOIN users_subscriptions on users_subscriptions.subscription_id = items.subscription_id AND users_subscriptions.user_id = $1
 	`)
 	args := []interface{}{userID}
+
+	if tagID != nil {
+		args = append(args, *tagID)
+		query.WriteString(fmt.Sprintf(`
+			JOIN tags_subscriptions on tags_subscriptions.subscription_id = users_subscriptions.subscription_id AND tags_subscriptions.tag_id = $%d
+		`, len(args)))
+	}
 
 	if subscriptionID != nil {
 		args = append(args, *subscriptionID)

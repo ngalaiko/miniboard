@@ -163,7 +163,7 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 
 	var createdLT *time.Time
 	for i := 0; i < 20; i++ {
-		items, err := db.List(ctx, "user", 5, createdLT, nil)
+		items, err := db.List(ctx, "user", 5, createdLT, nil, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -182,6 +182,95 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 				t.Fatal(cmp.Diff(item, created[item.ID]))
 			}
 			createdLT = &item.Created
+		}
+	}
+}
+
+func Test_db__List_filtered_by_tag(t *testing.T) {
+	ctx := context.TODO()
+	sqldb := createTestDB(ctx, t)
+	db := newDB(sqldb, &testLogger{})
+
+	created := map[string]*UserItem{}
+	for i := 0; i < 100; i++ {
+		item := &UserItem{
+			UserID: "user",
+			Item: Item{
+				ID:             fmt.Sprint(i),
+				URL:            fmt.Sprintf("https://example%d.com", i),
+				Title:          fmt.Sprintf("%d title", i),
+				Created:        time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
+				SubscriptionID: fmt.Sprint(i % 5),
+			},
+		}
+
+		_, _ = sqldb.Exec(`INSERT INTO users_subscriptions (user_id, subscription_id) VALUES ("user", $1)`, item.SubscriptionID)
+		_, _ = sqldb.Exec(`INSERT INTO tags_subscriptions (tag_id, subscription_id) VALUES ("tag", $1)`, item.SubscriptionID)
+
+		if err := db.Create(ctx, &item.Item); err != nil {
+			t.Fatal(err)
+		}
+		created[item.ID] = item
+	}
+
+	tagID := "tag"
+	items, err := db.List(ctx, "user", 100, nil, nil, &tagID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(items) != 100 {
+		t.Fatalf("expected 100 items, got %d", len(items))
+	}
+
+	for _, item := range items {
+		if !cmp.Equal(item, created[item.ID]) {
+			t.Error(cmp.Diff(item, created[item.ID]))
+		}
+	}
+}
+
+func Test_db__List_filtered_by_subscription_and_tag(t *testing.T) {
+	ctx := context.TODO()
+	sqldb := createTestDB(ctx, t)
+	db := newDB(sqldb, &testLogger{})
+
+	created := map[string]*UserItem{}
+	for i := 0; i < 100; i++ {
+		item := &UserItem{
+			UserID: "user",
+			Item: Item{
+				ID:             fmt.Sprint(i),
+				URL:            fmt.Sprintf("https://example%d.com", i),
+				Title:          fmt.Sprintf("%d title", i),
+				Created:        time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
+				SubscriptionID: fmt.Sprint(i % 5),
+			},
+		}
+
+		_, _ = sqldb.Exec(`INSERT INTO users_subscriptions (user_id, subscription_id) VALUES ("user", $1)`, item.SubscriptionID)
+		_, _ = sqldb.Exec(`INSERT INTO tags_subscriptions (tag_id, subscription_id) VALUES ("tag", $1)`, item.SubscriptionID)
+
+		if err := db.Create(ctx, &item.Item); err != nil {
+			t.Fatal(err)
+		}
+		created[item.ID] = item
+	}
+
+	sID := "2"
+	tagID := "tag"
+	items, err := db.List(ctx, "user", 100, nil, &sID, &tagID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(items) != 20 {
+		t.Fatalf("expected 20 items, got %d", len(items))
+	}
+
+	for _, item := range items {
+		if !cmp.Equal(item, created[item.ID]) {
+			t.Error(cmp.Diff(item, created[item.ID]))
 		}
 	}
 }
@@ -213,7 +302,7 @@ func Test_db__List_filtered_by_subscription(t *testing.T) {
 	}
 
 	sID := "2"
-	items, err := db.List(ctx, "user", 100, nil, &sID)
+	items, err := db.List(ctx, "user", 100, nil, &sID, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

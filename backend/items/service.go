@@ -81,8 +81,8 @@ func (s *Service) Get(ctx context.Context, id string, userID string) (*UserItem,
 }
 
 // List returns a list of user items.
-func (s *Service) List(ctx context.Context, userID string, pageSize int, createdLT *time.Time, subscriptionID *string) ([]*UserItem, error) {
-	items, err := s.db.List(ctx, userID, pageSize, createdLT, subscriptionID)
+func (s *Service) List(ctx context.Context, userID string, pageSize int, createdLT *time.Time, subscriptionID *string, tagID *string) ([]*UserItem, error) {
+	items, err := s.db.List(ctx, userID, pageSize, createdLT, subscriptionID, tagID)
 	switch {
 	case err == nil:
 		return items, nil
