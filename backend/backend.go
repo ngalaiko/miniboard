@@ -4,7 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net/http"
+	"time"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ngalaiko/miniboard/backend/authorizations"
@@ -36,7 +41,7 @@ type Config struct {
 
 // Server is the main object.
 type Server struct {
-	logger                *logger.Logger
+	log                   *logger.Logger
 	db                    *sql.DB
 	httpServer            *httpx.Server
 	authorizationsService *authorizations.Service
@@ -45,64 +50,73 @@ type Server struct {
 }
 
 // New returns a new initialized server object.
-func New(logger *logger.Logger, cfg *Config) (*Server, error) {
-	db, err := db.New(cfg.DB, logger)
+func New(log *logger.Logger, cfg *Config) (*Server, error) {
+	db, err := db.New(cfg.DB, log)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize db: %w", err)
 	}
 
-	httpServer, err := httpx.NewServer(cfg.HTTP, logger)
+	crawler := crawler.WithConcurrencyLimit(crawler.New(), 10)
+	authorizationsService := authorizations.NewService(db, log)
+	usersService := users.NewService(db, cfg.Users)
+	operationsService := operations.NewService(log, db, cfg.Operations)
+	tagsService := tags.NewService(db)
+	itemsService := items.NewService(db, log)
+	subscriptionsService := subscriptions.NewService(db, crawler, log, cfg.Subscriptions, itemsService)
+
+	subscriptionsHandler := subscriptions.NewHandler(subscriptionsService, log, operationsService)
+	authorizationsHandler := authorizations.NewHandler(usersService, authorizationsService, log, cfg.Authorizations)
+	itemsHandler := items.NewHandler(itemsService, log)
+	operationsHandler := operations.NewHandler(operationsService, log)
+	tagsHandler := tags.NewHandler(tagsService, log)
+	usersHandler := users.NewHandler(usersService, log)
+
+	authMiddleware := authorizations.Authenticate(authorizationsService, cfg.Authorizations, log)
+
+	r := chi.NewRouter()
+	r.Use(logger.Middleware(log))
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.Timeout(60 * time.Second))
+	if cfg.Cors != nil {
+		r.Use(cors.Handler(cors.Options{
+			AllowedOrigins:   cfg.Cors.Domains,
+			AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
+			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "Accept-Encoding"},
+			AllowCredentials: true,
+		}))
+	}
+	r.Route("/v1", func(r chi.Router) {
+		r.Route("/authorizations", func(r chi.Router) {
+			r.Post("/", authorizationsHandler.Create())
+		})
+		r.With(authMiddleware).Route("/subscriptions", func(r chi.Router) {
+			r.Post("/", subscriptionsHandler.Create())
+			r.Get("/", subscriptionsHandler.List())
+		})
+		r.With(authMiddleware).Route("/items", func(r chi.Router) {
+			r.Get("/", itemsHandler.List())
+		})
+		r.With(authMiddleware).Route("/operations", func(r chi.Router) {
+			r.Get("/{operationId}/", func(w http.ResponseWriter, r *http.Request) {
+				operationsHandler.Get(chi.URLParam(r, "operationId"))(w, r)
+			})
+		})
+		r.Route("/users", func(r chi.Router) {
+			r.Post("/", usersHandler.Create())
+		})
+		r.With(authMiddleware).Route("/tags", func(r chi.Router) {
+			r.Post("/", tagsHandler.Create())
+			r.Get("/", tagsHandler.List())
+		})
+	})
+
+	httpServer, err := httpx.NewServer(cfg.HTTP, log, r)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize http server: %w", err)
 	}
 
-	crawler := crawler.WithConcurrencyLimit(crawler.New(), 10)
-	authorizationsService := authorizations.NewService(db, logger)
-	usersService := users.NewService(db, cfg.Users)
-	operationsService := operations.NewService(logger, db, cfg.Operations)
-	tagsService := tags.NewService(db)
-	itemsService := items.NewService(db, logger)
-	subscriptionsService := subscriptions.NewService(db, crawler, logger, cfg.Subscriptions, itemsService)
-
-	withAuth := authorizations.Authenticate(authorizationsService, cfg.Authorizations, logger)
-
-	corsDomains := []string{}
-	if cfg.Cors != nil {
-		corsDomains = append(corsDomains, cfg.Cors.Domains...)
-	}
-	withCORS := httpx.WithCors(corsDomains...)
-
-	httpServer.Route("/v1/authorizations", httpx.Chain(
-		authorizations.NewHandler(usersService, authorizationsService, logger, cfg.Authorizations),
-		withCORS,
-	))
-	httpServer.Route("/v1/subscriptions", httpx.Chain(
-		subscriptions.NewHandler(subscriptionsService, logger, operationsService),
-		withCORS,
-		withAuth,
-	))
-	httpServer.Route("/v1/operations", httpx.Chain(
-		operations.NewHandler(operationsService, logger),
-		withCORS,
-		withAuth,
-	))
-	httpServer.Route("/v1/items", httpx.Chain(
-		items.NewHandler(itemsService, logger),
-		withCORS,
-		withAuth,
-	))
-	httpServer.Route("/v1/tags", httpx.Chain(
-		tags.NewHandler(tagsService, logger),
-		withCORS,
-		withAuth,
-	))
-	httpServer.Route("/v1/users", httpx.Chain(
-		users.NewHandler(usersService, logger),
-		withCORS,
-	))
-
 	return &Server{
-		logger:                logger,
+		log:                   log,
 		db:                    db,
 		httpServer:            httpServer,
 		authorizationsService: authorizationsService,
@@ -113,7 +127,7 @@ func New(logger *logger.Logger, cfg *Config) (*Server, error) {
 
 // Start starts all components of the server.
 func (s *Server) Start(ctx context.Context) error {
-	if err := db.Migrate(ctx, s.db, s.logger); err != nil {
+	if err := db.Migrate(ctx, s.db, s.log); err != nil {
 		return fmt.Errorf("failed to apply db migrations: %w", err)
 	}
 	if err := s.authorizationsService.Init(ctx); err != nil {

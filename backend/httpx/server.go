@@ -7,8 +7,6 @@ import (
 	"net"
 	"net/http"
 	"time"
-
-	"github.com/ngalaiko/miniboard/backend/httpx/handler"
 )
 
 type tlsConfig struct {
@@ -29,30 +27,27 @@ type logger interface {
 
 // Server represents an HTTP server.
 type Server struct {
-	logger  logger
-	server  *http.Server
-	handler *handler.Handler
-	cfg     *Config
+	logger logger
+	server *http.Server
+	cfg    *Config
 }
 
 // NewServer creates a new HTTP server.
 //
 // The handler can be nil, in which case http.DefaultServeMux is used.
-func NewServer(cfg *Config, logger logger) (*Server, error) {
+func NewServer(cfg *Config, logger logger, handler http.Handler) (*Server, error) {
 	if cfg == nil {
 		cfg = &Config{
 			// Preserve the stdlib default.
 			Addr: ":http",
 		}
 	}
-	handler := handler.New()
 	srv := &Server{
-		logger:  logger,
-		cfg:     cfg,
-		handler: handler,
+		cfg:    cfg,
+		logger: logger,
 		server: &http.Server{
 			Addr:    cfg.Addr,
-			Handler: Chain(handler, withAccessLogs(logger)),
+			Handler: handler,
 			// https://blog.cloudflare.com/exposing-go-on-the-internet/
 			ReadTimeout:  5 * time.Second,
 			WriteTimeout: 10 * time.Second,
@@ -86,12 +81,6 @@ func NewServer(cfg *Config, logger logger) (*Server, error) {
 	srv.server.TLSConfig.Certificates = []tls.Certificate{cert}
 
 	return srv, nil
-}
-
-// Route adds a handler for the route.
-func (srv *Server) Route(prefix string, handler http.Handler) *Server {
-	srv.handler.Route(prefix, handler)
-	return srv
 }
 
 // isTLS returns whether TLS is enabled.

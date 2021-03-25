@@ -38,116 +38,92 @@ func NewHandler(service *Service, logger logger) *Handler {
 	}
 }
 
-// ServeHTTP implements http.Handler.
-func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPost:
-		h.handlePost(w, r)
-	case http.MethodGet:
-		h.handleGet(w, r)
-	default:
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-	}
-}
-
-func (h *Handler) handlePost(w http.ResponseWriter, r *http.Request) {
-	switch r.URL.Path {
-	case "/":
-		h.handleCreateTag(w, r)
-	default:
-		http.NotFound(w, r)
-	}
-}
-
-func (h *Handler) handleGet(w http.ResponseWriter, r *http.Request) {
-	switch r.URL.Path {
-	case "/":
-		h.handleListTags(w, r)
-	default:
-		http.NotFound(w, r)
-	}
-}
-
-func (h *Handler) handleListTags(w http.ResponseWriter, r *http.Request) {
-	token, auth := authorizations.FromContext(r.Context())
-	if !auth {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	var pageSize int = 100
-	if pageSizeRaw := r.URL.Query().Get("page_size"); len(pageSizeRaw) != 0 {
-		pageSizeParsed, err := strconv.Atoi(pageSizeRaw)
-		if err != nil {
-			httpx.Error(w, h.logger, errInvalidPageSize, http.StatusBadRequest)
+// List returns http handler that lists tag.
+func (h *Handler) List() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		token, auth := authorizations.FromContext(r.Context())
+		if !auth {
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
-		pageSize = pageSizeParsed
-	}
 
-	var createdLT *time.Time
-	if createdLTParam := r.URL.Query().Get("created_lt"); len(createdLTParam) != 0 {
-		createdLTParsed, err := time.Parse(time.RFC3339, createdLTParam)
-		if err != nil {
-			httpx.Error(w, h.logger, errInvalidCreatedLT, http.StatusBadRequest)
-			return
+		var pageSize int = 100
+		if pageSizeRaw := r.URL.Query().Get("page_size"); len(pageSizeRaw) != 0 {
+			pageSizeParsed, err := strconv.Atoi(pageSizeRaw)
+			if err != nil {
+				httpx.Error(w, h.logger, errInvalidPageSize, http.StatusBadRequest)
+				return
+			}
+			pageSize = pageSizeParsed
 		}
-		createdLT = &createdLTParsed
-	}
 
-	tags, err := h.service.List(r.Context(), token.UserID, pageSize, createdLT)
-	switch {
-	case err == nil:
-		type response struct {
-			Tags []*Tag `json:"tags"`
+		var createdLT *time.Time
+		if createdLTParam := r.URL.Query().Get("created_lt"); len(createdLTParam) != 0 {
+			createdLTParsed, err := time.Parse(time.RFC3339, createdLTParam)
+			if err != nil {
+				httpx.Error(w, h.logger, errInvalidCreatedLT, http.StatusBadRequest)
+				return
+			}
+			createdLT = &createdLTParsed
 		}
-		httpx.JSON(w, h.logger, &response{Tags: tags}, http.StatusOK)
-	default:
-		h.logger.Error("failed to list tags: %s", err)
-		httpx.InternalError(w, h.logger)
+
+		tags, err := h.service.List(r.Context(), token.UserID, pageSize, createdLT)
+		switch {
+		case err == nil:
+			type response struct {
+				Tags []*Tag `json:"tags"`
+			}
+			httpx.JSON(w, h.logger, &response{Tags: tags}, http.StatusOK)
+		default:
+			h.logger.Error("failed to list tags: %s", err)
+			httpx.InternalError(w, h.logger)
+		}
 	}
 }
 
-func (h *Handler) handleCreateTag(w http.ResponseWriter, r *http.Request) {
-	token, auth := authorizations.FromContext(r.Context())
-	if !auth {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
+// Create returns http handler that creates tag.
+func (h *Handler) Create() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		token, auth := authorizations.FromContext(r.Context())
+		if !auth {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
-	type request struct {
-		Title string `json:"title"`
-	}
+		type request struct {
+			Title string `json:"title"`
+		}
 
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		h.logger.Error("failed to read request body: %s", err)
-		httpx.InternalError(w, h.logger)
-		return
-	}
-
-	req := &request{}
-	if len(body) > 0 {
-		if err := json.Unmarshal(body, req); err != nil {
-			h.logger.Error("failed unmarshal request: %s", err)
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			h.logger.Error("failed to read request body: %s", err)
 			httpx.InternalError(w, h.logger)
 			return
 		}
-	}
 
-	if req.Title == "" {
-		httpx.Error(w, h.logger, errEmptyTitle, http.StatusBadRequest)
-		return
-	}
+		req := &request{}
+		if len(body) > 0 {
+			if err := json.Unmarshal(body, req); err != nil {
+				h.logger.Error("failed unmarshal request: %s", err)
+				httpx.InternalError(w, h.logger)
+				return
+			}
+		}
 
-	tag, err := h.service.Create(r.Context(), token.UserID, req.Title)
-	switch {
-	case errors.Is(err, errAlreadyExists):
-		httpx.Error(w, h.logger, err, http.StatusBadRequest)
-	case err == nil:
-		httpx.JSON(w, h.logger, tag, http.StatusOK)
-	default:
-		h.logger.Error("failed to create tag: %s", err)
-		httpx.InternalError(w, h.logger)
+		if req.Title == "" {
+			httpx.Error(w, h.logger, errEmptyTitle, http.StatusBadRequest)
+			return
+		}
+
+		tag, err := h.service.Create(r.Context(), token.UserID, req.Title)
+		switch {
+		case errors.Is(err, errAlreadyExists):
+			httpx.Error(w, h.logger, err, http.StatusBadRequest)
+		case err == nil:
+			httpx.JSON(w, h.logger, tag, http.StatusOK)
+		default:
+			h.logger.Error("failed to create tag: %s", err)
+			httpx.InternalError(w, h.logger)
+		}
 	}
 }

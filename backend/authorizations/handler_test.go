@@ -12,46 +12,6 @@ import (
 	"github.com/ngalaiko/miniboard/backend/users"
 )
 
-func Test_Handler__Get(t *testing.T) {
-	ctx := context.Background()
-	logger := &testLogger{}
-	handler := NewHandler(&testUsersService{}, NewService(createTestDB(ctx, t), logger), logger, nil)
-
-	req, err := http.NewRequest("GET", "/", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rr := httptest.NewRecorder()
-
-	handler.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusMethodNotAllowed {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusMethodNotAllowed)
-	}
-}
-
-func Test_Handler__Post_404(t *testing.T) {
-	ctx := context.Background()
-	logger := &testLogger{}
-	handler := NewHandler(&testUsersService{}, NewService(createTestDB(ctx, t), logger), logger, nil)
-
-	req, err := http.NewRequest("POST", "/404", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rr := httptest.NewRecorder()
-
-	handler.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusNotFound {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusNotFound)
-	}
-}
-
 func Test_Handler__Create_unknown_user(t *testing.T) {
 	ctx := context.Background()
 	logger := &testLogger{}
@@ -67,7 +27,7 @@ func Test_Handler__Create_unknown_user(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler.ServeHTTP(rr, req)
+	handler.Create()(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -99,7 +59,7 @@ func Test_Handler__Create_invalid_password(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler.ServeHTTP(rr, req)
+	handler.Create()(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -132,7 +92,7 @@ func Test_Handler__Create(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler.ServeHTTP(rr, req)
+	handler.Create()(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",

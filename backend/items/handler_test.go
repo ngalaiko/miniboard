@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/ngalaiko/miniboard/backend/authorizations"
@@ -46,7 +45,7 @@ func Test_Handler__Get(t *testing.T) {
 				UserID: "user",
 			}))
 			rr := httptest.NewRecorder()
-			handler.ServeHTTP(rr, req)
+			handler.List()(rr, req)
 
 			expectedCode := testCase.StatusCode
 			if status := rr.Code; status != expectedCode {
@@ -60,27 +59,5 @@ func Test_Handler__Get(t *testing.T) {
 					rr.Body.String(), expected)
 			}
 		})
-	}
-}
-
-func Test_Handler__Post_412(t *testing.T) {
-	ctx := context.Background()
-	logger := &testLogger{}
-	db := createTestDB(ctx, t)
-	service := NewService(db, &testLogger{})
-	handler := NewHandler(service, logger)
-
-	req, err := http.NewRequest("POST", "/404", strings.NewReader(`{"url":"https://console.org"}`))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rr := httptest.NewRecorder()
-
-	handler.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusMethodNotAllowed {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusMethodNotAllowed)
 	}
 }

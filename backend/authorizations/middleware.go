@@ -21,7 +21,7 @@ var (
 
 // Authenticate is a http middleware that validates request Authorization token
 // and populates a request context with the user id.
-func Authenticate(jwtService jwtService, config *Config, logger errorLogger) httpx.Middleware {
+func Authenticate(jwtService jwtService, config *Config, logger errorLogger) func(http.Handler) http.Handler {
 	return func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tok, refreshable, err := getToken(r)

@@ -47,7 +47,7 @@ func Test_Handler__Get(t *testing.T) {
 				UserID: "user",
 			}))
 			rr := httptest.NewRecorder()
-			handler.ServeHTTP(rr, req)
+			handler.List()(rr, req)
 
 			expectedCode := testCase.StatusCode
 			if status := rr.Code; status != expectedCode {
@@ -61,28 +61,6 @@ func Test_Handler__Get(t *testing.T) {
 					rr.Body.String(), expected)
 			}
 		})
-	}
-}
-
-func Test_Handler__Post_404(t *testing.T) {
-	ctx := context.Background()
-	logger := &testLogger{}
-	db := createTestDB(ctx, t)
-	service := NewService(db)
-	handler := NewHandler(service, logger)
-
-	req, err := http.NewRequest("POST", "/404", strings.NewReader(`{"title":"title"}`))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rr := httptest.NewRecorder()
-
-	handler.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusNotFound {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusNotFound)
 	}
 }
 
@@ -105,7 +83,7 @@ func Test_Handler__Post_create_already_exists(t *testing.T) {
 		}))
 		rr = httptest.NewRecorder()
 
-		handler.ServeHTTP(rr, req)
+		handler.Create()(rr, req)
 	}
 
 	if status := rr.Code; status != http.StatusBadRequest {
@@ -137,7 +115,7 @@ func Test_Handler__Post_create_title_empty(t *testing.T) {
 	}))
 	rr := httptest.NewRecorder()
 
-	handler.ServeHTTP(rr, req)
+	handler.Create()(rr, req)
 
 	if status := rr.Code; status != http.StatusBadRequest {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -168,7 +146,7 @@ func Test_Handler__Post_create_success(t *testing.T) {
 	}))
 	rr := httptest.NewRecorder()
 
-	handler.ServeHTTP(rr, req)
+	handler.Create()(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",

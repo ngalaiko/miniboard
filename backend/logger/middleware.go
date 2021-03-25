@@ -1,4 +1,4 @@
-package httpx
+package logger
 
 import (
 	"net/http"
@@ -20,7 +20,8 @@ func (lrw *loggingResponseWriter) WriteHeader(code int) {
 	lrw.ResponseWriter.WriteHeader(code)
 }
 
-func withAccessLogs(logger logger) Middleware {
+// Middleware returns http logging middleware.
+func Middleware(logger *Logger) func(http.Handler) http.Handler {
 	return func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()

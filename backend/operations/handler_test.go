@@ -10,32 +10,6 @@ import (
 	"github.com/ngalaiko/miniboard/backend/authorizations"
 )
 
-func Test_Handler__Post(t *testing.T) {
-	ctx := context.Background()
-	logger := &testLogger{}
-	service := NewService(logger, testDB(ctx, t), nil)
-	go func(t *testing.T) {
-		if err := service.Start(ctx); err != nil {
-			t.Error(err)
-		}
-	}(t)
-	handler := NewHandler(service, logger)
-
-	req, err := http.NewRequest("Post", "/", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rr := httptest.NewRecorder()
-
-	handler.ServeHTTP(rr, req)
-
-	if status := rr.Code; status != http.StatusMethodNotAllowed {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusMethodNotAllowed)
-	}
-}
-
 func Test_Handler__Get_unauthorized(t *testing.T) {
 	ctx := context.Background()
 	logger := &testLogger{}
@@ -49,7 +23,7 @@ func Test_Handler__Get_unauthorized(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler.ServeHTTP(rr, req)
+	handler.Get("")(rr, req)
 
 	if status := rr.Code; status != http.StatusUnauthorized {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -79,7 +53,7 @@ func Test_Handler__Get_not_found(t *testing.T) {
 	}))
 	rr := httptest.NewRecorder()
 
-	handler.ServeHTTP(rr, req)
+	handler.Get("")(rr, req)
 
 	if status := rr.Code; status != http.StatusNotFound {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -116,7 +90,7 @@ func Test_Handler__Get_found(t *testing.T) {
 	}))
 	rr := httptest.NewRecorder()
 
-	handler.ServeHTTP(rr, req)
+	handler.Get(operation.ID)(rr, req)
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
