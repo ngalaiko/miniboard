@@ -247,22 +247,20 @@ document.querySelector('#items-list').addEventListener('scroll', (e) => {
 
     const subscriptionId = getState('subscription')
     const tagId = getState('tag')
+    const createdLt = document.querySelector('#items-list').lastElementChild.getAttribute('created')
 
-    const noMore = document.querySelector('#items-list').lastElementChild.getAttribute('last') === 'true'
-    if (noMore) return
+    if (!createdLt) return
+
+    document.querySelector('#items-list').insertAdjacentHTML('beforeend', '<div class="page-separator"></div')
 
     const pageSize = 100
     ItemsService.list({
         pageSize: pageSize,
         subscriptionIdEq: subscriptionId,
         tagIdEq: tagId,
-        createdLt: document.querySelector('#items-list').lastElementChild.getAttribute('created'),
+        createdLt: createdLt,
     }).then((items) => {
-        return items.length === pageSize
-            ? items.map(renderItem).join('')
-            : items.map(renderItem).join('') + `<div last="true"></div>`
-    }).then((html) => {
-        document.querySelector('#items-list').insertAdjacentHTML('beforeend', html)
+        document.querySelector('#items-list').insertAdjacentHTML('beforeend', items.map(renderItem).join(''))
     })
 })
 
