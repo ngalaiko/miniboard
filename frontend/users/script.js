@@ -17,7 +17,8 @@ const storeState = (key, value) => {
 
 const getState = (key) => {
     const urlParams = new URLSearchParams(window.location.search.slice(1))
-    return urlParams.get(key)
+    const value = urlParams.get(key)
+    return value ? value : undefined
 }
 
 const deleteState = (key) => {
@@ -245,7 +246,7 @@ document.querySelector('#items-list').addEventListener('scroll', (e) => {
     if (!needMore) return
 
     const subscriptionId = getState('subscription')
-    if (!subscriptionId) return
+    const tagId = getState('tag')
 
     const noMore = document.querySelector('#items-list').lastElementChild.getAttribute('last') === 'true'
     if (noMore) return
@@ -254,6 +255,7 @@ document.querySelector('#items-list').addEventListener('scroll', (e) => {
     ItemsService.list({
         pageSize: pageSize,
         subscriptionIdEq: subscriptionId,
+        tagIdEq: tagId,
         createdLt: document.querySelector('#items-list').lastElementChild.getAttribute('created'),
     }).then((items) => {
         return items.length === pageSize
