@@ -72,7 +72,7 @@ func Test_service__Get(t *testing.T) {
 		t.Fatalf("failed to create a item: %s", err)
 	}
 
-	from, err := service.Get(ctx, "user id", item.ID)
+	from, err := service.Get(ctx, item.ID, "user id")
 	if err != nil {
 		t.Fatalf("failed to get a item: %s", err)
 	}
