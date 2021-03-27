@@ -27,8 +27,9 @@ authorizations:
   secure: false         # if cookie should be Secure
   cookie_lifetime: 720h # lifetime of auth cookie
 db:
-  driver: "sqlite3"     # available values: "sqlite3", "postgres"
-  addr: "./db.sqilite3" # db address
+  driver: "sqlite3"       # available values: "sqlite3", "postgres"
+  addr: "./db.sqilite3"   # db address
+  max_open_connections: 0 # max open connections to db
 http:
   addr: ":8080" # address to listen on
   tls:          # if not set, plaintext http will be used
