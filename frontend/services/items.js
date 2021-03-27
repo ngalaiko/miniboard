@@ -1,6 +1,10 @@
 import Api from '/services/api.js'
 
 class Items {
+    async get(id) {
+        return await Api.get(`/v1/items/${id}`)
+    }
+
     async list(params) {
         if (params === undefined) params = {}
 

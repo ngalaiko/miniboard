@@ -154,7 +154,12 @@ const addToastMessage = async (promise, message, onSuccess) => {
 }
 
 const renderItem = (item, subscription) => `
-    <div class="container item-container" created="${item.created}">
+    <div class="container item-container" created="${item.created}" onclick="this.dispatchEvent(new CustomEvent('ItemSelected', {
+        detail: {
+            id: '${item.id}',
+        },
+        bubbles: true,
+    }))">
         <span class="item-title">${item.title}</span>
         <span class="container-footer">
             ${subscription && !!subscription.icon_url ? '<img class="small-icon" src="' + subscription.icon_url + '"></img>' : ''}
@@ -171,6 +176,11 @@ const renderItem = (item, subscription) => `
             </span>
         </span>
     </div>
+`
+
+const renderReader = (item) => `
+    <h2><a href="${item.url}" target="_blank">${item.title}</a></h2>
+    <div>${item.summary}</div>
 `
 
 document.querySelector('#tags-menu').addEventListener('SubscriptionSelected', async (e) => {
@@ -192,6 +202,15 @@ document.querySelector('#tags-menu').addEventListener('TagSelected', async (e) =
 
     document.querySelector('#items-list').innerHTML = await listItemsByTag(tagId).then((items) => {
         return items.map(item => renderItem(item, subscriptionById.get(item.subscription_id))).join('')
+    })
+})
+
+document.querySelector('#items-list').addEventListener('ItemSelected', (e) => {
+    const itemId = e.detail.id
+
+    storeState('item', itemId)
+    ItemsService.get(itemId).then((item) => {
+        document.querySelector('#reader').innerHTML = renderReader(item)
     })
 })
 
@@ -272,6 +291,11 @@ const listItemsByTag = async (tagId) => {
         tagIdEq: tagId,
     })
 }
+
+const itemId = getState('item')
+if (itemId) ItemsService.get(itemId).then((item) => {
+    document.querySelector('#reader').innerHTML = renderReader(item)
+})
 
 Promise.all([
     listAllSubscriptions(),
