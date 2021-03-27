@@ -99,6 +99,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Operation"
+          links:
+            getOperationId:
+               operationRef: '#/paths/~1v1~operations~1{operationId}/get'
         400:
           description: Bad request
           content:
@@ -289,9 +292,12 @@ paths:
               example:
                 message: "internal server error"
   /v1/items/:
-    post:
+    get:
       tags:
       - item
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
       summary: Returns a list of existing items
       parameters:
       - name: page_size
@@ -306,11 +312,6 @@ paths:
           type: string
           format: date-time
       - name: subscription_id_eq
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: tag_id_eq
         in: query
         required: false
         schema:
@@ -335,6 +336,43 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 message: "failed to parse page_size"
+        500:
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: "internal server error"
+  /v1/items/{itemId}:
+    get:
+      tags:
+      - item
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      summary: Returns information about an item
+      parameters:
+      - name: itemId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+        404:
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: "operation not found"
         500:
           description: Internal error
           content:
