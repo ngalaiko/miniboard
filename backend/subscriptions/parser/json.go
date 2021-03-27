@@ -85,13 +85,12 @@ func (i *jsonItem) content() string {
 func (i *jsonItem) date(logger logger) time.Time {
 	for _, value := range []string{i.DatePublished, i.DateModified} {
 		if value != "" {
-			d, err := time.Parse(time.RFC3339, value)
+			t, err := parseDateTime(value)
 			if err != nil {
-				logger.Error("json: failed to parse date '%s'", value)
+				logger.Error("json: failed to parse date '%s': %s", value, err)
 				return time.Now()
 			}
-
-			return d
+			return *t
 		}
 	}
 

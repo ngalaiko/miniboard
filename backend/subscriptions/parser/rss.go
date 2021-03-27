@@ -181,24 +181,13 @@ func (i *rssItem) date(logger logger) time.Time {
 		return time.Now()
 	}
 
-	for _, layout := range []string{
-		time.RFC3339,
-		time.RFC822,
-		time.RFC822Z,
-		time.RFC1123,
-		time.RFC1123Z,
-		"Mon, 2 Jan 2006 15:04:05 -0700", // time.RFC1123Z but single-digit date
-		"Mon, 2 Jan 2006 15:04:05 MST",   // time.RFC1123 but single-digit date
-	} {
-		result, err := time.Parse(layout, value)
-		if err == nil {
-			return result
-		}
+	t, err := parseDateTime(value)
+	if err != nil {
+		logger.Error("rss: failed to parse date '%s': %s", value, err)
+		return time.Now()
 	}
 
-	logger.Error("rss: failed to parse date '%s'", value)
-
-	return time.Now()
+	return *t
 }
 
 type rssFeed struct {

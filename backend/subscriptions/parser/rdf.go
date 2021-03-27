@@ -88,13 +88,13 @@ func (i *rdfItem) content() string {
 
 func (i *rdfItem) date(logger logger) time.Time {
 	if i.DublinCoreDate != "" {
-		result, err := time.Parse(time.RFC3339, i.DublinCoreDate)
+		t, err := parseDateTime(i.DublinCoreDate)
 		if err != nil {
-			logger.Error("rdf: failed to parse date '%s'", i.DublinCoreDate)
+			logger.Error("rdf: failed to parse date '%s': %s", i.DublinCoreDate, err)
 			return time.Now()
 		}
 
-		return result
+		return *t
 	}
 
 	return time.Now()

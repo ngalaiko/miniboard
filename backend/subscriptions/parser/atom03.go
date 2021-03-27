@@ -115,13 +115,12 @@ func (i *atom03Item) date(logger logger) time.Time {
 	}
 
 	if dateText != "" {
-		result, err := time.Parse(time.RFC3339, dateText)
+		t, err := parseDateTime(dateText)
 		if err != nil {
-			logger.Error("atom03: failed to parse data '%s'", dateText)
+			logger.Error("atom03: failed to parse date '%s': %w", dateText, err)
 			return time.Now()
 		}
-
-		return result
+		return *t
 	}
 
 	return time.Now()
