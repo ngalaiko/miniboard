@@ -15,6 +15,7 @@ summary:focus {
 .container {
     display: flex;
     cursor: pointer;
+    width: 100%;
 
     align-items: center;
     padding: 0.2em;
@@ -31,6 +32,7 @@ summary:focus {
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     white-space: normal;
+    width: 100%;
 }
 
 .item-container .item-date {
@@ -39,7 +41,8 @@ summary:focus {
 
 .item-container .container-footer {
     display: flex;
-    align-self: flex-end;
+    align-items: center;
+    width: 100%;
 }
 
 .rotate {
@@ -58,6 +61,13 @@ button:active {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+}
+
+.container .small-icon {
+    margin-right: 0.15em;
+    min-width: 15px;
+    width: 15px;
+    height: 15px;
 }
 
 .container .icon {

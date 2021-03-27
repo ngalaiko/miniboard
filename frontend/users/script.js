@@ -153,10 +153,15 @@ const addToastMessage = async (promise, message, onSuccess) => {
     document.querySelector('#toasts-container').insertAdjacentHTML('afterbegin', html)
 }
 
-const renderItem = (item) => `
-    <span class="container item-container" created="${item.created}">
+const renderItem = (item, subscription) => `
+    <div class="container item-container" created="${item.created}">
         <span class="item-title">${item.title}</span>
         <span class="container-footer">
+            ${subscription && !!subscription.icon_url ? '<img class="small-icon" src="' + subscription.icon_url + '"></img>' : ''}
+            ${subscription && !!!subscription.icon_url ? '<img class="small-icon" src="/img/rss.svg"></img>' : ''}
+            ${subscription ? '<span style="font-size:smaller;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">'
+                    + subscription.title
+                    + '</span>' : ''}
             <span title="${new Date(item.created).toLocaleString()}" class="item-date">
                 ${Intl.DateTimeFormat(undefined, {
                     year: 'numeric',
@@ -165,35 +170,18 @@ const renderItem = (item) => `
                 }).format(new Date(item.created))}
             </span>
         </span>
-    </span>
+    </div>
 `
-
-const listItemsBySubscription = (subscriptionId) => {
-    if (!subscriptionId) return
-
-    ItemsService.list({
-        subscriptionIdEq: subscriptionId,
-    }).then((items) => {
-        document.querySelector('#items-list').innerHTML = items.map(renderItem).join('')
-    })
-}
-
-const listItemsByTag = (tagId) => {
-    if (!tagId) return
-
-    ItemsService.list({
-        tagIdEq: tagId,
-    }).then((items) => {
-        document.querySelector('#items-list').innerHTML = items.map(renderItem).join('')
-    })
-}
 
 document.querySelector('#tags-menu').addEventListener('SubscriptionSelected', async (e) => {
     const subscriptionId = e.detail.id
 
     deleteState('tag')
     storeState('subscription', subscriptionId)
-    listItemsBySubscription(subscriptionId)
+
+    document.querySelector('#items-list').innerHTML = await listItemsBySubscription(subscriptionId).then((items) => {
+        return items.map(item => renderItem(item, subscriptionById.get(item.subscription_id))).join('')
+    })
 })
 
 document.querySelector('#tags-menu').addEventListener('TagSelected', async (e) => {
@@ -201,7 +189,10 @@ document.querySelector('#tags-menu').addEventListener('TagSelected', async (e) =
 
     deleteState('subscription')
     storeState('tag', tagId)
-    listItemsByTag(tagId)
+
+    document.querySelector('#items-list').innerHTML = await listItemsByTag(tagId).then((items) => {
+        return items.map(item => renderItem(item, subscriptionById.get(item.subscription_id))).join('')
+    })
 })
 
 document.querySelector('#tags-menu').addEventListener('SubscriptionCreate', (e) => {
@@ -264,12 +255,44 @@ document.querySelector('#items-list').addEventListener('scroll', (e) => {
     })
 })
 
-listItemsBySubscription(getState('subscription'))
-listItemsByTag(getState('tag'))
+const subscriptionById = new Map()
 
-Promise.all([listAllSubscriptions(), listAllTags()]).then(async (values) => {
+const listItemsBySubscription = async (subscriptionId) => {
+    if (!subscriptionId) return []
+
+    return await ItemsService.list({
+        subscriptionIdEq: subscriptionId,
+    })
+}
+
+const listItemsByTag = async (tagId) => {
+    if (!tagId) return []
+
+    return await ItemsService.list({
+        tagIdEq: tagId,
+    })
+}
+
+Promise.all([
+    listAllSubscriptions(),
+    listAllTags(),
+    listItemsByTag(getState('tag')),
+    listItemsBySubscription(getState('subscription')),
+]).then(async (values) => {
     const subscriptions = values[0]
     const tags = values[1]
+    const itemsByTag = values[2]
+    const itemsBySubscription = values[3]
+
+    subscriptions.forEach(s => subscriptionById.set(s.id, s))
+
+    if (itemsByTag.length > 0) document.querySelector('#items-list').innerHTML = itemsByTag.map((item) => {
+        return renderItem(item, subscriptionById.get(item.subscription_id))
+    }).join('')
+
+    if (itemsBySubscription.length > 0) document.querySelector('#items-list').innerHTML = itemsBySubscription.map((item) => {
+        return renderItem(item, subscriptionById.get(item.subscription_id))
+    }).join('')
 
     document.querySelector("#tags-list").innerHTML = renderTags(tags, subscriptions)
     document.querySelector("#no-tags-list").innerHTML = subscriptions.filter(s => s.tag_ids.length === 0)
