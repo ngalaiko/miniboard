@@ -97,7 +97,7 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 			r.Get("/", itemsHandler.List())
 		})
 		r.With(authMiddleware).Route("/operations", func(r chi.Router) {
-			r.Get("/{operationId}/", func(w http.ResponseWriter, r *http.Request) {
+			r.Get("/{operationId}", func(w http.ResponseWriter, r *http.Request) {
 				operationsHandler.Get(chi.URLParam(r, "operationId"))(w, r)
 			})
 		})
