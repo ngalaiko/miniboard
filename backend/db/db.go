@@ -15,8 +15,9 @@ type logger interface {
 
 // Config contains database configuration.
 type Config struct {
-	Driver string
-	Addr   string
+	Driver             string `yaml:"driver"`
+	Addr               string `yaml:"addr"`
+	MaxOpenConnections int    `yaml:"max_open_connections"`
 }
 
 // New returns a database instance.
@@ -44,6 +45,7 @@ func New(cfg *Config, logger logger) (*sql.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
+	db.SetMaxOpenConns(cfg.MaxOpenConnections)
 
 	return db, nil
 }
