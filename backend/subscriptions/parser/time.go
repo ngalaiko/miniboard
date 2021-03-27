@@ -6,29 +6,29 @@ import (
 	"time"
 )
 
-var replacements = map[string]string{
-	"пн":    "Mon",
-	"вт":    "Tue",
-	"ср":    "Wed",
-	"чт":    "Thu",
-	"пт":    "Fri",
-	"сб":    "Sat",
-	"вс":    "Sun",
-	"янв.":  "Jan",
-	"февр.": "Feb",
-	"мар.":  "Mar",
-	"апр.":  "Apr",
-	"мая":   "May",
-	"июня":  "Jun",
-	"июля":  "Jul",
-	"авг.":  "Aug",
-	"сент.": "Sep",
-	"окт.":  "Oct",
-	"нояб.": "Nov",
-	"дек.":  "Dec",
-}
-
 func parseDateTime(raw string) (*time.Time, error) {
+	replacements := map[string]string{
+		"пн":    "Mon",
+		"вт":    "Tue",
+		"ср":    "Wed",
+		"чт":    "Thu",
+		"пт":    "Fri",
+		"сб":    "Sat",
+		"вс":    "Sun",
+		"янв.":  "Jan",
+		"февр.": "Feb",
+		"мар.":  "Mar",
+		"апр.":  "Apr",
+		"мая":   "May",
+		"июня":  "Jun",
+		"июля":  "Jul",
+		"авг.":  "Aug",
+		"сент.": "Sep",
+		"окт.":  "Oct",
+		"нояб.": "Nov",
+		"дек.":  "Dec",
+	}
+
 	for from, to := range replacements {
 		raw = strings.Replace(raw, from, to, 1)
 	}
