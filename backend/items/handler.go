@@ -1,6 +1,7 @@
 package items
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -27,6 +28,28 @@ func NewHandler(service *Service, logger logger) *Handler {
 	return &Handler{
 		service: service,
 		logger:  logger,
+	}
+}
+
+// Get returns item by id via http.
+func (h *Handler) Get(id string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		token, auth := authorizations.FromContext(r.Context())
+		if !auth {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		item, err := h.service.Get(r.Context(), id, token.UserID)
+		switch {
+		case err == nil:
+			httpx.JSON(w, h.logger, item, http.StatusOK)
+		case errors.Is(err, errNotFound):
+			http.NotFound(w, r)
+		default:
+			h.logger.Error("failed to get operation: %s", err)
+			httpx.InternalError(w, h.logger)
+		}
 	}
 }
 

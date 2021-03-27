@@ -94,6 +94,9 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 			r.Get("/", subscriptionsHandler.List())
 		})
 		r.With(authMiddleware).Route("/items", func(r chi.Router) {
+			r.Get("/{itemId}", func(w http.ResponseWriter, r *http.Request) {
+				itemsHandler.Get(chi.URLParam(r, "itemId"))(w, r)
+			})
 			r.Get("/", itemsHandler.List())
 		})
 		r.With(authMiddleware).Route("/operations", func(r chi.Router) {

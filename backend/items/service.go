@@ -69,7 +69,7 @@ func (s *Service) Create(
 
 // Get returns a item by it's id.
 func (s *Service) Get(ctx context.Context, id string, userID string) (*UserItem, error) {
-	item, err := s.db.Get(ctx, id, userID)
+	item, err := s.db.Get(ctx, userID, id)
 	switch {
 	case err == nil:
 		return item, nil
