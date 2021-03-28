@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -71,7 +70,6 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	r := chi.NewRouter()
 	r.Use(logger.Middleware(log))
 	r.Use(middleware.Recoverer)
-	r.Use(middleware.Timeout(60 * time.Second))
 	r.Use(middleware.AllowContentType("application/json"))
 	if cfg.HTTP.CORS != nil {
 		r.Use(cors.Handler(cors.Options{
