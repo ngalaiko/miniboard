@@ -311,9 +311,110 @@ paths:
         schema:
           type: string
           format: date-time
-      - name: subscription_id_eq
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Item"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: "failed to parse page_size"
+        500:
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: "internal server error"
+  /v1/tags/{tagId}/items/:
+    get:
+      tags:
+      - item
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      summary: Returns a list of existing items under the given tag
+      parameters:
+      - name: page_size
         in: query
         required: false
+        schema:
+          type: integer
+      - name: created_lt
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: tagId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Item"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: "failed to parse page_size"
+        500:
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: "internal server error"
+  /v1/subscriptions/{subscriptionId}/items/:
+    get:
+      tags:
+      - item
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      summary: Returns a list of existing items under the given subscription
+      parameters:
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: created_lt
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: subscriptionId
+        in: path
+        required: true
         schema:
           type: string
       responses:
