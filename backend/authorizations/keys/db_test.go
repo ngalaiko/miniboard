@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"reflect"
 	"testing"
 
@@ -176,19 +174,9 @@ func Test_List(t *testing.T) {
 }
 
 func testDB(ctx context.Context, t *testing.T) *sql.DB {
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
-	if err != nil {
-		t.Fatalf("failed to create file for test db: %s", err)
-	}
-	t.Cleanup(func() {
-		if err := os.Remove(tmpFile.Name()); err != nil {
-			t.Fatalf("failed to delete file for test db: %s", err)
-		}
-	})
-
 	sqldb, err := db.New(&db.Config{
 		Driver: "sqlite3",
-		Addr:   tmpFile.Name(),
+		Addr:   "file::memory:",
 	}, &testLogger{})
 	if err != nil {
 		t.Fatalf("failed to create a db: %s", err)

@@ -3,8 +3,6 @@ package db
 import (
 	"context"
 	"database/sql"
-	"io/ioutil"
-	"os"
 	"testing"
 )
 
@@ -31,19 +29,9 @@ func Test_Migrate_twice(t *testing.T) {
 }
 
 func testDB(t *testing.T) *sql.DB {
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
-	if err != nil {
-		t.Fatalf("failed to create file for test db: %s", err)
-	}
-	t.Cleanup(func() {
-		if err := os.Remove(tmpFile.Name()); err != nil {
-			t.Fatalf("failed to delete file for test db: %s", err)
-		}
-	})
-
 	sqldb, err := New(&Config{
 		Driver: "sqlite3",
-		Addr:   tmpFile.Name(),
+		Addr:   "file::memory:",
 	}, &testLogger{})
 	if err != nil {
 		t.Fatalf("failed to create a db: %s", err)
