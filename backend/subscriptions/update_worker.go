@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"time"
 
 	"github.com/ngalaiko/miniboard/backend/items"
 	"github.com/ngalaiko/miniboard/backend/subscriptions/parser"
@@ -77,8 +78,12 @@ func (w *worker) update(ctx context.Context, subscriptionID string) error {
 		return fmt.Errorf("%s: %w", sURL, errFailedToParseSubscription)
 	}
 
+	now := time.Now()
 	for _, item := range parsedSubscription.Items {
-		if _, err := w.itemsService.Create(ctx, subscription.ID, item.Link, item.Title, item.Date, item.Content); err != nil && err != items.ErrAlreadyExists {
+		if item.Date == nil {
+			item.Date = &now
+		}
+		if _, err := w.itemsService.Create(ctx, subscription.ID, item.Link, item.Title, *item.Date, item.Content); err != nil && err != items.ErrAlreadyExists {
 			return fmt.Errorf("subscription %s, item %s: %w", subscription.ID, item.Link, err)
 		}
 	}

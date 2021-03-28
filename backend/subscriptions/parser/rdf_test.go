@@ -93,8 +93,8 @@ func Test_Parse_rdf__RDFSample(t *testing.T) {
 		t.Errorf("Incorrect entry title, got: %s", feed.Items[0].Title)
 	}
 
-	if feed.Items[1].Date.Year() != time.Now().Year() {
-		t.Errorf("Entry date should not be empty")
+	if feed.Items[1].Date != nil {
+		t.Errorf("Entry date should not empty")
 	}
 }
 
@@ -351,10 +351,8 @@ func Test_Parse_rdf_ItemWithoutDate(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expectedDate := time.Now().In(time.Local)
-	diff := expectedDate.Sub(feed.Items[0].Date)
-	if diff > time.Second {
-		t.Errorf("Incorrect entry date, got: %v", diff)
+	if feed.Items[0].Date != nil {
+		t.Errorf("Incorrect entry date, got: %v", feed.Items[0].Date)
 	}
 }
 

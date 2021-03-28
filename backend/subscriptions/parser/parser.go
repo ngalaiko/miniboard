@@ -9,7 +9,7 @@ import (
 type Item struct {
 	Title   string
 	Link    string
-	Date    time.Time
+	Date    *time.Time
 	Content string
 }
 

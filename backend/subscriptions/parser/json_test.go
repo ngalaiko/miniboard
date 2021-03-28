@@ -3,7 +3,6 @@ package parser
 import (
 	"strings"
 	"testing"
-	"time"
 )
 
 func Test_Parse_json__JsonFeed(t *testing.T) {
@@ -291,8 +290,7 @@ func TestParseFeedItemWithInvalidDate(t *testing.T) {
 		t.Errorf("Incorrect number of entries, got: %d", len(feed.Items))
 	}
 
-	duration := time.Since(feed.Items[0].Date)
-	if duration.Seconds() > 1 {
+	if feed.Items[0].Date != nil {
 		t.Errorf("Incorrect entry date, got: %v", feed.Items[0].Date)
 	}
 }

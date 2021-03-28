@@ -110,8 +110,18 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagID
 		return nil, fmt.Errorf("failed to store subscription: %w", err)
 	}
 
+	// in case feed does not include items date, set date to the first entry,
+	// so there is something to display.
+	if len(parsedSubscription.Items) > 0 && parsedSubscription.Items[0].Date == nil {
+		now := time.Now()
+		parsedSubscription.Items[0].Date = &now
+	}
+
 	for _, item := range parsedSubscription.Items {
-		if _, err := s.itemsService.Create(ctx, subscription.ID, item.Link, item.Title, item.Date, item.Content); err != nil && err != items.ErrAlreadyExists {
+		if item.Date == nil {
+			continue
+		}
+		if _, err := s.itemsService.Create(ctx, subscription.ID, item.Link, item.Title, *item.Date, item.Content); err != nil && err != items.ErrAlreadyExists {
 			s.logger.Error("failed to store feed %s item %s: %s", subscription.ID, item.Link, err)
 			return nil, errFailedToStoreItem
 		}

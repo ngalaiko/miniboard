@@ -105,7 +105,7 @@ func (i *atom03Item) content() string {
 	return ""
 }
 
-func (i *atom03Item) date(logger logger) time.Time {
+func (i *atom03Item) date(logger logger) *time.Time {
 	dateText := ""
 	for _, value := range []string{i.Issued, i.Modified, i.Created} {
 		if value != "" {
@@ -118,10 +118,10 @@ func (i *atom03Item) date(logger logger) time.Time {
 		t, err := parseDateTime(dateText)
 		if err != nil {
 			logger.Error("atom03: failed to parse date '%s': %w", dateText, err)
-			return time.Now()
+			return nil
 		}
-		return *t
+		return t
 	}
 
-	return time.Now()
+	return nil
 }

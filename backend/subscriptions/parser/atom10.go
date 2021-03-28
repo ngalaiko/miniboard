@@ -86,7 +86,7 @@ func (i *atom10Item) content() string {
 	return ""
 }
 
-func (i *atom10Item) date(logger logger) time.Time {
+func (i *atom10Item) date(logger logger) *time.Time {
 	dateText := i.Published
 	if dateText == "" {
 		dateText = i.Updated
@@ -96,12 +96,12 @@ func (i *atom10Item) date(logger logger) time.Time {
 		t, err := parseDateTime(dateText)
 		if err != nil {
 			logger.Error("atom10: failed to parse date '%s': %w", dateText, err)
-			return time.Now()
+			return nil
 		}
-		return *t
+		return t
 	}
 
-	return time.Now()
+	return nil
 }
 
 type atomLinks []*atomLink

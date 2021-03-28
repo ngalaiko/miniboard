@@ -171,23 +171,23 @@ func (i *rssItem) title() string {
 	return html.UnescapeString(strings.TrimSpace(title))
 }
 
-func (i *rssItem) date(logger logger) time.Time {
+func (i *rssItem) date(logger logger) *time.Time {
 	value := i.PubDate
 	if i.DublinCoreDate != "" {
 		value = i.DublinCoreDate
 	}
 
 	if value == "" {
-		return time.Now()
+		return nil
 	}
 
 	t, err := parseDateTime(value)
 	if err != nil {
 		logger.Error("rss: failed to parse date '%s': %s", value, err)
-		return time.Now()
+		return nil
 	}
 
-	return *t
+	return t
 }
 
 type rssFeed struct {
