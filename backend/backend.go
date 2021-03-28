@@ -71,7 +71,7 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	tagsHandler := tags.NewHandler(tagsService, log)
 	usersHandler := users.NewHandler(usersService, log)
 
-	authMiddleware := authorizations.Authenticate(authorizationsService, cfg.Authorizations, log)
+	authMiddleware := authorizations.Middleware(authorizationsService, cfg.Authorizations, log)
 
 	r := chi.NewRouter()
 	r.Use(logger.Middleware(log))

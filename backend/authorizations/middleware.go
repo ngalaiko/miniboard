@@ -19,9 +19,9 @@ var (
 	errInvalidTokenFormat = fmt.Errorf("invalid auth token format")
 )
 
-// Authenticate is a http middleware that validates request Authorization token
-// and populates a request context with the user id.
-func Authenticate(jwtService jwtService, config *Config, logger errorLogger) func(http.Handler) http.Handler {
+// Middleware returns a http middleware that validates request Authorization token
+// and populates a request context with it.
+func Middleware(jwtService jwtService, config *Config, logger errorLogger) func(http.Handler) http.Handler {
 	return func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			tok, refreshable, err := getToken(r)

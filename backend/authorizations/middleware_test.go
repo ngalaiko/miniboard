@@ -10,7 +10,7 @@ import (
 )
 
 func Test_Middleware__no_token(t *testing.T) {
-	middleware := Authenticate(&testJWValidator{}, &Config{}, &testErrorLogger{})
+	middleware := Middleware(&testJWValidator{}, &Config{}, &testErrorLogger{})
 
 	handlerCalled := false
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +40,7 @@ func Test_Middleware__no_token(t *testing.T) {
 }
 
 func Test_Middleware__internal(t *testing.T) {
-	middleware := Authenticate(&testJWValidator{
+	middleware := Middleware(&testJWValidator{
 		Error: fmt.Errorf("internal"),
 	}, &Config{}, &testErrorLogger{})
 
@@ -73,7 +73,7 @@ func Test_Middleware__internal(t *testing.T) {
 }
 
 func Test_Middleware__invalid_token_type(t *testing.T) {
-	middleware := Authenticate(&testJWValidator{}, &Config{}, &testErrorLogger{})
+	middleware := Middleware(&testJWValidator{}, &Config{}, &testErrorLogger{})
 
 	handlerCalled := false
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -104,7 +104,7 @@ func Test_Middleware__invalid_token_type(t *testing.T) {
 }
 
 func Test_Middleware__invalid_token(t *testing.T) {
-	middleware := Authenticate(&testJWValidator{
+	middleware := Middleware(&testJWValidator{
 		Error: errInvalidToken,
 	}, &Config{}, &testErrorLogger{})
 
@@ -137,7 +137,7 @@ func Test_Middleware__invalid_token(t *testing.T) {
 }
 
 func Test_Middleware__valid_token(t *testing.T) {
-	middleware := Authenticate(&testJWValidator{
+	middleware := Middleware(&testJWValidator{
 		Token: &Token{
 			Token:     "token",
 			UserID:    "id",
