@@ -60,6 +60,8 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 message: "invalid password"
+        415:
+          description: Unsupported Media Type
         500:
           description: Internal error
           content:
@@ -110,6 +112,8 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 message: "subscription not found"
+        415:
+          description: Unsupported Media Type
         500:
           description: Internal error
           content:
@@ -236,6 +240,8 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 message: "title is empty"
+        415:
+          description: Unsupported Media Type
         500:
           description: Internal error
           content:
@@ -516,6 +522,8 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 message: "user already exists"
+        415:
+          description: Unsupported Media Type
         500:
           description: Internal error
           content:
