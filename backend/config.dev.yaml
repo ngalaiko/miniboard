@@ -7,5 +7,5 @@ cors:
   domains: ["http://localhost:8080"]
 db:
   driver: sqlite3
-  addr: "./db.dev.sqlite3?_journal_mode=WAL"
+  addr: "./db.dev.sqlite3?_cache_size=128000&cache=shared"
   max_open_connections: 1
