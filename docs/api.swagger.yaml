@@ -165,7 +165,7 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 message: "internal server error"
-  /v1/operations/{operationId}:
+  /v1/operations/{operationId}/:
     get:
       tags:
       - operation
@@ -445,7 +445,7 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 message: "internal server error"
-  /v1/items/{itemId}:
+  /v1/items/{itemId}/:
     get:
       tags:
       - item
