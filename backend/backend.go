@@ -24,16 +24,11 @@ import (
 	"github.com/ngalaiko/miniboard/backend/users"
 )
 
-type corsConfig struct {
-	Domains []string `yaml:"domains"`
-}
-
 // Config contains all server configuration.
 type Config struct {
 	Authorizations *authorizations.Config `yaml:"authorizations"`
 	DB             *db.Config             `yaml:"db"`
 	HTTP           *httpx.Config          `yaml:"http"`
-	Cors           *corsConfig            `yaml:"cors"`
 	Operations     *operations.Config     `yaml:"operations"`
 	Subscriptions  *subscriptions.Config  `yaml:"subscriptions"`
 	Users          *users.Config          `yaml:"users"`
@@ -78,9 +73,9 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
 	r.Use(middleware.AllowContentType("application/json"))
-	if cfg.Cors != nil {
+	if cfg.HTTP.CORS != nil {
 		r.Use(cors.Handler(cors.Options{
-			AllowedOrigins:   cfg.Cors.Domains,
+			AllowedOrigins:   cfg.HTTP.CORS.Domains,
 			AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
 			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "Accept-Encoding"},
 			AllowCredentials: true,

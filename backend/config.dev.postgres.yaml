@@ -3,8 +3,8 @@ authorizations:
   cookie_lifetime: 24h
 http:
   addr: ":80"
-cors:
-  domains: ["http://localhost:8080"]
+  cors:
+    domains: ["http://localhost:8080"]
 db:
   driver: postgres
   addr: "postgres://miniboard:miniboard@localhost/miniboard?sslmode=disable"

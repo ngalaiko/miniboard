@@ -88,7 +88,6 @@ func parseConfigurationFromEnvironment(cfg *backend.Config) error {
 	if err := envconfig.InitWithOptions(cfg, envconfig.Options{
 		Prefix:      "MINIBOARD",
 		AllOptional: true,
-		LeaveNil:    true,
 	}); err != nil {
 		return fmt.Errorf("failed to parse config from env: %w", err)
 	}

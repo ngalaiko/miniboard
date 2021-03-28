@@ -3,8 +3,8 @@ authorizations:
   cookie_lifetime: 24h
 http:
   addr: ":80"
-cors:
-  domains: ["http://localhost:8080"]
+  cors:
+    domains: ["http://localhost:8080"]
 db:
   driver: sqlite3
   addr: "./db.dev.sqlite3?_cache_size=128000&cache=shared"

@@ -10,14 +10,20 @@ import (
 )
 
 type tlsConfig struct {
+	Enabled  bool   `yaml:"enabled"`
 	KeyPath  string `yaml:"key_path"`
 	CertPath string `yaml:"cert_path"`
 }
 
+type corsConfig struct {
+	Domains []string `yaml:"domains"`
+}
+
 // Config contains http server configuration values.
 type Config struct {
-	Addr string     `yaml:"addr"`
-	TLS  *tlsConfig `yaml:"tls"`
+	Addr string      `yaml:"addr"`
+	TLS  *tlsConfig  `yaml:"tls"`
+	CORS *corsConfig `yaml:"cors"`
 }
 
 type logger interface {
@@ -69,7 +75,7 @@ func NewServer(cfg *Config, logger logger, handler http.Handler) (*Server, error
 		},
 	}
 
-	if cfg.TLS == nil {
+	if !cfg.TLS.Enabled {
 		return srv, nil
 	}
 

@@ -64,9 +64,6 @@ func NewService(db *sql.DB, crawler crawler, logger logger, cfg *Config, itemsSe
 	if cfg.Update == nil {
 		cfg.Update = &updateConfig{}
 	}
-	if cfg.Update.Interval == 0 {
-		cfg.Update.Interval = 5 * time.Minute
-	}
 	return &Service{
 		db:           newDB(db, logger),
 		crawler:      crawler,
@@ -191,8 +188,12 @@ func (s *Service) startUpdating(ctx context.Context, subscriptionIDsToUpdate cha
 			ticker.Stop()
 			return
 		case <-ticker.C:
+			updateInterval := 5 * time.Minute
+			if s.cfg.Update.Interval > 0 {
+				updateInterval = s.cfg.Update.Interval
+			}
 			s.subscriptionIDs.Range(func(id interface{}, updated interface{}) bool {
-				due := updated.(time.Time).Add(s.cfg.Update.Interval)
+				due := updated.(time.Time).Add(updateInterval)
 				if due.Before(time.Now()) {
 					subscriptionIDsToUpdate <- id.(string)
 					s.subscriptionIDs.Store(id, time.Now())

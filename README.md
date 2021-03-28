@@ -32,11 +32,12 @@ db:
   max_open_connections: 0 # max open connections to db
 http:
   addr: ":8080" # address to listen on
-  tls:          # if not set, plaintext http will be used
-    key_path: "key.pem"  # path to tls key
-    cert_path: "crt.pem" # path to tls certificate
-cors:
-  domains: ["example.com"] # list of domains to allow CORS from
+  tls:
+    enabled: true          # if false, plaintext http will be used
+    key_path: "./key.pem"  # path to tls key
+    cert_path: "./crt.pem" # path to tls certificate
+  cors:
+    domains: ["example.com"] # list of domains to allow CORS from
 operations:
   workers: 10 # number of workers that execute longrunning operations
 subsciptions:

@@ -7,7 +7,7 @@ domains:
 
 services:
 - name: backend
-  http_port: 80
+  http_port: 8080
   instance_count: 1
   instance_size_slug: basic-xxs
   environment_slug: go
@@ -16,7 +16,10 @@ services:
     branch: master
   source_dir: backend
   envs:
-  - key: MINIBOARD_CORS_DOMAINS
+  - key: MINIBOARD_HTTP_ADDR
+    scope: RUN_TIME
+    value: ":8080"
+  - key: MINIBOARD_HTTP_CORS_DOMAINS
     scope: RUN_TIME
     value: "https://miniboard.app,https://docs.miniboard.app"
   - key: MINIBOARD_DB_DRIVER
