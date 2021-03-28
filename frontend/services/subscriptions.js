@@ -12,7 +12,7 @@ class Subscriptions {
             ? `&created_lt=${encodeURIComponent(params.createdLt)}`
             : ''
 
-        const url = '/v1/subscriptions?' + pageSizeQuery + createdLtQuery
+        const url = '/v1/subscriptions/?' + pageSizeQuery + createdLtQuery
 
         const body = await Api.get(url)
 
@@ -30,7 +30,7 @@ class Subscriptions {
             request.tag_ids = params.tagIds
         }
 
-        return await Api.post('/v1/subscriptions', request)
+        return await Api.post('/v1/subscriptions/', request)
     }
 }
 

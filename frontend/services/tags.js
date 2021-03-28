@@ -14,7 +14,7 @@ class Tags {
             ? `&created_lt=${encodeURIComponent(params.createdLt)}`
             : ''
 
-        const url = '/v1/tags?' + pageSizeQuery + createdLtQuery
+        const url = '/v1/tags/?' + pageSizeQuery + createdLtQuery
 
         const body = await Api.get(url)
 
@@ -28,7 +28,7 @@ class Tags {
             title: params.title,
         }
 
-        return await Api.post('/v1/tags', request)
+        return await Api.post('/v1/tags/', request)
     }
 }
 

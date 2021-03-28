@@ -9,7 +9,7 @@ class Users {
             password: params.password
         }
 
-        return await Api.post('/v1/users', request)
+        return await Api.post('/v1/users/', request)
     }
 }
 

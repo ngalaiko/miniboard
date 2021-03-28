@@ -9,7 +9,7 @@ class Authorizations {
             password: params.password
         }
 
-        return await Api.post('/v1/authorizations', request)
+        return await Api.post('/v1/authorizations/', request)
     }
 }
 

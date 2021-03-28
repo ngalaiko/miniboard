@@ -2,7 +2,7 @@ import Api from '/services/api.js'
 
 class Items {
     async get(id) {
-        return await Api.get(`/v1/items/${id}`)
+        return await Api.get(`/v1/items/${id}/`)
     }
 
     async list(params) {
@@ -21,13 +21,13 @@ class Items {
         case !!params.subscriptionId && !!params.tagId:
             throw new Error('not implemented')
         case !!params.subscriptionId:
-            url = `/v1/subscriptions/${params.subscriptionId}/items?` + pageSizeQuery + createdLtQuery
+            url = `/v1/subscriptions/${params.subscriptionId}/items/?` + pageSizeQuery + createdLtQuery
             break
         case !!params.tagId:
-            url = `/v1/tags/${params.tagId}/items?` + pageSizeQuery + createdLtQuery
+            url = `/v1/tags/${params.tagId}/items/?` + pageSizeQuery + createdLtQuery
             break
         default:
-            url = `/v1/items?` + pageSizeQuery + createdLtQuery
+            url = `/v1/items/?` + pageSizeQuery + createdLtQuery
             break
         }
 

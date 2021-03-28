@@ -2,7 +2,7 @@ import Api from '/services/api.js'
 
 class Operations {
     async get(id) {
-        return await Api.get(`/v1/operations/${id}`)
+        return await Api.get(`/v1/operations/${id}/`)
     }
 
     async wait(id) {
