@@ -11,6 +11,9 @@ class Api {
         return await _fetch(url, {
             method: 'POST',
             body: JSON.stringify(request),
+            headers: new Headers({
+                "Content-Type": "application/json",
+            }),
         })
     }
 }
