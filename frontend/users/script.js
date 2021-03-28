@@ -266,8 +266,8 @@ document.querySelector('#items-list').addEventListener('scroll', (e) => {
     const pageSize = 100
     ItemsService.list({
         pageSize: pageSize,
-        subscriptionIdEq: subscriptionId,
-        tagIdEq: tagId,
+        subscriptionId: subscriptionId,
+        tagId: tagId,
         createdLt: createdLt,
     }).then((items) => {
         document.querySelector('#items-list').insertAdjacentHTML('beforeend', items.map(renderItem).join(''))
@@ -280,7 +280,7 @@ const listItemsBySubscription = async (subscriptionId) => {
     if (!subscriptionId) return []
 
     return await ItemsService.list({
-        subscriptionIdEq: subscriptionId,
+        subscriptionId: subscriptionId,
     })
 }
 
@@ -288,7 +288,7 @@ const listItemsByTag = async (tagId) => {
     if (!tagId) return []
 
     return await ItemsService.list({
-        tagIdEq: tagId,
+        tagId: tagId,
     })
 }
 

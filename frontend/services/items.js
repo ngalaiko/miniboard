@@ -16,18 +16,22 @@ class Items {
             ? `&created_lt=${encodeURIComponent(params.createdLt)}`
             : ''
 
-        const subscriptionIdQuery = params.subscriptionIdEq !== undefined
-            ? `&subscription_id_eq=${encodeURIComponent(params.subscriptionIdEq)}`
-            : ''
-
-        const tagIdQuery = params.tagIdEq !== undefined
-            ? `&tag_id_eq=${encodeURIComponent(params.tagIdEq)}`
-            : ''
-
-        const url = '/v1/items?' + pageSizeQuery + createdLtQuery + subscriptionIdQuery + tagIdQuery
+        let url = ''
+        switch (true) {
+        case !!params.subscriptionId && !!params.tagId:
+            throw new Error('not implemented')
+        case !!params.subscriptionId:
+            url = `/v1/subscriptions/${params.subscriptionId}/items?` + pageSizeQuery + createdLtQuery
+            break
+        case !!params.tagId:
+            url = `/v1/tags/${params.tagId}/items?` + pageSizeQuery + createdLtQuery
+            break
+        default:
+            url = `/v1/items?` + pageSizeQuery + createdLtQuery
+            break
+        }
 
         const body = await Api.get(url)
-
         return body.items
     }
 }
