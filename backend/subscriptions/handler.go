@@ -92,6 +92,13 @@ func (h *Handler) List() http.HandlerFunc {
 	}
 }
 
+// Import returns handler func that that handles subscriptions import from opml.
+func (h *Handler) Import() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusUnsupportedMediaType)
+	}
+}
+
 // Create returns handler func that handles subscription creation via http.
 func (h *Handler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
