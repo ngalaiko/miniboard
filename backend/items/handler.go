@@ -54,7 +54,7 @@ func (h *Handler) Get(id string) http.HandlerFunc {
 }
 
 // List returns handler func that handles items list via http.
-func (h *Handler) List() http.HandlerFunc {
+func (h *Handler) List(tagID *string, subscriptionID *string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		token, auth := authorizations.FromContext(r.Context())
 		if !auth {
@@ -80,16 +80,6 @@ func (h *Handler) List() http.HandlerFunc {
 				return
 			}
 			createdLT = &createdLTParsed
-		}
-
-		var subscriptionID *string
-		if subscriptionIDParam := r.URL.Query().Get("subscription_id_eq"); len(subscriptionIDParam) != 0 {
-			subscriptionID = &subscriptionIDParam
-		}
-
-		var tagID *string
-		if tagIDParam := r.URL.Query().Get("tag_id_eq"); len(tagIDParam) != 0 {
-			tagID = &tagIDParam
 		}
 
 		items, err := h.service.List(r.Context(), token.UserID, pageSize, createdLT, subscriptionID, tagID)

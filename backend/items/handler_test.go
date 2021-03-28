@@ -45,7 +45,7 @@ func Test_Handler__Get(t *testing.T) {
 				UserID: "user",
 			}))
 			rr := httptest.NewRecorder()
-			handler.List()(rr, req)
+			handler.List(nil, nil)(rr, req)
 
 			expectedCode := testCase.StatusCode
 			if status := rr.Code; status != expectedCode {

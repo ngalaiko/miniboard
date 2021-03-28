@@ -92,12 +92,18 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 		r.With(authMiddleware).Route("/subscriptions", func(r chi.Router) {
 			r.Post("/", subscriptionsHandler.Create())
 			r.Get("/", subscriptionsHandler.List())
+			r.Route("/{subscriptionId}", func(r chi.Router) {
+				r.Get("/items", func(w http.ResponseWriter, r *http.Request) {
+					subscriptionID := chi.URLParam(r, "subscriptionId")
+					itemsHandler.List(nil, &subscriptionID)(w, r)
+				})
+			})
 		})
 		r.With(authMiddleware).Route("/items", func(r chi.Router) {
 			r.Get("/{itemId}", func(w http.ResponseWriter, r *http.Request) {
 				itemsHandler.Get(chi.URLParam(r, "itemId"))(w, r)
 			})
-			r.Get("/", itemsHandler.List())
+			r.Get("/", itemsHandler.List(nil, nil))
 		})
 		r.With(authMiddleware).Route("/operations", func(r chi.Router) {
 			r.Get("/{operationId}", func(w http.ResponseWriter, r *http.Request) {
@@ -110,6 +116,12 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 		r.With(authMiddleware).Route("/tags", func(r chi.Router) {
 			r.Post("/", tagsHandler.Create())
 			r.Get("/", tagsHandler.List())
+			r.Route("/{tagId}", func(r chi.Router) {
+				r.Get("/items", func(w http.ResponseWriter, r *http.Request) {
+					tagID := chi.URLParam(r, "tagId")
+					itemsHandler.List(&tagID, nil)(w, r)
+				})
+			})
 		})
 	})
 
