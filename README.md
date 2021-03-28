@@ -37,7 +37,7 @@ http:
     key_path: "./key.pem"  # path to tls key
     cert_path: "./crt.pem" # path to tls certificate
   cors:
-    domains: ["example.com"] # list of domains to allow CORS from
+    allowed_origins: ["example.com"] # list of origins to allow CORS from
 operations:
   workers: 10 # number of workers that execute longrunning operations
 subsciptions:

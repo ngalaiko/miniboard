@@ -16,7 +16,7 @@ type tlsConfig struct {
 }
 
 type corsConfig struct {
-	Domains []string `yaml:"domains"`
+	AllowedOrigins []string `yaml:"allowed_origins"`
 }
 
 // Config contains http server configuration values.

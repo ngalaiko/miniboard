@@ -75,7 +75,7 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	r.Use(middleware.AllowContentType("application/json"))
 	if cfg.HTTP.CORS != nil {
 		r.Use(cors.Handler(cors.Options{
-			AllowedOrigins:   cfg.HTTP.CORS.Domains,
+			AllowedOrigins:   cfg.HTTP.CORS.AllowedOrigins,
 			AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
 			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "Accept-Encoding"},
 			AllowCredentials: true,

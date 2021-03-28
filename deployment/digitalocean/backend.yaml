@@ -19,7 +19,7 @@ services:
   - key: MINIBOARD_HTTP_ADDR
     scope: RUN_TIME
     value: ":8080"
-  - key: MINIBOARD_HTTP_CORS_DOMAINS
+  - key: MINIBOARD_HTTP_CORS_ALLOWED_ORIGINS
     scope: RUN_TIME
     value: "https://miniboard.app,https://docs.miniboard.app"
   - key: MINIBOARD_DB_DRIVER
