@@ -77,6 +77,7 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	r.Use(logger.Middleware(log))
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(middleware.AllowContentType("application/json"))
 	if cfg.Cors != nil {
 		r.Use(cors.Handler(cors.Options{
 			AllowedOrigins:   cfg.Cors.Domains,
