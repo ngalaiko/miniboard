@@ -26,7 +26,7 @@ func Migrate(ctx context.Context, db *sql.DB, logger logger) error {
 		if _, ok := applied[m.Name]; ok {
 			continue
 		}
-		logger.Info("applying migration '%s'", m.Name)
+		logger.Debug("applying migration '%s'", m.Name)
 		if _, err := tx.ExecContext(ctx, m.Query); err != nil {
 			return fmt.Errorf("failed to apply %s: %w", m.Name, err)
 		}

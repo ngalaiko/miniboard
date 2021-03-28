@@ -10,7 +10,7 @@ import (
 )
 
 type logger interface {
-	Info(string, ...interface{})
+	Debug(string, ...interface{})
 }
 
 // Config contains database configuration.

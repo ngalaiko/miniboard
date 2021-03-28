@@ -42,4 +42,4 @@ func testDB(t *testing.T) *sql.DB {
 
 type testLogger struct{}
 
-func (l *testLogger) Info(string, ...interface{}) {}
+func (l *testLogger) Debug(string, ...interface{}) {}
