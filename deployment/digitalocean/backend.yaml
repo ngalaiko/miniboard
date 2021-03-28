@@ -24,7 +24,10 @@ services:
     value: sqlite3
   - key: MINIBOARD_DB_ADDR
     scope: RUN_TIME
-    value: ./db.sqlite3
+    value: "./db.sqlite3?_cache_size=128000&cache=shared"
+  - key: MINIBOARD_DB_MAX_OPEN_CONNECTIONS
+    scope: RUN_TIME
+    value: "1"
   - key: MINIBOARD_AUTHORIZATIONS_DOMAIN
     scope: RUN_TIME
     value: "api.miniboard.app"
