@@ -1,7 +1,7 @@
 {
     "name": "Miniboard",
     "short_name": "Miniboard",
-    "description": "A simple bookmarks reader.",
+    "description": "A simple feeds reader.",
     "icons": [
         {
             "src": "/img/android-chrome-192x192.png",
