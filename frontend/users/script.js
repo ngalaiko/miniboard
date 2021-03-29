@@ -78,7 +78,7 @@ const renderSubscription = (subscription) => `
         <span class="title">${subscription.title}</span>
     </span>
 `
-    
+
 const renderTag = (tag, subscriptions) => `
     <div style="display:flex;align-items:center;cursor:pointer;">
         <button type="button" style="background:none;border:none;padding:0;" onclick="
@@ -153,24 +153,19 @@ const addToastMessage = async (promise, message, onSuccess) => {
     document.querySelector('#toasts-container').insertAdjacentHTML('afterbegin', html)
 }
 
-const renderItemCreated = (created) => !!created
-    ? `<span title="${new Date(created).toLocaleString()}" class="item-date">
-                ${Intl.DateTimeFormat(undefined, {
-                    year: 'numeric',
-                    month: 'numeric',
-                    day: 'numeric',
-                }).format(new Date(created))}
-            </span>
-`
-    : ''
+const renderItemCreated = (created) => {
+    if (!created) return  '<span class="item-date">N/A</span>'
+    const date = new Date(created)
+    const formatter = Intl.DateTimeFormat(undefined, {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+    })
+    return `<span title="${date.toLocaleString()}" class="item-date">${formatter.format(date)}</span>`
+}
 
 const renderItem = (item, subscription) => `
-    <div class="container item-container" created="${item.created}" onclick="this.dispatchEvent(new CustomEvent('ItemSelected', {
-        detail: {
-            id: '${item.id}',
-        },
-        bubbles: true,
-    }))">
+    <div id="${item.id}" class="container item-container" created="${item.created}">
         <span class="item-title">${item.title}</span>
         <span class="container-footer">
             ${subscription && !!subscription.icon_url ? '<img class="small-icon" src="' + subscription.icon_url + '"></img>' : ''}
@@ -188,14 +183,32 @@ const renderReader = (item) => `
     <div>${item.summary}</div>
 `
 
+const displayReader = (target, item) => {
+    target.innerHTML = renderReader(item)
+}
+
+const displayItems = (target, items) => {
+    items.map((item) => {
+        const template = document.createElement('template')
+        template.innerHTML = renderItem(item, subscriptionById.get(item.subscription_id))
+        target.appendChild(template.content)
+        document.getElementById(item.id).addEventListener('click', () => {
+            storeState('item', item.id)
+            displayReader(document.getElementById('reader'), item)
+        })
+    })
+}
+
 document.querySelector('#tags-menu').addEventListener('SubscriptionSelected', async (e) => {
     const subscriptionId = e.detail.id
 
     deleteState('tag')
     storeState('subscription', subscriptionId)
 
-    document.querySelector('#items-list').innerHTML = await listItemsBySubscription(subscriptionId).then((items) => {
-        return items.map(item => renderItem(item, subscriptionById.get(item.subscription_id))).join('')
+    listItemsBySubscription(subscriptionId).then((items) => {
+        const list = document.querySelector('#items-list')
+        list.innerHTML = ''
+        displayItems(list, items)
     })
 })
 
@@ -205,17 +218,10 @@ document.querySelector('#tags-menu').addEventListener('TagSelected', async (e) =
     deleteState('subscription')
     storeState('tag', tagId)
 
-    document.querySelector('#items-list').innerHTML = await listItemsByTag(tagId).then((items) => {
-        return items.map(item => renderItem(item, subscriptionById.get(item.subscription_id))).join('')
-    })
-})
-
-document.querySelector('#items-list').addEventListener('ItemSelected', (e) => {
-    const itemId = e.detail.id
-
-    storeState('item', itemId)
-    ItemsService.get(itemId).then((item) => {
-        document.querySelector('#reader').innerHTML = renderReader(item)
+    listItemsByTag(tagId).then((items) => {
+        const list = document.querySelector('#items-list')
+        list.innerHTML = ''
+        displayItems(list, items)
     })
 })
 
@@ -275,7 +281,7 @@ document.querySelector('#items-list').addEventListener('scroll', (e) => {
         tagId: tagId,
         createdLt: createdLt,
     }).then((items) => {
-        document.querySelector('#items-list').insertAdjacentHTML('beforeend', items.map(renderItem).join(''))
+        displayItems(document.querySelector('#items-list'), items)
     })
 })
 
@@ -299,7 +305,7 @@ const listItemsByTag = async (tagId) => {
 
 const itemId = getState('item')
 if (itemId) ItemsService.get(itemId).then((item) => {
-    document.querySelector('#reader').innerHTML = renderReader(item)
+    displayReader(document.querySelector('#reader'), item)
 })
 
 Promise.all([
@@ -315,13 +321,9 @@ Promise.all([
 
     subscriptions.forEach(s => subscriptionById.set(s.id, s))
 
-    if (itemsByTag.length > 0) document.querySelector('#items-list').innerHTML = itemsByTag.map((item) => {
-        return renderItem(item, subscriptionById.get(item.subscription_id))
-    }).join('')
-
-    if (itemsBySubscription.length > 0) document.querySelector('#items-list').innerHTML = itemsBySubscription.map((item) => {
-        return renderItem(item, subscriptionById.get(item.subscription_id))
-    }).join('')
+    const list = document.querySelector('#items-list')
+    displayItems(list, itemsBySubscription)
+    displayItems(list, itemsByTag)
 
     document.querySelector("#tags-list").innerHTML = renderTags(tags, subscriptions)
     document.querySelector("#no-tags-list").innerHTML = subscriptions.filter(s => s.tag_ids.length === 0)
