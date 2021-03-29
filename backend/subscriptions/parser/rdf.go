@@ -77,12 +77,14 @@ func (i *rdfItem) Convert(logger logger) *Item {
 	}
 }
 
-func (i *rdfItem) content() string {
+func (i *rdfItem) content() *string {
 	switch {
 	case i.DublinCoreContent != "":
-		return i.DublinCoreContent
+		return &i.DublinCoreContent
+	case i.Description != "":
+		return &i.Description
 	default:
-		return i.Description
+		return nil
 	}
 }
 

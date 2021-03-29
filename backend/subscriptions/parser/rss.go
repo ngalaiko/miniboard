@@ -112,13 +112,13 @@ func (i *rssItem) Convert(logger logger) *Item {
 	}
 }
 
-func (i *rssItem) content() string {
+func (i *rssItem) content() *string {
 	for _, value := range []string{i.DublinCoreContent, i.Description} {
 		if value != "" {
-			return value
+			return &value
 		}
 	}
-	return ""
+	return nil
 }
 
 func (i *rssItem) link() string {

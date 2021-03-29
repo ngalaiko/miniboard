@@ -55,8 +55,8 @@ func Test_Parse_json__JsonFeed(t *testing.T) {
 		t.Errorf(`Incorrect entry title, got: "%s"`, feed.Items[0].Title)
 	}
 
-	if feed.Items[0].Content != "This is a second item." {
-		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
+	if *feed.Items[0].Content != "This is a second item." {
+		t.Errorf("Incorrect entry content, got: %s", *feed.Items[0].Content)
 	}
 
 	if feed.Items[1].Link != "https://example.org/initial-post" {
@@ -67,8 +67,8 @@ func Test_Parse_json__JsonFeed(t *testing.T) {
 		t.Errorf(`Incorrect entry title, got: "%s"`, feed.Items[1].Title)
 	}
 
-	if feed.Items[1].Content != "<p>Hello, world!</p>" {
-		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
+	if *feed.Items[1].Content != "<p>Hello, world!</p>" {
+		t.Errorf("Incorrect entry content, got: %s", *feed.Items[0].Content)
 	}
 }
 

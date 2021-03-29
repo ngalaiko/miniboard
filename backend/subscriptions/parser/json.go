@@ -72,14 +72,14 @@ func (i *jsonItem) Convert(logger logger) *Item {
 	return item
 }
 
-func (i *jsonItem) content() string {
+func (i *jsonItem) content() *string {
 	for _, value := range []string{i.HTML, i.Text, i.Summary} {
 		if value != "" {
-			return value
+			return &value
 		}
 	}
 
-	return ""
+	return nil
 }
 
 func (i *jsonItem) date(logger logger) *time.Time {

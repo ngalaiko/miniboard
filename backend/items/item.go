@@ -10,10 +10,10 @@ type UserItem struct {
 
 // Item is the item model.
 type Item struct {
-	ID             string    `json:"id"`
-	URL            string    `json:"url"`
-	Title          string    `json:"title"`
-	SubscriptionID string    `json:"subscription_id"`
-	Created        time.Time `json:"created"`
-	Summary        string    `json:"summary,omitempty"`
+	ID             string     `json:"id"`
+	URL            string     `json:"url"`
+	Title          string     `json:"title"`
+	SubscriptionID string     `json:"subscription_id"`
+	Created        *time.Time `json:"created,omitempty"`
+	Summary        *string    `json:"summary,omitempty"`
 }

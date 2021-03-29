@@ -72,18 +72,16 @@ func (i *atom10Item) Convert(logger logger) *Item {
 	}
 }
 
-func (i *atom10Item) content() string {
-	content := i.Content.String()
-	if content != "" {
-		return content
+func (i *atom10Item) content() *string {
+	if content := i.Content.String(); content != "" {
+		return &content
 	}
 
-	summary := i.Summary.String()
-	if summary != "" {
-		return summary
+	if summary := i.Summary.String(); summary != "" {
+		return &summary
 	}
 
-	return ""
+	return nil
 }
 
 func (i *atom10Item) date(logger logger) *time.Time {

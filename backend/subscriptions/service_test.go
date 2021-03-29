@@ -171,6 +171,6 @@ func mustParseURL(raw string) *url.URL {
 
 type testItemsService struct{}
 
-func (*testItemsService) Create(context.Context, string, string, string, time.Time, string) (*items.Item, error) {
+func (*testItemsService) Create(context.Context, string, string, string, *time.Time, *string) (*items.Item, error) {
 	return nil, nil
 }

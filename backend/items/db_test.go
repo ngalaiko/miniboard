@@ -19,8 +19,8 @@ func testUserItem() *UserItem {
 			URL:            "https://example.com",
 			Title:          "title",
 			SubscriptionID: "sid",
-			Created:        time.Now().Add(-1 * time.Hour),
-			Summary:        "example summary",
+			Created:        nil,
+			Summary:        nil,
 		},
 	}
 }
@@ -142,12 +142,13 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 
 	created := map[string]*UserItem{}
 	for i := 0; i < 100; i++ {
+		createdTS := time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond)
 		item := &Item{
 			ID:             fmt.Sprint(i),
 			URL:            fmt.Sprintf("https://example%d.com", i),
 			Title:          fmt.Sprintf("%d title", i),
 			SubscriptionID: "sid",
-			Created:        time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
+			Created:        &createdTS,
 		}
 
 		if err := db.Create(ctx, item); err != nil {
@@ -179,7 +180,7 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 			if !cmp.Equal(item, created[item.ID]) {
 				t.Fatal(cmp.Diff(item, created[item.ID]))
 			}
-			createdLT = &item.Created
+			createdLT = item.Created
 		}
 	}
 }
@@ -191,13 +192,14 @@ func Test_db__List_filtered_by_tag(t *testing.T) {
 
 	created := map[string]*UserItem{}
 	for i := 0; i < 100; i++ {
+		createdTS := time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond)
 		item := &UserItem{
 			UserID: "user",
 			Item: Item{
 				ID:             fmt.Sprint(i),
 				URL:            fmt.Sprintf("https://example%d.com", i),
 				Title:          fmt.Sprintf("%d title", i),
-				Created:        time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
+				Created:        &createdTS,
 				SubscriptionID: fmt.Sprint(i % 5),
 			},
 		}
@@ -235,13 +237,14 @@ func Test_db__List_filtered_by_subscription_and_tag(t *testing.T) {
 
 	created := map[string]*UserItem{}
 	for i := 0; i < 100; i++ {
+		createdTS := time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond)
 		item := &UserItem{
 			UserID: "user",
 			Item: Item{
 				ID:             fmt.Sprint(i),
 				URL:            fmt.Sprintf("https://example%d.com", i),
 				Title:          fmt.Sprintf("%d title", i),
-				Created:        time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
+				Created:        &createdTS,
 				SubscriptionID: fmt.Sprint(i % 5),
 			},
 		}
@@ -280,13 +283,14 @@ func Test_db__List_filtered_by_subscription(t *testing.T) {
 
 	created := map[string]*UserItem{}
 	for i := 0; i < 100; i++ {
+		createdTS := time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond)
 		item := &UserItem{
 			UserID: "user",
 			Item: Item{
 				ID:             fmt.Sprint(i),
 				URL:            fmt.Sprintf("https://example%d.com", i),
 				Title:          fmt.Sprintf("%d title", i),
-				Created:        time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
+				Created:        &createdTS,
 				SubscriptionID: fmt.Sprint(i % 5),
 			},
 		}

@@ -81,8 +81,8 @@ func Test_Parse_rdf__RDFSample(t *testing.T) {
 		t.Errorf("Incorrect number of entries, got: %d", len(feed.Items))
 	}
 
-	if strings.HasSuffix(feed.Items[1].Content, "Tool and API support") {
-		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
+	if strings.HasSuffix(*feed.Items[1].Content, "Tool and API support") {
+		t.Errorf("Incorrect entry content, got: %s", *feed.Items[0].Content)
 	}
 
 	if feed.Items[1].Link != "http://xml.com/pub/2000/08/09/rdfdb/index.html" {
@@ -182,8 +182,8 @@ func Test_Parse_rdf__RDFSampleWithDublinCore(t *testing.T) {
 		t.Errorf("Incorrect entry title, got: %s", feed.Items[0].Title)
 	}
 
-	if strings.HasSuffix(feed.Items[0].Content, "XML is placing increasingly") {
-		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
+	if strings.HasSuffix(*feed.Items[0].Content, "XML is placing increasingly") {
+		t.Errorf("Incorrect entry content, got: %s", *feed.Items[0].Content)
 	}
 }
 
@@ -384,7 +384,7 @@ func Test_Parse_rdf_WithContentEncoded(t *testing.T) {
 
 	expected := `<p>Test</p>`
 	result := feed.Items[0].Content
-	if result != expected {
-		t.Errorf(`Unexpected entry URL, got %q instead of %q`, result, expected)
+	if *result != expected {
+		t.Errorf(`Unexpected entry URL, got %q instead of %q`, *result, expected)
 	}
 }

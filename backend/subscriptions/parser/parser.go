@@ -10,7 +10,7 @@ type Item struct {
 	Title   string
 	Link    string
 	Date    *time.Time
-	Content string
+	Content *string
 }
 
 // Image is a feed's image.

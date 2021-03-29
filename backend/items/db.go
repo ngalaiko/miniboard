@@ -26,6 +26,12 @@ func newDB(sqldb *sql.DB, logger logger) *database {
 
 // Create creates a item in the database.
 func (d *database) Create(ctx context.Context, item *Item) error {
+	var created *int64
+	if item.Created != nil {
+		nano := item.Created.UnixNano()
+		created = &nano
+	}
+
 	_, err := d.db.ExecContext(ctx, `
 		INSERT INTO items (
 			id,
@@ -37,7 +43,7 @@ func (d *database) Create(ctx context.Context, item *Item) error {
 		) VALUES (
 			$1, $2, $3, $4, $5, $6
 		)`, item.ID, item.URL, item.Title,
-		item.SubscriptionID, item.Created.UTC().UnixNano(), item.Summary,
+		item.SubscriptionID, created, item.Summary,
 	)
 	return err
 }
@@ -164,7 +170,7 @@ type scannable interface {
 
 func (d *database) scanItemRow(row scannable) (*Item, error) {
 	item := &Item{}
-	var createdEpoch int64
+	var createdEpoch *int64
 	if err := row.Scan(
 		&item.ID,
 		&item.URL,
@@ -176,14 +182,17 @@ func (d *database) scanItemRow(row scannable) (*Item, error) {
 		return nil, err
 	}
 
-	item.Created = time.Unix(0, createdEpoch).Round(time.Nanosecond)
+	if createdEpoch != nil {
+		item.Created = new(time.Time)
+		*item.Created = time.Unix(0, *createdEpoch).Round(time.Nanosecond)
+	}
 
 	return item, nil
 }
 
 func (d *database) scanUserItemRow(row scannable) (*UserItem, error) {
 	item := &UserItem{}
-	var createdEpoch int64
+	var createdEpoch *int64
 	if err := row.Scan(
 		&item.ID,
 		&item.UserID,
@@ -196,7 +205,9 @@ func (d *database) scanUserItemRow(row scannable) (*UserItem, error) {
 		return nil, err
 	}
 
-	item.Created = time.Unix(0, createdEpoch).Round(time.Nanosecond)
-
+	if createdEpoch != nil {
+		item.Created = new(time.Time)
+		*item.Created = time.Unix(0, *createdEpoch).Round(time.Nanosecond)
+	}
 	return item, nil
 }

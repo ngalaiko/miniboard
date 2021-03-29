@@ -90,8 +90,8 @@ func Test_Parse_rss__Rss2Sample(t *testing.T) {
 		t.Errorf("Incorrect entry date, got: %v, want: %v", feed.Items[0].Date, expectedDate)
 	}
 
-	if feed.Items[0].Content != `How do Americans get ready to work with Russians aboard the International Space Station? They take a crash course in culture, language and protocol at Russia's <a href="http://howe.iki.rssi.ru/GCTC/gctc_e.htm">Star City</a>.` {
-		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
+	if *feed.Items[0].Content != `How do Americans get ready to work with Russians aboard the International Space Station? They take a crash course in culture, language and protocol at Russia's <a href="http://howe.iki.rssi.ru/GCTC/gctc_e.htm">Star City</a>.` {
+		t.Errorf("Incorrect entry content, got: %s", *feed.Items[0].Content)
 	}
 }
 
@@ -116,8 +116,8 @@ func Test_Parse_rss_EntryWithContentEncoded(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if feed.Items[0].Content != `<p><a href="http://www.example.org/">Example</a>.</p>` {
-		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
+	if *feed.Items[0].Content != `<p><a href="http://www.example.org/">Example</a>.</p>` {
+		t.Errorf("Incorrect entry content, got: %s", *feed.Items[0].Content)
 	}
 }
 

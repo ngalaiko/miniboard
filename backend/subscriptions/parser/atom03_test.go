@@ -48,8 +48,8 @@ func Test_Parse_atom03__Atom03(t *testing.T) {
 		t.Errorf("Incorrect entry title, got: %s", feed.Items[0].Title)
 	}
 
-	if feed.Items[0].Content != "<p>HTML content</p>" {
-		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
+	if *feed.Items[0].Content != "<p>HTML content</p>" {
+		t.Errorf("Incorrect entry content, got: %s", *feed.Items[0].Content)
 	}
 
 	tz := time.FixedZone("Test Case Time", -int((4 * time.Hour).Seconds()))
@@ -85,8 +85,8 @@ func Test_Parse_atom03_Atom03WithSummaryOnly(t *testing.T) {
 		t.Errorf("Incorrect number of entries, got: %d", len(feed.Items))
 	}
 
-	if feed.Items[0].Content != "It&#39;s a test" {
-		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
+	if *feed.Items[0].Content != "It&#39;s a test" {
+		t.Errorf("Incorrect entry content, got: %s", *feed.Items[0].Content)
 	}
 }
 
@@ -116,8 +116,8 @@ func Test_Parse_atom03_Atom03WithXMLContent(t *testing.T) {
 		t.Errorf("Incorrect number of entries, got: %d", len(feed.Items))
 	}
 
-	if feed.Items[0].Content != "<p>Some text.</p>" {
-		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
+	if *feed.Items[0].Content != "<p>Some text.</p>" {
+		t.Errorf("Incorrect entry content, got: %s", *feed.Items[0].Content)
 	}
 }
 
@@ -147,8 +147,8 @@ func Test_Parse_atom03_Atom03WithBase64Content(t *testing.T) {
 		t.Errorf("Incorrect number of entries, got: %d", len(feed.Items))
 	}
 
-	if feed.Items[0].Content != "<p>Some text.</p>" {
-		t.Errorf("Incorrect entry content, got: %s", feed.Items[0].Content)
+	if *feed.Items[0].Content != "<p>Some text.</p>" {
+		t.Errorf("Incorrect entry content, got: %s", *feed.Items[0].Content)
 	}
 }
 

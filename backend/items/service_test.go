@@ -14,7 +14,9 @@ func Test_service__Create(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	service := NewService(sqldb, &testLogger{})
 
-	item, err := service.Create(ctx, "sid", "https://example.org", "title", time.Now(), "content")
+	now := time.Now()
+	summary := "summary"
+	item, err := service.Create(ctx, "sid", "https://example.org", "title", &now, &summary)
 	if err != nil {
 		t.Fatalf("failed to create a item %s", err)
 	}
@@ -36,6 +38,22 @@ func Test_service__Create(t *testing.T) {
 	}
 }
 
+func Test_service__Create_without_created(t *testing.T) {
+	ctx := context.TODO()
+
+	sqldb := createTestDB(ctx, t)
+	service := NewService(sqldb, &testLogger{})
+
+	if _, err := sqldb.Exec(`INSERT INTO users_subscriptions (user_id, subscription_id) VALUES ("user id", "sid")`); err != nil {
+		t.Fatal(err)
+	}
+
+	_, err := service.Create(ctx, "sid", "https://example.org", "title", nil, nil)
+	if err != nil {
+		t.Fatalf("failed to create: %s", err)
+	}
+}
+
 func Test_service__Create_twice(t *testing.T) {
 	ctx := context.TODO()
 
@@ -46,12 +64,13 @@ func Test_service__Create_twice(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err := service.Create(ctx, "sid", "https://example.org", "title", time.Now(), "content")
+	now := time.Now()
+	_, err := service.Create(ctx, "sid", "https://example.org", "title", &now, nil)
 	if err != nil {
 		t.Fatalf("failed to create a item %s", err)
 	}
 
-	_, secondErr := service.Create(ctx, "sid", "https://example.org", "title", time.Now(), "content")
+	_, secondErr := service.Create(ctx, "sid", "https://example.org", "title", &now, nil)
 	if secondErr != ErrAlreadyExists {
 		t.Fatalf("expected %s, got %s", ErrAlreadyExists, secondErr)
 	}
@@ -67,7 +86,9 @@ func Test_service__Get(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	item, err := service.Create(ctx, "sid", "https://example.org", "title", time.Now(), "content")
+	now := time.Now()
+	summary := "summary"
+	item, err := service.Create(ctx, "sid", "https://example.org", "title", &now, &summary)
 	if err != nil {
 		t.Fatalf("failed to create a item: %s", err)
 	}
