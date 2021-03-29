@@ -153,6 +153,17 @@ const addToastMessage = async (promise, message, onSuccess) => {
     document.querySelector('#toasts-container').insertAdjacentHTML('afterbegin', html)
 }
 
+const renderItemCreated = (created) => !!created
+    ? `<span title="${new Date(created).toLocaleString()}" class="item-date">
+                ${Intl.DateTimeFormat(undefined, {
+                    year: 'numeric',
+                    month: 'numeric',
+                    day: 'numeric',
+                }).format(new Date(created))}
+            </span>
+`
+    : ''
+
 const renderItem = (item, subscription) => `
     <div class="container item-container" created="${item.created}" onclick="this.dispatchEvent(new CustomEvent('ItemSelected', {
         detail: {
@@ -167,13 +178,7 @@ const renderItem = (item, subscription) => `
             ${subscription ? '<span style="font-size:smaller;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">'
                     + subscription.title
                     + '</span>' : ''}
-            <span title="${new Date(item.created).toLocaleString()}" class="item-date">
-                ${Intl.DateTimeFormat(undefined, {
-                    year: 'numeric',
-                    month: 'numeric',
-                    day: 'numeric',
-                }).format(new Date(item.created))}
-            </span>
+            ${renderItemCreated(item.created)}
         </span>
     </div>
 `
