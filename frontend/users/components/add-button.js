@@ -14,7 +14,7 @@ import OperationsService from '/services/operations.js'
     <button id="add-button" type="button">Add</button>
     `
 
-    class AddModal extends HTMLElement {
+    class AddButton extends HTMLElement {
         constructor() {
             super()
 
@@ -22,21 +22,15 @@ import OperationsService from '/services/operations.js'
 
             const instance = HTMLTemplate.content.cloneNode(true)
             shadowRoot.appendChild(instance)
-
-            this._tagsByTitle = new Map()
         }
 
         connectedCallback() {
             this.shadowRoot.querySelector('#add-button')
-                .addEventListener('click', _clickHandler(this, this._tagsByTitle))
-        }
-
-        addTag(tag) {
-            this._tagsByTitle.set(tag.title, tag)
+                .addEventListener('click', _clickHandler(this))
         }
     }
 
-    const _clickHandler = (self, tagsByTitle) => {
+    const _clickHandler = (self) => {
         return () => {
             import('./add-modal.js')
 
@@ -77,12 +71,9 @@ import OperationsService from '/services/operations.js'
 
                     const tagIdsByUrl = {}
                     for (const item of items) {
-                        const tag = tagsByTitle.get(item.tagTitle)
-                        item.tag = tag
-                            ? tag
-                            : await _createTag(self, {
-                                title: item.tagTitle,
-                            })
+                        item.tag = await _createTag(self, {
+                            title: item.tagTitle,
+                        })
 
                         item.urls.forEach(url => {
                             if (!tagIdsByUrl[url]) tagIdsByUrl[url] = []
@@ -134,5 +125,5 @@ import OperationsService from '/services/operations.js'
         return await tagPromise
     }
 
-    customElements.define('x-add-button', AddModal)
+    customElements.define('x-add-button', AddButton)
 })()

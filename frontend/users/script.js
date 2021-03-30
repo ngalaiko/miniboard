@@ -251,14 +251,11 @@ document.querySelector('#tags-menu').addEventListener('TagCreate', (e) => {
     const promise = e.detail.promise
 
     promise.then((tag) => {
+        if (!!document.getElementById(tag.id)) return
+
         const html = renderTag(tag, [])
         document.getElementById('tags-list').insertAdjacentHTML('afterbegin', html)
     })
-
-    addToastMessage(promise,
-        `Creating tag: ${params.title}`,
-        (tag) => `New tag: ${tag.title}`,
-    )
 })
 
 document.querySelector('#items-list').addEventListener('scroll', (e) => {
@@ -328,7 +325,4 @@ Promise.all([
     document.querySelector("#tags-list").innerHTML = renderTags(tags, subscriptions)
     document.querySelector("#no-tags-list").innerHTML = subscriptions.filter(s => s.tag_ids.length === 0)
         .map(renderSubscription).join('')
-
-    const addButton = document.querySelector('#add-button')
-    tags.forEach(tag => addButton.addTag(tag))
 })
