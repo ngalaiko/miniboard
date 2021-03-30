@@ -43,13 +43,6 @@ type Server struct {
 	operationsService     *operations.Service
 }
 
-const (
-	contentTypeApplicationJSON = "application/json"
-	contentTypeApplicationXML  = "application/xml"
-	contentTypeTextXML         = "text/xml"
-	contentTypeTextXOPML       = "text/x-opml"
-)
-
 // New returns a new initialized server object.
 func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	db, err := db.New(cfg.DB, log)
@@ -73,17 +66,11 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	usersHandler := users.NewHandler(usersService, log)
 
 	authMiddleware := authorizations.Middleware(authorizationsService, cfg.Authorizations, log)
-	requireJSON := middleware.AllowContentType(contentTypeApplicationJSON)
-	requireJSONorOPML := middleware.AllowContentType(
-		contentTypeApplicationJSON,
-		contentTypeApplicationXML,
-		contentTypeTextXML,
-		contentTypeTextXOPML,
-	)
 
 	r := chi.NewRouter()
 	r.Use(logger.Middleware(log))
 	r.Use(middleware.Recoverer)
+	r.Use(middleware.AllowContentType("application/json"))
 	if cfg.HTTP.CORS != nil {
 		r.Use(cors.Handler(cors.Options{
 			AllowedOrigins:   cfg.HTTP.CORS.AllowedOrigins,
@@ -94,19 +81,10 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	}
 	r.Route("/v1", func(r chi.Router) {
 		r.Route("/authorizations", func(r chi.Router) {
-			r.With(requireJSON).Post("/", authorizationsHandler.Create())
+			r.Post("/", authorizationsHandler.Create())
 		})
 		r.With(authMiddleware).Route("/subscriptions", func(r chi.Router) {
-			r.With(requireJSONorOPML).Post("/", func(w http.ResponseWriter, r *http.Request) {
-				switch r.Header.Get("content-type") {
-				case contentTypeApplicationJSON:
-					subscriptionsHandler.Create()(w, r)
-				case contentTypeApplicationXML, contentTypeTextXML, contentTypeTextXOPML:
-					subscriptionsHandler.Import()(w, r)
-				default:
-					w.WriteHeader(http.StatusUnsupportedMediaType)
-				}
-			})
+			r.Post("/", subscriptionsHandler.Create())
 			r.Get("/", subscriptionsHandler.List())
 			r.Route("/{subscriptionId}", func(r chi.Router) {
 				r.Route("/items", func(r chi.Router) {
@@ -133,10 +111,10 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 			})
 		})
 		r.Route("/users", func(r chi.Router) {
-			r.With(requireJSON).Post("/", usersHandler.Create())
+			r.Post("/", usersHandler.Create())
 		})
 		r.With(authMiddleware).Route("/tags", func(r chi.Router) {
-			r.With(requireJSON).Post("/", tagsHandler.Create())
+			r.Post("/", tagsHandler.Create())
 			r.Get("/", tagsHandler.List())
 			r.Route("/{tagId}", func(r chi.Router) {
 				r.Route("/items", func(r chi.Router) {
