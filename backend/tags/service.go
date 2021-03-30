@@ -12,8 +12,7 @@ import (
 
 // Known errors.
 var (
-	errNotFound      = fmt.Errorf("not found")
-	errAlreadyExists = fmt.Errorf("tag already exists")
+	errNotFound = fmt.Errorf("not found")
 )
 
 // Service allows to manage tags resource.
@@ -30,8 +29,8 @@ func NewService(db *sql.DB) *Service {
 
 // Create creates a tag.
 func (s *Service) Create(ctx context.Context, userID string, title string) (*Tag, error) {
-	if exists, err := s.db.GetByTitle(ctx, userID, title); err == nil && exists != nil {
-		return nil, errAlreadyExists
+	if existing, err := s.db.GetByTitle(ctx, userID, title); err == nil && existing != nil {
+		return existing, nil
 	}
 
 	tag := &Tag{

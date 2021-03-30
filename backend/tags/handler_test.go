@@ -64,40 +64,6 @@ func Test_Handler__Get(t *testing.T) {
 	}
 }
 
-func Test_Handler__Post_create_already_exists(t *testing.T) {
-	ctx := context.Background()
-	logger := &testLogger{}
-	db := createTestDB(ctx, t)
-	service := NewService(db)
-	handler := NewHandler(service, logger)
-
-	var rr *httptest.ResponseRecorder
-	for i := 0; i < 2; i++ {
-		req, err := http.NewRequest("POST", "/", strings.NewReader(`{"title":"title"}`))
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		req = req.WithContext(authorizations.NewContext(ctx, &authorizations.Token{
-			UserID: "user",
-		}))
-		rr = httptest.NewRecorder()
-
-		handler.Create()(rr, req)
-	}
-
-	if status := rr.Code; status != http.StatusBadRequest {
-		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusBadRequest)
-	}
-
-	expected := fmt.Sprintf(`{"message":"%s"}`, errAlreadyExists)
-	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v",
-			rr.Body.String(), expected)
-	}
-}
-
 func Test_Handler__Post_create_title_empty(t *testing.T) {
 	ctx := context.Background()
 	logger := &testLogger{}

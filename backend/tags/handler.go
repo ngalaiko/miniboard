@@ -2,7 +2,6 @@ package tags
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -117,8 +116,6 @@ func (h *Handler) Create() http.HandlerFunc {
 
 		tag, err := h.service.Create(r.Context(), token.UserID, req.Title)
 		switch {
-		case errors.Is(err, errAlreadyExists):
-			httpx.Error(w, h.logger, err, http.StatusBadRequest)
 		case err == nil:
 			httpx.JSON(w, h.logger, tag, http.StatusOK)
 		default:
