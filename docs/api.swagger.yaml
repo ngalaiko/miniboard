@@ -213,7 +213,7 @@ paths:
       security:
       - bearerAuth: []
       - cookieAuth: []
-      summary: Creates a new tag
+      summary: Creates a new tag or returns existing
       requestBody:
         content:
           application/json:
