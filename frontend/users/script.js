@@ -68,15 +68,15 @@ const listAllSubscriptions = async (pageSize, createdLt) => {
 }
 
 const renderSubscription = (subscription) => `
-    <span class="container" onclick="this.dispatchEvent(new CustomEvent('SubscriptionSelected', {
+    <div class="container" onclick="this.dispatchEvent(new CustomEvent('SubscriptionSelected', {
         detail: {
             id: '${subscription.id}',
         },
         bubbles: true,
     }))">
         <img class="icon" src="${!!subscription.icon_url ? subscription.icon_url : '/img/rss.svg'}"></img>
-        <span class="title">${subscription.title}</span>
-    </span>
+        <div class="title">${subscription.title}</div>
+    </div>
 `
 
 const renderTag = (tag, subscriptions) => `
@@ -90,12 +90,12 @@ const renderTag = (tag, subscriptions) => `
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
         </button>
-        <span class="title" onclick="this.dispatchEvent(new CustomEvent('TagSelected', {
+        <div class="title" onclick="this.dispatchEvent(new CustomEvent('TagSelected', {
         detail: {
             id: '${tag.id}',
         },
         bubbles: true,
-    }))">${tag.title}</span>
+    }))">${tag.title}</div>
     </div>
     <div id="${tag.id}" hidden>
         ${subscriptions.map(renderSubscription).join('')}
@@ -120,10 +120,10 @@ const renderTags = (tags, subscriptions) => {
 
 const renderToastMessage = (promise, message, onSuccess) => {
     const id = `toast-${performance.now()}`
-    const span = document.createElement('span')
-    span.id = id
-    span.classList.add('toast-message')
-    span.innerText = message
+    const div = document.createElement('div')
+    div.id = id
+    div.classList.add('toast-message')
+    div.innerText = message
 
     if (promise) promise.then((v) => {
         if (onSuccess) document.getElementById(id).innerText = onSuccess(v)
@@ -133,11 +133,11 @@ const renderToastMessage = (promise, message, onSuccess) => {
         setTimeout(() => document.getElementById(id).parentNode.remove(), 3000)
     })
 
-    return span.outerHTML
+    return div.outerHTML
 }
 
 const renderToast = (promise, message, onSuccess) => `
-    <span class="toast-container show">
+    <div class="toast-container show">
         ${renderToastMessage(promise, message, onSuccess)}
         <button class="toast-button" type="button" onclick="const parent = this.parentNode; parentNode.remove();">
             <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -145,7 +145,7 @@ const renderToast = (promise, message, onSuccess) => `
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
         </button>
-    </span>
+    </div>
 `
 
 const addToastMessage = async (promise, message, onSuccess) => {
@@ -154,27 +154,38 @@ const addToastMessage = async (promise, message, onSuccess) => {
 }
 
 const renderItemCreated = (created) => {
-    if (!created) return  '<span class="item-date">N/A</span>'
+    if (!created) return  '<div class="item-date">N/A</div>'
     const date = new Date(created)
     const formatter = Intl.DateTimeFormat(undefined, {
         year: 'numeric',
         month: 'numeric',
         day: 'numeric',
     })
-    return `<span title="${date.toLocaleString()}" class="item-date">${formatter.format(date)}</span>`
+    return `<div title="${date.toLocaleString()}" class="item-date">${formatter.format(date)}</div>`
 }
+
+const renderItemSubscriptionTitle = (subscription) => `
+    <div style="font-size:smaller;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
+        ${subscription.title}
+    </div>
+`
+
+const renderItemSubscriptionIcon = (subscription) => !!subscription.icon_url
+    ? `<img class="small-icon" src="${subscription.icon_url}"></img>`
+    : `<img class="small-icon" src="/img/rss.svg"></img>`
+
+const renderItemSubscription = (subscription) => `
+    ${renderItemSubscriptionIcon(subscription)}
+    ${renderItemSubscriptionTitle(subscription)}
+`
 
 const renderItem = (item, subscription) => `
     <div id="${item.id}" class="container item-container" created="${item.created}">
-        <span class="item-title">${item.title}</span>
-        <span class="container-footer">
-            ${subscription && !!subscription.icon_url ? '<img class="small-icon" src="' + subscription.icon_url + '"></img>' : ''}
-            ${subscription && !!!subscription.icon_url ? '<img class="small-icon" src="/img/rss.svg"></img>' : ''}
-            ${subscription ? '<span style="font-size:smaller;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">'
-                    + subscription.title
-                    + '</span>' : ''}
+        <div class="item-title">${item.title}</div>
+        <div class="container-footer">
+            ${renderItemSubscription(subscription)}
             ${renderItemCreated(item.created)}
-        </span>
+        </div>
     </div>
 `
 
