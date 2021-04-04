@@ -2,9 +2,8 @@ package tags
 
 import (
 	"context"
+	"reflect"
 	"testing"
-
-	"github.com/google/go-cmp/cmp"
 )
 
 func Test__Create(t *testing.T) {
@@ -37,18 +36,14 @@ func Test__Create_twice(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	service := NewService(sqldb)
 
-	tag1, err := service.Create(ctx, "user id", "title")
+	_, err := service.Create(ctx, "user id", "title")
 	if err != nil {
 		t.Fatalf("failed to create a tag %s", err)
 	}
 
-	tag2, secondErr := service.Create(ctx, "user id", "title")
-	if secondErr != nil {
-		t.Fatalf("failed to create a tag %s", secondErr)
-	}
-
-	if !cmp.Equal(tag1, tag2) {
-		t.Error(cmp.Diff(tag1, tag2))
+	_, secondErr := service.Create(ctx, "user id", "title")
+	if secondErr != errAlreadyExists {
+		t.Fatalf("expected %s, got %s", errAlreadyExists, secondErr)
 	}
 }
 
@@ -68,8 +63,8 @@ func Test__Get(t *testing.T) {
 		t.Fatalf("failed to get a tag: %s", err)
 	}
 
-	if !cmp.Equal(tag, from) {
-		t.Error(cmp.Diff(tag, from))
+	if !reflect.DeepEqual(tag, from) {
+		t.Errorf("unexpected response, expected %+v, got %+v", tag, from)
 	}
 }
 
