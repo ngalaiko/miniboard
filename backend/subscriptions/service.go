@@ -19,9 +19,9 @@ import (
 // Known errors.
 var (
 	errNotFound                     = fmt.Errorf("not found")
-	errAlreadyExists                = fmt.Errorf("subscription already exists")
-	errFailedToDownloadSubscription = fmt.Errorf("failed to download subscription")
-	errFailedToParseSubscription    = fmt.Errorf("failed to parse subscription")
+	ErrAlreadyExists                = fmt.Errorf("subscription already exists")
+	ErrFailedToDownloadSubscription = fmt.Errorf("failed to download subscription")
+	ErrFailedToParseSubscription    = fmt.Errorf("failed to parse subscription")
 	errFailedToStoreItem            = fmt.Errorf("failed to store item")
 )
 
@@ -76,19 +76,19 @@ func NewService(db *sql.DB, crawler crawler, logger logger, cfg *Config, itemsSe
 // Create creates a subscription from URL.
 func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagIDs []string) (*UserSubscription, error) {
 	if exists, err := s.db.GetByURL(ctx, userID, url.String()); err == nil && exists != nil {
-		return nil, errAlreadyExists
+		return nil, ErrAlreadyExists
 	}
 
 	data, err := s.crawler.Crawl(ctx, url)
 	if err != nil {
 		s.logger.Error("failed to fetch subscription %s: %s", url, err)
-		return nil, errFailedToDownloadSubscription
+		return nil, ErrFailedToDownloadSubscription
 	}
 
 	parsedSubscription, err := parser.Parse(data, s.logger)
 	if err != nil {
 		s.logger.Error("failed to parse subscription %s: %s", url, err)
-		return nil, errFailedToParseSubscription
+		return nil, ErrFailedToParseSubscription
 	}
 
 	subscription := &UserSubscription{}

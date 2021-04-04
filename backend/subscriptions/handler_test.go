@@ -138,8 +138,8 @@ func Test_Handler__Post_create_already_exists(t *testing.T) {
 		t.Fatal("expected error")
 	}
 
-	if err := fmt.Sprint(returned.Result.Error.Message); err != errAlreadyExists.Error() {
-		t.Fatalf("expected %s, got %s", errAlreadyExists, err)
+	if err := fmt.Sprint(returned.Result.Error.Message); err != ErrAlreadyExists.Error() {
+		t.Fatalf("expected %s, got %s", ErrAlreadyExists, err)
 	}
 }
 
@@ -213,8 +213,8 @@ func Test_Handler__Post_create_url_not_found(t *testing.T) {
 		t.Fatal("expected error")
 	}
 
-	if err := fmt.Sprint(returned.Result.Error.Message); err != errFailedToDownloadSubscription.Error() {
-		t.Fatalf("expected %s, got %s", errFailedToDownloadSubscription, err)
+	if err := fmt.Sprint(returned.Result.Error.Message); err != ErrFailedToDownloadSubscription.Error() {
+		t.Fatalf("expected %s, got %s", ErrFailedToDownloadSubscription, err)
 	}
 }
 

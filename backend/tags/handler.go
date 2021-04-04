@@ -101,6 +101,12 @@ func (h *Handler) Create() http.HandlerFunc {
 			return
 		}
 
+		if err := r.Body.Close(); err != nil {
+			h.logger.Error("failed to close request body: %s", err)
+			httpx.InternalError(w, h.logger)
+			return
+		}
+
 		req := &request{}
 		if len(body) > 0 {
 			if err := json.Unmarshal(body, req); err != nil {
@@ -117,8 +123,8 @@ func (h *Handler) Create() http.HandlerFunc {
 
 		tag, err := h.service.Create(r.Context(), token.UserID, req.Title)
 		switch {
-		case errors.Is(err, errAlreadyExists):
-			httpx.Error(w, h.logger, err, http.StatusBadRequest)
+		case errors.Is(err, ErrAlreadyExists):
+			httpx.Error(w, h.logger, err, http.StatusConflict)
 		case err == nil:
 			httpx.JSON(w, h.logger, tag, http.StatusOK)
 		default:

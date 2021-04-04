@@ -42,8 +42,8 @@ func Test__Create_twice(t *testing.T) {
 	}
 
 	_, secondErr := service.Create(ctx, "user id", "title")
-	if secondErr != errAlreadyExists {
-		t.Fatalf("expected %s, got %s", errAlreadyExists, secondErr)
+	if secondErr != ErrAlreadyExists {
+		t.Fatalf("expected %s, got %s", ErrAlreadyExists, secondErr)
 	}
 }
 
@@ -75,7 +75,7 @@ func Test__Get_not_found(t *testing.T) {
 	service := NewService(sqldb)
 
 	_, err := service.Get(ctx, "user id", "id")
-	if err != errNotFound {
-		t.Errorf("expected %s, got %s", errNotFound, err)
+	if err != ErrNotFound {
+		t.Errorf("expected %s, got %s", ErrNotFound, err)
 	}
 }

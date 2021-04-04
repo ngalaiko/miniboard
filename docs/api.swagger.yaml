@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Miniboard
   license:
-    name:  GPL-3.0 
+    name:  GPL-3.0
     url: https://github.com/ngalaiko/miniboard/blob/master/LICENSE
   version: 1.0.0
 servers:
@@ -20,6 +20,8 @@ tags:
   description: Operations about users
 - name: tag
   description: Operations about tags
+- name: imports
+  description: Operations about imports
 paths:
   /v1/authorizations/:
     post:
@@ -210,7 +212,7 @@ paths:
       security:
       - bearerAuth: []
       - cookieAuth: []
-      summary: Creates a new tag or returns existing
+      summary: Creates a new tag
       requestBody:
         content:
           application/json:
@@ -511,6 +513,42 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: "user already exists"
+        415:
+          description: Unsupported Media Type
+        500:
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                message: "internal server error"
+  /v1/imports/:
+    post:
+      tags:
+      - imports
+      summary: Allows to import OPML
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              type: string
+              format: binary
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Operation"
         400:
           description: Bad request
           content:

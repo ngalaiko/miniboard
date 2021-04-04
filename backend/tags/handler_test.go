@@ -86,12 +86,12 @@ func Test_Handler__Post_create_already_exists(t *testing.T) {
 		handler.Create()(rr, req)
 	}
 
-	if status := rr.Code; status != http.StatusBadRequest {
+	if status := rr.Code; status != http.StatusConflict {
 		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusBadRequest)
+			status, http.StatusConflict)
 	}
 
-	expected := fmt.Sprintf(`{"message":"%s"}`, errAlreadyExists)
+	expected := fmt.Sprintf(`{"message":"%s"}`, ErrAlreadyExists)
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)

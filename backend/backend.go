@@ -15,6 +15,7 @@ import (
 	"github.com/ngalaiko/miniboard/backend/crawler"
 	"github.com/ngalaiko/miniboard/backend/db"
 	"github.com/ngalaiko/miniboard/backend/httpx"
+	"github.com/ngalaiko/miniboard/backend/imports"
 	"github.com/ngalaiko/miniboard/backend/items"
 	"github.com/ngalaiko/miniboard/backend/logger"
 	"github.com/ngalaiko/miniboard/backend/operations"
@@ -64,13 +65,16 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	operationsHandler := operations.NewHandler(operationsService, log)
 	tagsHandler := tags.NewHandler(tagsService, log)
 	usersHandler := users.NewHandler(usersService, log)
+	importsHandler := imports.NewHandler(log, tagsService, subscriptionsService, operationsService)
 
 	authMiddleware := authorizations.Middleware(authorizationsService, cfg.Authorizations, log)
+
+	requireJSON := middleware.AllowContentType("application/json")
+	requireXML := middleware.AllowContentType("application/xml")
 
 	r := chi.NewRouter()
 	r.Use(logger.Middleware(log))
 	r.Use(middleware.Recoverer)
-	r.Use(middleware.AllowContentType("application/json"))
 	if cfg.HTTP.CORS != nil {
 		r.Use(cors.Handler(cors.Options{
 			AllowedOrigins:   cfg.HTTP.CORS.AllowedOrigins,
@@ -80,10 +84,10 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 		}))
 	}
 	r.Route("/v1", func(r chi.Router) {
-		r.Route("/authorizations", func(r chi.Router) {
+		r.With(requireJSON).Route("/authorizations", func(r chi.Router) {
 			r.Post("/", authorizationsHandler.Create())
 		})
-		r.With(authMiddleware).Route("/subscriptions", func(r chi.Router) {
+		r.With(requireJSON).With(authMiddleware).Route("/subscriptions", func(r chi.Router) {
 			r.Post("/", subscriptionsHandler.Create())
 			r.Get("/", subscriptionsHandler.List())
 			r.Route("/{subscriptionId}", func(r chi.Router) {
@@ -95,7 +99,7 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 				})
 			})
 		})
-		r.With(authMiddleware).Route("/items", func(r chi.Router) {
+		r.With(requireJSON).With(authMiddleware).Route("/items", func(r chi.Router) {
 			r.Route("/{itemId}", func(r chi.Router) {
 				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 					itemsHandler.Get(chi.URLParam(r, "itemId"))(w, r)
@@ -103,17 +107,17 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 			})
 			r.Get("/", itemsHandler.List(nil, nil))
 		})
-		r.With(authMiddleware).Route("/operations", func(r chi.Router) {
+		r.With(requireJSON).With(authMiddleware).Route("/operations", func(r chi.Router) {
 			r.Route("/{operationId}", func(r chi.Router) {
 				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 					operationsHandler.Get(chi.URLParam(r, "operationId"))(w, r)
 				})
 			})
 		})
-		r.Route("/users", func(r chi.Router) {
+		r.With(requireJSON).Route("/users", func(r chi.Router) {
 			r.Post("/", usersHandler.Create())
 		})
-		r.With(authMiddleware).Route("/tags", func(r chi.Router) {
+		r.With(requireJSON).With(authMiddleware).Route("/tags", func(r chi.Router) {
 			r.Post("/", tagsHandler.Create())
 			r.Get("/", tagsHandler.List())
 			r.Route("/{tagId}", func(r chi.Router) {
@@ -124,6 +128,9 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 					})
 				})
 			})
+		})
+		r.With(requireXML).With(authMiddleware).Route("/imports", func(r chi.Router) {
+			r.Post("/", importsHandler.Create())
 		})
 	})
 

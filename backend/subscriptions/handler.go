@@ -157,9 +157,9 @@ func (h *Handler) createSubscription(userID string, url *url.URL, tagIDs []strin
 			operation.Success(subscription)
 			status <- operation
 			return nil
-		case errors.Is(err, errFailedToDownloadSubscription),
-			errors.Is(err, errAlreadyExists),
-			errors.Is(err, errFailedToParseSubscription):
+		case errors.Is(err, ErrFailedToDownloadSubscription),
+			errors.Is(err, ErrAlreadyExists),
+			errors.Is(err, ErrFailedToParseSubscription):
 			operation.Error(err.Error())
 			status <- operation
 			return nil

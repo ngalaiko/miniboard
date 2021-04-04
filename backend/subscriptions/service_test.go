@@ -21,8 +21,8 @@ func Test__Create_subscription_failed_to_parse_subscription(t *testing.T) {
 	service := NewService(sqldb, cw, &testLogger{}, nil, &testItemsService{})
 
 	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
-	if err != errFailedToParseSubscription {
-		t.Fatalf("expected %s, got %s", errFailedToParseSubscription, err)
+	if err != ErrFailedToParseSubscription {
+		t.Fatalf("expected %s, got %s", ErrFailedToParseSubscription, err)
 	}
 }
 
@@ -34,8 +34,8 @@ func Test__Create_subscription_not_found(t *testing.T) {
 	service := NewService(sqldb, cw, &testLogger{}, nil, &testItemsService{})
 
 	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
-	if err != errFailedToDownloadSubscription {
-		t.Fatalf("expected %s, got %s", errFailedToDownloadSubscription, err)
+	if err != ErrFailedToDownloadSubscription {
+		t.Fatalf("expected %s, got %s", ErrFailedToDownloadSubscription, err)
 	}
 }
 
@@ -86,8 +86,8 @@ func Test__Create_twice(t *testing.T) {
 	}
 
 	_, secondErr := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
-	if secondErr != errAlreadyExists {
-		t.Fatalf("expected %s, got %s", errAlreadyExists, secondErr)
+	if secondErr != ErrAlreadyExists {
+		t.Fatalf("expected %s, got %s", ErrAlreadyExists, secondErr)
 	}
 }
 
