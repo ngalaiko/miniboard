@@ -257,16 +257,29 @@ document.querySelector('#tags-menu').addEventListener('SubscriptionCreate', (e) 
     )
 })
 
-document.querySelector('#tags-menu').addEventListener('TagCreate', (e) => {
+document.querySelector('#tags-menu').addEventListener('ImportCreate', (e) => {
     const params = e.detail.params
     const promise = e.detail.promise
 
-    promise.then((tag) => {
-        if (!!document.getElementById(tag.id)) return
+    promise.then((imported) => {
+        if (imported.tags) imported.tags.forEach((tag) => {
+            const html = renderTag(tag, [])
+            document.getElementById('tags-list').insertAdjacentHTML('afterbegin', html)
+        })
 
-        const html = renderTag(tag, [])
-        document.getElementById('tags-list').insertAdjacentHTML('afterbegin', html)
+        if (imported.subscriptions) imported.subscriptions.forEach((subscription) => {
+            const html = renderSubscription(subscription)
+            if (subscription.tag_ids.length == 0) {
+                document.getElementById('no-tags-list').insertAdjacentHTML('afterbegin', html)
+            } else {
+                subscription.tag_ids.forEach((tagId) => {
+                    document.getElementById(tagId).insertAdjacentHTML('afterbegin', html)
+                })
+            }
+        })
     })
+
+    addToastMessage(promise, `Importing file...`, () => `Imported`)
 })
 
 document.querySelector('#items-list').addEventListener('scroll', (e) => {
