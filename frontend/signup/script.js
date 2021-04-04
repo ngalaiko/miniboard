@@ -1,25 +1,34 @@
-import UsersService from '/services/users.js'
+const apiUrl = window.location.hostname !== 'localhost'
+    ? 'https://api.miniboard.app'
+    : 'http://localhost:80';
 
 const signupButton = document.getElementById('signup-button')
 const inputUsername = document.getElementById('username')
 const inputPassword = document.getElementById('password')
 
-const apiUrl = window.location.hostname == 'localhost'
-    ? 'http://localhost:80'
-    : 'https://api.miniboard.app'
-
 const handleButtonClick = async (e) => {
     e.preventDefault()
 
-    UsersService.create({
-        username: inputUsername.value,
-        password: inputPassword.value,
-    }).then(() => {
-        alert('You are now signed up')
-        document.location = '/login'
-    }).catch((error) => {
-        alert(`error: ${error}`)
+    const response = await fetch(apiUrl + '/v1/users', {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify({
+            username: inputUsername.value,
+            password: inputPassword.value,
+        }),
+        headers: new Headers({
+            "Content-Type": "application/json",
+        })
     })
+
+    const body = await response.json()
+    if (response.status !== 200) {
+        alert(`error: ${body.message}`)
+        return
+    }
+
+    alert('You are now signed up')
+    document.location = '/login'
 }
 
 signupButton.addEventListener('click', handleButtonClick)

@@ -1,8 +1,177 @@
-import TagsService from '/services/tags.js'
-import SubscriptionsService from '/services/subscriptions.js'
-import OperationsService from '/services/operations.js'
-import ItemsService from '/services/items.js'
-import ImportsService from '/services/imports.js'
+const apiUrl = window.location.hostname !== 'localhost'
+    ? 'https://api.miniboard.app'
+    : 'http://localhost:80';
+
+class API {
+    async get(url) {
+        return await this.fetch(url)
+    }
+
+    async post(url, request) {
+        return await this.fetch(url, {
+            method: 'POST',
+            body: JSON.stringify(request),
+            headers: new Headers({
+                "Content-Type": "application/json",
+            }),
+        })
+    }
+
+    async fetch(url, params) {
+        if (params == undefined) params = {}
+        params.credentials = 'include'
+
+        const response = await fetch(apiUrl + url, params)
+        const body = await response.json()
+        if (response.status !== 200) {
+            throw new Error(body.message)
+        }
+
+        return body
+    }
+}
+
+const Api = new API()
+
+class Subscriptions {
+    async list(params) {
+        if (params === undefined) params = {}
+
+        const pageSizeQuery = params.pageSize !== undefined
+            ? `&page_size=${params.pageSize}`
+            : ''
+
+        const createdLtQuery = params.createdLt !== undefined
+            ? `&created_lt=${encodeURIComponent(params.createdLt)}`
+            : ''
+
+        const url = '/v1/subscriptions/?' + pageSizeQuery + createdLtQuery
+
+        const body = await Api.get(url)
+
+        return body.subscriptions
+    }
+
+    async create(params) {
+        if (params === undefined) params = {}
+
+        const request = {
+            url: params.url,
+        }
+
+        if (params.tagIds !== undefined) {
+            request.tag_ids = params.tagIds
+        }
+
+        return await Api.post('/v1/subscriptions/', request)
+    }
+}
+
+class Items {
+    async get(id) {
+        return await Api.get(`/v1/items/${id}/`)
+    }
+
+    async list(params) {
+        if (params === undefined) params = {}
+
+        const pageSizeQuery = params.pageSize !== undefined
+            ? `&page_size=${params.pageSize}`
+            : ''
+
+        const createdLtQuery = params.createdLt !== undefined
+            ? `&created_lt=${encodeURIComponent(params.createdLt)}`
+            : ''
+
+        let url = ''
+        switch (true) {
+        case !!params.subscriptionId && !!params.tagId:
+            throw new Error('not implemented')
+        case !!params.subscriptionId:
+            url = `/v1/subscriptions/${params.subscriptionId}/items/?` + pageSizeQuery + createdLtQuery
+            break
+        case !!params.tagId:
+            url = `/v1/tags/${params.tagId}/items/?` + pageSizeQuery + createdLtQuery
+            break
+        default:
+            url = `/v1/items/?` + pageSizeQuery + createdLtQuery
+            break
+        }
+
+        const body = await Api.get(url)
+        return body.items
+    }
+}
+
+class Operations {
+    async get(id) {
+        return await Api.get(`/v1/operations/${id}/`)
+    }
+
+    async wait(id) {
+        const operation = await this.get(id)
+
+        switch (true) {
+        case !operation.done:
+            await new Promise(r => setTimeout(r, 1000))
+            return await this.wait(id)
+        case operation.result.error !== undefined:
+            throw new Error(operation.result.error.message)
+        case operation.result.response !== undefined:
+            return operation.result.response
+        default:
+            throw new Error(`invalid state for operation ${id}`)
+        }
+    }
+}
+
+class Imports {
+    async create(raw) {
+        return await Api.fetch('/v1/imports/', {
+            method: 'POST',
+            body: raw,
+            headers: new Headers({
+                "Content-Type": "application/xml",
+            }),
+        })
+    }
+}
+
+class Tags {
+    async list(params) {
+        if (params === undefined) params = {}
+
+        const pageSizeQuery = params.pageSize !== undefined
+            ? `&page_size=${params.pageSize}`
+            : ''
+
+        const createdLtQuery = params.createdLt !== undefined
+            ? `&created_lt=${encodeURIComponent(params.createdLt)}`
+            : ''
+
+        const url = '/v1/tags/?' + pageSizeQuery + createdLtQuery
+
+        const body = await Api.get(url)
+
+        return body.tags
+    }
+
+    async create(params) {
+        if (params === undefined) params = {}
+
+        const request = {
+            title: params.title,
+        }
+
+        return await Api.post('/v1/tags/', request)
+    }
+}
+
+const TagsService = new Tags()
+const OperationsService = new Operations()
+const ItemsService = new Items()
+const SubscriptionsService = new Subscriptions()
+const ImportsService = new Imports()
 
 const storeState = (key, value) => {
     const urlParams = new URLSearchParams(window.location.search.slice(1))
@@ -70,34 +239,26 @@ const listAllSubscriptions = async (pageSize, createdLt) => {
 }
 
 const renderSubscription = (subscription) => `
-    <div class="container" onclick="this.dispatchEvent(new CustomEvent('SubscriptionSelected', {
-        detail: {
-            id: '${subscription.id}',
-        },
-        bubbles: true,
-    }))">
-        <img class="icon" src="${!!subscription.icon_url ? subscription.icon_url : '/img/rss.svg'}"></img>
-        <div class="title">${subscription.title}</div>
+    <div class="container" onclick="onSubscriptionSelected('${subscription.id}')">
+        <img id="${subscription.id}-icon" class="icon" src="${!!subscription.icon_url ? subscription.icon_url : '/img/rss.svg'}"></img>
+        <div id="${subscription.id}-title" class="title">${subscription.title}</div>
     </div>
 `
 
+const toggleTag = (tagId) => {
+    const el = document.getElementById(tagId)
+    el.hidden = !el.hidden
+    document.getElementById(`${tagId}-arrow`).classList.toggle('rotate')
+}
+
 const renderTag = (tag, subscriptions) => `
     <div style="display:flex;align-items:center;cursor:pointer;">
-        <button type="button" style="background:none;border:none;padding:0;" onclick="
-            const el = document.getElementById('${tag.id}');
-            el.hidden = !el.hidden;
-            document.getElementById('${tag.id}-arrow').classList.toggle('rotate');
-            ">
+        <button type="button" style="background:none;border:none;padding:0;" onclick="toggleTag('${tag.id}')">
             <svg id="${tag.id}-arrow" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="9 18 15 12 9 6"></polyline>
             </svg>
         </button>
-        <div class="title" onclick="this.dispatchEvent(new CustomEvent('TagSelected', {
-        detail: {
-            id: '${tag.id}',
-        },
-        bubbles: true,
-    }))">${tag.title}</div>
+        <div class="title" onclick="onTagSelected('${tag.id}')">${tag.title}</div>
     </div>
     <div id="${tag.id}" hidden>
         ${subscriptions.map(renderSubscription).join('')}
@@ -212,9 +373,7 @@ const displayItems = (target, items) => {
     })
 }
 
-document.querySelector('#tags-menu').addEventListener('SubscriptionSelected', async (e) => {
-    const subscriptionId = e.detail.id
-
+const onSubscriptionSelected = (subscriptionId) => {
     deleteState('tag')
     storeState('subscription', subscriptionId)
 
@@ -223,11 +382,9 @@ document.querySelector('#tags-menu').addEventListener('SubscriptionSelected', as
         list.innerHTML = ''
         displayItems(list, items)
     })
-})
+}
 
-document.querySelector('#tags-menu').addEventListener('TagSelected', async (e) => {
-    const tagId = e.detail.id
-
+const onTagSelected = (tagId) => {
     deleteState('subscription')
     storeState('tag', tagId)
 
@@ -236,7 +393,7 @@ document.querySelector('#tags-menu').addEventListener('TagSelected', async (e) =
         list.innerHTML = ''
         displayItems(list, items)
     })
-})
+}
 
 document.querySelector('#items-list').addEventListener('scroll', (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target
