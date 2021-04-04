@@ -1,11 +1,13 @@
 import TagsService from '/services/tags.js'
 import SubscriptionsService from '/services/subscriptions.js'
+import OperationsService from '/services/operations.js'
 import ItemsService from '/services/items.js'
+import ImportsService from '/services/imports.js'
 
 const storeState = (key, value) => {
     const urlParams = new URLSearchParams(window.location.search.slice(1))
 
-    if (urlParams.get(key) === value) return 
+    if (urlParams.get(key) === value) return
 
     urlParams.set(key, value)
 
@@ -57,7 +59,7 @@ const listAllSubscriptions = async (pageSize, createdLt) => {
     if (createdLt !== undefined) params.createdLt = createdLt
 
     const tags = await SubscriptionsService.list(params)
-    
+
     if (tags.length < pageSize) {
         return tags
     }
@@ -236,52 +238,6 @@ document.querySelector('#tags-menu').addEventListener('TagSelected', async (e) =
     })
 })
 
-document.querySelector('#tags-menu').addEventListener('SubscriptionCreate', (e) => {
-    const params = e.detail.params
-    const promise = e.detail.promise
-
-    promise.then((subscription) => {
-        const html = renderSubscription(subscription)
-        if (subscription.tag_ids.length == 0) {
-            document.getElementById('no-tags-list').insertAdjacentHTML('afterbegin', html)
-        } else {
-            subscription.tag_ids.forEach((tagId) => {
-                document.getElementById(tagId).insertAdjacentHTML('afterbegin', html)
-            })
-        }
-    })
-
-    addToastMessage(promise,
-        `Subscribing: ${params.url}`,
-        (subscription) => `Subscribed: ${subscription.title}`,
-    )
-})
-
-document.querySelector('#tags-menu').addEventListener('ImportCreate', (e) => {
-    const params = e.detail.params
-    const promise = e.detail.promise
-
-    promise.then((imported) => {
-        if (imported.tags) imported.tags.forEach((tag) => {
-            const html = renderTag(tag, [])
-            document.getElementById('tags-list').insertAdjacentHTML('afterbegin', html)
-        })
-
-        if (imported.subscriptions) imported.subscriptions.forEach((subscription) => {
-            const html = renderSubscription(subscription)
-            if (subscription.tag_ids.length == 0) {
-                document.getElementById('no-tags-list').insertAdjacentHTML('afterbegin', html)
-            } else {
-                subscription.tag_ids.forEach((tagId) => {
-                    document.getElementById(tagId).insertAdjacentHTML('afterbegin', html)
-                })
-            }
-        })
-    })
-
-    addToastMessage(promise, `Importing file...`, () => `Imported`)
-})
-
 document.querySelector('#items-list').addEventListener('scroll', (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target
     const needMore = scrollTop + clientHeight >= scrollHeight - 50
@@ -304,6 +260,105 @@ document.querySelector('#items-list').addEventListener('scroll', (e) => {
     }).then((items) => {
         displayItems(document.querySelector('#items-list'), items)
     })
+})
+
+window.addEventListener('keydown', (e) => {
+    if (isModalClosed()) return
+
+    switch (e.key) {
+    case 'Enter':
+        closeModal()
+
+        const url = document.querySelector("#input-url").value
+        if (url === '') return
+
+        document.querySelector("#input-url").value = ''
+
+        const promise = SubscriptionsService.create({
+            url: url,
+        }).then((operation) => OperationsService.wait(operation.id))
+
+        promise.then((subscription) => {
+            const html = renderSubscription(subscription)
+            subscriptionById.set(subscription.id, subscription)
+            if (subscription.tag_ids.length == 0) {
+                document.getElementById('no-tags-list').insertAdjacentHTML('afterbegin', html)
+            } else {
+                subscription.tag_ids.forEach((tagId) => {
+                    document.getElementById(tagId).insertAdjacentHTML('afterbegin', html)
+                })
+            }
+        })
+
+        addToastMessage(promise,
+            `Subscribing: ${url}`,
+            (subscription) => `Subscribed: ${subscription.title}`,
+        )
+        break
+    case 'Escape':
+        closeModal()
+        break
+    }
+})
+
+document.querySelector("#input-file").addEventListener('change', async (e) => {
+    const files = e.target.files
+
+    closeModal()
+
+    if (files.length === 0) return
+
+    const promise = new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsBinaryString(files[0])
+        reader.onload = e => {
+            resolve(e.target.result)
+        }
+        reader.onerror = () => reject(new Error('failed to read file'))
+    })
+    .then((raw) => ImportsService.create(raw))
+    .then((operation) => OperationsService.wait(operation.id))
+
+    promise.then((imported) => {
+        if (imported.tags) imported.tags.forEach((tag) => {
+            const html = renderTag(tag, [])
+            document.getElementById('tags-list').insertAdjacentHTML('afterbegin', html)
+        })
+
+        if (imported.subscriptions) imported.subscriptions.forEach((subscription) => {
+            subscriptionById.set(subscription.id, subscription)
+            const html = renderSubscription(subscription)
+            if (subscription.tag_ids.length == 0) {
+                document.getElementById('no-tags-list').insertAdjacentHTML('afterbegin', html)
+            } else {
+                subscription.tag_ids.forEach((tagId) => {
+                    document.getElementById(tagId).insertAdjacentHTML('afterbegin', html)
+                })
+            }
+        })
+    })
+
+    addToastMessage(promise, `Importing file...`, () => `Imported`)
+})
+
+const isModalClosed = () => {
+    return document.querySelector('#modal').hidden
+}
+
+const closeModal = () => {
+    document.querySelector('#modal').hidden = true
+}
+
+const showModal = () => {
+    document.querySelector('#modal').hidden = false
+}
+
+document.querySelector("#background").addEventListener('click', () => {
+    if (!isModalClosed()) closeModal()
+})
+
+document.querySelector('#add-button').addEventListener('click', () => {
+    showModal()
 })
 
 const subscriptionById = new Map()

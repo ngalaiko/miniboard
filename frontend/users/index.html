@@ -15,19 +15,31 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5" />
-
-    <script type="module" src="/users/components/add-button.js"></script>
 </head>
 
 <body>
     <div id="tags-menu">
-        <x-add-button id="add-button"></x-add-button>
+        <button id="add-button" type="button" style="width:100%;font-size:larger;">Add</button>
         <div id="tags-list"></div>
         <div id="no-tags-list"></div>
     </div>
     <div id="items-list" class="list"></div>
     <div id="reader"></div>
     <div id="toasts-container"></div>
+    <div id="modal" hidden>
+        <div id="background"></div>
+        <div id="content">
+            <input id="input-url" placeholder="Link, RSS" />
+            <input type="file" id="input-file" />
+            <label for="input-file" id="input-icon">
+                <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+            </label>
+        </div>
+    </div>
 
     <script type="module" src="/users/script.js"></script>
 </body>
