@@ -7,7 +7,12 @@
 
     <title>Miniboard</title>
 
-    <link rel="stylesheet" href="/style.common.css" />
+    <link rel="stylesheet" href="/vendor/purecss@2.0.5/base-min.css" />
+    <link rel="stylesheet" href="/vendor/purecss@2.0.5/buttons-min.css" />
+    <link rel="stylesheet" href="/vendor/purecss@2.0.5/menus-min.css" />
+    <link rel="stylesheet" href="/vendor/purecss@2.0.5/grids-min.css" />
+    <link rel="stylesheet" href="/vendor/purecss@2.0.5/grids-responsive-min.css" />
+
     <link rel="stylesheet" href="/users/style.css" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png" />
@@ -18,14 +23,23 @@
 </head>
 
 <body>
-    <div id="tags-menu">
-        <button id="add-button" type="button" style="width:100%;font-size:larger;">Add</button>
-        <div id="tags-list"></div>
-        <div id="no-tags-list"></div>
+    <div id="layout" class="pure-g">
+        <div id="menu" class="pure-u-5-24">
+            <button id="add-button" class="pure-button pure-button-primary">Add</button>
+            <div class="pure-menu pure-menu-scrollable">
+                <ul id="tags-list" class="pure-menu-list"></ul>
+                <ul id="no-tags-list" class="pure-menu-list"></ul>
+            </div>
+        </div>
+        <div id="items-list" class="pure-u-5-24">
+        </div>
+        <div id="content" class="pure-u-14-24">
+            <div id="reader"></div>
+        </div>
     </div>
-    <div id="items-list" class="list"></div>
-    <div id="reader"></div>
-    <div id="toasts-container"></div>
+
+    <div id="toasts-container" hidden></div>
+
     <div id="modal" hidden>
         <div id="background"></div>
         <div id="content">

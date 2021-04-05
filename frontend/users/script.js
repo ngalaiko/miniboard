@@ -239,30 +239,34 @@ const listAllSubscriptions = async (pageSize, createdLt) => {
 }
 
 const renderSubscription = (subscription) => `
-    <div class="container" onclick="onSubscriptionSelected('${subscription.id}')">
-        <img id="${subscription.id}-icon" class="icon" src="${!!subscription.icon_url ? subscription.icon_url : '/img/rss.svg'}"></img>
-        <div id="${subscription.id}-title" class="title">${subscription.title}</div>
-    </div>
+    <li class="pure-menu-item">
+        <a href="#" class="pure-menu-link title-oneline">
+            <img width="20px" height="20px" src="${!!subscription.icon_url ? subscription.icon_url : '/img/rss.svg'}"></img>
+            <span onclick="onSubscriptionSelected('${subscription.id}')">${subscription.title}</span>
+        </a>
+    </li>
 `
 
 const toggleTag = (tagId) => {
-    const el = document.getElementById(tagId)
-    el.hidden = !el.hidden
-    document.getElementById(`${tagId}-arrow`).classList.toggle('rotate')
+    const children = document.getElementById(`${tagId}-children`)
+    children.hidden = !children.hidden
+    document.getElementById(`${tagId}-arrow`).classList.toggle('rotate-90')
 }
 
 const renderTag = (tag, subscriptions) => `
-    <div style="display:flex;align-items:center;cursor:pointer;">
-        <button type="button" style="background:none;border:none;padding:0;" onclick="toggleTag('${tag.id}')">
-            <svg id="${tag.id}-arrow" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-        </button>
-        <div class="title" onclick="onTagSelected('${tag.id}')">${tag.title}</div>
-    </div>
-    <div id="${tag.id}" hidden>
-        ${subscriptions.map(renderSubscription).join('')}
-    </div>
+    <li class="pure-menu-item">
+        <a href="#" class="pure-menu-link">
+            <button class="pure-button button-hidden" onclick="toggleTag('${tag.id}')" >
+                <svg id="${tag.id}-arrow" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+            <span onclick="onTagSelected('${tag.id}')">${tag.title}</span>
+        </a>
+        <ul id="${tag.id}-children" class="pure-menu-children" hidden>
+            ${subscriptions.map(renderSubscription).join('')}
+        </ul>
+    </li>
 `
 
 const renderTags = (tags, subscriptions) => {
@@ -316,38 +320,16 @@ const addToastMessage = async (promise, message, onSuccess) => {
     document.querySelector('#toasts-container').insertAdjacentHTML('afterbegin', html)
 }
 
-const renderItemCreated = (created) => {
-    if (!created) return  '<div class="item-date">N/A</div>'
-    const date = new Date(created)
-    const formatter = Intl.DateTimeFormat(undefined, {
-        year: 'numeric',
-        month: 'numeric',
-        day: 'numeric',
-    })
-    return `<div title="${date.toLocaleString()}" class="item-date">${formatter.format(date)}</div>`
-}
-
-const renderItemSubscriptionTitle = (subscription) => `
-    <div style="font-size:smaller;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
-        ${subscription.title}
-    </div>
-`
-
 const renderItemSubscriptionIcon = (subscription) => !!subscription.icon_url
-    ? `<img class="small-icon" src="${subscription.icon_url}"></img>`
-    : `<img class="small-icon" src="/img/rss.svg"></img>`
-
-const renderItemSubscription = (subscription) => `
-    ${renderItemSubscriptionIcon(subscription)}
-    ${renderItemSubscriptionTitle(subscription)}
-`
+    ? `<img class="item-subscription-icon" width="20" height="20" src="${subscription.icon_url}"></img>`
+    : `<img class="item-subscription-icon" width="20" height="20" src="/img/rss.svg"></img>`
 
 const renderItem = (item, subscription) => `
-    <div id="${item.id}" class="container item-container" created="${item.created}">
-        <div class="item-title">${item.title}</div>
-        <div class="container-footer">
-            ${renderItemSubscription(subscription)}
-            ${renderItemCreated(item.created)}
+    <div class="item pure-g" created="${item.created}" onclick="onItemSelected('${item.id}')">
+        <div class="pure-u">${renderItemSubscriptionIcon(subscription)}</div>
+        <div class="pure-u-3-4">
+            <h5 class="item-subscription-title">${subscription.title}</h5>
+            <h4 class="item-title">${item.title}</h4>
         </div>
     </div>
 `
@@ -362,15 +344,11 @@ const displayReader = (target, item) => {
 }
 
 const displayItems = (target, items) => {
-    items.map((item) => {
-        const template = document.createElement('template')
-        template.innerHTML = renderItem(item, subscriptionById.get(item.subscription_id))
-        target.appendChild(template.content)
-        document.getElementById(item.id).addEventListener('click', () => {
-            storeState('item', item.id)
-            displayReader(document.getElementById('reader'), item)
-        })
-    })
+    const html = items.map((item) => {
+        return renderItem(item, subscriptionById.get(item.subscription_id))
+    }).join('')
+
+    target.insertAdjacentHTML('beforeend', html)
 }
 
 const onSubscriptionSelected = (subscriptionId) => {
@@ -381,6 +359,13 @@ const onSubscriptionSelected = (subscriptionId) => {
         const list = document.querySelector('#items-list')
         list.innerHTML = ''
         displayItems(list, items)
+    })
+}
+
+const onItemSelected = (itemId) => {
+    storeState('item', itemId)
+    ItemsService.get(itemId).then((item) => {
+        displayReader(document.querySelector('#reader'), item)
     })
 }
 
@@ -548,8 +533,8 @@ Promise.all([
     subscriptions.forEach(s => subscriptionById.set(s.id, s))
 
     const list = document.querySelector('#items-list')
-    displayItems(list, itemsBySubscription)
-    displayItems(list, itemsByTag)
+    if (itemsBySubscription.length > 0) displayItems(list, itemsBySubscription)
+    if (itemsByTag.length > 0) displayItems(list, itemsByTag)
 
     document.querySelector("#tags-list").innerHTML = renderTags(tags, subscriptions)
     document.querySelector("#no-tags-list").innerHTML = subscriptions.filter(s => s.tag_ids.length === 0)

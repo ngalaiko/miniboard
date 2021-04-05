@@ -1,31 +1,34 @@
-summary:focus {
-    outline-style: none;
+.pure-menu-children {
+    position: unset;
+    margin-left: 1em;
+    display: block;
 }
 
-#tags-menu,#items-list {
-    display: flex;
-    flex-direction: column;
-
-    width: 20%;
-    max-width: 20%;
-
-    overflow-y: auto;
+.button-hidden {
+    padding: 0;
 }
 
-.container {
-    display: flex;
+.button-hidden, .button-hidden:active, .button-hidden:focus, .button-hidden:hover {
+    background: none;
+    box-shadow: none;
+}
+
+.rotate-90 {
+    transform: rotate(90deg);
+}
+
+.title-oneline {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.item {
     cursor: pointer;
-    width: 100%;
-
-    align-items: center;
-    padding: 0.2em;
+    padding: 0.9em 1em;
 }
 
-.item-container {
-    flex-direction: column;
-}
-
-.item-container .item-title {
+.item-title {
     text-overflow: ellipsis;
     overflow: hidden;
     display: -webkit-box !important;
@@ -35,46 +38,34 @@ summary:focus {
     width: 100%;
 }
 
-.item-container .item-date {
-    font-size: smaller;
+.item-title, .item-subscription-title {
+    margin: 0;
 }
 
-.item-container .container-footer {
-    display: flex;
-    align-items: center;
-    width: 100%;
+.item-subscription-title {
+    color: #999;
 }
 
-.rotate {
-    transform: rotate(90deg);
+.item-subscription-icon {
+    border-radius: 3px;
+    margin-right: 0.5em;
 }
 
-button {
-    cursor: pointer;
+#reader {
+    padding: 1em;
 }
 
-button:active {
-    color: black;
+html, body, #layout, #menu, #items-list, #content {
+    height: 100%;
 }
 
-.container .title {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+#menu, #items-list, #content {
+    overflow-y: scroll;
 }
 
-.container .small-icon {
-    margin-right: 0.15em;
-    min-width: 15px;
-    width: 15px;
-    height: 15px;
-}
-
-.container .icon {
-    margin-right: 0.2em;
-    min-width: 20px;
-    width: 20px;
-    height: 20px;
+#add-button {
+    width:100%;
+    font-size:larger;
 }
 
 #toasts-container {
@@ -130,15 +121,6 @@ button:active {
 
 .toast-container.show {
     visibility: visible;
-}
-
-#reader {
-    display: flex;
-    width: 60%;
-    max-width: 60%;
-    padding: 1em;
-    flex-direction: column;
-    overflow-y: scroll;
 }
 
 #modal #background {
