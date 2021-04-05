@@ -34,24 +34,6 @@ func (d *database) Create(ctx context.Context, tag *Tag) error {
 	return nil
 }
 
-// Get returns a tag from the db with the given id and user id.
-func (d *database) GetByID(ctx context.Context, userID string, id string) (*Tag, error) {
-	row := d.db.QueryRowContext(ctx, `
-	SELECT
-		id,
-		user_id,
-		title,
-		created_epoch
-	FROM
-		tags
-	WHERE
-		id = $1
-		AND user_id = $2
-	`, id, userID)
-
-	return d.scanRow(row)
-}
-
 // Get returns a tag from the db with the given title and user id.
 func (d *database) GetByTitle(ctx context.Context, userID string, title string) (*Tag, error) {
 	row := d.db.QueryRowContext(ctx, `

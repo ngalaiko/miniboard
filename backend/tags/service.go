@@ -48,19 +48,6 @@ func (s *Service) Create(ctx context.Context, userID string, title string) (*Tag
 	return tag, nil
 }
 
-// Get returns a tag by it's id.
-func (s *Service) Get(ctx context.Context, id string, userID string) (*Tag, error) {
-	tag, err := s.db.GetByID(ctx, id, userID)
-	switch {
-	case err == nil:
-		return tag, nil
-	case errors.Is(err, sql.ErrNoRows):
-		return nil, ErrNotFound
-	default:
-		return nil, err
-	}
-}
-
 // GetByTitle returns a tag by it's id.
 func (s *Service) GetByTitle(ctx context.Context, userID string, title string) (*Tag, error) {
 	tag, err := s.db.GetByTitle(ctx, userID, title)

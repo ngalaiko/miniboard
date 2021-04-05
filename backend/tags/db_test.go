@@ -67,52 +67,6 @@ func Test_db__GetByTitle_not_found(t *testing.T) {
 	}
 }
 
-func Test_db__GetByID_not_found(t *testing.T) {
-	ctx := context.TODO()
-	db := newDB(createTestDB(ctx, t))
-
-	tag := &Tag{
-		ID:      "test id",
-		UserID:  "user",
-		Title:   "title",
-		Created: time.Now().Add(-1 * time.Hour),
-	}
-
-	fromDB, err := db.GetByID(ctx, tag.UserID, tag.Title)
-	if fromDB != nil {
-		t.Fatalf("nothing should be returned, got %+v", fromDB)
-	}
-
-	if err != sql.ErrNoRows {
-		t.Fatalf("expected %s, got %s", sql.ErrNoRows, err)
-	}
-}
-
-func Test_db__GetByID(t *testing.T) {
-	ctx := context.TODO()
-	db := newDB(createTestDB(ctx, t))
-
-	tag := &Tag{
-		ID:      "test id",
-		UserID:  "user",
-		Title:   "title",
-		Created: time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond),
-	}
-
-	if err := db.Create(ctx, tag); err != nil {
-		t.Fatalf("failed to create a tag: %s", err)
-	}
-
-	fromDB, err := db.GetByID(ctx, tag.UserID, tag.ID)
-	if err != nil {
-		t.Fatalf("failed to get tag from the db: %s", err)
-	}
-
-	if !reflect.DeepEqual(tag, fromDB) {
-		t.Fatalf("expected %+v, got %+v", tag, fromDB)
-	}
-}
-
 func Test_db__GetByTitle(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t))
