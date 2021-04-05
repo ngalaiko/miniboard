@@ -419,6 +419,18 @@ document.querySelector('#items-list').addEventListener('scroll', (e) => {
     })
 })
 
+const displaySubscription = (subscription) => {
+    const html = renderSubscription(subscription)
+    subscriptionById.set(subscription.id, subscription)
+    if (subscription.tag_ids.length == 0) {
+        document.getElementById('no-tags-list').insertAdjacentHTML('afterbegin', html)
+    } else {
+        subscription.tag_ids.forEach((tagId) => {
+            document.getElementById(tagId).insertAdjacentHTML('afterbegin', html)
+        })
+    }
+}
+
 window.addEventListener('keydown', (e) => {
     if (isModalClosed()) return
 
@@ -435,17 +447,7 @@ window.addEventListener('keydown', (e) => {
             url: url,
         }).then((operation) => OperationsService.wait(operation.id))
 
-        promise.then((subscription) => {
-            const html = renderSubscription(subscription)
-            subscriptionById.set(subscription.id, subscription)
-            if (subscription.tag_ids.length == 0) {
-                document.getElementById('no-tags-list').insertAdjacentHTML('afterbegin', html)
-            } else {
-                subscription.tag_ids.forEach((tagId) => {
-                    document.getElementById(tagId).insertAdjacentHTML('afterbegin', html)
-                })
-            }
-        })
+        promise.then(displaySubscription)
 
         addToastMessage(promise,
             `Subscribing: ${url}`,
@@ -482,17 +484,7 @@ document.querySelector("#input-file").addEventListener('change', async (e) => {
             document.getElementById('tags-list').insertAdjacentHTML('afterbegin', html)
         })
 
-        if (imported.subscriptions) imported.subscriptions.forEach((subscription) => {
-            subscriptionById.set(subscription.id, subscription)
-            const html = renderSubscription(subscription)
-            if (subscription.tag_ids.length == 0) {
-                document.getElementById('no-tags-list').insertAdjacentHTML('afterbegin', html)
-            } else {
-                subscription.tag_ids.forEach((tagId) => {
-                    document.getElementById(tagId).insertAdjacentHTML('afterbegin', html)
-                })
-            }
-        })
+        if (imported.subscriptions) imported.subscriptions.forEach(displaySubscription)
     })
 
     addToastMessage(promise, `Importing file...`, () => `Imported`)
