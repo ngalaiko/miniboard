@@ -108,14 +108,31 @@ func (d *database) List(ctx context.Context,
 		items.summary
 	FROM
 		items
-			JOIN users_subscriptions on users_subscriptions.subscription_id = items.subscription_id AND users_subscriptions.user_id = $1
+			JOIN users_subscriptions ON users_subscriptions.subscription_id = items.subscription_id
 	`)
+
+	if tagID != nil {
+		query.WriteString(`
+			JOIN tags_subscriptions ON tags_subscriptions.subscription_id = items.subscription_id
+		`)
+	}
+
 	args := []interface{}{userID}
+	query.WriteString(fmt.Sprintf(`
+	WHERE users_subscriptions.user_id = $%d
+	`, len(args)))
+
+	if createdLT != nil {
+		args = append(args, createdLT.UnixNano())
+		query.WriteString(fmt.Sprintf(`
+		AND items.created_epoch < $%d
+		`, len(args)))
+	}
 
 	if tagID != nil {
 		args = append(args, *tagID)
 		query.WriteString(fmt.Sprintf(`
-			JOIN tags_subscriptions on tags_subscriptions.subscription_id = users_subscriptions.subscription_id AND tags_subscriptions.tag_id = $%d
+		AND tags_subscriptions.tag_id = $%d
 		`, len(args)))
 	}
 
@@ -123,13 +140,6 @@ func (d *database) List(ctx context.Context,
 		args = append(args, *subscriptionID)
 		query.WriteString(fmt.Sprintf(`
 		AND items.subscription_id = $%d
-		`, len(args)))
-	}
-
-	if createdLT != nil {
-		args = append(args, createdLT.UnixNano())
-		query.WriteString(fmt.Sprintf(`
-		AND items.created_epoch < $%d
 		`, len(args)))
 	}
 
