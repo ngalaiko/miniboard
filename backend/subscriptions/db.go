@@ -224,18 +224,22 @@ func (d *database) List(ctx context.Context,
 		%s
 	FROM
 		subscriptions
-			JOIN users_subscriptions ON subscriptions.id = users_subscriptions.subscription_id AND users_subscriptions.user_id = $1
+			JOIN users_subscriptions ON subscriptions.id = users_subscriptions.subscription_id
 			LEFT JOIN tags_subscriptions ON subscriptions.id = tags_subscriptions.subscription_id
 			LEFT JOIN tags ON tags.id = tags_subscriptions.tag_id AND tags.user_id = users_subscriptions.user_id
 	`, sqlFields(d.db)))
 
 	args := []interface{}{userID}
 
+	query.WriteString(fmt.Sprintf(`
+	WHERE
+		users_subscriptions.user_id = $%d
+	`, len(args)))
+
 	if createdLT != nil {
 		args = append(args, createdLT.UnixNano())
 		query.WriteString(fmt.Sprintf(`
-	WHERE
-		subscriptions.created_epoch < $%d
+		AND subscriptions.created_epoch < $%d
 		`, len(args)))
 	}
 	args = append(args, limit)

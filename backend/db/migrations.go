@@ -125,5 +125,12 @@ func migrations(db *sql.DB) []*migration {
 			ON items (subscription_id, created_epoch)
 			`,
 		},
+		{
+			Name: "create subscriptions_url_ix",
+			Query: `
+			CREATE INDEX subscriptions_url_ix
+			ON subscriptions (url)
+			`,
+		},
 	}
 }
