@@ -320,7 +320,7 @@ const addToastMessage = async (promise, message, onSuccess) => {
     document.querySelector('#toasts-container').insertAdjacentHTML('afterbegin', html)
 }
 
-const renderItemSubscriptionIcon = (subscription) => !!subscription.icon_url
+const renderItemSubscriptionIcon = (subscription) => !!subscription && !!subscription.icon_url
     ? `<img class="item-subscription-icon" width="20" height="20" src="${subscription.icon_url}"></img>`
     : `<img class="item-subscription-icon" width="20" height="20" src="/img/rss.svg"></img>`
 
