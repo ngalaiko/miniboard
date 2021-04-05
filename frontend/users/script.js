@@ -241,7 +241,7 @@ const listAllSubscriptions = async (pageSize, createdLt) => {
 const renderSubscription = (subscription) => `
     <li class="pure-menu-item">
         <a href="#" class="pure-menu-link title-oneline">
-            <img width="20px" height="20px" src="${!!subscription.icon_url ? subscription.icon_url : '/img/rss.svg'}"></img>
+            <img class="subscription-icon" width="20px" height="20px" src="${!!subscription.icon_url ? subscription.icon_url : '/img/rss.svg'}"></img>
             <span onclick="onSubscriptionSelected('${subscription.id}')">${subscription.title}</span>
         </a>
     </li>
@@ -321,8 +321,8 @@ const addToastMessage = async (promise, message, onSuccess) => {
 }
 
 const renderItemSubscriptionIcon = (subscription) => !!subscription && !!subscription.icon_url
-    ? `<img class="item-subscription-icon" width="20" height="20" src="${subscription.icon_url}"></img>`
-    : `<img class="item-subscription-icon" width="20" height="20" src="/img/rss.svg"></img>`
+    ? `<img class="subscription-icon" width="20" height="20" src="${subscription.icon_url}"></img>`
+    : `<img class="subscription-icon" width="20" height="20" src="/img/rss.svg"></img>`
 
 const renderItem = (item, subscription) => `
     <div class="item pure-g" created="${item.created}" onclick="onItemSelected('${item.id}')">
