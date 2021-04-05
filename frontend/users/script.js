@@ -408,9 +408,8 @@ document.querySelector('#items-list').addEventListener('scroll', (e) => {
 
     document.querySelector('#items-list').insertAdjacentHTML('beforeend', '<div class="page-separator"></div')
 
-    const pageSize = 100
     ItemsService.list({
-        pageSize: pageSize,
+        pageSize: 50,
         subscriptionId: subscriptionId,
         tagId: tagId,
         createdLt: createdLt,
@@ -516,6 +515,7 @@ const listItemsBySubscription = async (subscriptionId) => {
     if (!subscriptionId) return []
 
     return await ItemsService.list({
+        pageSize: 50,
         subscriptionId: subscriptionId,
     })
 }
@@ -524,6 +524,7 @@ const listItemsByTag = async (tagId) => {
     if (!tagId) return []
 
     return await ItemsService.list({
+        pageSize: 50,
         tagId: tagId,
     })
 }
