@@ -4,11 +4,9 @@
     display: block;
 }
 
-.button-hidden {
-    padding: 0;
-}
-
 .button-hidden, .button-hidden:active, .button-hidden:focus, .button-hidden:hover {
+    border: 0;
+    padding: 0;
     background: none;
     box-shadow: none;
 }
@@ -17,14 +15,25 @@
     transform: rotate(90deg);
 }
 
-.title-oneline {
+ .item-subscription-title, .subscription-title, .tag-title {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
 }
 
-.item {
+.tag, .subscription, .item {
     cursor: pointer;
+}
+
+.tag, .subscription {
+    padding: .5em 1em;
+}
+
+.tag-subscriptions {
+    padding-left: 0.5em;
+}
+
+.item {
     padding: 0.9em 1em;
 }
 
@@ -46,7 +55,7 @@
     color: #999;
 }
 
-.subscription-icon {
+.tag-arrow, .subscription-icon {
     border-radius: 3px;
     margin-right: 0.5em;
 }

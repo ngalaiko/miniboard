@@ -239,12 +239,10 @@ const listAllSubscriptions = async (pageSize, createdLt) => {
 }
 
 const renderSubscription = (subscription) => `
-    <li class="pure-menu-item">
-        <a href="#" class="pure-menu-link title-oneline">
-            <img class="subscription-icon" width="20px" height="20px" src="${!!subscription.icon_url ? subscription.icon_url : '/img/rss.svg'}"></img>
-            <span onclick="onSubscriptionSelected('${subscription.id}')">${subscription.title}</span>
-        </a>
-    </li>
+    <div class="subscription pure-g" style="text-align: left;" onclick="onSubscriptionSelected('${subscription.id}')">
+        <img class="pure-u subscription-icon" width="20px" height="20px" src="${!!subscription.icon_url ? subscription.icon_url : '/img/rss.svg'}"></img>
+        <span class="pure-u-3-4 subscription-title">${subscription.title}</span>
+    </div>
 `
 
 const toggleTag = (tagId) => {
@@ -254,19 +252,19 @@ const toggleTag = (tagId) => {
 }
 
 const renderTag = (tag, subscriptions) => `
-    <li class="pure-menu-item">
-        <a href="#" class="pure-menu-link">
-            <button class="pure-button button-hidden" onclick="toggleTag('${tag.id}')" >
-                <svg id="${tag.id}-arrow" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-            </button>
-            <span onclick="onTagSelected('${tag.id}')">${tag.title}</span>
-        </a>
-        <ul id="${tag.id}-children" class="pure-menu-children" hidden>
-            ${subscriptions.map(renderSubscription).join('')}
-        </ul>
-    </li>
+    <div class="tag pure-g">
+        <button class="pure-u pure-button button-hidden" style="text-align: left;" onclick="toggleTag('${tag.id}')" >
+            <svg id="${tag.id}-arrow" class="tag-arrow" viewBox="0 0 20 20" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+        <button class="pure-u-3-4 pure-button button-hidden tag-title" style="text-align: left;" onclick="onTagSelected('${tag.id}')">
+            ${tag.title}
+        </button>
+    </div>
+    <div id="${tag.id}-children" class="tag-subscriptions" hidden>
+        ${subscriptions.map(renderSubscription).join('')}
+    </div>
 `
 
 const renderTags = (tags, subscriptions) => {
