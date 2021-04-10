@@ -1,6 +1,6 @@
 module github.com/ngalaiko/miniboard/backend
 
-go 1.14
+go 1.16
 
 require (
 	github.com/go-chi/chi/v5 v5.0.2

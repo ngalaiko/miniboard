@@ -2,7 +2,7 @@ name: miniboard-backend
 region: ams
 
 domains:
-- domain: api.miniboard.app
+- domain: miniboard.app
   type: PRIMARY
 
 services:
@@ -19,9 +19,6 @@ services:
   - key: MINIBOARD_HTTP_ADDR
     scope: RUN_TIME
     value: ":8080"
-  - key: MINIBOARD_HTTP_CORS_ALLOWED_ORIGINS
-    scope: RUN_TIME
-    value: "https://miniboard.app,https://docs.miniboard.app"
   - key: MINIBOARD_DB_DRIVER
     scope: RUN_TIME
     value: sqlite3
@@ -33,7 +30,7 @@ services:
     value: "1"
   - key: MINIBOARD_AUTHORIZATIONS_DOMAIN
     scope: RUN_TIME
-    value: "api.miniboard.app"
+    value: "miniboard.app"
   - key: MINIBOARD_AUTHORIZATIONS_SECURE
     scope: RUN_TIME
     value: "true"

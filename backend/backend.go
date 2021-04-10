@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ngalaiko/miniboard/backend/authorizations"
@@ -22,6 +21,7 @@ import (
 	"github.com/ngalaiko/miniboard/backend/subscriptions"
 	"github.com/ngalaiko/miniboard/backend/tags"
 	"github.com/ngalaiko/miniboard/backend/users"
+	"github.com/ngalaiko/miniboard/backend/web"
 )
 
 // Config contains all server configuration.
@@ -32,6 +32,7 @@ type Config struct {
 	Operations     *operations.Config     `yaml:"operations"`
 	Subscriptions  *subscriptions.Config  `yaml:"subscriptions"`
 	Users          *users.Config          `yaml:"users"`
+	Web            *web.Config            `yaml:"web"`
 }
 
 // Server is the main object.
@@ -66,6 +67,7 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	tagsHandler := tags.NewHandler(tagsService, log)
 	usersHandler := users.NewHandler(usersService, log)
 	importsHandler := imports.NewHandler(log, tagsService, subscriptionsService, operationsService)
+	webHandler := web.NewHandler(cfg.Web, log)
 
 	authMiddleware := authorizations.Middleware(authorizationsService, cfg.Authorizations, log)
 
@@ -75,14 +77,6 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	r := chi.NewRouter()
 	r.Use(logger.Middleware(log))
 	r.Use(middleware.Recoverer)
-	if cfg.HTTP.CORS != nil {
-		r.Use(cors.Handler(cors.Options{
-			AllowedOrigins:   cfg.HTTP.CORS.AllowedOrigins,
-			AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},
-			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "Accept-Encoding"},
-			AllowCredentials: true,
-		}))
-	}
 	r.Route("/v1", func(r chi.Router) {
 		r.With(requireJSON).Route("/authorizations", func(r chi.Router) {
 			r.Post("/", authorizationsHandler.Create())
@@ -133,6 +127,7 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 			r.Post("/", importsHandler.Create())
 		})
 	})
+	r.Get("/*", webHandler.Static())
 
 	httpServer, err := httpx.NewServer(cfg.HTTP, log, r)
 	if err != nil {

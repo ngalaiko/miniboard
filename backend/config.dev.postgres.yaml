@@ -3,11 +3,11 @@ authorizations:
   cookie_lifetime: 24h
 http:
   addr: ":80"
-  cors:
-    allowed_origins: ["http://localhost:8080"]
 db:
   driver: postgres
   addr: "postgres://miniboard:miniboard@localhost/miniboard?sslmode=disable"
 subscriptions:
   update:
     interval: 5s
+web:
+  fs: true

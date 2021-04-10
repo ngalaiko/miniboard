@@ -1,7 +1,3 @@
-const apiUrl = window.location.hostname !== 'localhost'
-    ? 'https://api.miniboard.app'
-    : 'http://localhost:80';
-
 class API {
     async get(url) {
         return await this.fetch(url)
@@ -21,7 +17,7 @@ class API {
         if (params == undefined) params = {}
         params.credentials = 'include'
 
-        const response = await fetch(apiUrl + url, params)
+        const response = await fetch(url, params)
         const body = await response.json()
         if (response.status !== 200) {
             throw new Error(body.message)

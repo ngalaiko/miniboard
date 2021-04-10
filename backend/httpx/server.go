@@ -15,15 +15,10 @@ type tlsConfig struct {
 	CertPath string `yaml:"cert_path"`
 }
 
-type corsConfig struct {
-	AllowedOrigins []string `yaml:"allowed_origins"`
-}
-
 // Config contains http server configuration values.
 type Config struct {
-	Addr string      `yaml:"addr"`
-	TLS  *tlsConfig  `yaml:"tls"`
-	CORS *corsConfig `yaml:"cors"`
+	Addr string     `yaml:"addr"`
+	TLS  *tlsConfig `yaml:"tls"`
 }
 
 type logger interface {

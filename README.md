@@ -36,8 +36,6 @@ http:
     enabled: true          # if false, plaintext http will be used
     key_path: "./key.pem"  # path to tls key
     cert_path: "./crt.pem" # path to tls certificate
-  cors:
-    allowed_origins: ["example.com"] # list of origins to allow CORS from
 operations:
   workers: 10 # number of workers that execute longrunning operations
 subsciptions:
@@ -46,6 +44,8 @@ subsciptions:
     interval: 5m # interval between feed updates
 users:
   bcrypt_cose: 14 # bcrypt cost
+web:
+  embed: true # if false, files will be served from the filesystem
 ```
 
 #### Environment variables
@@ -58,8 +58,6 @@ It is also possible to define any configuration value by setting an environment 
 
 ## Development
 
-### Backend
-
 1. Run server:
 
 ```bash
@@ -69,19 +67,10 @@ $ cd ./backend \
         --config config.dev.yaml
 ```
 
-### Frontend
+2. Open browser:
 
-1. Run file server:
-
-```bash
-$ cd ./frontend \
-    && python3 -m http.server 8080
 ```
-
-2. Open browser
-
-```bash
-$ open http://localhost:8080
+$ open http://localhost
 ```
 
 ## Acknowledgments 

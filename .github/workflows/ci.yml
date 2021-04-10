@@ -4,7 +4,7 @@ on:
   push: {}
 
 env:
-  GO_VERSION: 1.15.6
+  GO_VERSION: 1.16.3
 
 jobs:
   lint:
@@ -66,7 +66,7 @@ jobs:
     needs: [lint, test]
     strategy:
       matrix:
-        app: [backend, frontend, docs]
+        app: [backend, docs]
     steps:
     - uses: actions/checkout@v1
 

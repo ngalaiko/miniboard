@@ -3,9 +3,9 @@ authorizations:
   cookie_lifetime: 24h
 http:
   addr: ":80"
-  cors:
-    allowed_origins: ["http://localhost:8080"]
 db:
   driver: sqlite3
   addr: "./db.dev.sqlite3?_cache_size=128000&cache=shared"
   max_open_connections: 1
+web:
+  fs: true
