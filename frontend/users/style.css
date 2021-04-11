@@ -85,8 +85,6 @@ html, body, #layout, #menu, #items-list, #content {
 }
 
 .toast-container {
-    visibility: hidden;
-
     background: white;
     box-shadow:
         0 2.8px 2.2px rgba(0, 0, 0, 0.034),
@@ -126,10 +124,6 @@ html, body, #layout, #menu, #items-list, #content {
 
 .toast-container .toast-button:active {
     color: inherit;
-}
-
-.toast-container.show {
-    visibility: visible;
 }
 
 #modal #background {
