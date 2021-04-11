@@ -6,7 +6,7 @@ info:
     url: https://github.com/ngalaiko/miniboard/blob/master/LICENSE
   version: 1.0.0
 servers:
-- url: https://api.miniboard.app/
+- url: https://miniboard.app/api
 tags:
 - name: authorization
   description: Operations about authorization

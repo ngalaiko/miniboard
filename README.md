@@ -70,7 +70,7 @@ $ cd ./backend \
 2. Open browser:
 
 ```
-$ open http://localhost
+$ open http://localhost/
 ```
 
 ## Acknowledgments 

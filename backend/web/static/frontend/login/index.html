@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0 shrink-to-fit=no" />
+
+    <title>Log in - Miniboard</title>
+
+    <link rel="stylesheet" href="/vendor/purecss@2.0.5/base-min.css" />
+    <link rel="stylesheet" href="/vendor/purecss@2.0.5/buttons-min.css" />
+    <link rel="stylesheet" href="/vendor/purecss@2.0.5/grids-min.css" />
+    <link rel="stylesheet" href="/vendor/purecss@2.0.5/grids-responsive-min.css" />
+    <link rel="stylesheet" href="/vendor/purecss@2.0.5/forms-min.css" />
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5" />
+    
+    <style>
+        .pure-g-center {
+            justify-content: center;
+        }
+
+        .pure-u-center {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="pure-g pure-g-center">
+        <div class="pure-u pure-u-center">
+            <h1>Miniboard</h1>
+        </div>
+    </div>
+    <div class="pure-g pure-g-center">
+        <div class="pure-u-7-8 pure-u-lg-1-5 pure-u-md-1-3 pure-u-sm-1-3 pure-u-center">
+            <form class="pure-form">
+                <fieldset class="pure-group">
+                    <input class="pure-input-1" type="text" id="username" name="username" placeholder="Username"></input>
+                    <input class="pure-input-1" type="password" id="password" name="password" placeholder="Password"></input>
+                </fieldgroup>
+                <button class="pure-button pure-input-1 pure-button-primary" id="login-button">Log in</button>
+            </form>
+        </div>
+    </div>
+    <div class="pure-g pure-g-center">
+        <div class="pure-u pure-u-center">
+            No account yet? <a href="/signup">Sign up</a>
+        </div>
+    </div>
+
+    <script src="/login/script.js" type="module"></script>
+</body>
+
+</html>

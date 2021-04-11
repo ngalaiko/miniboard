@@ -1,11 +1,15 @@
-const loginButton = document.getElementById('login-button')
+const apiUrl = window.location.hostname !== 'localhost'
+    ? 'https://api.miniboard.app'
+    : 'http://localhost:80';
+
+const signupButton = document.getElementById('signup-button')
 const inputUsername = document.getElementById('username')
 const inputPassword = document.getElementById('password')
 
 const handleButtonClick = async (e) => {
     e.preventDefault()
 
-    const response = await fetch('/api/v1/authorizations', {
+    const response = await fetch(apiUrl + '/v1/users', {
         method: 'POST',
         credentials: 'include',
         body: JSON.stringify({
@@ -23,7 +27,8 @@ const handleButtonClick = async (e) => {
         return
     }
 
-    document.location = '/users'
+    alert('You are now signed up')
+    document.location = '/login'
 }
 
-loginButton.addEventListener('click', handleButtonClick)
+signupButton.addEventListener('click', handleButtonClick)

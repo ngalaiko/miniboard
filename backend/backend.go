@@ -77,7 +77,7 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	r := chi.NewRouter()
 	r.Use(logger.Middleware(log))
 	r.Use(middleware.Recoverer)
-	r.Route("/v1", func(r chi.Router) {
+	r.Route("/api/v1", func(r chi.Router) {
 		r.With(requireJSON).Route("/authorizations", func(r chi.Router) {
 			r.Post("/", authorizationsHandler.Create())
 		})

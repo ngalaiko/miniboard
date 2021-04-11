@@ -5,7 +5,7 @@ const inputPassword = document.getElementById('password')
 const handleButtonClick = async (e) => {
     e.preventDefault()
 
-    const response = await fetch('/v1/users', {
+    const response = await fetch('/api/v1/users', {
         method: 'POST',
         credentials: 'include',
         body: JSON.stringify({

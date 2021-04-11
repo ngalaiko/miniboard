@@ -1,3 +1,7 @@
+const apiUrl = window.location.hostname !== 'localhost'
+    ? 'https://api.miniboard.app'
+    : 'http://localhost:80';
+
 class API {
     async get(url) {
         return await this.fetch(url)
@@ -17,7 +21,7 @@ class API {
         if (params == undefined) params = {}
         params.credentials = 'include'
 
-        const response = await fetch(url, params)
+        const response = await fetch(apiUrl + url, params)
         const body = await response.json()
         if (response.status !== 200) {
             throw new Error(body.message)
@@ -41,7 +45,7 @@ class Subscriptions {
             ? `&created_lt=${encodeURIComponent(params.createdLt)}`
             : ''
 
-        const url = '/api/v1/subscriptions/?' + pageSizeQuery + createdLtQuery
+        const url = '/v1/subscriptions/?' + pageSizeQuery + createdLtQuery
 
         const body = await Api.get(url)
 
@@ -59,13 +63,13 @@ class Subscriptions {
             request.tag_ids = params.tagIds
         }
 
-        return await Api.post('/api/v1/subscriptions/', request)
+        return await Api.post('/v1/subscriptions/', request)
     }
 }
 
 class Items {
     async get(id) {
-        return await Api.get(`/api/v1/items/${id}/`)
+        return await Api.get(`/v1/items/${id}/`)
     }
 
     async list(params) {
@@ -84,13 +88,13 @@ class Items {
         case !!params.subscriptionId && !!params.tagId:
             throw new Error('not implemented')
         case !!params.subscriptionId:
-            url = `/api/v1/subscriptions/${params.subscriptionId}/items/?` + pageSizeQuery + createdLtQuery
+            url = `/v1/subscriptions/${params.subscriptionId}/items/?` + pageSizeQuery + createdLtQuery
             break
         case !!params.tagId:
-            url = `/api/v1/tags/${params.tagId}/items/?` + pageSizeQuery + createdLtQuery
+            url = `/v1/tags/${params.tagId}/items/?` + pageSizeQuery + createdLtQuery
             break
         default:
-            url = `/api/v1/items/?` + pageSizeQuery + createdLtQuery
+            url = `/v1/items/?` + pageSizeQuery + createdLtQuery
             break
         }
 
@@ -101,7 +105,7 @@ class Items {
 
 class Operations {
     async get(id) {
-        return await Api.get(`/api/v1/operations/${id}/`)
+        return await Api.get(`/v1/operations/${id}/`)
     }
 
     async wait(id) {
@@ -123,7 +127,7 @@ class Operations {
 
 class Imports {
     async create(raw) {
-        return await Api.fetch('/api/v1/imports/', {
+        return await Api.fetch('/v1/imports/', {
             method: 'POST',
             body: raw,
             headers: new Headers({
@@ -145,7 +149,7 @@ class Tags {
             ? `&created_lt=${encodeURIComponent(params.createdLt)}`
             : ''
 
-        const url = '/api/v1/tags/?' + pageSizeQuery + createdLtQuery
+        const url = '/v1/tags/?' + pageSizeQuery + createdLtQuery
 
         const body = await Api.get(url)
 
@@ -159,7 +163,7 @@ class Tags {
             title: params.title,
         }
 
-        return await Api.post('/api/v1/tags/', request)
+        return await Api.post('/v1/tags/', request)
     }
 }
 
