@@ -490,9 +490,13 @@ document.querySelector('#add-button').addEventListener('click', () => {
 
 const subscriptionById = new Map()
 
-const listItemsBySubscription = async (subscriptionId) => {
-    if (!subscriptionId) return []
+const listAllItems = async () => {
+    return await ItemsService.list({
+        pageSize: 50,
+    })
+}
 
+const listItemsBySubscription = async (subscriptionId) => {
     return await ItemsService.list({
         pageSize: 50,
         subscriptionId: subscriptionId,
@@ -500,8 +504,6 @@ const listItemsBySubscription = async (subscriptionId) => {
 }
 
 const listItemsByTag = async (tagId) => {
-    if (!tagId) return []
-
     return await ItemsService.list({
         pageSize: 50,
         tagId: tagId,
@@ -513,22 +515,25 @@ if (itemId) ItemsService.get(itemId).then((item) => {
     displayReader(document.querySelector('#reader'), item)
 })
 
+const items = getState('tag')
+    ? listItemsByTag(getState('tag'))
+    : getState('subscription')
+        ? listItemsBySubscription(getState('subscription'))
+        : listAllItems()
+
 Promise.all([
     listAllSubscriptions(),
     listAllTags(),
-    listItemsByTag(getState('tag')),
-    listItemsBySubscription(getState('subscription')),
+    items,
 ]).then(async (values) => {
     const subscriptions = values[0]
     const tags = values[1]
-    const itemsByTag = values[2]
-    const itemsBySubscription = values[3]
+    const items = values[2]
 
     subscriptions.forEach(s => subscriptionById.set(s.id, s))
 
     const list = document.querySelector('#items-list')
-    if (itemsBySubscription.length > 0) displayItems(list, itemsBySubscription)
-    if (itemsByTag.length > 0) displayItems(list, itemsByTag)
+    if (items.length > 0) displayItems(list, items)
 
     document.querySelector("#tags-list").innerHTML = renderTags(tags, subscriptions)
     document.querySelector("#no-tags-list").innerHTML = subscriptions.filter(s => s.tag_ids.length === 0)
