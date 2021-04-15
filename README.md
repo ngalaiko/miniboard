@@ -45,7 +45,7 @@ subsciptions:
 users:
   bcrypt_cose: 14 # bcrypt cost
 web:
-  embed: true # if false, files will be served from the filesystem
+  fs: true # if true, files will be served from the filesystem
 ```
 
 #### Environment variables
