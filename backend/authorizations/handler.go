@@ -14,7 +14,6 @@ import (
 
 // Config contains authorizations handler config.
 type Config struct {
-	Domain         *string       `yaml:"domain"`
 	Secure         bool          `yaml:"secure"`
 	CookieLifetime time.Duration `yaml:"cookie_lifetime"`
 }

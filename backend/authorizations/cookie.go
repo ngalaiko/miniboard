@@ -17,8 +17,5 @@ func setCookie(w http.ResponseWriter, config *Config, token *Token) {
 		Secure:   config.Secure,
 		SameSite: http.SameSiteNoneMode,
 	}
-	if config.Domain != nil {
-		cookie.Domain = *config.Domain
-	}
 	http.SetCookie(w, cookie)
 }

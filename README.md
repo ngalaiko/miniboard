@@ -23,7 +23,6 @@ Swagger description itsef is available [here](https://docs.miniboard.app/api.swa
 
 ```yaml
 authorizations:
-  domain: "example.com" # domain to set cookie to
   secure: false         # if cookie should be Secure
   cookie_lifetime: 720h # lifetime of auth cookie
 db:

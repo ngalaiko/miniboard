@@ -1,5 +1,4 @@
 authorizations:
-  domain: "localhost"
   cookie_lifetime: 24h
 http:
   addr: ":80"
