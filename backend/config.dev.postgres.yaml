@@ -8,5 +8,5 @@ db:
 subscriptions:
   update:
     interval: 5s
-web:
+static:
   fs: true

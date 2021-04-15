@@ -357,10 +357,8 @@ const onSubscriptionSelected = (subscriptionId) => {
 }
 
 const onItemSelected = (itemId) => {
+    sendMessage("item:selected", {"id": itemId})
     storeState('item', itemId)
-    ItemsService.get(itemId).then((item) => {
-        displayReader(document.querySelector('#reader'), item)
-    })
 }
 
 const onTagSelected = (tagId) => {

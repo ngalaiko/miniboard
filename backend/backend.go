@@ -21,7 +21,8 @@ import (
 	"github.com/ngalaiko/miniboard/backend/subscriptions"
 	"github.com/ngalaiko/miniboard/backend/tags"
 	"github.com/ngalaiko/miniboard/backend/users"
-	"github.com/ngalaiko/miniboard/backend/web"
+	"github.com/ngalaiko/miniboard/backend/web/sockets"
+	"github.com/ngalaiko/miniboard/backend/web/static"
 )
 
 // Config contains all server configuration.
@@ -32,7 +33,7 @@ type Config struct {
 	Operations     *operations.Config     `yaml:"operations"`
 	Subscriptions  *subscriptions.Config  `yaml:"subscriptions"`
 	Users          *users.Config          `yaml:"users"`
-	Web            *web.Config            `yaml:"web"`
+	Static         *static.Config         `yaml:"static"`
 }
 
 // Server is the main object.
@@ -67,7 +68,8 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	tagsHandler := tags.NewHandler(tagsService, log)
 	usersHandler := users.NewHandler(usersService, log)
 	importsHandler := imports.NewHandler(log, tagsService, subscriptionsService, operationsService)
-	webHandler := web.NewHandler(cfg.Web, log)
+	staticHandler := static.NewHandler(cfg.Static, log)
+	socketsHandler := sockets.NewHandler(log, itemsService)
 
 	authMiddleware := authorizations.Middleware(authorizationsService, cfg.Authorizations, log)
 
@@ -126,8 +128,9 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 		r.With(requireXML).With(authMiddleware).Route("/imports", func(r chi.Router) {
 			r.Post("/", importsHandler.Create())
 		})
+		r.With(authMiddleware).Get("/ws", socketsHandler.ServeHTTP)
 	})
-	r.Get("/*", webHandler.Static())
+	r.Get("/*", staticHandler)
 
 	httpServer, err := httpx.NewServer(cfg.HTTP, log, r)
 	if err != nil {

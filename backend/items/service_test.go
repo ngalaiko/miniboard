@@ -93,7 +93,7 @@ func Test_service__Get(t *testing.T) {
 		t.Fatalf("failed to create a item: %s", err)
 	}
 
-	from, err := service.Get(ctx, item.ID, "user id")
+	from, err := service.Get(ctx, "user id", item.ID)
 	if err != nil {
 		t.Fatalf("failed to get a item: %s", err)
 	}
@@ -109,8 +109,8 @@ func Test_service__Get_not_found(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	service := NewService(sqldb, &testLogger{})
 
-	_, err := service.Get(ctx, "user id", "id")
-	if err != errNotFound {
-		t.Errorf("expected %s, got %s", errNotFound, err)
+	_, err := service.Get(ctx, "id", "user id")
+	if err != ErrNotFound {
+		t.Errorf("expected %s, got %s", ErrNotFound, err)
 	}
 }

@@ -40,11 +40,11 @@ func (h *Handler) Get(id string) http.HandlerFunc {
 			return
 		}
 
-		item, err := h.service.Get(r.Context(), id, token.UserID)
+		item, err := h.service.Get(r.Context(), token.UserID, id)
 		switch {
 		case err == nil:
 			httpx.JSON(w, h.logger, item, http.StatusOK)
-		case errors.Is(err, errNotFound):
+		case errors.Is(err, ErrNotFound):
 			http.NotFound(w, r)
 		default:
 			h.logger.Error("failed to get operation: %s", err)

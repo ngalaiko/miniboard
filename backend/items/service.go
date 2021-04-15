@@ -12,7 +12,7 @@ import (
 
 // Known errors.
 var (
-	errNotFound      = fmt.Errorf("not found")
+	ErrNotFound      = fmt.Errorf("not found")
 	errURLIsEmpty    = fmt.Errorf("item url must not be empty")
 	errTitleIsEmpty  = fmt.Errorf("item title must not be empty")
 	ErrAlreadyExists = fmt.Errorf("item already exists")
@@ -68,13 +68,13 @@ func (s *Service) Create(
 }
 
 // Get returns a item by it's id.
-func (s *Service) Get(ctx context.Context, id string, userID string) (*UserItem, error) {
+func (s *Service) Get(ctx context.Context, userID string, id string) (*UserItem, error) {
 	item, err := s.db.Get(ctx, userID, id)
 	switch {
 	case err == nil:
 		return item, nil
 	case errors.Is(err, sql.ErrNoRows):
-		return nil, errNotFound
+		return nil, ErrNotFound
 	default:
 		return nil, err
 	}

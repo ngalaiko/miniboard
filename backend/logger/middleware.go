@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"bufio"
+	"net"
 	"net/http"
 	"time"
 )
@@ -18,6 +20,10 @@ func newLoggingResponseWriter(w http.ResponseWriter) *loggingResponseWriter {
 func (lrw *loggingResponseWriter) WriteHeader(code int) {
 	lrw.StatusCode = code
 	lrw.ResponseWriter.WriteHeader(code)
+}
+
+func (lrw *loggingResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	return lrw.ResponseWriter.(http.Hijacker).Hijack()
 }
 
 // Middleware returns http logging middleware.

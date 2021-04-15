@@ -51,6 +51,27 @@
     </div>
 
     <script src="/users/script.js"></script>
+    <script>
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const socket = new WebSocket(`${protocol}//${window.location.hostname}/api/v1/ws`);
+
+        const sendMessage = (event, params) => {
+            const request = JSON.stringify({
+                id: Math.floor(performance.now()),
+                event: event,
+                params: params,
+            });
+            socket.send(request);
+        }
+
+        socket.onmessage = (message) => {
+            const data = JSON.parse(message.data)
+            const target = document.querySelector(data.target)
+            if (data.reset) target.innerHTML = ''
+            const html = data.html
+            target.insertAdjacentHTML(data.insert, html)
+        }
+    </script>
 </body>
 
 </html>

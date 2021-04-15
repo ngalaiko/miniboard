@@ -1,4 +1,4 @@
-package web
+package static
 
 import (
 	"embed"
@@ -13,7 +13,7 @@ type logger interface {
 }
 
 //nolint: gochecknoglobals
-//go:embed static/*
+//go:embed files/*
 var staticFS embed.FS
 
 // Config contains web configuration.
@@ -21,30 +21,17 @@ type Config struct {
 	FS bool `yaml:"fs"`
 }
 
-// Handler serves web ui.
-type Handler struct {
-	static fs.FS
-}
-
 // NewHandler return web handler.
-func NewHandler(cfg *Config, log logger) *Handler {
+func NewHandler(cfg *Config, log logger) http.HandlerFunc {
 	var static fs.FS
 	if cfg.FS {
-		static = os.DirFS("web/static")
+		static = os.DirFS("web/static/files")
 		log.Debug("serving from os filesystem")
 	} else {
-		static = &stripPrefix{"static", staticFS}
+		static = &stripPrefix{"files", staticFS}
 		log.Debug("serving from embedded filesystem")
 	}
-
-	return &Handler{
-		static: static,
-	}
-}
-
-// Static returns handler that serves static files.
-func (h *Handler) Static() http.HandlerFunc {
-	return http.FileServer(http.FS(h.static)).ServeHTTP
+	return http.FileServer(http.FS(static)).ServeHTTP
 }
 
 type stripPrefix struct {

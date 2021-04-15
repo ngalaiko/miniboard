@@ -43,7 +43,7 @@ subsciptions:
     interval: 5m # interval between feed updates
 users:
   bcrypt_cose: 14 # bcrypt cost
-web:
+static:
   fs: true # if true, files will be served from the filesystem
 ```
 
