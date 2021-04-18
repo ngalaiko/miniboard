@@ -1,4 +1,4 @@
-package components
+package templates
 
 import (
 	"embed"

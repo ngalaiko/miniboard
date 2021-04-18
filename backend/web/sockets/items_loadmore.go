@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ngalaiko/miniboard/backend/web/components"
+	"github.com/ngalaiko/miniboard/backend/web/templates"
 )
 
 var errInvalidCreatedLT = fmt.Errorf("failed to parse createdLt param")
@@ -35,7 +35,7 @@ func (h *Handler) loadItems(ctx context.Context, userID string, req *request) (*
 	case err == nil:
 		html := &bytes.Buffer{}
 		for _, item := range items {
-			if err := components.Item(html, item); err != nil {
+			if err := templates.Item(html, item); err != nil {
 				h.logger.Error("failed to render reader: %s", err)
 				return nil, errInternal
 			}
