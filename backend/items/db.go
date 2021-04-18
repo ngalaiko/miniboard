@@ -77,12 +77,15 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*UserItem
 		items.title,
 		items.subscription_id,
 		items.created_epoch,
-		items.summary
+		items.summary,
+		subscriptions.title,
+		subscriptions.icon_url
 	FROM
 		items
-			JOIN users_subscriptions on users_subscriptions.subscription_id = items.subscription_id AND users_subscriptions.user_id = $1
+			JOIN users_subscriptions ON users_subscriptions.subscription_id = items.subscription_id AND users_subscriptions.user_id = $1
+			LEFT JOIN subscriptions ON subscriptions.id = items.subscription_id
 	WHERE
-		id = $2
+		items.id = $2
 	`, userID, id)
 
 	return d.scanUserItemRow(row)
@@ -105,10 +108,13 @@ func (d *database) List(ctx context.Context,
 		items.title,
 		items.subscription_id,
 		items.created_epoch,
-		items.summary
+		items.summary,
+		subscriptions.title,
+		subscriptions.icon_url
 	FROM
 		items
 			JOIN users_subscriptions ON users_subscriptions.subscription_id = items.subscription_id
+			LEFT JOIN subscriptions ON subscriptions.id = items.subscription_id
 	`)
 
 	if tagID != nil {
@@ -211,6 +217,8 @@ func (d *database) scanUserItemRow(row scannable) (*UserItem, error) {
 		&item.SubscriptionID,
 		&createdEpoch,
 		&item.Summary,
+		&item.SubscriptionTitle,
+		&item.SubscriptionIcon,
 	); err != nil {
 		return nil, err
 	}

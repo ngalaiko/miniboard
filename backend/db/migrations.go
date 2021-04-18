@@ -64,7 +64,7 @@ func migrations(db *sql.DB) []*migration {
 				title         TEXT   NOT NULL,
 				created_epoch BIGINT NOT NULL,
 				updated_epoch BIGINT     NULL,
-				icon_url          TEXT       NULL,
+				icon_url      TEXT       NULL,
 				PRIMARY KEY (id),
 				UNIQUE (url)
 			)

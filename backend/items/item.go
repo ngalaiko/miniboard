@@ -5,7 +5,9 @@ import "time"
 // UserItem is the item model with user id.
 type UserItem struct {
 	Item
-	UserID string `json:"-"`
+	UserID            string  `json:"-"`
+	SubscriptionTitle *string `json:"-"`
+	SubscriptionIcon  *string `json:"-"`
 }
 
 // Item is the item model.
