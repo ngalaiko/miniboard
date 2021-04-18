@@ -7,6 +7,7 @@ const (
 	tagSelected          event = "tag:selected"
 	subscriptionSelected event = "subscription:selected"
 	itemSelected         event = "item:selected"
+	itemsLoadmore        event = "items:loadmore"
 )
 
 type request struct {

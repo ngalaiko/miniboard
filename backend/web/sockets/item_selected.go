@@ -7,7 +7,7 @@ import (
 	"fmt"
 
 	"github.com/ngalaiko/miniboard/backend/items"
-	"github.com/ngalaiko/miniboard/backend/web/templates"
+	"github.com/ngalaiko/miniboard/backend/web/components"
 )
 
 func (h *Handler) onItemSelected(ctx context.Context, userID string, req *request) (*response, error) {
@@ -19,7 +19,7 @@ func (h *Handler) onItemSelected(ctx context.Context, userID string, req *reques
 	switch {
 	case err == nil:
 		html := &bytes.Buffer{}
-		if err := templates.Reader(html, &item.Item); err != nil {
+		if err := components.Reader(html, &item.Item); err != nil {
 			h.logger.Error("failed to render reader: %s", err)
 			return nil, errInternal
 		}

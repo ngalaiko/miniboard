@@ -1,0 +1,7 @@
+<div class="item pure-g" created="{{ .Created | timeformat }}" onclick="onItemSelected('{{ .ID }}')">
+    <img class="subscription-icon" width="20" height="20" src="{{ with .SubscriptionIcon }}{{ . }}{{ else }}/img/rss.svg{{ end }}"></img>
+    <div class="pure-u-3-4">
+        <h5 class="item-subscription-title">{{ .SubscriptionTitle }}</h5>
+        <h4 class="item-title">{{ .Title }}</h4>
+    </div>
+</div>

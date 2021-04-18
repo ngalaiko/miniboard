@@ -357,7 +357,7 @@ const onSubscriptionSelected = (subscriptionId) => {
 }
 
 const onItemSelected = (itemId) => {
-    sendMessage("item:selected", {"id": itemId})
+    sendMessage("item:selected", {id: itemId})
     storeState('item', itemId)
 }
 
@@ -385,13 +385,10 @@ document.querySelector('#items-list').addEventListener('scroll', (e) => {
 
     document.querySelector('#items-list').insertAdjacentHTML('beforeend', '<div class="page-separator"></div')
 
-    ItemsService.list({
-        pageSize: 50,
-        subscriptionId: subscriptionId,
+    sendMessage("items:loadmore", {
         tagId: tagId,
+        subscriptionId: subscriptionId,
         createdLt: createdLt,
-    }).then((items) => {
-        displayItems(document.querySelector('#items-list'), items)
     })
 })
 

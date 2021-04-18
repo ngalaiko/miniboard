@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"golang.org/x/net/websocket"
 
@@ -20,6 +21,7 @@ type logger interface {
 
 type itemsService interface {
 	Get(ctx context.Context, id string, userID string) (*items.UserItem, error)
+	List(ctx context.Context, userID string, pageSize int, createdLT *time.Time, subscriptionID *string, tagID *string) ([]*items.UserItem, error)
 }
 
 type Handler struct {
@@ -73,6 +75,13 @@ func (h *Handler) handle(ctx context.Context, userID string) func(*websocket.Con
 			case subscriptionSelected:
 			case itemSelected:
 				response, err := h.onItemSelected(ctx, userID, req)
+				if err != nil {
+					h.onError(c, req.ID, err)
+					continue
+				}
+				h.onResponse(c, response)
+			case itemsLoadmore:
+				response, err := h.onItemsLoadmore(ctx, userID, req)
 				if err != nil {
 					h.onError(c, req.ID, err)
 					continue
