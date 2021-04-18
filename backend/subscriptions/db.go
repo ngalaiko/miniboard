@@ -304,6 +304,7 @@ func (d *database) ListAll(ctx context.Context) ([]*Subscription, error) {
 	for rows.Next() {
 		s, err := scanSubscriptionRow(rows)
 		if err != nil {
+			return nil, err
 		}
 		ss = append(ss, s)
 	}
