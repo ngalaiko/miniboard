@@ -63,9 +63,7 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 
 	subscriptionsHandler := subscriptions.NewHandler(subscriptionsService, log, operationsService)
 	authorizationsHandler := authorizations.NewHandler(usersService, authorizationsService, log, cfg.Authorizations)
-	itemsHandler := items.NewHandler(itemsService, log)
 	operationsHandler := operations.NewHandler(operationsService, log)
-	tagsHandler := tags.NewHandler(tagsService, log)
 	usersHandler := users.NewHandler(usersService, log)
 	importsHandler := imports.NewHandler(log, tagsService, subscriptionsService, operationsService)
 	webHandler := web.NewHandler(cfg.Web, log, itemsService, tagsService, subscriptionsService)
@@ -88,22 +86,6 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 		r.With(requireJSON).With(authMiddleware).Route("/subscriptions", func(r chi.Router) {
 			r.Post("/", subscriptionsHandler.Create())
 			r.Get("/", subscriptionsHandler.List())
-			r.Route("/{subscriptionId}", func(r chi.Router) {
-				r.Route("/items", func(r chi.Router) {
-					r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-						subscriptionID := chi.URLParam(r, "subscriptionId")
-						itemsHandler.List(nil, &subscriptionID)(w, r)
-					})
-				})
-			})
-		})
-		r.With(requireJSON).With(authMiddleware).Route("/items", func(r chi.Router) {
-			r.Route("/{itemId}", func(r chi.Router) {
-				r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-					itemsHandler.Get(chi.URLParam(r, "itemId"))(w, r)
-				})
-			})
-			r.Get("/", itemsHandler.List(nil, nil))
 		})
 		r.With(requireJSON).With(authMiddleware).Route("/operations", func(r chi.Router) {
 			r.Route("/{operationId}", func(r chi.Router) {
@@ -114,18 +96,6 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 		})
 		r.With(requireJSON).Route("/users", func(r chi.Router) {
 			r.Post("/", usersHandler.Create())
-		})
-		r.With(requireJSON).With(authMiddleware).Route("/tags", func(r chi.Router) {
-			r.Post("/", tagsHandler.Create())
-			r.Get("/", tagsHandler.List())
-			r.Route("/{tagId}", func(r chi.Router) {
-				r.Route("/items", func(r chi.Router) {
-					r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-						tagID := chi.URLParam(r, "tagId")
-						itemsHandler.List(&tagID, nil)(w, r)
-					})
-				})
-			})
 		})
 		r.With(requireXML).With(authMiddleware).Route("/imports", func(r chi.Router) {
 			r.Post("/", importsHandler.Create())
