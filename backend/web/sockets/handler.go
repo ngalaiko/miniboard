@@ -70,9 +70,7 @@ func (h *Handler) handle(ctx context.Context, userID string) func(*websocket.Con
 			}
 
 			switch req.Event {
-			case tagSelected:
 			case tagToggled:
-			case subscriptionSelected:
 			case itemSelected:
 				response, err := h.onItemSelected(ctx, userID, req)
 				if err != nil {
@@ -80,8 +78,16 @@ func (h *Handler) handle(ctx context.Context, userID string) func(*websocket.Con
 					continue
 				}
 				h.onResponse(c, response)
+			case itemsLoad:
+				response, err := h.loadItems(ctx, userID, req)
+				if err != nil {
+					h.onError(c, req.ID, err)
+					continue
+				}
+				response.Reset = true
+				h.onResponse(c, response)
 			case itemsLoadmore:
-				response, err := h.onItemsLoadmore(ctx, userID, req)
+				response, err := h.loadItems(ctx, userID, req)
 				if err != nil {
 					h.onError(c, req.ID, err)
 					continue

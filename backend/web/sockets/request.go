@@ -3,11 +3,10 @@ package sockets
 type event string
 
 const (
-	tagToggled           event = "tag:toggled"
-	tagSelected          event = "tag:selected"
-	subscriptionSelected event = "subscription:selected"
-	itemSelected         event = "item:selected"
-	itemsLoadmore        event = "items:loadmore"
+	tagToggled    event = "tag:toggled"
+	itemSelected  event = "item:selected"
+	itemsLoad     event = "items:load"
+	itemsLoadmore event = "items:loadmore"
 )
 
 type request struct {

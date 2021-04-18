@@ -349,10 +349,8 @@ const onSubscriptionSelected = (subscriptionId) => {
     deleteState('tag')
     storeState('subscription', subscriptionId)
 
-    listItemsBySubscription(subscriptionId).then((items) => {
-        const list = document.querySelector('#items-list')
-        list.innerHTML = ''
-        displayItems(list, items)
+    sendMessage("items:load", {
+        subscriptionId: subscriptionId,
     })
 }
 
@@ -365,10 +363,8 @@ const onTagSelected = (tagId) => {
     deleteState('subscription')
     storeState('tag', tagId)
 
-    listItemsByTag(tagId).then((items) => {
-        const list = document.querySelector('#items-list')
-        list.innerHTML = ''
-        displayItems(list, items)
+    sendMessage("items:load", {
+        tagId: tagId,
     })
 }
 

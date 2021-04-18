@@ -11,7 +11,7 @@ import (
 
 var errInvalidCreatedLT = fmt.Errorf("failed to parse createdLt param")
 
-func (h *Handler) onItemsLoadmore(ctx context.Context, userID string, req *request) (*response, error) {
+func (h *Handler) loadItems(ctx context.Context, userID string, req *request) (*response, error) {
 	var tagID, subscriptionID *string
 	if id, ok := req.Params["tagId"]; ok {
 		tagID = &id
