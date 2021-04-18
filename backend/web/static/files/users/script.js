@@ -63,42 +63,6 @@ class Subscriptions {
     }
 }
 
-class Items {
-    async get(id) {
-        return await Api.get(`/api/v1/items/${id}/`)
-    }
-
-    async list(params) {
-        if (params === undefined) params = {}
-
-        const pageSizeQuery = params.pageSize !== undefined
-            ? `&page_size=${params.pageSize}`
-            : ''
-
-        const createdLtQuery = params.createdLt !== undefined
-            ? `&created_lt=${encodeURIComponent(params.createdLt)}`
-            : ''
-
-        let url = ''
-        switch (true) {
-        case !!params.subscriptionId && !!params.tagId:
-            throw new Error('not implemented')
-        case !!params.subscriptionId:
-            url = `/api/v1/subscriptions/${params.subscriptionId}/items/?` + pageSizeQuery + createdLtQuery
-            break
-        case !!params.tagId:
-            url = `/api/v1/tags/${params.tagId}/items/?` + pageSizeQuery + createdLtQuery
-            break
-        default:
-            url = `/api/v1/items/?` + pageSizeQuery + createdLtQuery
-            break
-        }
-
-        const body = await Api.get(url)
-        return body.items
-    }
-}
-
 class Operations {
     async get(id) {
         return await Api.get(`/api/v1/operations/${id}/`)
@@ -133,39 +97,7 @@ class Imports {
     }
 }
 
-class Tags {
-    async list(params) {
-        if (params === undefined) params = {}
-
-        const pageSizeQuery = params.pageSize !== undefined
-            ? `&page_size=${params.pageSize}`
-            : ''
-
-        const createdLtQuery = params.createdLt !== undefined
-            ? `&created_lt=${encodeURIComponent(params.createdLt)}`
-            : ''
-
-        const url = '/api/v1/tags/?' + pageSizeQuery + createdLtQuery
-
-        const body = await Api.get(url)
-
-        return body.tags
-    }
-
-    async create(params) {
-        if (params === undefined) params = {}
-
-        const request = {
-            title: params.title,
-        }
-
-        return await Api.post('/api/v1/tags/', request)
-    }
-}
-
-const TagsService = new Tags()
 const OperationsService = new Operations()
-const ItemsService = new Items()
 const SubscriptionsService = new Subscriptions()
 const ImportsService = new Imports()
 
@@ -196,42 +128,6 @@ const deleteState = (key) => {
         "//" + window.location.host + window.location.pathname +
         `?${urlParams.toString()}`
     window.history.pushState({ path: refresh }, '', refresh)
-}
-
-const listAllTags = async (pageSize, createdLt) => {
-    const params = {}
-
-    if (pageSize === undefined) pageSize = 100
-    if (pageSize !== undefined) params.pageSize = pageSize
-    if (createdLt !== undefined) params.createdLt = createdLt
-
-    const tags = await TagsService.list(params)
-
-    if (tags.length < pageSize) {
-        return tags
-    }
-
-    params.createdLt = tags[tags.length - 1].created
-
-    return tags.concat(await TagsService.list(params))
-}
-
-const listAllSubscriptions = async (pageSize, createdLt) => {
-    const params = {}
-
-    if (pageSize === undefined) pageSize = 100
-    if (pageSize !== undefined) params.pageSize = pageSize
-    if (createdLt !== undefined) params.createdLt = createdLt
-
-    const tags = await SubscriptionsService.list(params)
-
-    if (tags.length < pageSize) {
-        return tags
-    }
-
-    params.createdLt = tags[tags.length - 1].created
-
-    return tags.concat(await SubscriptionsService.list(params))
 }
 
 const renderSubscription = (subscription) => `
@@ -312,37 +208,6 @@ const renderToast = (promise, message, onSuccess) => `
 const addToastMessage = async (promise, message, onSuccess) => {
     const html = renderToast(promise, message, onSuccess)
     document.querySelector('#toasts-container').insertAdjacentHTML('afterbegin', html)
-}
-
-const renderItemSubscriptionIcon = (subscription) => !!subscription && !!subscription.icon_url
-    ? `<img class="subscription-icon" width="20" height="20" src="${subscription.icon_url}"></img>`
-    : `<img class="subscription-icon" width="20" height="20" src="/img/rss.svg"></img>`
-
-const renderItem = (item, subscription) => `
-    <div class="item pure-g" created="${item.created}" onclick="onItemSelected('${item.id}')">
-        <div class="pure-u">${renderItemSubscriptionIcon(subscription)}</div>
-        <div class="pure-u-3-4">
-            <h5 class="item-subscription-title">${subscription.title}</h5>
-            <h4 class="item-title">${item.title}</h4>
-        </div>
-    </div>
-`
-
-const renderReader = (item) => `
-    <h2><a href="${item.url}" target="_blank">${item.title}</a></h2>
-    <div>${item.summary}</div>
-`
-
-const displayReader = (target, item) => {
-    target.innerHTML = renderReader(item)
-}
-
-const displayItems = (target, items) => {
-    const html = items.map((item) => {
-        return renderItem(item, subscriptionById.get(item.subscription_id))
-    }).join('')
-
-    target.insertAdjacentHTML('beforeend', html)
 }
 
 const onSubscriptionSelected = (subscriptionId) => {
@@ -480,53 +345,3 @@ document.querySelector('#add-button').addEventListener('click', () => {
 })
 
 const subscriptionById = new Map()
-
-const listAllItems = async () => {
-    return await ItemsService.list({
-        pageSize: 50,
-    })
-}
-
-const listItemsBySubscription = async (subscriptionId) => {
-    return await ItemsService.list({
-        pageSize: 50,
-        subscriptionId: subscriptionId,
-    })
-}
-
-const listItemsByTag = async (tagId) => {
-    return await ItemsService.list({
-        pageSize: 50,
-        tagId: tagId,
-    })
-}
-
-const itemId = getState('item')
-if (itemId) ItemsService.get(itemId).then((item) => {
-    displayReader(document.querySelector('#reader'), item)
-})
-
-const items = getState('tag')
-    ? listItemsByTag(getState('tag'))
-    : getState('subscription')
-        ? listItemsBySubscription(getState('subscription'))
-        : listAllItems()
-
-Promise.all([
-    listAllSubscriptions(),
-    listAllTags(),
-    items,
-]).then(async (values) => {
-    const subscriptions = values[0]
-    const tags = values[1]
-    const items = values[2]
-
-    subscriptions.forEach(s => subscriptionById.set(s.id, s))
-
-    const list = document.querySelector('#items-list')
-    if (items.length > 0) displayItems(list, items)
-
-    document.querySelector("#tags-list").innerHTML = renderTags(tags, subscriptions)
-    document.querySelector("#no-tags-list").innerHTML = subscriptions.filter(s => s.tag_ids.length === 0)
-        .map(renderSubscription).join('')
-})

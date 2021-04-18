@@ -1,0 +1,4 @@
+<div class="subscription pure-g" style="text-align: left;" onclick="onSubscriptionSelected('{{ .ID }}')">
+    <img class="pure-u subscription-icon" width="20px" height="20px" src="{{ with .IconURL }}{{ . }}{{ else }}/img/rss.svg{{ end }}"></img>
+    <span class="pure-u-3-4 subscription-title">{{ .Title }}</span>
+</div>

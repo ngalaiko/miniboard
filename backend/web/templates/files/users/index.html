@@ -24,12 +24,31 @@
     <div id="layout" class="pure-g">
         <div id="menu" class="pure-u-5-24">
             <button id="add-button" class="pure-button pure-button-primary">Add</button>
-            <div id="tags-list"></div>
-            <div id="no-tags-list"></div>
+            <div id="tags-list">
+                {{ range .Tags }}
+                    {{ template "files/components/tag.html" . }}
+                    <div id="{{ .ID }}-children" class="tag-subscriptions" hidden>
+                        {{ range index $.SubscriptionsByTagID .ID }}
+                            {{ template "files/components/subscription.html" . }}
+                        {{ end }}
+                    </div>
+                {{ end }}
+            </div>
+            <div id="no-tags-list">
+                {{ range index $.SubscriptionsByTagID "" }}
+                    {{ template "files/components/subscription.html" . }}
+                {{ end }}
+            </div>
         </div>
-        <div id="items-list" class="pure-u-5-24"></div>
+        <div id="items-list" class="pure-u-5-24">
+            {{ range .Items }}
+                {{ template "files/components/item.html" . }}
+            {{ end }}
+        </div>
         <div id="content" class="pure-u-14-24">
-            <div id="reader"></div>
+            <div id="reader">
+                {{ template "files/components/reader.html" .Item }}
+            </div>
         </div>
     </div>
 
@@ -53,7 +72,8 @@
     <script src="/users/script.js"></script>
     <script>
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const socket = new WebSocket(`${protocol}//${window.location.hostname}/api/v1/ws`);
+        const webdockerUrl = protocol + '//' + window.location.hostname + '/api/v1/ws';
+        const socket = new WebSocket(webdockerUrl);
 
         const sendMessage = (event, params) => {
             const request = JSON.stringify({

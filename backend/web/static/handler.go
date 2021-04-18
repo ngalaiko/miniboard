@@ -16,15 +16,10 @@ type logger interface {
 //go:embed files/*
 var staticFS embed.FS
 
-// Config contains web configuration.
-type Config struct {
-	FS bool `yaml:"fs"`
-}
-
 // NewHandler return web handler.
-func NewHandler(cfg *Config, log logger) http.HandlerFunc {
+func NewHandler(useFS bool, log logger) http.HandlerFunc {
 	var static fs.FS
-	if cfg.FS {
+	if useFS {
 		static = os.DirFS("web/static/files")
 		log.Debug("serving from os filesystem")
 	} else {

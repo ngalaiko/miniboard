@@ -21,8 +21,8 @@ import (
 	"github.com/ngalaiko/miniboard/backend/subscriptions"
 	"github.com/ngalaiko/miniboard/backend/tags"
 	"github.com/ngalaiko/miniboard/backend/users"
+	"github.com/ngalaiko/miniboard/backend/web"
 	"github.com/ngalaiko/miniboard/backend/web/sockets"
-	"github.com/ngalaiko/miniboard/backend/web/static"
 )
 
 // Config contains all server configuration.
@@ -33,7 +33,7 @@ type Config struct {
 	Operations     *operations.Config     `yaml:"operations"`
 	Subscriptions  *subscriptions.Config  `yaml:"subscriptions"`
 	Users          *users.Config          `yaml:"users"`
-	Static         *static.Config         `yaml:"static"`
+	Web            *web.Config            `yaml:"web"`
 }
 
 // Server is the main object.
@@ -68,10 +68,11 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	tagsHandler := tags.NewHandler(tagsService, log)
 	usersHandler := users.NewHandler(usersService, log)
 	importsHandler := imports.NewHandler(log, tagsService, subscriptionsService, operationsService)
-	staticHandler := static.NewHandler(cfg.Static, log)
+	webHandler := web.NewHandler(cfg.Web, log, itemsService, tagsService, subscriptionsService)
 	socketsHandler := sockets.NewHandler(log, itemsService)
 
 	authMiddleware := authorizations.Middleware(authorizationsService, cfg.Authorizations, log)
+	optionalAuth := authorizations.Optional(authorizationsService, cfg.Authorizations, log)
 
 	requireJSON := middleware.AllowContentType("application/json")
 	requireXML := middleware.AllowContentType("application/xml")
@@ -79,6 +80,7 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	r := chi.NewRouter()
 	r.Use(logger.Middleware(log))
 	r.Use(middleware.Recoverer)
+	r.Use(optionalAuth)
 	r.Route("/api/v1", func(r chi.Router) {
 		r.With(requireJSON).Route("/authorizations", func(r chi.Router) {
 			r.Post("/", authorizationsHandler.Create())
@@ -130,7 +132,7 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 		})
 		r.With(authMiddleware).Get("/ws", socketsHandler.ServeHTTP)
 	})
-	r.Get("/*", staticHandler)
+	r.Get("/*", webHandler)
 
 	httpServer, err := httpx.NewServer(cfg.HTTP, log, r)
 	if err != nil {
