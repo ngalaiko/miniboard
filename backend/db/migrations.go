@@ -1,46 +1,34 @@
 package db
 
-import (
-	"database/sql"
-	"fmt"
-
-	"github.com/lib/pq"
-)
-
 type migration struct {
 	Name  string
 	Query string
 }
 
-func migrations(db *sql.DB) []*migration {
-	binaryTypeName := "BLOB"
-	if _, psql := db.Driver().(*pq.Driver); psql {
-		binaryTypeName = "BYTEA"
-	}
-
+func migrations() []*migration {
 	return []*migration{
 		{
 			Name: "create users",
-			Query: fmt.Sprintf(`
+			Query: `
 			CREATE TABLE users (
 				id            TEXT   NOT NULL,
 				username      TEXT   NOT NULL,
-				hash          %s     NOT NULL,
+				hash          BLOC   NOT NULL,
 				created_epoch BIGINT NOT NULL,
 				PRIMARY KEY (id),
 				UNIQUE(username)
 			)
-			`, binaryTypeName),
+			`,
 		},
 		{
 			Name: "create jwt_keys",
-			Query: fmt.Sprintf(`
+			Query: `
 			CREATE TABLE jwt_keys (
 				id         TEXT NOT NULL,
-				public_der %s   NOT NULL,
+				public_der BLOB NOT NULL,
 				PRIMARY KEY (id)
 			)
-			`, binaryTypeName),
+			`,
 		},
 		{
 			Name: "create operations",

@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	// supported drivers
-	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -31,8 +30,7 @@ func New(cfg *Config, logger logger) (*sql.DB, error) {
 	}
 
 	if _, supported := map[string]bool{
-		"sqlite3":  true,
-		"postgres": true,
+		"sqlite3": true,
 	}[cfg.Driver]; !supported {
 		return nil, fmt.Errorf("'%s' is not supported", cfg.Driver)
 	}

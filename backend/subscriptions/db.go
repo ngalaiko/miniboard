@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"strings"
 	"time"
-
-	"github.com/lib/pq"
 )
 
 type database struct {
@@ -23,12 +21,7 @@ func newDB(sqldb *sql.DB, logger logger) *database {
 }
 
 func sqlFields(db *sql.DB) string {
-	groupFunc := "GROUP_CONCAT"
-	if _, ok := db.Driver().(*pq.Driver); ok {
-		groupFunc = "STRING_AGG"
-	}
-
-	return fmt.Sprintf(`
+	return `
 		subscriptions.id,
 		users_subscriptions.user_id,
 		subscriptions.url,
@@ -36,8 +29,8 @@ func sqlFields(db *sql.DB) string {
 		subscriptions.created_epoch,
 		subscriptions.updated_epoch,
 		subscriptions.icon_url,
-		%s(tags.id, ',')
-	`, groupFunc)
+		GROUP_CONCAT(tags.id, ',')
+	`
 }
 
 // Create creates a subscription in the database.
