@@ -30,24 +30,6 @@ class API {
 const Api = new API()
 
 class Subscriptions {
-    async list(params) {
-        if (params === undefined) params = {}
-
-        const pageSizeQuery = params.pageSize !== undefined
-            ? `&page_size=${params.pageSize}`
-            : ''
-
-        const createdLtQuery = params.createdLt !== undefined
-            ? `&created_lt=${encodeURIComponent(params.createdLt)}`
-            : ''
-
-        const url = '/api/v1/subscriptions/?' + pageSizeQuery + createdLtQuery
-
-        const body = await Api.get(url)
-
-        return body.subscriptions
-    }
-
     async create(params) {
         if (params === undefined) params = {}
 

@@ -117,53 +117,6 @@ paths:
                 $ref: "#/components/schemas/Error"
               example:
                 message: "internal server error"
-    get:
-      tags:
-      - subscription
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      summary: Returns a list of existing subscriptions
-      parameters:
-      - name: page_size
-        in: query
-        required: false
-        schema:
-          type: integer
-      - name: created_lt
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date-time
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  subscriptions:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Subscription"
-        400:
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              example:
-                message: "failed to parse page_size"
-        500:
-          description: Internal error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              example:
-                message: "internal server error"
   /v1/operations/{operationId}/:
     get:
       tags:

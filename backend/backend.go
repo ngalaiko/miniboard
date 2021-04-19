@@ -85,7 +85,6 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 		})
 		r.With(requireJSON).With(authMiddleware).Route("/subscriptions", func(r chi.Router) {
 			r.Post("/", subscriptionsHandler.Create())
-			r.Get("/", subscriptionsHandler.List())
 		})
 		r.With(requireJSON).With(authMiddleware).Route("/operations", func(r chi.Router) {
 			r.Route("/{operationId}", func(r chi.Router) {
