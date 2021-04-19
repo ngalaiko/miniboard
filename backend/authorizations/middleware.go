@@ -32,6 +32,7 @@ func Optional(jwtService jwtService, config *Config, logger errorLogger) func(ht
 			switch {
 			case err == nil:
 				r = r.WithContext(NewContext(r.Context(), token))
+			case errors.Is(err, errInvalidToken):
 			case errors.Is(err, errTokenExpired) && refreshable:
 				token, err := jwtService.NewToken(r.Context(), token.UserID)
 				if err != nil {
@@ -39,11 +40,9 @@ func Optional(jwtService jwtService, config *Config, logger errorLogger) func(ht
 					httpx.InternalError(w, logger)
 					return
 				}
+
 				setCookie(w, config, token)
 				r = r.WithContext(NewContext(r.Context(), token))
-			case errors.Is(err, errInvalidToken):
-				httpx.Error(w, logger, errInvalidToken, http.StatusUnauthorized)
-				return
 			default:
 				logger.Error("failed to validate token: %s", err)
 				httpx.InternalError(w, logger)
