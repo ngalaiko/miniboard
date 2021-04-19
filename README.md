@@ -2,12 +2,6 @@
 
 [![CI Status](https://github.com/ngalaiko/miniboard/workflows/CI/badge.svg)](https://github.com/ngalaiko/miniboard/actions)[![Coverage Status](https://coveralls.io/repos/github/ngalaiko/miniboard/badge.svg?branch=master)](https://coveralls.io/github/ngalaiko/miniboard?branch=master)[![Go Report Card](https://goreportcard.com/badge/github.com/ngalaiko/miniboard)](https://goreportcard.com/report/github.com/ngalaiko/miniboard)
 
-## API
-
-You can access Swagger UI [here](https://docs.miniboard.app/) if you want to explore and try out the api.
-
-Swagger description itsef is available [here](https://docs.miniboard.app/api.swagger.yaml).
-
 ## Configuration
 
 ### Backend

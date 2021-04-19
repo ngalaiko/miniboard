@@ -55,7 +55,7 @@ jobs:
     needs: [lint, test]
     strategy:
       matrix:
-        app: [backend, docs]
+        app: [backend]
     steps:
     - uses: actions/checkout@v1
 
