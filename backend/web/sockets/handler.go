@@ -70,7 +70,6 @@ func (h *Handler) handle(ctx context.Context, userID string) func(*websocket.Con
 			}
 
 			switch req.Event {
-			case tagToggled:
 			case itemSelected:
 				response, err := h.onItemSelected(ctx, userID, req)
 				if err != nil {
