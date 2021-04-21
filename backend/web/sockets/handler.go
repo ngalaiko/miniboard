@@ -44,8 +44,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	websocket.Handler(h.handle(r.Context(), token.UserID)).ServeHTTP(w, r)
 }
 
-func (h *Handler) handle(ctx context.Context, userID string) func(*websocket.Conn) {
-	return func(c *websocket.Conn) {
+func (h *Handler) readRequests(c *websocket.Conn) <-chan *request {
+	requests := make(chan *request)
+	go func() {
 		buffer := make([]byte, 2048)
 		for {
 			n, err := c.Read(buffer)
@@ -55,82 +56,76 @@ func (h *Handler) handle(ctx context.Context, userID string) func(*websocket.Con
 				if err := c.Close(); err != nil {
 					h.logger.Error("failed to close ws connection: %s", err)
 				}
+				close(requests)
 				return
 			default:
 				h.logger.Error("failed to read a frame: %s", err)
-				h.onError(c, 0, errInternal)
+				h.onResponse(c, errResponse(&request{}, errInternal))
 				continue
 			}
 
 			req := &request{}
 			if err := json.Unmarshal(buffer[:n], req); err != nil {
 				h.logger.Error("failed to unmarshal request: %s", err)
-				h.onError(c, 0, errInternal)
+				h.onResponse(c, errResponse(&request{}, errInternal))
 				continue
 			}
+			requests <- req
+		}
+	}()
+	return requests
+}
 
+func (h *Handler) sendResponses(c *websocket.Conn, responses <-chan *response) {
+	for resp := range responses {
+		raw, err := json.Marshal(resp)
+		if err != nil {
+			h.logger.Error("failed to marshal response message: %s", err)
+			h.onResponse(c, errResponse(&request{ID: resp.ID}, errInternal))
+			return
+		}
+		if _, err := c.Write(raw); err != nil {
+			h.logger.Error("failed to write response message: %s", err)
+			return
+		}
+	}
+}
+
+func (h *Handler) handle(ctx context.Context, userID string) func(*websocket.Conn) {
+	return func(c *websocket.Conn) {
+		responses := make(chan *response)
+		go h.sendResponses(c, responses)
+		for req := range h.readRequests(c) {
 			switch req.Event {
 			case itemSelected:
-				response, err := h.onItemSelected(ctx, userID, req)
-				if err != nil {
-					h.onError(c, req.ID, err)
-					continue
-				}
-				h.onResponse(c, response)
+				responses <- h.onItemSelected(ctx, userID, req)
 			case itemsLoad:
-				rr, err := h.loadItems(ctx, userID, req)
-				if err != nil {
-					h.onError(c, req.ID, err)
-					continue
-				}
-				h.onResponse(c, &response{
-					ID:     req.ID,
-					Target: "#items-list",
-					Reset:  true,
-				})
+				rr := h.loadItems(ctx, userID, req)
+				responses <- resetResponse(req, "#items-list")
 				for _, r := range rr {
-					h.onResponse(c, r)
+					responses <- r
 				}
 			case itemsLoadmore:
-				rr, err := h.loadItems(ctx, userID, req)
-				if err != nil {
-					h.onError(c, req.ID, err)
-					continue
-				}
+				rr := h.loadItems(ctx, userID, req)
 				for _, r := range rr {
-					h.onResponse(c, r)
+					responses <- r
 				}
 			default:
-				h.onError(c, req.ID, fmt.Errorf("unknown event: '%s'", req.Event))
+				h.onResponse(c, errResponse(req, fmt.Errorf("unknown event: '%s'", req.Event)))
 			}
 		}
 	}
 }
 
-func (h *Handler) onResponse(c *websocket.Conn, response *response) {
-	data, err := json.Marshal(response)
+func (h *Handler) onResponse(c *websocket.Conn, resp *response) {
+	data, err := json.Marshal(resp)
 	if err != nil {
 		h.logger.Error("failed to marshal response message: %s", err)
-		h.onError(c, response.ID, errInternal)
+		h.onResponse(c, errResponse(&request{ID: resp.ID}, errInternal))
 		return
 	}
 	if _, err := c.Write(data); err != nil {
 		h.logger.Error("failed to write response message: %s", err)
-		return
-	}
-}
-
-func (h *Handler) onError(c *websocket.Conn, id uint, err error) {
-	raw, err := json.Marshal(&response{
-		ID:    id,
-		Error: err.Error(),
-	})
-	if err != nil {
-		h.logger.Error("failed to marshal error message: %s", err)
-		return
-	}
-	if _, err := c.Write(raw); err != nil {
-		h.logger.Error("failed to write error message: %s", err)
 		return
 	}
 }
