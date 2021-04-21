@@ -85,11 +85,15 @@
         }
 
         socket.onmessage = (message) => {
-            const data = JSON.parse(message.data)
-            const target = document.querySelector(data.target)
-            if (data.reset) target.innerHTML = ''
-            const html = data.html
-            target.insertAdjacentHTML(data.insert, html)
+            const data = JSON.parse(message.data);
+            if (data.error) {
+                console.error(data.error);
+                return;
+            }
+            const target = document.querySelector(data.target);
+            if (data.reset) target.innerHTML = '';
+            if (data.html === "") return;
+            target.insertAdjacentHTML(data.insert, data.html);
         }
     </script>
 </body>

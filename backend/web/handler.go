@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/ngalaiko/miniboard/backend/items"
@@ -18,6 +19,7 @@ type tagsService interface {
 
 type subscriptionsService interface {
 	List(ctx context.Context, userID string, pageSize int, createdLT *time.Time) ([]*subscriptions.UserSubscription, error)
+	Create(ctx context.Context, userID string, url *url.URL, tagIDs []string) (*subscriptions.UserSubscription, error)
 }
 
 type itemsService interface {

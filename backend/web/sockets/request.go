@@ -3,9 +3,10 @@ package sockets
 type event string
 
 const (
-	itemsSelect   event = "items:select"
-	itemsLoad     event = "items:load"
-	itemsLoadmore event = "items:loadmore"
+	subscriptionsCreated event = "subscriptions:create"
+	itemsSelect          event = "items:select"
+	itemsLoad            event = "items:load"
+	itemsLoadmore        event = "items:loadmore"
 )
 
 type request struct {

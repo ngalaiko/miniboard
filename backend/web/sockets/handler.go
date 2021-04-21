@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"time"
 
 	"golang.org/x/net/websocket"
@@ -13,6 +14,7 @@ import (
 	"github.com/ngalaiko/miniboard/backend/authorizations"
 	"github.com/ngalaiko/miniboard/backend/httpx"
 	"github.com/ngalaiko/miniboard/backend/items"
+	"github.com/ngalaiko/miniboard/backend/subscriptions"
 )
 
 type logger interface {
@@ -24,15 +26,21 @@ type itemsService interface {
 	List(ctx context.Context, userID string, pageSize int, createdLT *time.Time, subscriptionID *string, tagID *string) ([]*items.UserItem, error)
 }
 
-type Handler struct {
-	logger       logger
-	itemsService itemsService
+type subscriptionsService interface {
+	Create(ctx context.Context, userID string, url *url.URL, tagIDs []string) (*subscriptions.UserSubscription, error)
 }
 
-func NewHandler(logger logger, itemsService itemsService) *Handler {
+type Handler struct {
+	logger               logger
+	itemsService         itemsService
+	subscriptionsService subscriptionsService
+}
+
+func NewHandler(logger logger, itemsService itemsService, subscriptionsService subscriptionsService) *Handler {
 	return &Handler{
-		logger:       logger,
-		itemsService: itemsService,
+		logger:               logger,
+		itemsService:         itemsService,
+		subscriptionsService: subscriptionsService,
 	}
 }
 
@@ -97,6 +105,8 @@ func (h *Handler) handle(ctx context.Context, userID string) func(*websocket.Con
 		go h.sendResponses(c, responses)
 		for req := range h.readRequests(c) {
 			switch req.Event {
+			case subscriptionsCreated:
+				responses <- h.onSubscriptionsCreated(ctx, userID, req)
 			case itemsSelect:
 				responses <- h.onItemSelected(ctx, userID, req)
 			case itemsLoad:

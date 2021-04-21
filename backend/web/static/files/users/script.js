@@ -259,16 +259,9 @@ window.addEventListener('keydown', (e) => {
 
         document.querySelector("#input-url").value = ''
 
-        const promise = SubscriptionsService.create({
+        sendMessage("subscriptions:create", {
             url: url,
-        }).then((operation) => OperationsService.wait(operation.id))
-
-        promise.then(displaySubscription)
-
-        addToastMessage(promise,
-            `Subscribing: ${url}`,
-            (subscription) => `Subscribed: ${subscription.title}`,
-        )
+        })
         break
     case 'Escape':
         closeModal()

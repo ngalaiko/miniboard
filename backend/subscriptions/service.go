@@ -39,6 +39,11 @@ type crawler interface {
 	Crawl(context.Context, *url.URL) ([]byte, error)
 }
 
+type logger interface {
+	Debug(string, ...interface{})
+	Error(string, ...interface{})
+}
+
 type itemsService interface {
 	Create(ctx context.Context, subscriptionID string, url string, title string, date *time.Time, summary *string) (*items.Item, error)
 }

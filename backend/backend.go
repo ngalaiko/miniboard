@@ -61,13 +61,12 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	itemsService := items.NewService(db, log)
 	subscriptionsService := subscriptions.NewService(db, crawler, log, cfg.Subscriptions, itemsService)
 
-	subscriptionsHandler := subscriptions.NewHandler(subscriptionsService, log, operationsService)
 	authorizationsHandler := authorizations.NewHandler(usersService, authorizationsService, log, cfg.Authorizations)
 	operationsHandler := operations.NewHandler(operationsService, log)
 	usersHandler := users.NewHandler(usersService, log)
 	importsHandler := imports.NewHandler(log, tagsService, subscriptionsService, operationsService)
 	webHandler := web.NewHandler(cfg.Web, log, itemsService, tagsService, subscriptionsService)
-	socketsHandler := sockets.NewHandler(log, itemsService)
+	socketsHandler := sockets.NewHandler(log, itemsService, subscriptionsService)
 
 	authMiddleware := authorizations.Middleware(authorizationsService, cfg.Authorizations, log)
 	optionalAuth := authorizations.Optional(authorizationsService, cfg.Authorizations, log)
@@ -82,9 +81,6 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	r.Route("/api/v1", func(r chi.Router) {
 		r.With(requireJSON).Route("/authorizations", func(r chi.Router) {
 			r.Post("/", authorizationsHandler.Create())
-		})
-		r.With(requireJSON).With(authMiddleware).Route("/subscriptions", func(r chi.Router) {
-			r.Post("/", subscriptionsHandler.Create())
 		})
 		r.With(requireJSON).With(authMiddleware).Route("/operations", func(r chi.Router) {
 			r.Route("/{operationId}", func(r chi.Router) {

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ngalaiko/miniboard/backend/items"
+	"github.com/ngalaiko/miniboard/backend/subscriptions"
 )
 
 //nolint: gochecknoglobals
@@ -48,4 +49,8 @@ func Reader(w io.Writer, item *items.Item) error {
 
 func Item(w io.Writer, item *items.UserItem) error {
 	return root.ExecuteTemplate(w, "files/components/item.html", item)
+}
+
+func Subscription(w io.Writer, subscription *subscriptions.UserSubscription) error {
+	return root.ExecuteTemplate(w, "files/components/subscription.html", subscription)
 }
