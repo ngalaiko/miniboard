@@ -202,7 +202,7 @@ const onSubscriptionSelected = (subscriptionId) => {
 }
 
 const onItemSelected = (itemId) => {
-    sendMessage("item:selected", {id: itemId})
+    sendMessage("items:select", {id: itemId})
     storeState('item', itemId)
 }
 

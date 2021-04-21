@@ -3,7 +3,7 @@ package sockets
 type event string
 
 const (
-	itemSelected  event = "item:selected"
+	itemsSelect   event = "items:select"
 	itemsLoad     event = "items:load"
 	itemsLoadmore event = "items:loadmore"
 )

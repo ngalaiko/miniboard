@@ -97,7 +97,7 @@ func (h *Handler) handle(ctx context.Context, userID string) func(*websocket.Con
 		go h.sendResponses(c, responses)
 		for req := range h.readRequests(c) {
 			switch req.Event {
-			case itemSelected:
+			case itemsSelect:
 				responses <- h.onItemSelected(ctx, userID, req)
 			case itemsLoad:
 				rr := h.loadItems(ctx, userID, req)
