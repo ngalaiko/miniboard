@@ -78,20 +78,28 @@ func (h *Handler) handle(ctx context.Context, userID string) func(*websocket.Con
 				}
 				h.onResponse(c, response)
 			case itemsLoad:
-				response, err := h.loadItems(ctx, userID, req)
+				rr, err := h.loadItems(ctx, userID, req)
 				if err != nil {
 					h.onError(c, req.ID, err)
 					continue
 				}
-				response.Reset = true
-				h.onResponse(c, response)
+				h.onResponse(c, &response{
+					ID:     req.ID,
+					Target: "#items-list",
+					Reset:  true,
+				})
+				for _, r := range rr {
+					h.onResponse(c, r)
+				}
 			case itemsLoadmore:
-				response, err := h.loadItems(ctx, userID, req)
+				rr, err := h.loadItems(ctx, userID, req)
 				if err != nil {
 					h.onError(c, req.ID, err)
 					continue
 				}
-				h.onResponse(c, response)
+				for _, r := range rr {
+					h.onResponse(c, r)
+				}
 			default:
 				h.onError(c, req.ID, fmt.Errorf("unknown event: '%s'", req.Event))
 			}
