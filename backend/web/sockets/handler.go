@@ -2,11 +2,12 @@ package sockets
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"sync"
 	"time"
 
 	"golang.org/x/net/websocket"
@@ -15,6 +16,7 @@ import (
 	"github.com/ngalaiko/miniboard/backend/httpx"
 	"github.com/ngalaiko/miniboard/backend/items"
 	"github.com/ngalaiko/miniboard/backend/subscriptions"
+	"github.com/ngalaiko/miniboard/backend/tags"
 )
 
 type logger interface {
@@ -30,17 +32,34 @@ type subscriptionsService interface {
 	Create(ctx context.Context, userID string, url *url.URL, tagIDs []string) (*subscriptions.UserSubscription, error)
 }
 
+type tagsService interface {
+	Create(ctx context.Context, userID string, title string) (*tags.Tag, error)
+	GetByTitle(ctx context.Context, userID string, title string) (*tags.Tag, error)
+}
+
 type Handler struct {
 	logger               logger
 	itemsService         itemsService
 	subscriptionsService subscriptionsService
+	tagsService          tagsService
+
+	openSocketsGuard *sync.RWMutex
+	openSockets      map[string][]*websocket.Conn
 }
 
-func NewHandler(logger logger, itemsService itemsService, subscriptionsService subscriptionsService) *Handler {
+func NewHandler(
+	logger logger,
+	itemsService itemsService,
+	subscriptionsService subscriptionsService,
+	tagsService tagsService,
+) *Handler {
 	return &Handler{
 		logger:               logger,
 		itemsService:         itemsService,
 		subscriptionsService: subscriptionsService,
+		tagsService:          tagsService,
+		openSocketsGuard:     &sync.RWMutex{},
+		openSockets:          make(map[string][]*websocket.Conn),
 	}
 }
 
@@ -52,90 +71,101 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	websocket.Handler(h.handle(r.Context(), token.UserID)).ServeHTTP(w, r)
 }
 
-func (h *Handler) readRequests(c *websocket.Conn) <-chan *request {
+func (h *Handler) readRequests(ws *websocket.Conn) <-chan *request {
 	requests := make(chan *request)
 	go func() {
-		buffer := make([]byte, 2048)
 		for {
-			n, err := c.Read(buffer)
-			switch err {
-			case nil:
-			case io.EOF:
-				if err := c.Close(); err != nil {
+			req := &request{}
+			err := websocket.JSON.Receive(ws, req)
+			switch {
+			case err == nil:
+				requests <- req
+			case errors.Is(err, io.EOF):
+				if err := ws.Close(); err != nil {
 					h.logger.Error("failed to close ws connection: %s", err)
 				}
 				close(requests)
 				return
 			default:
-				h.logger.Error("failed to read a frame: %s", err)
-				h.onResponse(c, errResponse(&request{}, errInternal))
-				continue
+				h.logger.Error("failed to read a request: %s", err)
 			}
-
-			req := &request{}
-			if err := json.Unmarshal(buffer[:n], req); err != nil {
-				h.logger.Error("failed to unmarshal request: %s", err)
-				h.onResponse(c, errResponse(&request{}, errInternal))
-				continue
-			}
-			requests <- req
 		}
 	}()
 	return requests
 }
 
-func (h *Handler) sendResponses(c *websocket.Conn, responses <-chan *response) {
-	for resp := range responses {
-		raw, err := json.Marshal(resp)
-		if err != nil {
-			h.logger.Error("failed to marshal response message: %s", err)
-			h.onResponse(c, errResponse(&request{ID: resp.ID}, errInternal))
+func (h *Handler) broadcastResponses(ctx context.Context, userID string, responses <-chan *response) {
+	for {
+		select {
+		case <-ctx.Done():
 			return
-		}
-		if _, err := c.Write(raw); err != nil {
-			h.logger.Error("failed to write response message: %s", err)
-			return
+		case resp := <-responses:
+			h.openSocketsGuard.RLock()
+			for _, ws := range h.openSockets[userID] {
+				if err := websocket.JSON.Send(ws, resp); err != nil {
+					h.logger.Error("failed to write response message: %s", err)
+				}
+			}
+			h.openSocketsGuard.RUnlock()
 		}
 	}
 }
 
+func (h *Handler) openSocket(userID string, ws *websocket.Conn) {
+	h.openSocketsGuard.Lock()
+	h.openSockets[userID] = append(h.openSockets[userID], ws)
+	h.openSocketsGuard.Unlock()
+}
+
+func (h *Handler) closeSocket(userID string, ws *websocket.Conn) {
+	h.openSocketsGuard.Lock()
+	i := 0
+	for _, s := range h.openSockets[userID] {
+		if s == ws {
+			break
+		}
+		i++
+	}
+	h.openSockets[userID] = append(h.openSockets[userID][:i], h.openSockets[userID][i+1:]...)
+	h.openSocketsGuard.Unlock()
+}
+
 func (h *Handler) handle(ctx context.Context, userID string) func(*websocket.Conn) {
-	return func(c *websocket.Conn) {
+	return func(ws *websocket.Conn) {
+		h.openSocket(userID, ws)
+		defer h.closeSocket(userID, ws)
+
 		responses := make(chan *response)
-		go h.sendResponses(c, responses)
-		for req := range h.readRequests(c) {
+		go h.broadcastResponses(ctx, userID, responses)
+
+		for req := range h.readRequests(ws) {
 			switch req.Event {
+			case subscriptionsImport:
+				h.onSubscriptionsImport(context.Background(), userID, req, responses)
 			case subscriptionsCreated:
-				responses <- h.onSubscriptionsCreated(ctx, userID, req)
+				responses <- h.onSubscriptionsCreated(context.Background(), userID, req)
 			case itemsSelect:
-				responses <- h.onItemSelected(ctx, userID, req)
+				h.respond(ws, h.onItemSelected(ctx, userID, req))
 			case itemsLoad:
 				rr := h.loadItems(ctx, userID, req)
-				responses <- resetResponse(req, "#items-list")
+				h.respond(ws, resetResponse(req, "#items-list"))
 				for _, r := range rr {
-					responses <- r
+					h.respond(ws, r)
 				}
 			case itemsLoadmore:
 				rr := h.loadItems(ctx, userID, req)
 				for _, r := range rr {
-					responses <- r
+					h.respond(ws, r)
 				}
 			default:
-				h.onResponse(c, errResponse(req, fmt.Errorf("unknown event: '%s'", req.Event)))
+				h.respond(ws, errResponse(req, fmt.Errorf("unknown event: '%s'", req.Event)))
 			}
 		}
 	}
 }
 
-func (h *Handler) onResponse(c *websocket.Conn, resp *response) {
-	data, err := json.Marshal(resp)
-	if err != nil {
-		h.logger.Error("failed to marshal response message: %s", err)
-		h.onResponse(c, errResponse(&request{ID: resp.ID}, errInternal))
-		return
-	}
-	if _, err := c.Write(data); err != nil {
+func (h *Handler) respond(ws *websocket.Conn, resp *response) {
+	if err := websocket.JSON.Send(ws, resp); err != nil {
 		h.logger.Error("failed to write response message: %s", err)
-		return
 	}
 }

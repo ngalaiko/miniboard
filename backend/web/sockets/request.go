@@ -3,6 +3,7 @@ package sockets
 type event string
 
 const (
+	subscriptionsImport  event = "subscriptions:import"
 	subscriptionsCreated event = "subscriptions:create"
 	itemsSelect          event = "items:select"
 	itemsLoad            event = "items:load"

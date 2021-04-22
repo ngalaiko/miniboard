@@ -1,4 +1,4 @@
-package parser
+package opml
 
 import (
 	"encoding/xml"
@@ -20,7 +20,7 @@ type Feed struct {
 	URL   string `xml:"xmlUrl,attr"`
 }
 
-func ParseOPML(data []byte) (*OPML, error) {
+func Parse(data []byte) (*OPML, error) {
 	parsed := &OPML{}
 	if err := xml.Unmarshal(data, parsed); err != nil {
 		return nil, fmt.Errorf("failed to parse opml: %w", err)

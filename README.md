@@ -29,8 +29,6 @@ http:
     enabled: true          # if false, plaintext http will be used
     key_path: "./key.pem"  # path to tls key
     cert_path: "./crt.pem" # path to tls certificate
-operations:
-  workers: 10 # number of workers that execute longrunning operations
 subsciptions:
   updates:
     workers: 10 # number of workers that update subscriptions in background
