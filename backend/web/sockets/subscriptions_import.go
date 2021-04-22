@@ -24,7 +24,7 @@ func (h *Handler) onSubscriptionsImport(ctx context.Context, userID string, req 
 	}
 
 	for _, opmlTag := range parsed.Tags {
-		tag, err := h.getOrCreateTag(ctx, userID, opmlTag.Title)
+		tag, err := h.getOrCreateTag(ctx, userID, opmlTag.Title, req, respond)
 		if err != nil {
 			h.logger.Error("failed to get or create tag: %s", err)
 			respond <- errResponse(req, errInternal)
@@ -48,20 +48,41 @@ func (h *Handler) onSubscriptionsImport(ctx context.Context, userID string, req 
 			respond <- &response{
 				ID:     req.ID,
 				HTML:   html.String(),
-				Target: "#no-tags-list",
-				Insert: afterbegin,
+				Target: fmt.Sprintf("#%s-children", tag.ID),
+				Insert: beforeend,
 			}
 		}
 	}
 }
 
-func (h *Handler) getOrCreateTag(ctx context.Context, userID string, title string) (*tags.Tag, error) {
+func (h *Handler) getOrCreateTag(ctx context.Context, userID string, title string, req *request, respond chan<- *response) (*tags.Tag, error) {
 	tag, err := h.tagsService.GetByTitle(ctx, userID, title)
 	switch err {
 	case nil:
 		return tag, nil
 	case tags.ErrNotFound:
-		return h.tagsService.Create(ctx, userID, title)
+		newTag, err := h.tagsService.Create(ctx, userID, title)
+		if err != nil {
+			return newTag, err
+		}
+		html := &bytes.Buffer{}
+		if err := templates.Tag(html, newTag); err != nil {
+			h.logger.Error("failed to render tag: %s", err)
+			return nil, errInternal
+		}
+		respond <- &response{
+			ID:     req.ID,
+			HTML:   fmt.Sprintf(`<div id="%s-children" class="tag-subscriptions" hidden></div>`, newTag.ID),
+			Target: "#tags-list",
+			Insert: afterbegin,
+		}
+		respond <- &response{
+			ID:     req.ID,
+			HTML:   html.String(),
+			Target: "#tags-list",
+			Insert: afterbegin,
+		}
+		return newTag, err
 	default:
 		return nil, fmt.Errorf("failed to get tag: %w", err)
 	}
