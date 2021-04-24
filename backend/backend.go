@@ -19,6 +19,7 @@ import (
 	"github.com/ngalaiko/miniboard/backend/tags"
 	"github.com/ngalaiko/miniboard/backend/users"
 	"github.com/ngalaiko/miniboard/backend/web"
+	"github.com/ngalaiko/miniboard/backend/web/handlers"
 	"github.com/ngalaiko/miniboard/backend/web/sockets"
 )
 
@@ -58,7 +59,13 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	authorizationsHandler := authorizations.NewHandler(usersService, authorizationsService, log, cfg.Authorizations)
 	usersHandler := users.NewHandler(usersService, log)
 	webHandler := web.NewHandler(cfg.Web, log, itemsService, tagsService, subscriptionsService)
-	socketsHandler := sockets.NewHandler(log, itemsService, subscriptionsService, tagsService)
+
+	sockets := sockets.New(log).
+		On("items:select", handlers.ItemsSelect(log, itemsService)).
+		On("items:loadmore", handlers.ItemsLoadmore(log, itemsService)).
+		On("items:load", handlers.ItemsLoad(log, itemsService)).
+		On("subscriptions:create", handlers.SubscriptionsCreate(log, subscriptionsService)).
+		On("subscriptions:import", handlers.SubscriptionsImport(log, subscriptionsService, tagsService))
 
 	authMiddleware := authorizations.Middleware(authorizationsService, cfg.Authorizations, log)
 	optionalAuth := authorizations.Optional(authorizationsService, cfg.Authorizations, log)
@@ -76,7 +83,7 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 		r.With(requireJSON).Route("/users", func(r chi.Router) {
 			r.Post("/", usersHandler.Create())
 		})
-		r.With(authMiddleware).Get("/ws", socketsHandler.ServeHTTP)
+		r.With(authMiddleware).Get("/ws", sockets.Receive())
 	})
 	r.Get("/*", webHandler)
 

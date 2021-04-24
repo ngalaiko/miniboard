@@ -1,17 +1,7 @@
 package sockets
 
-type event string
-
-const (
-	subscriptionsImport  event = "subscriptions:import"
-	subscriptionsCreated event = "subscriptions:create"
-	itemsSelect          event = "items:select"
-	itemsLoad            event = "items:load"
-	itemsLoadmore        event = "items:loadmore"
-)
-
-type request struct {
+type Request struct {
 	ID     uint              `json:"id"`
-	Event  event             `json:"event"`
+	Event  string            `json:"event"`
 	Params map[string]string `json:"params"`
 }
