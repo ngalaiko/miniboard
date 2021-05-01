@@ -65,15 +65,15 @@ func (s *Sockets) register(userID string, ws *websocket.Conn) {
 
 func (s *Sockets) unregister(userID string, ws *websocket.Conn) {
 	s.openSocketsGuard.Lock()
-	i := 0
-	for _, w := range s.openSockets[userID] {
-		if *w == *ws {
-			break
+	defer s.openSocketsGuard.Unlock()
+
+	for i, w := range s.openSockets[userID] {
+		if *w != *ws {
+			continue
 		}
-		i++
+		s.openSockets[userID] = append(s.openSockets[userID][:i], s.openSockets[userID][i+1:]...)
+		return
 	}
-	s.openSockets[userID] = append(s.openSockets[userID][:i], s.openSockets[userID][i+1:]...)
-	s.openSocketsGuard.Unlock()
 }
 
 func (s *Sockets) handle(ctx context.Context, userID string) func(*websocket.Conn) {
