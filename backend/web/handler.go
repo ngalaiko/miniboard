@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/ngalaiko/miniboard/backend/authorizations"
+	"github.com/ngalaiko/miniboard/backend/httpx"
 	"github.com/ngalaiko/miniboard/backend/items"
 	"github.com/ngalaiko/miniboard/backend/subscriptions"
 	"github.com/ngalaiko/miniboard/backend/tags"
@@ -40,14 +42,25 @@ type logger interface {
 	Error(string, ...interface{})
 }
 
-func NewHandler(cfg *Config, log logger, itemsService itemsService, tagsService tagsService, subscriptionsService subscriptionsService) http.HandlerFunc {
+func NewHandler(
+	cfg *Config,
+	log logger,
+	itemsService itemsService,
+	tagsService tagsService,
+	subscriptionsService subscriptionsService,
+	usersService usersService,
+	jwtService jwtService,
+) http.HandlerFunc {
 	staticHandler := static.NewHandler(cfg.FS, log)
 	templatesHandler := templates.NewHandler(log, itemsService, tagsService, subscriptionsService)
 	socketsHandler := sockets.New(log, itemsService, tagsService, subscriptionsService)
+	loginHandler := loginHandler(log, usersService, jwtService)
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
 			switch r.URL.Path {
+			case "/login/":
+				loginHandler.ServeHTTP(w, r)
 			default:
 				http.NotFound(w, r)
 			}
@@ -56,7 +69,17 @@ func NewHandler(cfg *Config, log logger, itemsService itemsService, tagsService 
 			case "/api/ws/":
 				socketsHandler.Receive().ServeHTTP(w, r)
 			case "/users/":
-				templatesHandler.ServeHTTP(w, r)
+				_, authorized := authorizations.FromContext(r.Context())
+				if authorized {
+					templatesHandler.ServeHTTP(w, r)
+				} else {
+					http.Redirect(w, r, "/login/", http.StatusSeeOther)
+				}
+			case "/login/":
+				if err := templates.LoginPage(w, nil); err != nil {
+					log.Error("failed to render login page: %s", err)
+					httpx.InternalError(w, log)
+				}
 			default:
 				staticHandler.ServeHTTP(w, r)
 			}

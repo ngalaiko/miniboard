@@ -1,5 +1,3 @@
-authorizations:
-  cookie_lifetime: 24h
 http:
   addr: ":80"
 db:

@@ -23,12 +23,11 @@ import (
 
 // Config contains all server configuration.
 type Config struct {
-	Authorizations *authorizations.Config `yaml:"authorizations"`
-	DB             *db.Config             `yaml:"db"`
-	HTTP           *httpx.Config          `yaml:"http"`
-	Subscriptions  *subscriptions.Config  `yaml:"subscriptions"`
-	Users          *users.Config          `yaml:"users"`
-	Web            *web.Config            `yaml:"web"`
+	DB            *db.Config            `yaml:"db"`
+	HTTP          *httpx.Config         `yaml:"http"`
+	Subscriptions *subscriptions.Config `yaml:"subscriptions"`
+	Users         *users.Config         `yaml:"users"`
+	Web           *web.Config           `yaml:"web"`
 }
 
 // Server is the main object.
@@ -54,11 +53,10 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	itemsService := items.NewService(db, log)
 	subscriptionsService := subscriptions.NewService(db, crawler, log, cfg.Subscriptions, itemsService)
 
-	authorizationsHandler := authorizations.NewHandler(usersService, authorizationsService, log, cfg.Authorizations)
 	usersHandler := users.NewHandler(usersService, log)
-	webHandler := web.NewHandler(cfg.Web, log, itemsService, tagsService, subscriptionsService)
+	webHandler := web.NewHandler(cfg.Web, log, itemsService, tagsService, subscriptionsService, usersService, authorizationsService)
 
-	optionalAuth := authorizations.Authenticate(authorizationsService, log)
+	optionalAuth := web.Authenticate(authorizationsService, log)
 
 	requireJSON := middleware.AllowContentType("application/json")
 
@@ -67,14 +65,12 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	r.Use(middleware.Recoverer)
 	r.Use(optionalAuth)
 	r.Route("/api/v1", func(r chi.Router) {
-		r.With(requireJSON).Route("/authorizations", func(r chi.Router) {
-			r.Post("/", authorizationsHandler.Create())
-		})
 		r.With(requireJSON).Route("/users", func(r chi.Router) {
 			r.Post("/", usersHandler.Create())
 		})
 	})
 	r.Get("/*", webHandler)
+	r.Post("/*", webHandler)
 
 	httpServer, err := httpx.NewServer(cfg.HTTP, log, r)
 	if err != nil {

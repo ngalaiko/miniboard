@@ -20,8 +20,8 @@ import (
 
 // Known errors.
 var (
-	errInvalidToken = fmt.Errorf("token is invalid")
-	errTokenExpired = fmt.Errorf("token is expired")
+	ErrInvalidToken = fmt.Errorf("token is invalid")
+	ErrTokenExpired = fmt.Errorf("token is expired")
 )
 
 const (
@@ -30,7 +30,7 @@ const (
 )
 
 type logger interface {
-	errorLogger
+	Error(string, ...interface{})
 	Info(string, ...interface{})
 }
 
@@ -125,11 +125,11 @@ func (s *Service) NewToken(ctx context.Context, userID string) (*Token, error) {
 func (s *Service) Verify(ctx context.Context, token string) (*Token, error) {
 	jwtoken, err := jwt.ParseSigned(token)
 	if err != nil {
-		return nil, errInvalidToken
+		return nil, ErrInvalidToken
 	}
 
 	if len(jwtoken.Headers) == 0 {
-		return nil, errInvalidToken
+		return nil, ErrInvalidToken
 	}
 
 	id := jwtoken.Headers[0].KeyID
@@ -138,14 +138,14 @@ func (s *Service) Verify(ctx context.Context, token string) (*Token, error) {
 	switch {
 	case err == nil:
 	case errors.Is(err, sql.ErrNoRows):
-		return nil, errInvalidToken
+		return nil, ErrInvalidToken
 	default:
 		return nil, fmt.Errorf("failed to find key '%s': %w", id, err)
 	}
 
 	claims := &jwt.Claims{}
 	if err := jwtoken.Claims(pubicKey, claims); err != nil {
-		return nil, errInvalidToken
+		return nil, ErrInvalidToken
 	}
 
 	validateErr := claims.ValidateWithLeeway(jwt.Expected{
@@ -164,9 +164,9 @@ func (s *Service) Verify(ctx context.Context, token string) (*Token, error) {
 			Token:     token,
 			UserID:    claims.Subject,
 			ExpiresAt: claims.Expiry.Time(),
-		}, errTokenExpired
+		}, ErrTokenExpired
 	default:
-		return nil, errInvalidToken
+		return nil, ErrInvalidToken
 	}
 }
 

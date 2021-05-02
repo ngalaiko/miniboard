@@ -27,6 +27,10 @@
         .pure-u-center {
             text-align: center;
         }
+
+        .error {
+            background: rgb(202, 60, 60); // maroon
+        }
     </style>
 </head>
 
@@ -38,7 +42,10 @@
     </div>
     <div class="pure-g pure-g-center">
         <div class="pure-u-7-8 pure-u-lg-1-5 pure-u-md-1-3 pure-u-sm-1-3 pure-u-center">
-            <form class="pure-form">
+            <form class="pure-form" action="/login/" method="POST">
+                {{ with .Error }}
+                    <aside class="error pure-button pure-button-primary">Error: {{ . }}</aside>
+                {{ end }}
                 <fieldset class="pure-group">
                     <input class="pure-input-1" type="text" id="username" name="username" placeholder="Username"></input>
                     <input class="pure-input-1" type="password" id="password" name="password" placeholder="Password"></input>
@@ -52,8 +59,6 @@
             No account yet? <a href="/signup">Sign up</a>
         </div>
     </div>
-
-    <script src="/login/script.js" type="module"></script>
 </body>
 
 </html>

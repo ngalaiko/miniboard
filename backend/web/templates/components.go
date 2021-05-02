@@ -26,7 +26,7 @@ var (
 
 //nolint: gochecknoinits
 func init() {
-	if err := fs.WalkDir(files, "files/components", func(path string, d fs.DirEntry, err error) error {
+	if err := fs.WalkDir(files, "files", func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
 		}
@@ -42,6 +42,12 @@ func init() {
 	}); err != nil {
 		panic(err)
 	}
+}
+
+func LoginPage(w io.Writer, err error) error {
+	return root.ExecuteTemplate(w, "files/login/index.html", map[string]interface{}{
+		"Error": err,
+	})
 }
 
 func Reader(w io.Writer, item *items.Item) error {

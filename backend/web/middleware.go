@@ -1,10 +1,11 @@
-package authorizations
+package web
 
 import (
 	"errors"
 	"fmt"
 	"net/http"
 
+	"github.com/ngalaiko/miniboard/backend/authorizations"
 	"github.com/ngalaiko/miniboard/backend/httpx"
 )
 
@@ -18,7 +19,7 @@ var (
 	errInvalidTokenFormat = fmt.Errorf("invalid auth token format")
 )
 
-func Authenticate(jwtService jwtService, logger errorLogger) func(http.Handler) http.Handler {
+func Authenticate(jwtService jwtService, log errorLogger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			cookie, err := r.Cookie(cookieName)
@@ -30,12 +31,20 @@ func Authenticate(jwtService jwtService, logger errorLogger) func(http.Handler) 
 			token, err := jwtService.Verify(r.Context(), cookie.Value)
 			switch {
 			case err == nil:
-				r = r.WithContext(NewContext(r.Context(), token))
-			case errors.Is(err, errInvalidToken):
-			case errors.Is(err, errTokenExpired):
+				r = r.WithContext(authorizations.NewContext(r.Context(), token))
+			case errors.Is(err, authorizations.ErrInvalidToken):
+			case errors.Is(err, authorizations.ErrTokenExpired):
+				token, err := jwtService.NewToken(r.Context(), token.UserID)
+				if err != nil {
+					log.Error("failed to create a new token: %s", err)
+					httpx.InternalError(w, log)
+					return
+				}
+
+				setCookie(w, r.TLS != nil, token)
 			default:
-				logger.Error("failed to validate token: %s", err)
-				httpx.InternalError(w, logger)
+				log.Error("failed to validate token: %s", err)
+				httpx.InternalError(w, log)
 				return
 			}
 

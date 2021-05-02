@@ -16,9 +16,6 @@
 #### Configuration file
 
 ```yaml
-authorizations:
-  secure: false         # if cookie should be Secure
-  cookie_lifetime: 720h # lifetime of auth cookie
 db:
   driver: "sqlite3"       # available values: "sqlite3"
   addr: "./db.sqilite3"   # db address
