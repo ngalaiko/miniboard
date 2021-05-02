@@ -36,18 +36,13 @@ type logger interface {
 }
 
 func NewHandler(cfg *Config, log logger, itemsService itemsService, tagsService tagsService, subscriptionsService subscriptionsService) http.HandlerFunc {
-	useTemplates := map[string]bool{
-		"/users":            true,
-		"/users/":           true,
-		"/users/index.html": true,
-	}
-
 	staticHandler := static.NewHandler(cfg.FS, log)
 	templatesHandler := templates.NewHandler(log, itemsService, tagsService, subscriptionsService)
 	return func(w http.ResponseWriter, r *http.Request) {
-		if useTemplates[r.URL.Path] {
+		switch r.URL.Path {
+		case "/users/":
 			templatesHandler.ServeHTTP(w, r)
-		} else {
+		default:
 			staticHandler.ServeHTTP(w, r)
 		}
 	}

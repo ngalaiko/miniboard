@@ -18,22 +18,20 @@ func NewHandler(log logger, itemsService itemsService, tagsService tagsService, 
 	return func(w http.ResponseWriter, r *http.Request) {
 		token, auth := authorizations.FromContext(r.Context())
 		if !auth {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			http.Redirect(w, r, "/login/", http.StatusSeeOther)
 			return
 		}
-		switch r.URL.Path {
-		case "/users", "/users/", "/users/index.html":
-			data, err := loadUsersData(r, token.UserID, itemsService, tagsService, subscriptionsService)
-			if err != nil {
-				log.Error("failed to load users data: %s", err)
-				httpx.InternalError(w, log)
-				return
-			}
-			if err := templates.ExecuteTemplate(w, "files/users/index.html", data); err != nil {
-				log.Error("failed to render users page: %s", err)
-				httpx.InternalError(w, log)
-				return
-			}
+
+		data, err := loadUsersData(r, token.UserID, itemsService, tagsService, subscriptionsService)
+		if err != nil {
+			log.Error("failed to load users data: %s", err)
+			httpx.InternalError(w, log)
+			return
+		}
+		if err := templates.ExecuteTemplate(w, "files/users/index.html", data); err != nil {
+			log.Error("failed to render users page: %s", err)
+			httpx.InternalError(w, log)
+			return
 		}
 	}
 }
