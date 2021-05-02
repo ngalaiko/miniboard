@@ -70,7 +70,7 @@
     <script src="/users/script.js"></script>
     <script>
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const webdockerUrl = protocol + '//' + window.location.hostname + '/api/v1/ws';
+        const webdockerUrl = protocol + '//' + window.location.hostname + '/api/ws/';
         const socket = new WebSocket(webdockerUrl);
 
         const sendMessage = (event, params) => {

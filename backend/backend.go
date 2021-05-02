@@ -19,8 +19,6 @@ import (
 	"github.com/ngalaiko/miniboard/backend/tags"
 	"github.com/ngalaiko/miniboard/backend/users"
 	"github.com/ngalaiko/miniboard/backend/web"
-	"github.com/ngalaiko/miniboard/backend/web/handlers"
-	"github.com/ngalaiko/miniboard/backend/web/sockets"
 )
 
 // Config contains all server configuration.
@@ -60,13 +58,6 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	usersHandler := users.NewHandler(usersService, log)
 	webHandler := web.NewHandler(cfg.Web, log, itemsService, tagsService, subscriptionsService)
 
-	sockets := sockets.New(log).
-		On("items:select", handlers.ItemsSelect(log, itemsService)).
-		On("items:loadmore", handlers.ItemsLoadmore(log, itemsService)).
-		On("items:load", handlers.ItemsLoad(log, itemsService)).
-		On("subscriptions:create", handlers.SubscriptionsCreate(log, subscriptionsService)).
-		On("subscriptions:import", handlers.SubscriptionsImport(log, subscriptionsService, tagsService))
-
 	optionalAuth := authorizations.Authenticate(authorizationsService, log)
 
 	requireJSON := middleware.AllowContentType("application/json")
@@ -82,7 +73,6 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 		r.With(requireJSON).Route("/users", func(r chi.Router) {
 			r.Post("/", usersHandler.Create())
 		})
-		r.Get("/ws", sockets.Receive())
 	})
 	r.Get("/*", webHandler)
 
