@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/rs/zerolog"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 // Level defines logger level.
@@ -27,7 +27,7 @@ func New(level Level) *Logger {
 
 	logger := zerolog.New(outFile)
 
-	if terminal.IsTerminal(int(outFile.Fd())) {
+	if term.IsTerminal(int(outFile.Fd())) {
 		logger = zerolog.New(zerolog.ConsoleWriter{
 			Out: outFile,
 		})

@@ -6,6 +6,8 @@ import (
 )
 
 func Test_Parse_atom10__AtomSample(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed xmlns="http://www.w3.org/2005/Atom">
 	  <title>Example Feed</title>
@@ -64,6 +66,8 @@ func Test_Parse_atom10__AtomSample(t *testing.T) {
 }
 
 func Test_Parse_atom10_EntrySummaryWithXHTML(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed xmlns="http://www.w3.org/2005/Atom">
 	  <title>Example Feed</title>
@@ -88,6 +92,8 @@ func Test_Parse_atom10_EntrySummaryWithXHTML(t *testing.T) {
 }
 
 func Test_Parse_atom10__FeedWithoutTitle(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<feed xmlns="http://www.w3.org/2005/Atom">
 			<link rel="alternate" type="text/html" href="https://example.org/"/>
@@ -106,6 +112,8 @@ func Test_Parse_atom10__FeedWithoutTitle(t *testing.T) {
 }
 
 func Test_Parse_atom10_EntrySummaryWithHTML(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed xmlns="http://www.w3.org/2005/Atom">
 	  <title>Example Feed</title>
@@ -130,6 +138,8 @@ func Test_Parse_atom10_EntrySummaryWithHTML(t *testing.T) {
 }
 
 func Test_Parse_atom10_EntrySummaryWithPlainText(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed xmlns="http://www.w3.org/2005/Atom">
 	  <title>Example Feed</title>
@@ -154,6 +164,8 @@ func Test_Parse_atom10_EntrySummaryWithPlainText(t *testing.T) {
 }
 
 func Test_Parse_atom10__EntryWithoutTitle(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed xmlns="http://www.w3.org/2005/Atom">
 	  <title>Example Feed</title>
@@ -182,6 +194,8 @@ func Test_Parse_atom10__EntryWithoutTitle(t *testing.T) {
 }
 
 func Test_Parse_atom10__FeedURL(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed xmlns="http://www.w3.org/2005/Atom">
 	  <title>Example Feed</title>
@@ -201,6 +215,8 @@ func Test_Parse_atom10__FeedURL(t *testing.T) {
 }
 
 func Test_Parse_atom10__EntryWithRelativeURL(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed xmlns="http://www.w3.org/2005/Atom">
 	  <title>Example Feed</title>
@@ -225,6 +241,8 @@ func Test_Parse_atom10__EntryWithRelativeURL(t *testing.T) {
 }
 
 func Test_Parse_atom10__EntryTitleWithWhitespaces(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed xmlns="http://www.w3.org/2005/Atom">
 	  <title>Example Feed</title>
@@ -251,6 +269,8 @@ func Test_Parse_atom10__EntryTitleWithWhitespaces(t *testing.T) {
 }
 
 func Test_Parse_atom10__EntryTitleWithHTMLAndCDATA(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed xmlns="http://www.w3.org/2005/Atom">
 	  <title>Example Feed</title>
@@ -275,6 +295,8 @@ func Test_Parse_atom10__EntryTitleWithHTMLAndCDATA(t *testing.T) {
 }
 
 func Test_Parse_atom10__EntryTitleWithHTML(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed xmlns="http://www.w3.org/2005/Atom">
 	  <title>Example Feed</title>
@@ -299,6 +321,8 @@ func Test_Parse_atom10__EntryTitleWithHTML(t *testing.T) {
 }
 
 func Test_Parse_atom10__EntryTitleWithXHTML(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed xmlns="http://www.w3.org/2005/Atom">
 	  <title>Example Feed</title>
@@ -323,6 +347,8 @@ func Test_Parse_atom10__EntryTitleWithXHTML(t *testing.T) {
 }
 
 func Test_Parse_atom10__EntryTitleWithNumericCharacterReference(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed xmlns="http://www.w3.org/2005/Atom">
 	  <title>Example Feed</title>
@@ -347,6 +373,8 @@ func Test_Parse_atom10__EntryTitleWithNumericCharacterReference(t *testing.T) {
 }
 
 func Test_Parse_atom10__EntryTitleWithDoubleEncodedEntities(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed xmlns="http://www.w3.org/2005/Atom">
 	  <title>Example Feed</title>
@@ -371,6 +399,8 @@ func Test_Parse_atom10__EntryTitleWithDoubleEncodedEntities(t *testing.T) {
 }
 
 func Test_Parse_atom10__InvalidXml(t *testing.T) {
+	t.Parallel()
+
 	data := `garbage`
 	_, err := Parse([]byte(data), &testLogger{})
 	if err == nil {
@@ -379,6 +409,8 @@ func Test_Parse_atom10__InvalidXml(t *testing.T) {
 }
 
 func Test_Parse_atom10__TitleWithSingleQuote(t *testing.T) {
+	t.Parallel()
+
 	data := `
 		<?xml version="1.0" encoding="utf-8"?>
 		<feed xmlns="http://www.w3.org/2005/Atom">
@@ -398,6 +430,8 @@ func Test_Parse_atom10__TitleWithSingleQuote(t *testing.T) {
 }
 
 func Test_Parse_atom10__TitleWithEncodedSingleQuote(t *testing.T) {
+	t.Parallel()
+
 	data := `
 		<?xml version="1.0" encoding="utf-8"?>
 		<feed xmlns="http://www.w3.org/2005/Atom">
@@ -417,6 +451,8 @@ func Test_Parse_atom10__TitleWithEncodedSingleQuote(t *testing.T) {
 }
 
 func Test_Parse_atom10__TitleWithSingleQuoteAndHTMLType(t *testing.T) {
+	t.Parallel()
+
 	data := `
 		<?xml version="1.0" encoding="utf-8"?>
 		<feed xmlns="http://www.w3.org/2005/Atom">
@@ -436,6 +472,8 @@ func Test_Parse_atom10__TitleWithSingleQuoteAndHTMLType(t *testing.T) {
 }
 
 func Test_Parse_atom10__RepliesLinkRelationWithHTMLType(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<feed xmlns="http://www.w3.org/2005/Atom"
 			xmlns:thr="http://purl.org/syndication/thread/1.0">
@@ -476,6 +514,8 @@ func Test_Parse_atom10__RepliesLinkRelationWithHTMLType(t *testing.T) {
 }
 
 func Test_Parse_atom10__RepliesLinkRelationWithXHTMLType(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<feed xmlns="http://www.w3.org/2005/Atom"
 			xmlns:thr="http://purl.org/syndication/thread/1.0">
@@ -516,6 +556,8 @@ func Test_Parse_atom10__RepliesLinkRelationWithXHTMLType(t *testing.T) {
 }
 
 func Test_Parse_atom10__RepliesLinkRelationWithNoType(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<feed xmlns="http://www.w3.org/2005/Atom"
 			xmlns:thr="http://purl.org/syndication/thread/1.0">
@@ -551,6 +593,8 @@ func Test_Parse_atom10__RepliesLinkRelationWithNoType(t *testing.T) {
 }
 
 func TestParseEntryWithPublished(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed xmlns="http://www.w3.org/2005/Atom">
 	  <title>Example Feed</title>
@@ -574,6 +618,8 @@ func TestParseEntryWithPublished(t *testing.T) {
 }
 
 func TestParseEntryWithPublishedAndUpdated(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed xmlns="http://www.w3.org/2005/Atom">
 	  <title>Example Feed</title>

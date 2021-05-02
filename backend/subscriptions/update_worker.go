@@ -2,6 +2,7 @@ package subscriptions
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"time"
@@ -83,7 +84,7 @@ func (w *worker) update(ctx context.Context, subscriptionID string) error {
 		if item.Date == nil {
 			item.Date = &now
 		}
-		if _, err := w.itemsService.Create(ctx, subscription.ID, item.Link, item.Title, item.Date, item.Content); err != nil && err != items.ErrAlreadyExists {
+		if _, err := w.itemsService.Create(ctx, subscription.ID, item.Link, item.Title, item.Date, item.Content); err != nil && !errors.Is(err, items.ErrAlreadyExists) {
 			return fmt.Errorf("subscription %s, item %s: %w", subscription.ID, item.Link, err)
 		}
 	}

@@ -1,53 +1,23 @@
 run:
-  timeout: 5m
-  skip-dirs-use-default: true
-  skip-files:
-    - "genproto/.*$"
+  timeout: 1m
 
 linters:
+  enable-all: true
   disable:
-    - staticcheck
+    - gci
+    - godot
+    - gofumpt
+    - lll
+    - wsl
+    - exhaustivestruct
+    - goerr113
+    - gomnd
     - goprintffuncname
-  enable:
-    - bodyclose
-    - deadcode
-    - depguard
-    - dogsled
-    - dupl
-    - errcheck
-    - gochecknoinits
-    - goconst
-    - gocritic
-    - gocyclo
-    - gofmt
-    - goimports
-    - golint
-    - gosimple
-    - govet
-    - ineffassign
-    - misspell
-    - nakedret
-    - rowserrcheck
-    - structcheck
-    - stylecheck
-    - typecheck
-    - unconvert
-    - unparam
-    - unused
-    - varcheck
-    - whitespace
-    - gochecknoglobals
-    - gocognit
-    - maligned
-    - prealloc
-    - gosec
-  # - wsl
-    - funlen
-  # - gomnd
-  # - godox
-  # - lll
-  # - interfacer
-    - scopelint
+    - nlreturn
+    - sqlclosecheck
+    - testpackage
+    - thelper
+    - wrapcheck
 
 issues:
   exclude-rules:

@@ -3,6 +3,7 @@ package httpx
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -105,7 +106,7 @@ func (srv *Server) Start() error {
 		srv.logger.Info("listening http on %s", ln.Addr().String())
 	}
 
-	if err := srv.server.Serve(ln); err != http.ErrServerClosed {
+	if err := srv.server.Serve(ln); !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
 	return nil
@@ -113,7 +114,7 @@ func (srv *Server) Start() error {
 
 // Shutdown gracefully shutdowns the server.
 func (srv *Server) Shutdown(ctx context.Context) error {
-	if err := srv.server.Shutdown(ctx); err == context.DeadlineExceeded {
+	if err := srv.server.Shutdown(ctx); errors.Is(err, context.DeadlineExceeded) {
 		return fmt.Errorf("timeout exceeded while waiting on shutdown")
 	}
 	return nil

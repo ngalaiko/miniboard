@@ -3,6 +3,7 @@ package subscriptions
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -54,8 +55,8 @@ func (d *database) Create(ctx context.Context, subscription *UserSubscription) e
 	}
 
 	existingSubscription, err := getByURL(ctx, tx, subscription.URL)
-	switch err {
-	case sql.ErrNoRows:
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
 		if _, err := tx.ExecContext(ctx, `
 		INSERT INTO subscriptions (
 			id,
@@ -74,7 +75,7 @@ func (d *database) Create(ctx context.Context, subscription *UserSubscription) e
 		}
 		existingSubscription = &subscription.Subscription
 		fallthrough
-	case nil:
+	case err == nil:
 		if _, err := tx.ExecContext(ctx, `
 		INSERT INTO users_subscriptions (
 			user_id, subscription_id

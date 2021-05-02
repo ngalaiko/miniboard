@@ -10,7 +10,7 @@ import (
 func parseRDF(data []byte, logger logger) (*Feed, error) {
 	feed := &rdfFeed{}
 	if err := xml.Unmarshal(data, feed); err != nil {
-		return nil, fmt.Errorf("unable to parse RDF feed: %s", err)
+		return nil, fmt.Errorf("unable to parse RDF feed: %w", err)
 	}
 
 	return feed.Convert(logger), nil

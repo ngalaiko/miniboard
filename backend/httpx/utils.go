@@ -26,7 +26,6 @@ func JSON(w http.ResponseWriter, logger errorLogger, response interface{}, code 
 	_, err = w.Write(body)
 	if err != nil {
 		logger.Error("failed to write response: %s", err)
-		return
 	}
 }
 

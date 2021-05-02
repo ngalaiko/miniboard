@@ -152,14 +152,14 @@ func (s *Service) Verify(ctx context.Context, token string) (*Token, error) {
 		Time:   time.Now(),
 		Issuer: defaultIssuer,
 	}, time.Second)
-	switch validateErr {
-	case nil:
+	switch {
+	case validateErr == nil:
 		return &Token{
 			Token:     token,
 			UserID:    claims.Subject,
 			ExpiresAt: claims.Expiry.Time(),
 		}, nil
-	case jwt.ErrExpired:
+	case errors.Is(validateErr, jwt.ErrExpired):
 		return &Token{
 			Token:     token,
 			UserID:    claims.Subject,

@@ -7,6 +7,8 @@ import (
 )
 
 func Test_Parse_rdf__RDFSample(t *testing.T) {
+	t.Parallel()
+
 	data := `
 	<?xml version="1.0"?>
 	<rdf:RDF
@@ -99,6 +101,8 @@ func Test_Parse_rdf__RDFSample(t *testing.T) {
 }
 
 func Test_Parse_rdf__RDFSampleWithDublinCore(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<rdf:RDF
 	  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -188,6 +192,8 @@ func Test_Parse_rdf__RDFSampleWithDublinCore(t *testing.T) {
 }
 
 func Test_Parse_rdf__ItemRelativeURL(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://purl.org/rss/1.0/">
 	  <channel>
@@ -212,6 +218,8 @@ func Test_Parse_rdf__ItemRelativeURL(t *testing.T) {
 }
 
 func Test_Parse_rdf__ItemWithoutLink(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<rdf:RDF
 	  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -238,6 +246,8 @@ func Test_Parse_rdf__ItemWithoutLink(t *testing.T) {
 }
 
 func Test_Parse_rdf__InvalidXml(t *testing.T) {
+	t.Parallel()
+
 	data := `garbage`
 	_, err := Parse([]byte(data), &testLogger{})
 	if err == nil {
@@ -246,6 +256,8 @@ func Test_Parse_rdf__InvalidXml(t *testing.T) {
 }
 
 func Test_Parse_rdf__FeedWithURLWrappedInSpaces(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<rdf:RDF xmlns:admin="http://webns.net/mvcb/" xmlns="http://purl.org/rss/1.0/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:prism="http://purl.org/rss/1.0/modules/prism/" xmlns:taxo="http://purl.org/rss/1.0/modules/taxonomy/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:syn="http://purl.org/rss/1.0/modules/syndication/">
 	<channel rdf:about="http://biorxiv.org">
@@ -306,6 +318,8 @@ func Test_Parse_rdf__FeedWithURLWrappedInSpaces(t *testing.T) {
 }
 
 func Test_Parse_rdf_ItemWithDublicCoreDate(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://purl.org/rss/1.0/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:slash="http://purl.org/rss/1.0/modules/slash/">
 	  <channel>
@@ -333,6 +347,8 @@ func Test_Parse_rdf_ItemWithDublicCoreDate(t *testing.T) {
 }
 
 func Test_Parse_rdf_ItemWithoutDate(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://purl.org/rss/1.0/">
 	  <channel>
@@ -357,6 +373,8 @@ func Test_Parse_rdf_ItemWithoutDate(t *testing.T) {
 }
 
 func Test_Parse_rdf_WithContentEncoded(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<rdf:RDF
 		xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"

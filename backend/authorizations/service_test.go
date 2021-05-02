@@ -3,6 +3,7 @@ package authorizations
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"io/ioutil"
 	"os"
 	"reflect"
@@ -12,6 +13,8 @@ import (
 )
 
 func Test_Init(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -24,6 +27,8 @@ func Test_Init(t *testing.T) {
 }
 
 func Test_Init__twice(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -40,6 +45,8 @@ func Test_Init__twice(t *testing.T) {
 }
 
 func Test_NewToken(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	service := NewService(createTestDB(ctx, t), &testLogger{})
@@ -63,16 +70,20 @@ func Test_NewToken(t *testing.T) {
 }
 
 func Test_Verify__invalid(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	service := NewService(createTestDB(ctx, t), &testLogger{})
 
-	if _, err := service.Verify(ctx, "invalid"); err != ErrInvalidToken {
+	if _, err := service.Verify(ctx, "invalid"); !errors.Is(err, ErrInvalidToken) {
 		t.Errorf("exected %s, got %s", ErrInvalidToken, err)
 	}
 }
 
 func Test_Verify(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	service := NewService(createTestDB(ctx, t), &testLogger{})

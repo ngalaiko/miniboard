@@ -120,7 +120,7 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagID
 	}
 
 	for _, item := range parsedSubscription.Items {
-		if _, err := s.itemsService.Create(ctx, subscription.ID, item.Link, item.Title, item.Date, item.Content); err != nil && err != items.ErrAlreadyExists {
+		if _, err := s.itemsService.Create(ctx, subscription.ID, item.Link, item.Title, item.Date, item.Content); err != nil && !errors.Is(err, items.ErrAlreadyExists) {
 			s.logger.Error("failed to store feed %s item %s: %s", subscription.ID, item.Link, err)
 			return nil, errFailedToStoreItem
 		}

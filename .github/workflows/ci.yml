@@ -16,7 +16,7 @@ jobs:
     - name: golangci-lint
       uses: golangci/golangci-lint-action@v2
       with:
-        version: v1.29
+        version: v1.33.1
         working-directory: backend
 
 
@@ -39,6 +39,7 @@ jobs:
                 -coverprofile=coverage.out \
                 -covermode=atomic \
                 -v \
+                -parallel=8 \
                 ./...
 
     - name: Upload coverage

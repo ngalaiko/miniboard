@@ -2,6 +2,7 @@ package items
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -9,6 +10,8 @@ import (
 )
 
 func Test_service__Create(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -39,6 +42,8 @@ func Test_service__Create(t *testing.T) {
 }
 
 func Test_service__Create_without_created(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -55,6 +60,8 @@ func Test_service__Create_without_created(t *testing.T) {
 }
 
 func Test_service__Create_twice(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -71,12 +78,14 @@ func Test_service__Create_twice(t *testing.T) {
 	}
 
 	_, secondErr := service.Create(ctx, "sid", "https://example.org", "title", &now, nil)
-	if secondErr != ErrAlreadyExists {
+	if !errors.Is(secondErr, ErrAlreadyExists) {
 		t.Fatalf("expected %s, got %s", ErrAlreadyExists, secondErr)
 	}
 }
 
 func Test_service__Get(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -104,13 +113,15 @@ func Test_service__Get(t *testing.T) {
 }
 
 func Test_service__Get_not_found(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
 	service := NewService(sqldb, &testLogger{})
 
 	_, err := service.Get(ctx, "id", "user id")
-	if err != ErrNotFound {
+	if !errors.Is(err, ErrNotFound) {
 		t.Errorf("expected %s, got %s", ErrNotFound, err)
 	}
 }

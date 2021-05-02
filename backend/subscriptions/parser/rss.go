@@ -12,7 +12,7 @@ import (
 func parseRSS(data []byte, logger logger) (*Feed, error) {
 	feed := &rssFeed{}
 	if err := xml.Unmarshal(data, feed); err != nil {
-		return nil, fmt.Errorf("unable to parse RSS feed: %s", err)
+		return nil, fmt.Errorf("unable to parse RSS feed: %w", err)
 	}
 
 	return feed.Convert(logger), nil
@@ -58,7 +58,7 @@ func absoluteURL(baseURL, input string) (string, error) {
 
 	u, err := url.Parse(input)
 	if err != nil {
-		return "", fmt.Errorf("unable to parse input URL: %v", err)
+		return "", fmt.Errorf("unable to parse input URL: %w", err)
 	}
 
 	if u.IsAbs() {
@@ -67,7 +67,7 @@ func absoluteURL(baseURL, input string) (string, error) {
 
 	base, err := url.Parse(baseURL)
 	if err != nil {
-		return "", fmt.Errorf("unable to parse base URL: %v", err)
+		return "", fmt.Errorf("unable to parse base URL: %w", err)
 	}
 
 	return base.ResolveReference(u).String(), nil

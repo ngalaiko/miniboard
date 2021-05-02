@@ -41,7 +41,7 @@ func (s *Sockets) subscriptionsImport(ws *websocket.Conn, userID string, req *re
 		for _, feed := range opmlTag.Feeds {
 			url, err := url.ParseRequestURI(feed.URL)
 			if err != nil {
-				s.respond(ws, errResponse(req, fmt.Errorf("failed to parse url: %s", err)))
+				s.respond(ws, errResponse(req, fmt.Errorf("failed to parse url: %w", err)))
 				continue
 			}
 			subscription, err := s.subscriptionsService.Create(ctx, userID, url, []string{tag.ID})
@@ -77,10 +77,10 @@ func (s *Sockets) subscriptionsImport(ws *websocket.Conn, userID string, req *re
 
 func (s *Sockets) getOrCreateTag(ctx context.Context, userID string, title string, req *request) (*tags.Tag, error) {
 	tag, err := s.tagsService.GetByTitle(ctx, userID, title)
-	switch err {
-	case nil:
+	switch {
+	case err == nil:
 		return tag, nil
-	case tags.ErrNotFound:
+	case errors.Is(err, tags.ErrNotFound):
 		newTag, err := s.tagsService.Create(ctx, userID, title)
 		if err != nil {
 			return newTag, err

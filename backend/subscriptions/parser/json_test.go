@@ -6,6 +6,8 @@ import (
 )
 
 func Test_Parse_json__JsonFeed(t *testing.T) {
+	t.Parallel()
+
 	data := `{
 		"version": "https://jsonfeed.org/version/1",
 		"title": "My Example Feed",
@@ -73,6 +75,8 @@ func Test_Parse_json__JsonFeed(t *testing.T) {
 }
 
 func Test_Parse_json__Podcast(t *testing.T) {
+	t.Parallel()
+
 	data := `{
 		"version": "https://jsonfeed.org/version/1",
 		"user_comment": "This is a podcast feed. You can add this feed to your podcast client using the following URL: http://therecord.co/feed.json",
@@ -127,6 +131,8 @@ func Test_Parse_json__Podcast(t *testing.T) {
 }
 
 func Test_Parse_json__FeedWithRelativeURL(t *testing.T) {
+	t.Parallel()
+
 	data := `{
 		"version": "https://jsonfeed.org/version/1",
 		"title": "Example",
@@ -152,6 +158,8 @@ func Test_Parse_json__FeedWithRelativeURL(t *testing.T) {
 }
 
 func Test_Parse_json__FeedWithoutTitle(t *testing.T) {
+	t.Parallel()
+
 	data := `{
 		"version": "https://jsonfeed.org/version/1",
 		"home_page_url": "https://example.org/",
@@ -177,6 +185,8 @@ func Test_Parse_json__FeedWithoutTitle(t *testing.T) {
 }
 
 func Test_Parse_json__FeedItemWithoutTitle(t *testing.T) {
+	t.Parallel()
+
 	data := `{
 		"version": "https://jsonfeed.org/version/1",
 		"title": "My Example Feed",
@@ -204,6 +214,8 @@ func Test_Parse_json__FeedItemWithoutTitle(t *testing.T) {
 }
 
 func Test_Parse_json__TruncateItemTitle(t *testing.T) {
+	t.Parallel()
+
 	data := `{
 		"version": "https://jsonfeed.org/version/1",
 		"title": "My Example Feed",
@@ -231,6 +243,8 @@ func Test_Parse_json__TruncateItemTitle(t *testing.T) {
 }
 
 func Test_Parse_json__ItemTitleWithXMLTags(t *testing.T) {
+	t.Parallel()
+
 	data := `{
 		"version": "https://jsonfeed.org/version/1",
 		"title": "My Example Feed",
@@ -258,6 +272,8 @@ func Test_Parse_json__ItemTitleWithXMLTags(t *testing.T) {
 }
 
 func Test_Parse_json__InvalidJSON(t *testing.T) {
+	t.Parallel()
+
 	data := `garbage`
 	_, err := Parse([]byte(data), &testLogger{})
 	if err == nil {
@@ -266,6 +282,8 @@ func Test_Parse_json__InvalidJSON(t *testing.T) {
 }
 
 func TestParseFeedItemWithInvalidDate(t *testing.T) {
+	t.Parallel()
+
 	data := `{
 		"version": "https://jsonfeed.org/version/1",
 		"title": "My Example Feed",

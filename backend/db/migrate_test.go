@@ -7,6 +7,8 @@ import (
 )
 
 func Test_Migrate(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 
 	db := testDB(t)
@@ -17,6 +19,8 @@ func Test_Migrate(t *testing.T) {
 }
 
 func Test_Migrate_twice(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 	db := testDB(t)
 

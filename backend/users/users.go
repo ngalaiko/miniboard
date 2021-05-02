@@ -1,6 +1,7 @@
 package users
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -48,10 +49,10 @@ func newUser(username string, password []byte, bcryptCost int) (*User, error) {
 // ValidatePassword returns nil if a given password is valid.
 func (u *User) ValidatePassword(password []byte) error {
 	err := bcrypt.CompareHashAndPassword(u.Hash, password)
-	switch err {
-	case nil:
+	switch {
+	case err == nil:
 		return nil
-	case bcrypt.ErrMismatchedHashAndPassword:
+	case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
 		return ErrInvalidPassword
 	default:
 		return fmt.Errorf("failed to validate password: %w", err)

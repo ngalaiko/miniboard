@@ -24,7 +24,7 @@ func New() *Crawler {
 
 // Crawl downloads a page.
 func (c *Crawler) Crawl(ctx context.Context, url *url.URL) ([]byte, error) {
-	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create http request")
 	}

@@ -19,9 +19,6 @@ func NewDatabase(db *sql.DB) *Database {
 
 // Create adds a key to the db.
 func (db *Database) Create(ctx context.Context, key *Key) error {
-	if key.ID == "" {
-	}
-
 	_, err := db.db.ExecContext(ctx, `
 	INSERT INTO jwt_keys (
 		id,

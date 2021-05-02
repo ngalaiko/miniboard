@@ -2,10 +2,13 @@ package tags
 
 import (
 	"context"
+	"errors"
 	"testing"
 )
 
 func Test__Create(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -30,6 +33,8 @@ func Test__Create(t *testing.T) {
 }
 
 func Test__Create_twice(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -41,7 +46,7 @@ func Test__Create_twice(t *testing.T) {
 	}
 
 	_, secondErr := service.Create(ctx, "user id", "title")
-	if secondErr != ErrAlreadyExists {
+	if !errors.Is(secondErr, ErrAlreadyExists) {
 		t.Fatalf("expected %s, got %s", ErrAlreadyExists, secondErr)
 	}
 }

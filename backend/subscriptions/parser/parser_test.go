@@ -12,11 +12,17 @@ import (
 )
 
 func Test_Parser(t *testing.T) {
+	t.Parallel()
+
+	//nolint: paralleltest
 	for _, ext := range []string{"rss", "rdf"} {
 		prefix := "./testdata/" + ext
 		files, _ := filepath.Glob(prefix + "/*.xml")
 		for _, f := range files {
-			t.Run(f, func(t *testing.T) {
+			f := f
+			t.Run(ext+f, func(t *testing.T) {
+				t.Parallel()
+
 				base := filepath.Base(f)
 				name := strings.TrimSuffix(base, filepath.Ext(base))
 

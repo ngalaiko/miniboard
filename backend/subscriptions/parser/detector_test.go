@@ -7,6 +7,8 @@ import (
 )
 
 func Test_detectType(t *testing.T) {
+	t.Parallel()
+
 	testCases := []struct {
 		file string
 		out  feedType
@@ -23,7 +25,10 @@ func Test_detectType(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
+		testCase := testCase
 		t.Run(testCase.file, func(t *testing.T) {
+			t.Parallel()
+
 			path := fmt.Sprintf("testdata/%s", testCase.file)
 			f, _ := ioutil.ReadFile(path)
 

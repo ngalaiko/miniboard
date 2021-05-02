@@ -3,6 +3,7 @@ package items
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -26,6 +27,8 @@ func testUserItem() *UserItem {
 }
 
 func Test_db__Create(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
@@ -35,6 +38,8 @@ func Test_db__Create(t *testing.T) {
 }
 
 func Test_db__Create_twice(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
@@ -50,6 +55,8 @@ func Test_db__Create_twice(t *testing.T) {
 }
 
 func Test_db__GetByURL_not_found(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
@@ -60,12 +67,14 @@ func Test_db__GetByURL_not_found(t *testing.T) {
 		t.Fatalf("nothing should be returned, got %+v", fromDB)
 	}
 
-	if err != sql.ErrNoRows {
+	if !errors.Is(err, sql.ErrNoRows) {
 		t.Fatalf("expected %s, got %s", sql.ErrNoRows, err)
 	}
 }
 
 func Test_db__GetByURL(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	sqldb := createTestDB(ctx, t)
 	db := newDB(sqldb, &testLogger{})
@@ -91,6 +100,8 @@ func Test_db__GetByURL(t *testing.T) {
 }
 
 func Test_db__Get_not_found(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
@@ -101,12 +112,14 @@ func Test_db__Get_not_found(t *testing.T) {
 		t.Fatalf("nothing should be returned, got %+v", fromDB)
 	}
 
-	if err != sql.ErrNoRows {
+	if !errors.Is(err, sql.ErrNoRows) {
 		t.Fatalf("expected %s, got %s", sql.ErrNoRows, err)
 	}
 }
 
 func Test_db__Get(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	sqldb := createTestDB(ctx, t)
 	db := newDB(sqldb, &testLogger{})
@@ -132,6 +145,8 @@ func Test_db__Get(t *testing.T) {
 }
 
 func Test_db__List_paginated_by_created(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	sqldb := createTestDB(ctx, t)
 	db := newDB(sqldb, &testLogger{})
@@ -186,6 +201,8 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 }
 
 func Test_db__List_filtered_by_tag(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	sqldb := createTestDB(ctx, t)
 	db := newDB(sqldb, &testLogger{})
@@ -231,6 +248,8 @@ func Test_db__List_filtered_by_tag(t *testing.T) {
 }
 
 func Test_db__List_filtered_by_subscription_and_tag(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	sqldb := createTestDB(ctx, t)
 	db := newDB(sqldb, &testLogger{})
@@ -277,6 +296,8 @@ func Test_db__List_filtered_by_subscription_and_tag(t *testing.T) {
 }
 
 func Test_db__List_filtered_by_subscription(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	sqldb := createTestDB(ctx, t)
 	db := newDB(sqldb, &testLogger{})

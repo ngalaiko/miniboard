@@ -26,7 +26,7 @@ var (
 
 //nolint: gochecknoinits
 func init() {
-	if err := fs.WalkDir(files, "files", func(path string, d fs.DirEntry, err error) error {
+	if err := fs.WalkDir(files, "files", func(path string, d fs.DirEntry, _ error) error {
 		if d.IsDir() {
 			return nil
 		}

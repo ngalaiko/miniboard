@@ -3,6 +3,7 @@ package keys
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"reflect"
 	"testing"
@@ -11,6 +12,8 @@ import (
 )
 
 func Test_Create(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 
 	sqlite := testDB(ctx, t)
@@ -28,6 +31,8 @@ func Test_Create(t *testing.T) {
 }
 
 func Test_Create_twice(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 
 	sqlite := testDB(ctx, t)
@@ -49,6 +54,8 @@ func Test_Create_twice(t *testing.T) {
 }
 
 func Test_Get(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 
 	sqlite := testDB(ctx, t)
@@ -75,6 +82,8 @@ func Test_Get(t *testing.T) {
 }
 
 func Test_Get_not_exists(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 
 	sqlite := testDB(ctx, t)
@@ -87,12 +96,14 @@ func Test_Get_not_exists(t *testing.T) {
 	}
 
 	_, err := database.Get(ctx, testKey.ID)
-	if err != sql.ErrNoRows {
+	if !errors.Is(err, sql.ErrNoRows) {
 		t.Fatalf("expected %s, got %s", sql.ErrNoRows, err)
 	}
 }
 
 func Test_Delete(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 
 	sqlite := testDB(ctx, t)
@@ -116,12 +127,14 @@ func Test_Delete(t *testing.T) {
 		t.Fatalf("failed to delete key: %s", err)
 	}
 
-	if _, err := database.Get(ctx, testKey.ID); err != sql.ErrNoRows {
+	if _, err := database.Get(ctx, testKey.ID); !errors.Is(err, sql.ErrNoRows) {
 		t.Fatalf("key was not deleted: %s", err)
 	}
 }
 
 func Test_Delete_not_existing(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 
 	sqlite := testDB(ctx, t)
@@ -139,6 +152,8 @@ func Test_Delete_not_existing(t *testing.T) {
 }
 
 func Test_List(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.Background()
 
 	sqlite := testDB(ctx, t)

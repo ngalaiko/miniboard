@@ -6,6 +6,8 @@ import (
 )
 
 func Test_parseDateTime(t *testing.T) {
+	t.Parallel()
+
 	testCases := []struct {
 		In  string
 		Out time.Time
@@ -32,7 +34,10 @@ func Test_parseDateTime(t *testing.T) {
 		},
 	}
 	for _, tc := range testCases {
+		tc := tc
 		t.Run(tc.In, func(t *testing.T) {
+			t.Parallel()
+
 			dt, err := parseDateTime(tc.In)
 			if err != nil {
 				t.Error(err)

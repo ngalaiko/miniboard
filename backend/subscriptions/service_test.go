@@ -2,6 +2,7 @@ package subscriptions
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"testing"
@@ -13,6 +14,8 @@ import (
 )
 
 func Test__Create_subscription_failed_to_parse_subscription(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -21,12 +24,14 @@ func Test__Create_subscription_failed_to_parse_subscription(t *testing.T) {
 	service := NewService(sqldb, cw, &testLogger{}, nil, &testItemsService{})
 
 	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
-	if err != ErrFailedToParseSubscription {
+	if !errors.Is(err, ErrFailedToParseSubscription) {
 		t.Fatalf("expected %s, got %s", ErrFailedToParseSubscription, err)
 	}
 }
 
 func Test__Create_subscription_not_found(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -34,12 +39,14 @@ func Test__Create_subscription_not_found(t *testing.T) {
 	service := NewService(sqldb, cw, &testLogger{}, nil, &testItemsService{})
 
 	_, err := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
-	if err != ErrFailedToDownloadSubscription {
+	if !errors.Is(err, ErrFailedToDownloadSubscription) {
 		t.Fatalf("expected %s, got %s", ErrFailedToDownloadSubscription, err)
 	}
 }
 
 func Test__Create(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -73,6 +80,8 @@ func Test__Create(t *testing.T) {
 }
 
 func Test__Create_twice(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -86,12 +95,14 @@ func Test__Create_twice(t *testing.T) {
 	}
 
 	_, secondErr := service.Create(ctx, "user id", mustParseURL("https://example.org"), []string{})
-	if secondErr != ErrAlreadyExists {
+	if !errors.Is(secondErr, ErrAlreadyExists) {
 		t.Fatalf("expected %s, got %s", ErrAlreadyExists, secondErr)
 	}
 }
 
 func Test__Get(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -120,6 +131,8 @@ func Test__Get(t *testing.T) {
 }
 
 func Test__Get_not_found(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 
 	sqldb := createTestDB(ctx, t)
@@ -127,7 +140,7 @@ func Test__Get_not_found(t *testing.T) {
 	service := NewService(sqldb, cw.With("https://example.org", subscriptionData), &testLogger{}, nil, &testItemsService{})
 
 	_, err := service.Get(ctx, "user id", "id")
-	if err != errNotFound {
+	if !errors.Is(err, errNotFound) {
 		t.Errorf("expected %s, got %s", errNotFound, err)
 	}
 }

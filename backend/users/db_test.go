@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"reflect"
 	"testing"
 	"time"
@@ -11,6 +12,8 @@ import (
 )
 
 func Test_db__Create(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t))
 
@@ -25,6 +28,8 @@ func Test_db__Create(t *testing.T) {
 }
 
 func Test_db__Create_twice(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t))
 
@@ -43,6 +48,8 @@ func Test_db__Create_twice(t *testing.T) {
 }
 
 func Test_db__GetByID_not_found(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t))
 
@@ -57,12 +64,14 @@ func Test_db__GetByID_not_found(t *testing.T) {
 		t.Fatalf("nothing should be returned, got %+v", fromDB)
 	}
 
-	if err != sql.ErrNoRows {
+	if !errors.Is(err, sql.ErrNoRows) {
 		t.Fatalf("expected %s, got %s", sql.ErrNoRows, err)
 	}
 }
 
 func Test_db__GetByID(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t))
 
@@ -85,6 +94,8 @@ func Test_db__GetByID(t *testing.T) {
 }
 
 func Test_db__GetByUsername_not_found(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t))
 
@@ -100,12 +111,14 @@ func Test_db__GetByUsername_not_found(t *testing.T) {
 		t.Fatalf("nothing should be returned, got %+v", fromDB)
 	}
 
-	if err != sql.ErrNoRows {
+	if !errors.Is(err, sql.ErrNoRows) {
 		t.Fatalf("expected %s, got %s", sql.ErrNoRows, err)
 	}
 }
 
 func Test_db__GetByUsername(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t))
 

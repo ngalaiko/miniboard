@@ -43,6 +43,8 @@ func Parse(data []byte, logger logger) (*Feed, error) {
 		return parseAtom03(data, logger)
 	case feedTypeAtom10:
 		return parseAtom10(data, logger)
+	case feedTypeUnknown:
+		fallthrough
 	default:
 		return nil, fmt.Errorf("unkwown type")
 	}

@@ -6,6 +6,8 @@ import (
 )
 
 func Test_Parse_rss__Rss2Sample(t *testing.T) {
+	t.Parallel()
+
 	data := `
 		<?xml version="1.0"?>
 		<rss version="2.0">
@@ -96,6 +98,8 @@ func Test_Parse_rss__Rss2Sample(t *testing.T) {
 }
 
 func Test_Parse_rss_EntryWithContentEncoded(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
 		<channel>
@@ -122,6 +126,8 @@ func Test_Parse_rss_EntryWithContentEncoded(t *testing.T) {
 }
 
 func Test_Parse_rss__FeedWithoutTitle(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0">
 		<channel>
@@ -140,6 +146,8 @@ func Test_Parse_rss__FeedWithoutTitle(t *testing.T) {
 }
 
 func Test_Parse_rss__ItemWithoutTitle(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0">
 		<channel>
@@ -161,6 +169,8 @@ func Test_Parse_rss__ItemWithoutTitle(t *testing.T) {
 }
 
 func Test_Parse_rss__ItemWithMediaTitle(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
 		<channel>
@@ -184,6 +194,8 @@ func Test_Parse_rss__ItemWithMediaTitle(t *testing.T) {
 }
 
 func Test_Parse_rss__ItemWithDCTitleOnly(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/" xmlns:dc="http://purl.org/dc/elements/1.1/">
 		<channel>
@@ -206,6 +218,8 @@ func Test_Parse_rss__ItemWithDCTitleOnly(t *testing.T) {
 }
 
 func Test_Parse_rss__ItemWithoutLink(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0">
 		<channel>
@@ -227,6 +241,8 @@ func Test_Parse_rss__ItemWithoutLink(t *testing.T) {
 }
 
 func Test_Parse_rss__ItemWithAtomLink(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 		<channel>
@@ -253,6 +269,8 @@ func Test_Parse_rss__ItemWithAtomLink(t *testing.T) {
 }
 
 func Test_Parse_rss__ItemWithMultipleAtomLinks(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 		<channel>
@@ -276,6 +294,8 @@ func Test_Parse_rss__ItemWithMultipleAtomLinks(t *testing.T) {
 }
 
 func Test_Parse_rss__ItemWithFeedBurnerLink(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:feedburner="http://rssnamespace.org/feedburner/ext/1.0">
 		<channel>
@@ -300,6 +320,8 @@ func Test_Parse_rss__ItemWithFeedBurnerLink(t *testing.T) {
 }
 
 func Test_Parse_rss__ItemTitleWithWhitespaces(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<rss version="2.0">
 	<channel>
@@ -326,6 +348,8 @@ func Test_Parse_rss__ItemTitleWithWhitespaces(t *testing.T) {
 }
 
 func Test_Parse_rss__ItemWithRelativeLink(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0">
 		<channel>
@@ -347,6 +371,8 @@ func Test_Parse_rss__ItemWithRelativeLink(t *testing.T) {
 }
 
 func Test_Parse_rss__InvalidXml(t *testing.T) {
+	t.Parallel()
+
 	data := `garbage`
 	_, err := Parse([]byte(data), &testLogger{})
 	if err == nil {
@@ -355,6 +381,8 @@ func Test_Parse_rss__InvalidXml(t *testing.T) {
 }
 
 func Test_Parse_rss__ItemTitleWithHTMLEntity(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:slash="http://purl.org/rss/1.0/modules/slash/">
 		<channel>
@@ -378,6 +406,8 @@ func Test_Parse_rss__ItemTitleWithHTMLEntity(t *testing.T) {
 }
 
 func Test_Parse_rss__ItemTitleWithNumericCharacterReference(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:slash="http://purl.org/rss/1.0/modules/slash/">
 		<channel>
@@ -401,6 +431,8 @@ func Test_Parse_rss__ItemTitleWithNumericCharacterReference(t *testing.T) {
 }
 
 func Test_Parse_rss__ItemTitleWithDoubleEncodedEntities(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 		<rss version="2.0" xmlns:slash="http://purl.org/rss/1.0/modules/slash/">
 		<channel>
@@ -424,6 +456,8 @@ func Test_Parse_rss__ItemTitleWithDoubleEncodedEntities(t *testing.T) {
 }
 
 func TestParseEntryWithDublinCoreDate(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 				<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
 				<channel>

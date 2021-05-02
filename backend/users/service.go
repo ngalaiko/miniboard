@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 )
 
@@ -37,10 +38,10 @@ func NewService(db *sql.DB, cfg *Config) *Service {
 // Create creates a new user with the given password.
 func (s *Service) Create(ctx context.Context, username string, password []byte) (*User, error) {
 	_, err := s.db.GetByUsername(ctx, username)
-	switch err {
-	case nil:
+	switch {
+	case err == nil:
 		return nil, ErrAlreadyExists
-	case sql.ErrNoRows:
+	case errors.Is(err, sql.ErrNoRows):
 	default:
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
@@ -64,10 +65,10 @@ func (s *Service) Create(ctx context.Context, username string, password []byte) 
 // GetByID returns a user by id.
 func (s *Service) GetByID(ctx context.Context, id string) (*User, error) {
 	user, err := s.db.GetByID(ctx, id)
-	switch err {
-	case nil:
+	switch {
+	case err == nil:
 		return user, nil
-	case sql.ErrNoRows:
+	case errors.Is(err, sql.ErrNoRows):
 		return nil, ErrNotFound
 	default:
 		return nil, fmt.Errorf("failed to get user from db: %w", err)
@@ -77,10 +78,10 @@ func (s *Service) GetByID(ctx context.Context, id string) (*User, error) {
 // GetByUsername returns a user by id.
 func (s *Service) GetByUsername(ctx context.Context, username string) (*User, error) {
 	user, err := s.db.GetByUsername(ctx, username)
-	switch err {
-	case nil:
+	switch {
+	case err == nil:
 		return user, nil
-	case sql.ErrNoRows:
+	case errors.Is(err, sql.ErrNoRows):
 		return nil, ErrNotFound
 	default:
 		return nil, fmt.Errorf("failed to get user from db: %w", err)

@@ -6,6 +6,8 @@ import (
 )
 
 func Test_Parse_atom03__Atom03(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed version="0.3" xmlns="http://purl.org/atom/ns#">
 		<title>dive into mark</title>
@@ -60,6 +62,8 @@ func Test_Parse_atom03__Atom03(t *testing.T) {
 }
 
 func Test_Parse_atom03_Atom03WithSummaryOnly(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed version="0.3" xmlns="http://purl.org/atom/ns#">
 		<title>dive into mark</title>
@@ -91,6 +95,8 @@ func Test_Parse_atom03_Atom03WithSummaryOnly(t *testing.T) {
 }
 
 func Test_Parse_atom03_Atom03WithXMLContent(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed version="0.3" xmlns="http://purl.org/atom/ns#">
 		<title>dive into mark</title>
@@ -122,6 +128,8 @@ func Test_Parse_atom03_Atom03WithXMLContent(t *testing.T) {
 }
 
 func Test_Parse_atom03_Atom03WithBase64Content(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed version="0.3" xmlns="http://purl.org/atom/ns#">
 		<title>dive into mark</title>
@@ -153,6 +161,8 @@ func Test_Parse_atom03_Atom03WithBase64Content(t *testing.T) {
 }
 
 func Test_Parse_atom03__Atom03WithoutFeedTitle(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed version="0.3" xmlns="http://purl.org/atom/ns#">
 		<link rel="alternate" type="text/html" href="http://diveintomark.org/"/>
@@ -176,6 +186,8 @@ func Test_Parse_atom03__Atom03WithoutFeedTitle(t *testing.T) {
 }
 
 func Test_Parse_atom03__Atom03WithoutEntryTitle(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed version="0.3" xmlns="http://purl.org/atom/ns#">
 		<title>dive into mark</title>
@@ -203,6 +215,8 @@ func Test_Parse_atom03__Atom03WithoutEntryTitle(t *testing.T) {
 }
 
 func Test_Parse_atom03__Atom03WithSummaryOnly(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed version="0.3" xmlns="http://purl.org/atom/ns#">
 		<title>dive into mark</title>
@@ -230,6 +244,8 @@ func Test_Parse_atom03__Atom03WithSummaryOnly(t *testing.T) {
 }
 
 func Test_Parse_atom03__Atom03WithXMLContent(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed version="0.3" xmlns="http://purl.org/atom/ns#">
 		<title>dive into mark</title>
@@ -257,6 +273,8 @@ func Test_Parse_atom03__Atom03WithXMLContent(t *testing.T) {
 }
 
 func Test_Parse_atom03__Atom03WithBase64Content(t *testing.T) {
+	t.Parallel()
+
 	data := `<?xml version="1.0" encoding="utf-8"?>
 	<feed version="0.3" xmlns="http://purl.org/atom/ns#">
 		<title>dive into mark</title>

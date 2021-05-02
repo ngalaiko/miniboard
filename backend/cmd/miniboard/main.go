@@ -41,7 +41,7 @@ func main() {
 	// Wait for shut down in a separate goroutine.
 	errCh := make(chan error)
 	go func() {
-		shutdownCh := make(chan os.Signal)
+		shutdownCh := make(chan os.Signal, 1)
 		signal.Notify(shutdownCh, os.Interrupt, syscall.SIGTERM)
 		sig := <-shutdownCh
 

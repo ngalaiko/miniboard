@@ -11,7 +11,7 @@ import (
 func parseAtom10(data []byte, logger logger) (*Feed, error) {
 	feed := &atom10Feed{}
 	if err := xml.Unmarshal(data, feed); err != nil {
-		return nil, fmt.Errorf("unable to parse atom10 feed: %s", err)
+		return nil, fmt.Errorf("unable to parse atom10 feed: %w", err)
 	}
 	return feed.Convert(logger)
 }

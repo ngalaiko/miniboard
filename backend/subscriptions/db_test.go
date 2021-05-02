@@ -3,6 +3,7 @@ package subscriptions
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -26,6 +27,8 @@ func testSubscription() *UserSubscription {
 }
 
 func Test_db__Create(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
@@ -37,6 +40,8 @@ func Test_db__Create(t *testing.T) {
 }
 
 func Test_db__Create_twice(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
@@ -52,6 +57,8 @@ func Test_db__Create_twice(t *testing.T) {
 }
 
 func Test_db__Create_twice_for_different_users(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
@@ -69,7 +76,7 @@ func Test_db__Create_twice_for_different_users(t *testing.T) {
 		t.Error(cmp.Diff(subscription1, fromDB1))
 	}
 
-	subscription2 := &(*subscription1)
+	subscription2 := subscription1
 	subscription2.UserID = "user2"
 	if err := db.Create(ctx, subscription1); err != nil {
 		t.Fatalf("failed to create a subscription: %s", err)
@@ -84,6 +91,8 @@ func Test_db__Create_twice_for_different_users(t *testing.T) {
 }
 
 func Test_db__Get_not_found(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
@@ -94,11 +103,13 @@ func Test_db__Get_not_found(t *testing.T) {
 		t.Fatalf("nothing should be returned, got %+v", fromDB)
 	}
 
-	if err != sql.ErrNoRows {
+	if !errors.Is(err, sql.ErrNoRows) {
 		t.Fatalf("expected %s, got %s", sql.ErrNoRows, err)
 	}
 }
 func Test_db__Get_without_tags(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	sqldb := createTestDB(ctx, t)
 	db := newDB(sqldb, &testLogger{})
@@ -122,6 +133,8 @@ func Test_db__Get_without_tags(t *testing.T) {
 }
 
 func Test_db__Get_with_tags(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	sqldb := createTestDB(ctx, t)
 	db := newDB(sqldb, &testLogger{})
@@ -157,6 +170,8 @@ func Test_db__Get_with_tags(t *testing.T) {
 }
 
 func Test_db__List_paginated_by_created(t *testing.T) {
+	t.Parallel()
+
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 

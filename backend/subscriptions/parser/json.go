@@ -10,7 +10,7 @@ import (
 func parseJSON(data []byte, logger logger) (*Feed, error) {
 	feed := &jsonFeed{}
 	if err := json.Unmarshal(data, feed); err != nil {
-		return nil, fmt.Errorf("unable to parse JSON feed: %s", err)
+		return nil, fmt.Errorf("unable to parse JSON feed: %w", err)
 	}
 
 	return feed.Convert(logger), nil

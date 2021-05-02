@@ -23,7 +23,7 @@ func (s *Sockets) subscriptionsCreate(ws *websocket.Conn, userID string, req *re
 
 	url, err := url.ParseRequestURI(urlParam)
 	if err != nil {
-		s.respond(ws, errResponse(req, fmt.Errorf("'url' is invalid: %s", err)))
+		s.respond(ws, errResponse(req, fmt.Errorf("'url' is invalid: %w", err)))
 		return
 	}
 
