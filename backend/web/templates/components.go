@@ -44,6 +44,12 @@ func init() {
 	}
 }
 
+func SignupPage(w io.Writer, err error) error {
+	return root.ExecuteTemplate(w, "files/signup/index.html", map[string]interface{}{
+		"Error": err,
+	})
+}
+
 func LoginPage(w io.Writer, err error) error {
 	return root.ExecuteTemplate(w, "files/login/index.html", map[string]interface{}{
 		"Error": err,

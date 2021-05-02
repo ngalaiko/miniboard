@@ -54,6 +54,7 @@ func NewHandler(
 	staticHandler := static.NewHandler(cfg.FS, log)
 	templatesHandler := templates.NewHandler(log, itemsService, tagsService, subscriptionsService)
 	socketsHandler := sockets.New(log, itemsService, tagsService, subscriptionsService)
+	signupHandler := signupHandler(log, usersService, jwtService)
 	loginHandler := loginHandler(log, usersService, jwtService)
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -61,6 +62,8 @@ func NewHandler(
 			switch r.URL.Path {
 			case "/login/":
 				loginHandler.ServeHTTP(w, r)
+			case "/signup/":
+				signupHandler.ServeHTTP(w, r)
 			default:
 				http.NotFound(w, r)
 			}
@@ -74,6 +77,11 @@ func NewHandler(
 					templatesHandler.ServeHTTP(w, r)
 				} else {
 					http.Redirect(w, r, "/login/", http.StatusSeeOther)
+				}
+			case "/signup/":
+				if err := templates.SignupPage(w, nil); err != nil {
+					log.Error("failed to render login page: %s", err)
+					httpx.InternalError(w, log)
 				}
 			case "/login/":
 				if err := templates.LoginPage(w, nil); err != nil {

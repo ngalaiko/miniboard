@@ -53,22 +53,14 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 	itemsService := items.NewService(db, log)
 	subscriptionsService := subscriptions.NewService(db, crawler, log, cfg.Subscriptions, itemsService)
 
-	usersHandler := users.NewHandler(usersService, log)
 	webHandler := web.NewHandler(cfg.Web, log, itemsService, tagsService, subscriptionsService, usersService, authorizationsService)
 
 	optionalAuth := web.Authenticate(authorizationsService, log)
-
-	requireJSON := middleware.AllowContentType("application/json")
 
 	r := chi.NewRouter()
 	r.Use(logger.Middleware(log))
 	r.Use(middleware.Recoverer)
 	r.Use(optionalAuth)
-	r.Route("/api/v1", func(r chi.Router) {
-		r.With(requireJSON).Route("/users", func(r chi.Router) {
-			r.Post("/", usersHandler.Create())
-		})
-	})
 	r.Get("/*", webHandler)
 	r.Post("/*", webHandler)
 

@@ -12,6 +12,7 @@ import (
 )
 
 type usersService interface {
+	Create(context.Context, string, []byte) (*users.User, error)
 	GetByUsername(context.Context, string) (*users.User, error)
 }
 
@@ -44,7 +45,10 @@ func loginHandler(log logger, usersService usersService, jwtService jwtService) 
 		switch {
 		case validatePasswordErr == nil:
 		case errors.Is(validatePasswordErr, users.ErrInvalidPassword):
-			templates.LoginPage(w, users.ErrInvalidPassword)
+			if err := templates.LoginPage(w, users.ErrInvalidPassword); err != nil {
+				log.Error("failed to render login page: %s", err)
+				httpx.InternalError(w, log)
+			}
 			return
 		default:
 			log.Error("failed to validate password: %s", err)
