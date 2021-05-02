@@ -71,12 +71,12 @@ func (w *worker) update(ctx context.Context, subscriptionID string) error {
 
 	data, err := w.crawler.Crawl(ctx, sURL)
 	if err != nil {
-		return fmt.Errorf("%s: %w", sURL, ErrFailedToDownloadSubscription)
+		return fmt.Errorf("%s: %w", sURL, err)
 	}
 
 	parsedSubscription, err := parser.Parse(data, w.logger)
 	if err != nil {
-		return fmt.Errorf("%s: %w", sURL, ErrFailedToParseSubscription)
+		return fmt.Errorf("%s: %w", sURL, err)
 	}
 
 	now := time.Now()
