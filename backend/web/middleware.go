@@ -2,7 +2,6 @@ package web
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/ngalaiko/miniboard/backend/authorizations"
@@ -12,12 +11,6 @@ import (
 type errorLogger interface {
 	Error(string, ...interface{})
 }
-
-// Known errors.
-var (
-	errNoToken            = fmt.Errorf("authorization token not found")
-	errInvalidTokenFormat = fmt.Errorf("invalid auth token format")
-)
 
 func Authenticate(jwtService jwtService, log errorLogger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {

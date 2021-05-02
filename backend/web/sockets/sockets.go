@@ -84,7 +84,7 @@ func (s *Sockets) Receive() http.HandlerFunc {
 		if !auth {
 			httpx.Error(w, s.logger, fmt.Errorf(""), http.StatusUnauthorized)
 		} else {
-			websocket.Handler(s.handle(r.Context(), token.UserID)).ServeHTTP(w, r)
+			websocket.Handler(s.handle(token.UserID)).ServeHTTP(w, r)
 		}
 	}
 }
@@ -108,7 +108,7 @@ func (s *Sockets) unregister(userID string, ws *websocket.Conn) {
 	}
 }
 
-func (s *Sockets) handle(ctx context.Context, userID string) func(*websocket.Conn) {
+func (s *Sockets) handle(userID string) func(*websocket.Conn) {
 	return func(ws *websocket.Conn) {
 		s.register(userID, ws)
 		defer s.unregister(userID, ws)

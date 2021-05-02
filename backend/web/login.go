@@ -33,7 +33,10 @@ func loginHandler(log logger, usersService usersService, jwtService jwtService) 
 		switch {
 		case err == nil:
 		case errors.Is(users.ErrNotFound, err):
-			templates.LoginPage(w, users.ErrNotFound)
+			if err := templates.LoginPage(w, users.ErrNotFound); err != nil {
+				log.Error("failed to render login page: %s", err)
+				httpx.InternalError(w, log)
+			}
 			return
 		default:
 			log.Error("failed to get user: %s", err)
