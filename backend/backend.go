@@ -67,7 +67,6 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 		On("subscriptions:create", handlers.SubscriptionsCreate(log, subscriptionsService)).
 		On("subscriptions:import", handlers.SubscriptionsImport(log, subscriptionsService, tagsService))
 
-	authMiddleware := authorizations.Middleware(authorizationsService, cfg.Authorizations, log)
 	optionalAuth := authorizations.Optional(authorizationsService, cfg.Authorizations, log)
 
 	requireJSON := middleware.AllowContentType("application/json")
@@ -83,7 +82,7 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 		r.With(requireJSON).Route("/users", func(r chi.Router) {
 			r.Post("/", usersHandler.Create())
 		})
-		r.With(authMiddleware).Get("/ws", sockets.Receive())
+		r.Get("/ws", sockets.Receive())
 	})
 	r.Get("/*", webHandler)
 
