@@ -6,6 +6,9 @@ import (
 	"net/url"
 	"time"
 
+	chi "github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+
 	"github.com/ngalaiko/miniboard/backend/authorizations"
 	"github.com/ngalaiko/miniboard/backend/httpx"
 	"github.com/ngalaiko/miniboard/backend/items"
@@ -39,6 +42,7 @@ type Config struct {
 
 type logger interface {
 	Debug(string, ...interface{})
+	Info(string, ...interface{})
 	Error(string, ...interface{})
 }
 
@@ -50,49 +54,42 @@ func NewHandler(
 	subscriptionsService subscriptionsService,
 	usersService usersService,
 	jwtService jwtService,
-) http.HandlerFunc {
+) http.Handler {
 	staticHandler := static.NewHandler(cfg.FS, log)
 	usersHandler := usersHandler(log, itemsService, tagsService, subscriptionsService)
 	socketsHandler := sockets.New(log, itemsService, tagsService, subscriptionsService)
 	signupHandler := signupHandler(log, usersService, jwtService)
 	loginHandler := loginHandler(log, usersService, jwtService)
-	return func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodPost:
-			switch r.URL.Path {
-			case "/login/":
-				loginHandler.ServeHTTP(w, r)
-			case "/signup/":
-				signupHandler.ServeHTTP(w, r)
-			default:
-				http.NotFound(w, r)
-			}
-		case http.MethodGet:
-			switch r.URL.Path {
-			case "/api/ws/":
-				socketsHandler.Receive().ServeHTTP(w, r)
-			case "/users/":
-				_, authorized := authorizations.FromContext(r.Context())
-				if authorized {
-					usersHandler.ServeHTTP(w, r)
-				} else {
-					http.Redirect(w, r, "/login/", http.StatusSeeOther)
-				}
-			case "/signup/":
-				if err := render.SignupPage(w, nil); err != nil {
-					log.Error("failed to render login page: %s", err)
-					httpx.InternalError(w, log)
-				}
-			case "/login/":
-				if err := render.LoginPage(w, nil); err != nil {
-					log.Error("failed to render login page: %s", err)
-					httpx.InternalError(w, log)
-				}
-			default:
-				staticHandler.ServeHTTP(w, r)
-			}
-		default:
-			w.WriteHeader(http.StatusMethodNotAllowed)
+
+	r := chi.NewRouter()
+	r.Use(Log(log))
+	r.Use(middleware.Recoverer)
+	r.Use(Authenticate(jwtService, log))
+
+	r.Post("/login/", loginHandler)
+	r.Post("/signup/", signupHandler)
+	r.Get("/api/ws/", socketsHandler.Receive())
+	r.Get("/users/", func(w http.ResponseWriter, r *http.Request) {
+		_, authorized := authorizations.FromContext(r.Context())
+		if authorized {
+			usersHandler.ServeHTTP(w, r)
+		} else {
+			http.Redirect(w, r, "/login/", http.StatusSeeOther)
 		}
-	}
+	})
+	r.Get("/signup/", func(w http.ResponseWriter, r *http.Request) {
+		if err := render.SignupPage(w, nil); err != nil {
+			log.Error("failed to render login page: %s", err)
+			httpx.InternalError(w, log)
+		}
+	})
+	r.Get("/login/", func(w http.ResponseWriter, r *http.Request) {
+		if err := render.LoginPage(w, nil); err != nil {
+			log.Error("failed to render login page: %s", err)
+			httpx.InternalError(w, log)
+		}
+	})
+	r.Get("/*", staticHandler)
+
+	return r
 }

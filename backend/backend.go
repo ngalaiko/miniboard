@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/ngalaiko/miniboard/backend/authorizations"
@@ -55,16 +53,7 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 
 	webHandler := web.NewHandler(cfg.Web, log, itemsService, tagsService, subscriptionsService, usersService, authorizationsService)
 
-	optionalAuth := web.Authenticate(authorizationsService, log)
-
-	r := chi.NewRouter()
-	r.Use(logger.Middleware(log))
-	r.Use(middleware.Recoverer)
-	r.Use(optionalAuth)
-	r.Get("/*", webHandler)
-	r.Post("/*", webHandler)
-
-	httpServer, err := httpx.NewServer(cfg.HTTP, log, r)
+	httpServer, err := httpx.NewServer(cfg.HTTP, log, webHandler)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize http server: %w", err)
 	}

@@ -1,4 +1,4 @@
-package logger
+package web
 
 import (
 	"bufio"
@@ -26,8 +26,8 @@ func (lrw *loggingResponseWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) 
 	return lrw.ResponseWriter.(http.Hijacker).Hijack()
 }
 
-// Middleware returns http logging middleware.
-func Middleware(logger *Logger) func(http.Handler) http.Handler {
+// Log returns http logging middleware.
+func Log(logger logger) func(http.Handler) http.Handler {
 	return func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
