@@ -52,7 +52,7 @@ func NewHandler(
 	jwtService jwtService,
 ) http.HandlerFunc {
 	staticHandler := static.NewHandler(cfg.FS, log)
-	templatesHandler := templates.NewHandler(log, itemsService, tagsService, subscriptionsService)
+	usersHandler := usersHandler(log, itemsService, tagsService, subscriptionsService)
 	socketsHandler := sockets.New(log, itemsService, tagsService, subscriptionsService)
 	signupHandler := signupHandler(log, usersService, jwtService)
 	loginHandler := loginHandler(log, usersService, jwtService)
@@ -74,7 +74,7 @@ func NewHandler(
 			case "/users/":
 				_, authorized := authorizations.FromContext(r.Context())
 				if authorized {
-					templatesHandler.ServeHTTP(w, r)
+					usersHandler.ServeHTTP(w, r)
 				} else {
 					http.Redirect(w, r, "/login/", http.StatusSeeOther)
 				}

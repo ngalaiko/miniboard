@@ -44,6 +44,24 @@ func init() {
 	}
 }
 
+func UsersPage(w io.Writer, i *items.UserItem, ii []*items.UserItem, tt []*tags.Tag, ss []*subscriptions.UserSubscription) error {
+	subscriptionsByTagID := map[string][]*subscriptions.UserSubscription{}
+	for _, s := range ss {
+		if len(s.TagIDs) == 0 {
+			subscriptionsByTagID[""] = append(subscriptionsByTagID[""], s)
+		}
+		for _, tagID := range s.TagIDs {
+			subscriptionsByTagID[tagID] = append(subscriptionsByTagID[tagID], s)
+		}
+	}
+	return root.ExecuteTemplate(w, "files/users/index.html", map[string]interface{}{
+		"Item":                 i,
+		"Items":                ii,
+		"Tags":                 tt,
+		"SubscriptionsByTagID": subscriptionsByTagID,
+	})
+}
+
 func SignupPage(w io.Writer, err error) error {
 	return root.ExecuteTemplate(w, "files/signup/index.html", map[string]interface{}{
 		"Error": err,
