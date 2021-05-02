@@ -84,6 +84,11 @@ func NewHandler(
 		}
 	})
 	r.Get("/login/", func(w http.ResponseWriter, r *http.Request) {
+		_, authorized := authorizations.FromContext(r.Context())
+		if authorized {
+			http.Redirect(w, r, "/users/", http.StatusSeeOther)
+			return
+		}
 		if err := render.LoginPage(w, nil); err != nil {
 			log.Error("failed to render login page: %s", err)
 			httpx.InternalError(w, log)
