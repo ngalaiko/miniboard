@@ -67,7 +67,7 @@ func New(log *logger.Logger, cfg *Config) (*Server, error) {
 		On("subscriptions:create", handlers.SubscriptionsCreate(log, subscriptionsService)).
 		On("subscriptions:import", handlers.SubscriptionsImport(log, subscriptionsService, tagsService))
 
-	optionalAuth := authorizations.Optional(authorizationsService, cfg.Authorizations, log)
+	optionalAuth := authorizations.Authenticate(authorizationsService, log)
 
 	requireJSON := middleware.AllowContentType("application/json")
 
