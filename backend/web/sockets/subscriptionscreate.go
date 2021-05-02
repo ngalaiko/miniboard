@@ -9,10 +9,10 @@ import (
 	"golang.org/x/net/websocket"
 
 	"github.com/ngalaiko/miniboard/backend/subscriptions"
-	"github.com/ngalaiko/miniboard/backend/web/templates"
+	"github.com/ngalaiko/miniboard/backend/web/render"
 )
 
-func (s *Sockets) subscriptionsCreate(ws *websocket.Conn, userID string, req *Request) {
+func (s *Sockets) subscriptionsCreate(ws *websocket.Conn, userID string, req *request) {
 	ctx := ws.Request().Context()
 
 	urlParam, ok := req.Params["url"]
@@ -42,16 +42,16 @@ func (s *Sockets) subscriptionsCreate(ws *websocket.Conn, userID string, req *Re
 	}
 
 	html := &bytes.Buffer{}
-	if err := templates.Subscription(html, subscription); err != nil {
+	if err := render.Subscription(html, subscription); err != nil {
 		s.logger.Error("failed to render subscription: %s", err)
 		s.respond(ws, errResponse(req, errInternal))
 		return
 	}
 
-	s.broadcast(userID, &Response{
+	s.broadcast(userID, &response{
 		ID:     req.ID,
 		HTML:   html.String(),
 		Target: "#no-tags-list",
-		Insert: Afterbegin,
+		Insert: afterbegin,
 	})
 }

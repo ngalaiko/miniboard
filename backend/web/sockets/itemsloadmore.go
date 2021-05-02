@@ -7,7 +7,7 @@ import (
 
 	"golang.org/x/net/websocket"
 
-	"github.com/ngalaiko/miniboard/backend/web/templates"
+	"github.com/ngalaiko/miniboard/backend/web/render"
 )
 
 var (
@@ -15,7 +15,7 @@ var (
 	errInternal         = fmt.Errorf("internal error")
 )
 
-func (s *Sockets) itemsLoadmore(ws *websocket.Conn, userID string, req *Request) {
+func (s *Sockets) itemsLoadmore(ws *websocket.Conn, userID string, req *request) {
 	ctx := ws.Request().Context()
 
 	var tagID, subscriptionID *string
@@ -46,16 +46,16 @@ func (s *Sockets) itemsLoadmore(ws *websocket.Conn, userID string, req *Request)
 
 	for _, item := range items {
 		html := &bytes.Buffer{}
-		if err := templates.Item(html, item); err != nil {
+		if err := render.Item(html, item); err != nil {
 			s.logger.Error("failed to render reader: %s", err)
 			s.respond(ws, errResponse(req, errInternal))
 			return
 		}
-		s.respond(ws, &Response{
+		s.respond(ws, &response{
 			ID:     req.ID,
 			HTML:   html.String(),
 			Target: "#items-list",
-			Insert: Beforeend,
+			Insert: beforeend,
 		})
 	}
 }

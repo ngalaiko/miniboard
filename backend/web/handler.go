@@ -11,9 +11,9 @@ import (
 	"github.com/ngalaiko/miniboard/backend/items"
 	"github.com/ngalaiko/miniboard/backend/subscriptions"
 	"github.com/ngalaiko/miniboard/backend/tags"
+	"github.com/ngalaiko/miniboard/backend/web/render"
 	"github.com/ngalaiko/miniboard/backend/web/sockets"
 	"github.com/ngalaiko/miniboard/backend/web/static"
-	"github.com/ngalaiko/miniboard/backend/web/templates"
 )
 
 type tagsService interface {
@@ -79,12 +79,12 @@ func NewHandler(
 					http.Redirect(w, r, "/login/", http.StatusSeeOther)
 				}
 			case "/signup/":
-				if err := templates.SignupPage(w, nil); err != nil {
+				if err := render.SignupPage(w, nil); err != nil {
 					log.Error("failed to render login page: %s", err)
 					httpx.InternalError(w, log)
 				}
 			case "/login/":
-				if err := templates.LoginPage(w, nil); err != nil {
+				if err := render.LoginPage(w, nil); err != nil {
 					log.Error("failed to render login page: %s", err)
 					httpx.InternalError(w, log)
 				}

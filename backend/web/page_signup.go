@@ -6,7 +6,7 @@ import (
 
 	"github.com/ngalaiko/miniboard/backend/httpx"
 	"github.com/ngalaiko/miniboard/backend/users"
-	"github.com/ngalaiko/miniboard/backend/web/templates"
+	"github.com/ngalaiko/miniboard/backend/web/render"
 )
 
 func signupHandler(log logger, usersService usersService, jwtService jwtService) http.HandlerFunc {
@@ -30,13 +30,13 @@ func signupHandler(log logger, usersService usersService, jwtService jwtService)
 
 			http.Redirect(w, r, "/users/", http.StatusSeeOther)
 		case errors.Is(err, users.ErrAlreadyExists):
-			if err := templates.SignupPage(w, err); err != nil {
+			if err := render.SignupPage(w, err); err != nil {
 				log.Error("failed to render signup page: %s", err)
 				httpx.InternalError(w, log)
 			}
 		case errors.Is(err, users.ErrUsernameEmpty),
 			errors.Is(err, users.ErrPasswordEmpty):
-			if err := templates.SignupPage(w, errors.Unwrap(err)); err != nil {
+			if err := render.SignupPage(w, errors.Unwrap(err)); err != nil {
 				log.Error("failed to render signup page: %s", err)
 				httpx.InternalError(w, log)
 			}

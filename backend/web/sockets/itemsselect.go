@@ -8,10 +8,10 @@ import (
 	"golang.org/x/net/websocket"
 
 	"github.com/ngalaiko/miniboard/backend/items"
-	"github.com/ngalaiko/miniboard/backend/web/templates"
+	"github.com/ngalaiko/miniboard/backend/web/render"
 )
 
-func (s *Sockets) itemsSelect(ws *websocket.Conn, userID string, req *Request) {
+func (s *Sockets) itemsSelect(ws *websocket.Conn, userID string, req *request) {
 	ctx := ws.Request().Context()
 
 	id, ok := req.Params["id"]
@@ -23,17 +23,17 @@ func (s *Sockets) itemsSelect(ws *websocket.Conn, userID string, req *Request) {
 	switch {
 	case err == nil:
 		html := &bytes.Buffer{}
-		if err := templates.Reader(html, &item.Item); err != nil {
+		if err := render.Reader(html, &item.Item); err != nil {
 			s.logger.Error("failed to render reader: %s", err)
 			s.respond(ws, errResponse(req, errInternal))
 			return
 		}
-		s.respond(ws, &Response{
+		s.respond(ws, &response{
 			ID:     req.ID,
 			HTML:   html.String(),
 			Reset:  true,
 			Target: "#reader",
-			Insert: Afterbegin,
+			Insert: afterbegin,
 		})
 	case errors.Is(err, items.ErrNotFound):
 		s.respond(ws, errResponse(req, fmt.Errorf("not foud")))

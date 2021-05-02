@@ -35,17 +35,11 @@ type tagsService interface {
 	List(ctx context.Context, userID string, pageSize int, createdLT *time.Time) ([]*tags.Tag, error)
 }
 
-type Request struct {
+type request struct {
 	ID     uint              `json:"id"`
 	Event  string            `json:"event"`
 	Params map[string]string `json:"params"`
 }
-
-type Respond func(*Response)
-
-type Broadcast func(*Response)
-
-type Handler func(context.Context, *Request, Respond, Broadcast)
 
 type logger interface {
 	Error(string, ...interface{})
@@ -114,7 +108,7 @@ func (s *Sockets) handle(userID string) func(*websocket.Conn) {
 		defer s.unregister(userID, ws)
 
 		for {
-			req := &Request{}
+			req := &request{}
 			err := websocket.JSON.Receive(ws, req)
 			switch {
 			case err == nil:
@@ -130,7 +124,7 @@ func (s *Sockets) handle(userID string) func(*websocket.Conn) {
 				case "subscriptions:import":
 					s.subscriptionsImport(ws, userID, req)
 				default:
-					s.respond(ws, &Response{
+					s.respond(ws, &response{
 						ID:    req.ID,
 						Error: fmt.Sprintf("unknown event '%s'", req.Event),
 					})
@@ -144,13 +138,13 @@ func (s *Sockets) handle(userID string) func(*websocket.Conn) {
 	}
 }
 
-func (s *Sockets) respond(ws *websocket.Conn, resp *Response) {
+func (s *Sockets) respond(ws *websocket.Conn, resp *response) {
 	if err := websocket.JSON.Send(ws, resp); err != nil {
 		s.logger.Error("failed to write response message: %s", err)
 	}
 }
 
-func (s *Sockets) broadcast(userID string, resp *Response) {
+func (s *Sockets) broadcast(userID string, resp *response) {
 	s.openSocketsGuard.RLock()
 	for _, ws := range s.openSockets[userID] {
 		s.respond(ws, resp)

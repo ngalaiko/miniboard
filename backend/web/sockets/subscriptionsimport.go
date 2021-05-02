@@ -11,11 +11,11 @@ import (
 
 	"github.com/ngalaiko/miniboard/backend/subscriptions"
 	"github.com/ngalaiko/miniboard/backend/tags"
+	"github.com/ngalaiko/miniboard/backend/web/render"
 	"github.com/ngalaiko/miniboard/backend/web/sockets/opml"
-	"github.com/ngalaiko/miniboard/backend/web/templates"
 )
 
-func (s *Sockets) subscriptionsImport(ws *websocket.Conn, userID string, req *Request) {
+func (s *Sockets) subscriptionsImport(ws *websocket.Conn, userID string, req *request) {
 	ctx := ws.Request().Context()
 
 	file, ok := req.Params["file"]
@@ -59,23 +59,23 @@ func (s *Sockets) subscriptionsImport(ws *websocket.Conn, userID string, req *Re
 			}
 
 			html := &bytes.Buffer{}
-			if err := templates.Subscription(html, subscription); err != nil {
+			if err := render.Subscription(html, subscription); err != nil {
 				s.logger.Error("failed to render subscription: %s", err)
 				s.respond(ws, errResponse(req, errInternal))
 				continue
 			}
 
-			s.broadcast(userID, &Response{
+			s.broadcast(userID, &response{
 				ID:     req.ID,
 				HTML:   html.String(),
 				Target: fmt.Sprintf("#%s-children", tag.ID),
-				Insert: Beforeend,
+				Insert: beforeend,
 			})
 		}
 	}
 }
 
-func (s *Sockets) getOrCreateTag(ctx context.Context, userID string, title string, req *Request) (*tags.Tag, error) {
+func (s *Sockets) getOrCreateTag(ctx context.Context, userID string, title string, req *request) (*tags.Tag, error) {
 	tag, err := s.tagsService.GetByTitle(ctx, userID, title)
 	switch err {
 	case nil:
@@ -86,21 +86,21 @@ func (s *Sockets) getOrCreateTag(ctx context.Context, userID string, title strin
 			return newTag, err
 		}
 		html := &bytes.Buffer{}
-		if err := templates.Tag(html, newTag); err != nil {
+		if err := render.Tag(html, newTag); err != nil {
 			s.logger.Error("failed to render tag: %s", err)
 			return nil, errInternal
 		}
-		s.broadcast(userID, &Response{
+		s.broadcast(userID, &response{
 			ID:     req.ID,
 			HTML:   fmt.Sprintf(`<div id="%s-children" class="tag-subscriptions" hidden></div>`, newTag.ID),
 			Target: "#tags-list",
-			Insert: Afterbegin,
+			Insert: afterbegin,
 		})
-		s.broadcast(userID, &Response{
+		s.broadcast(userID, &response{
 			ID:     req.ID,
 			HTML:   html.String(),
 			Target: "#tags-list",
-			Insert: Afterbegin,
+			Insert: afterbegin,
 		})
 		return newTag, err
 	default:

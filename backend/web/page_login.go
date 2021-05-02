@@ -8,7 +8,7 @@ import (
 	"github.com/ngalaiko/miniboard/backend/authorizations"
 	"github.com/ngalaiko/miniboard/backend/httpx"
 	"github.com/ngalaiko/miniboard/backend/users"
-	"github.com/ngalaiko/miniboard/backend/web/templates"
+	"github.com/ngalaiko/miniboard/backend/web/render"
 )
 
 type usersService interface {
@@ -33,7 +33,7 @@ func loginHandler(log logger, usersService usersService, jwtService jwtService) 
 		switch {
 		case err == nil:
 		case errors.Is(users.ErrNotFound, err):
-			if err := templates.LoginPage(w, users.ErrNotFound); err != nil {
+			if err := render.LoginPage(w, users.ErrNotFound); err != nil {
 				log.Error("failed to render login page: %s", err)
 				httpx.InternalError(w, log)
 			}
@@ -48,7 +48,7 @@ func loginHandler(log logger, usersService usersService, jwtService jwtService) 
 		switch {
 		case validatePasswordErr == nil:
 		case errors.Is(validatePasswordErr, users.ErrInvalidPassword):
-			if err := templates.LoginPage(w, users.ErrInvalidPassword); err != nil {
+			if err := render.LoginPage(w, users.ErrInvalidPassword); err != nil {
 				log.Error("failed to render login page: %s", err)
 				httpx.InternalError(w, log)
 			}

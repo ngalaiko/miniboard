@@ -3,11 +3,11 @@ package sockets
 type position string
 
 const (
-	Afterbegin position = "afterbegin"
-	Beforeend  position = "beforeend"
+	afterbegin position = "afterbegin"
+	beforeend  position = "beforeend"
 )
 
-type Response struct {
+type response struct {
 	ID     uint     `json:"id"`
 	Error  string   `json:"error,omitempty"`
 	Target string   `json:"target"`
@@ -16,8 +16,8 @@ type Response struct {
 	Reset  bool     `json:"reset"`
 }
 
-func errResponse(req *Request, err error) *Response {
-	return &Response{
+func errResponse(req *request, err error) *response {
+	return &response{
 		ID:    req.ID,
 		Error: err.Error(),
 	}

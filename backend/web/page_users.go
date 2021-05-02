@@ -9,7 +9,7 @@ import (
 	"github.com/ngalaiko/miniboard/backend/authorizations"
 	"github.com/ngalaiko/miniboard/backend/httpx"
 	"github.com/ngalaiko/miniboard/backend/items"
-	"github.com/ngalaiko/miniboard/backend/web/templates"
+	"github.com/ngalaiko/miniboard/backend/web/render"
 )
 
 func usersHandler(log logger, itemsService itemsService, tagsService tagsService, subscriptionsService subscriptionsService) http.HandlerFunc {
@@ -39,7 +39,7 @@ func usersHandler(log logger, itemsService itemsService, tagsService tagsService
 			httpx.InternalError(w, log)
 			return
 		}
-		if err := templates.UsersPage(w, item, items, tags, subscriptions); err != nil {
+		if err := render.UsersPage(w, item, items, tags, subscriptions); err != nil {
 			log.Error("failed to render users page: %s", err)
 			httpx.InternalError(w, log)
 			return
