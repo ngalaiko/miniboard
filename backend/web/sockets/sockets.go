@@ -17,6 +17,7 @@ import (
 	"github.com/ngalaiko/miniboard/backend/items"
 	"github.com/ngalaiko/miniboard/backend/subscriptions"
 	"github.com/ngalaiko/miniboard/backend/tags"
+	"github.com/ngalaiko/miniboard/backend/web/render"
 )
 
 type itemsService interface {
@@ -51,6 +52,7 @@ type Sockets struct {
 	itemsService         itemsService
 	tagsService          tagsService
 	subscriptionsService subscriptionsService
+	render               *render.Templates
 
 	openSocketsGuard *sync.RWMutex
 	openSockets      map[string][]*websocket.Conn
@@ -61,12 +63,14 @@ func New(
 	itemsService itemsService,
 	tagsService tagsService,
 	subscriptionsService subscriptionsService,
+	render *render.Templates,
 ) *Sockets {
 	return &Sockets{
 		logger:               logger,
 		itemsService:         itemsService,
 		tagsService:          tagsService,
 		subscriptionsService: subscriptionsService,
+		render:               render,
 		openSocketsGuard:     &sync.RWMutex{},
 		openSockets:          make(map[string][]*websocket.Conn),
 	}

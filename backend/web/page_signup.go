@@ -9,7 +9,7 @@ import (
 	"github.com/ngalaiko/miniboard/backend/web/render"
 )
 
-func signupHandler(log logger, usersService usersService, jwtService jwtService) http.HandlerFunc {
+func signupHandler(log logger, usersService usersService, jwtService jwtService, render *render.Templates) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
 			log.Error("failed to parse form: %s", err)

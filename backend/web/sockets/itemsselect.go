@@ -8,7 +8,6 @@ import (
 	"golang.org/x/net/websocket"
 
 	"github.com/ngalaiko/miniboard/backend/items"
-	"github.com/ngalaiko/miniboard/backend/web/render"
 )
 
 func (s *Sockets) itemsSelect(ws *websocket.Conn, userID string, req *request) {
@@ -23,7 +22,7 @@ func (s *Sockets) itemsSelect(ws *websocket.Conn, userID string, req *request) {
 	switch {
 	case err == nil:
 		html := &bytes.Buffer{}
-		if err := render.Reader(html, &item.Item); err != nil {
+		if err := s.render.Reader(html, &item.Item); err != nil {
 			s.logger.Error("failed to render reader: %s", err)
 			s.respond(ws, errResponse(req, errInternal))
 			return

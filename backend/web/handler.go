@@ -55,11 +55,18 @@ func NewHandler(
 	usersService usersService,
 	jwtService jwtService,
 ) http.Handler {
-	staticHandler := static.NewHandler(cfg.FS, log)
-	usersHandler := usersHandler(log, itemsService, tagsService, subscriptionsService)
-	socketsHandler := sockets.New(log, itemsService, tagsService, subscriptionsService)
-	signupHandler := signupHandler(log, usersService, jwtService)
-	loginHandler := loginHandler(log, usersService, jwtService)
+	if cfg.FS {
+		log.Debug("serving files from fs")
+	} else {
+		log.Debug("serving files from memory")
+	}
+
+	staticHandler := static.NewHandler(cfg.FS)
+	render := render.Load(cfg.FS)
+	usersHandler := usersHandler(log, itemsService, tagsService, subscriptionsService, render)
+	socketsHandler := sockets.New(log, itemsService, tagsService, subscriptionsService, render)
+	signupHandler := signupHandler(log, usersService, jwtService, render)
+	loginHandler := loginHandler(log, usersService, jwtService, render)
 
 	r := chi.NewRouter()
 	r.Use(Log(log))

@@ -11,7 +11,6 @@ import (
 
 	"github.com/ngalaiko/miniboard/backend/subscriptions"
 	"github.com/ngalaiko/miniboard/backend/tags"
-	"github.com/ngalaiko/miniboard/backend/web/render"
 	"github.com/ngalaiko/miniboard/backend/web/sockets/opml"
 )
 
@@ -59,7 +58,7 @@ func (s *Sockets) subscriptionsImport(ws *websocket.Conn, userID string, req *re
 			}
 
 			html := &bytes.Buffer{}
-			if err := render.Subscription(html, subscription); err != nil {
+			if err := s.render.Subscription(html, subscription); err != nil {
 				s.logger.Error("failed to render subscription: %s", err)
 				s.respond(ws, errResponse(req, errInternal))
 				continue
@@ -86,7 +85,7 @@ func (s *Sockets) getOrCreateTag(ctx context.Context, userID string, title strin
 			return newTag, err
 		}
 		html := &bytes.Buffer{}
-		if err := render.Tag(html, newTag); err != nil {
+		if err := s.render.Tag(html, newTag); err != nil {
 			s.logger.Error("failed to render tag: %s", err)
 			return nil, errInternal
 		}

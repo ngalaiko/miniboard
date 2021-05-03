@@ -12,7 +12,7 @@ import (
 	"github.com/ngalaiko/miniboard/backend/web/render"
 )
 
-func usersHandler(log logger, itemsService itemsService, tagsService tagsService, subscriptionsService subscriptionsService) http.HandlerFunc {
+func usersHandler(log logger, itemsService itemsService, tagsService tagsService, subscriptionsService subscriptionsService, render *render.Templates) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		token, _ := authorizations.FromContext(r.Context())
 		item, err := loadItem(r.Context(), token.UserID, itemsService, r.URL.Query().Get("item"))

@@ -21,7 +21,7 @@ type jwtService interface {
 	Verify(context.Context, string) (*authorizations.Token, error)
 }
 
-func loginHandler(log logger, usersService usersService, jwtService jwtService) http.HandlerFunc {
+func loginHandler(log logger, usersService usersService, jwtService jwtService, render *render.Templates) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
 			log.Error("failed to parse form: %s", err)

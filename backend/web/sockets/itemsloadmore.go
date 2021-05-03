@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"golang.org/x/net/websocket"
-
-	"github.com/ngalaiko/miniboard/backend/web/render"
 )
 
 var (
@@ -46,7 +44,7 @@ func (s *Sockets) itemsLoadmore(ws *websocket.Conn, userID string, req *request)
 
 	for _, item := range items {
 		html := &bytes.Buffer{}
-		if err := render.Item(html, item); err != nil {
+		if err := s.render.Item(html, item); err != nil {
 			s.logger.Error("failed to render reader: %s", err)
 			s.respond(ws, errResponse(req, errInternal))
 			return

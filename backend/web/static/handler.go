@@ -8,23 +8,17 @@ import (
 	"path"
 )
 
-type logger interface {
-	Debug(string, ...interface{})
-}
-
 //nolint: gochecknoglobals
 //go:embed files/*
 var staticFS embed.FS
 
 // NewHandler return web handler.
-func NewHandler(useFS bool, log logger) http.HandlerFunc {
+func NewHandler(useFS bool) http.HandlerFunc {
 	var static fs.FS
 	if useFS {
 		static = os.DirFS("web/static/files")
-		log.Debug("serving from os filesystem")
 	} else {
 		static = &stripPrefix{"files", staticFS}
-		log.Debug("serving from embedded filesystem")
 	}
 	return http.FileServer(http.FS(static)).ServeHTTP
 }

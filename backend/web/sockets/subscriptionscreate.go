@@ -9,7 +9,6 @@ import (
 	"golang.org/x/net/websocket"
 
 	"github.com/ngalaiko/miniboard/backend/subscriptions"
-	"github.com/ngalaiko/miniboard/backend/web/render"
 )
 
 func (s *Sockets) subscriptionsCreate(ws *websocket.Conn, userID string, req *request) {
@@ -42,7 +41,7 @@ func (s *Sockets) subscriptionsCreate(ws *websocket.Conn, userID string, req *re
 	}
 
 	html := &bytes.Buffer{}
-	if err := render.Subscription(html, subscription); err != nil {
+	if err := s.render.Subscription(html, subscription); err != nil {
 		s.logger.Error("failed to render subscription: %s", err)
 		s.respond(ws, errResponse(req, errInternal))
 		return
