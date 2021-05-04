@@ -1,10 +1,14 @@
-<div class="tag pure-g">
-    <button class="pure-u pure-button button-hidden" style="text-align: left;" onclick="toggleTag('{{ .ID }}')" >
-        <svg id="{{ .ID }}-arrow" class="tag-arrow" viewBox="0 0 20 20" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
-    </button>
-    <button class="pure-u-3-4 pure-button button-hidden tag-title" style="text-align: left;" onclick="onTagSelected('{{ .ID }}')">
-        {{ .Title }}
-    </button>
+<div class="accordion">
+    <input type="checkbox" id="accordion-{{ .Tag.ID }}" name="accordion-checkbox" hidden>
+    <label class="accordion-header c-hand" for="accordion-{{ .Tag.ID }}">
+        <i class="icon icon-arrow-right mr-1"></i>
+        <button class="tag-title button-hidden c-hand" onclick="onTagSelected('{{ .Tag.ID }}')">{{ .Tag.Title }}</button>
+    </label>
+    <div class="accordion-body">
+        <ul id="{{ .Tag.ID }}-children" class="menu">
+            {{ range .Subscriptions }}
+                {{ template "files/components/subscription.html" . }}
+            {{ end }}
+        </ul>
+    </div>
 </div>

@@ -1,7 +1,13 @@
-<div class="item pure-g" created="{{ .Created | timeformat }}" onclick="onItemSelected('{{ .ID }}')">
-    <img class="subscription-icon" width="20" height="20" src="{{ with .SubscriptionIcon }}{{ . }}{{ else }}/img/rss.svg{{ end }}"></img>
-    <div class="pure-u-3-4">
-        <h5 class="item-subscription-title">{{ .SubscriptionTitle }}</h5>
-        <h4 class="item-title">{{ .Title }}</h4>
+<li class="menu-item">
+    <div class="tile tile c-hand" created="{{ .Created | timeformat }}" onclick="onItemSelected('{{ .ID }}')">
+        <div class="tile-icon">
+            <figure class="avatar avatar-sm">
+                <img src="{{ with .SubscriptionIcon }}{{ . }}{{ else }}/img/rss.svg{{ end }}" alt="{{ .SubscriptionTitle }}">
+            </figure>
+        </div>
+        <div class="tile-content">
+            <small class="tile-title item-subscription-title">{{ .SubscriptionTitle }}</small>
+            <p class="tile-subtitle item-title">{{ .Title }}</p>
+        </div>
     </div>
-</div>
+</li>

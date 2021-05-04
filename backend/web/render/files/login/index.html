@@ -7,56 +7,40 @@
 
     <title>Log in - Miniboard</title>
 
-    <link rel="stylesheet" href="/vendor/purecss@2.0.5/base-min.css" />
-    <link rel="stylesheet" href="/vendor/purecss@2.0.5/buttons-min.css" />
-    <link rel="stylesheet" href="/vendor/purecss@2.0.5/grids-min.css" />
-    <link rel="stylesheet" href="/vendor/purecss@2.0.5/grids-responsive-min.css" />
-    <link rel="stylesheet" href="/vendor/purecss@2.0.5/forms-min.css" />
+    <link rel="stylesheet" href="/vendor/spectre@0.5.9/spectre.min.css" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="/img/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5" />
-    
+
     <style>
-        .pure-g-center {
-            justify-content: center;
-        }
-
-        .pure-u-center {
-            text-align: center;
-        }
-
-        .error {
-            background: rgb(202, 60, 60); // maroon
+        #login-button {
+            width: 100%;
         }
     </style>
 </head>
 
 <body>
-    <div class="pure-g pure-g-center">
-        <div class="pure-u pure-u-center">
-            <h1>Miniboard</h1>
+    <div class="container">
+        <div class="columns">
+            <h1 class="column col-mx-auto text-center">Miniboard</h1>
         </div>
-    </div>
-    <div class="pure-g pure-g-center">
-        <div class="pure-u-7-8 pure-u-lg-1-5 pure-u-md-1-3 pure-u-sm-1-3 pure-u-center">
-            <form class="pure-form" action="/login/" method="POST">
+        <div class="coloums">
+            <form class="column col-3 col-mx-auto text-center" action="/login/" method="POST">
                 {{ with .Error }}
-                    <aside class="error pure-button pure-button-primary">Error: {{ . }}</aside>
+                    <aside class="label label-error form-group">Error: {{ . }}</aside>
                 {{ end }}
-                <fieldset class="pure-group">
-                    <input class="pure-input-1" type="text" id="username" name="username" placeholder="Username"></input>
-                    <input class="pure-input-1" type="password" id="password" name="password" placeholder="Password"></input>
-                </fieldgroup>
-                <button class="pure-button pure-input-1 pure-button-primary" id="login-button">Log in</button>
+                <input class="form-input form-group" type="text" id="username" name="username" placeholder="Username"></input>
+                <input class="form-input form-group" type="password" id="password" name="password" placeholder="Password"></input>
+                <button class="btn btn-primary form-group" id="login-button">Log in</button>
             </form>
         </div>
-    </div>
-    <div class="pure-g pure-g-center">
-        <div class="pure-u pure-u-center">
+        <div class="columns">
+            <div class="column col-mx-auto text-center">
             No account yet? <a href="/signup/">Sign up</a>
+            </div>
         </div>
     </div>
 </body>

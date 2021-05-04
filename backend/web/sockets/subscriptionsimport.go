@@ -85,16 +85,10 @@ func (s *Sockets) getOrCreateTag(ctx context.Context, userID string, title strin
 			return newTag, err
 		}
 		html := &bytes.Buffer{}
-		if err := s.render.Tag(html, newTag); err != nil {
+		if err := s.render.Tag(html, newTag, nil); err != nil {
 			s.logger.Error("failed to render tag: %s", err)
 			return nil, errInternal
 		}
-		s.broadcast(userID, &response{
-			ID:     req.ID,
-			HTML:   fmt.Sprintf(`<div id="%s-children" class="tag-subscriptions" hidden></div>`, newTag.ID),
-			Target: "#tags-list",
-			Insert: afterbegin,
-		})
 		s.broadcast(userID, &response{
 			ID:     req.ID,
 			HTML:   html.String(),

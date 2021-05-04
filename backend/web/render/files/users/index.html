@@ -7,9 +7,8 @@
 
     <title>Miniboard</title>
 
-    <link rel="stylesheet" href="/vendor/purecss@2.0.5/base-min.css" />
-    <link rel="stylesheet" href="/vendor/purecss@2.0.5/buttons-min.css" />
-    <link rel="stylesheet" href="/vendor/purecss@2.0.5/grids-min.css" />
+    <link rel="stylesheet" href="/vendor/spectre@0.5.9/spectre.min.css" />
+    <link rel="stylesheet" href="/vendor/spectre@0.5.9/spectre-icons.min.css" />
 
     <link rel="stylesheet" href="/users/style.css" />
 
@@ -21,49 +20,52 @@
 </head>
 
 <body>
-    <div id="layout" class="pure-g">
-        <div id="menu" class="pure-u-5-24">
-            <button id="add-button" class="pure-button pure-button-primary">Add</button>
-            <div id="tags-list">
-                {{ range .Tags }}
-                    {{ template "files/components/tag.html" . }}
-                    <div id="{{ .ID }}-children" class="tag-subscriptions" hidden>
-                        {{ range index $.SubscriptionsByTagID .ID }}
-                            {{ template "files/components/subscription.html" . }}
-                        {{ end }}
-                    </div>
-                {{ end }}
+    <div id="container" class="container" style="height: 100%">
+        <div id="layout" class="columns" style="height: 100%">
+            <div id="menu" class="column col-3">
+                <ul id="tags-list" class="menu">
+                    <button id="add-button" class="btn btn-primary">Add</button>
+                    {{ range .Tags }}
+                        <li class="menu-item">
+                            {{ template "files/components/tag.html" . }}
+                        </li>
+                    {{ end }}
+                </ul>
+                <ul id="no-tags-list" class="menu">
+                    {{ range .Subscriptions }}
+                        {{ template "files/components/subscription.html" . }}
+                    {{ end }}
+                </ul>
             </div>
-            <div id="no-tags-list">
-                {{ range index $.SubscriptionsByTagID "" }}
-                    {{ template "files/components/subscription.html" . }}
+            <ul id="items-list" class="menu column col-3">
+                {{ range .Items }}
+                    {{ template "files/components/item.html" . }}
                 {{ end }}
-            </div>
-        </div>
-        <div id="items-list" class="pure-u-5-24">
-            {{ range .Items }}
-                {{ template "files/components/item.html" . }}
-            {{ end }}
-        </div>
-        <div id="content" class="pure-u-14-24">
-            <div id="reader">
-                {{ template "files/components/reader.html" .Item }}
+            </ul>
+            <div id="content" class="column col-6">
+                <div id="reader">
+                    {{ template "files/components/reader.html" .Item }}
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="modal" hidden>
+    <div id="modal" class="modal modal-sm">
         <div id="background"></div>
-        <div id="content">
-            <input id="input-url" placeholder="Link, RSS" />
-            <input type="file" id="input-file" />
-            <label for="input-file" id="input-icon">
-                <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="17 8 12 3 7 8"></polyline>
-                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
-            </label>
+        <div class="modal-container">
+            <div class="modal-body">
+                <div class="content">
+                    <input id="input-url" placeholder="Link, RSS" />
+                    <input type="file" id="input-file" />
+                    <label for="input-file" id="input-icon">
+                        <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 

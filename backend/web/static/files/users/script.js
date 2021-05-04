@@ -117,15 +117,15 @@ document.querySelector("#input-file").addEventListener('change', async (e) => {
 })
 
 const isModalClosed = () => {
-    return document.querySelector('#modal').hidden
+    return !document.querySelector('#modal').classList.contains('active')
 }
 
 const closeModal = () => {
-    document.querySelector('#modal').hidden = true
+    document.querySelector('#modal').classList.remove('active')
 }
 
 const showModal = () => {
-    document.querySelector('#modal').hidden = false
+    document.querySelector('#modal').classList.add('active')
 }
 
 document.querySelector("#background").addEventListener('click', () => {
