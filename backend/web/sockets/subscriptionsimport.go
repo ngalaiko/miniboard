@@ -67,7 +67,7 @@ func (s *Sockets) subscriptionsImport(ws *websocket.Conn, userID string, req *re
 			s.broadcast(userID, &response{
 				ID:     req.ID,
 				HTML:   html.String(),
-				Target: fmt.Sprintf("#%s-children", tag.ID),
+				Target: fmt.Sprintf("#children-%s", tag.ID),
 				Insert: beforeend,
 			})
 		}

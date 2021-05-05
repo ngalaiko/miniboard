@@ -5,6 +5,7 @@ type position string
 const (
 	afterbegin position = "afterbegin"
 	beforeend  position = "beforeend"
+	afterend   position = "afterend"
 )
 
 type response struct {

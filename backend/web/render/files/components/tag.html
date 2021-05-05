@@ -5,7 +5,7 @@
         <button class="tag-title button-hidden c-hand" onclick="onTagSelected('{{ .Tag.ID }}')">{{ .Tag.Title }}</button>
     </label>
     <div class="accordion-body">
-        <ul id="{{ .Tag.ID }}-children" class="menu">
+        <ul id="children-{{ .Tag.ID }}" class="menu">
             {{ range .Subscriptions }}
                 {{ template "files/components/subscription.html" . }}
             {{ end }}

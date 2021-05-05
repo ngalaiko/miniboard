@@ -46,6 +46,7 @@ type logger interface {
 	Error(string, ...interface{})
 }
 
+//nolint: funlen
 func NewHandler(
 	cfg *Config,
 	log logger,
@@ -83,6 +84,10 @@ func NewHandler(
 		} else {
 			http.Redirect(w, r, "/login/", http.StatusSeeOther)
 		}
+	})
+	r.Get("/logout/", func(w http.ResponseWriter, r *http.Request) {
+		removeCookie(w, r.TLS != nil)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	})
 	r.Get("/signup/", func(w http.ResponseWriter, r *http.Request) {
 		if err := render.SignupPage(w, nil); err != nil {

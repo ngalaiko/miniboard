@@ -9,6 +9,18 @@ import (
 
 const cookieName = "authorization"
 
+func removeCookie(w http.ResponseWriter, secure bool) {
+	cookie := &http.Cookie{
+		Name:     cookieName,
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+		Path:     "/",
+		Secure:   secure,
+		SameSite: http.SameSiteNoneMode,
+	}
+	http.SetCookie(w, cookie)
+}
+
 func setCookie(w http.ResponseWriter, secure bool, token *authorizations.Token) {
 	cookie := &http.Cookie{
 		Name:     cookieName,

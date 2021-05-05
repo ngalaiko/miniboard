@@ -38,17 +38,16 @@
     padding: 1em;
 }
 
-html, body, #container, #layout, #menu, #items-list, #content {
+html, body, #tags-list, #items-list, #reader {
     height: 100%;
 }
 
-#menu, #items-list, #content {
-    overflow-y: scroll;
+#layout {
+    height: calc(100% - 2rem);
 }
 
-#add-button {
-    width:100%;
-    font-size:larger;
+#tags-list, #items-list, #reader {
+    overflow-y: scroll;
 }
 
 #modal #background {

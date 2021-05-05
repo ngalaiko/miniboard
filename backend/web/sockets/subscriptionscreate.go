@@ -51,6 +51,6 @@ func (s *Sockets) subscriptionsCreate(ws *websocket.Conn, userID string, req *re
 		ID:     req.ID,
 		HTML:   html.String(),
 		Target: "#no-tags-list",
-		Insert: afterbegin,
+		Insert: afterend,
 	})
 }
