@@ -74,9 +74,3 @@ html, body, #container, #layout, #menu, #items-list, #content {
 #modal #input-file {
     display: none;
 }
-
-#modal #input-icon {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-}
