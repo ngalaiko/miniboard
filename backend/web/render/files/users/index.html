@@ -31,22 +31,24 @@
         </section>
     </header>
     <div id="layout" class="columns">
-        <ul id="tags-list" class="menu column col-3">
-            {{ range .Tags }}
-                <li class="menu-item">
+        <div class="column col-3" style="height: 100%;">
+            <ul id="tags-list" class="menu">
+                {{ range .Tags }}
                     {{ template "files/components/tag.html" . }}
-                </li>
-            {{ end }}
-            <li id="no-tags-list"></li>
-            {{ range .Subscriptions }}
-                {{ template "files/components/subscription.html" . }}
-            {{ end }}
-        </ul>
-        <ul id="items-list" class="menu column col-3">
-            {{ range .Items }}
-                {{ template "files/components/item.html" . }}
-            {{ end }}
-        </ul>
+                {{ end }}
+                <li id="no-tags-list"></li>
+                {{ range .Subscriptions }}
+                    {{ template "files/components/subscription.html" . }}
+                {{ end }}
+            </ul>
+        </div>
+        <div class="column col-3" style="height: 100%;">
+            <ul id="items-list" class="menu">
+                {{ range .Items }}
+                    {{ template "files/components/item.html" . }}
+                {{ end }}
+            </ul>
+        </div>
         <div id="reader" class="column col-6">
             {{ template "files/components/reader.html" .Item }}
         </div>
