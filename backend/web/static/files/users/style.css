@@ -7,7 +7,7 @@
     outline: none;
 }
 
-.item-subscription-title, .item-title {
+.item-subscription-title, .tag-title, .subscription.title, .item-title {
     text-overflow: ellipsis;
     white-space: normal;
     overflow: hidden;
@@ -33,7 +33,7 @@
     padding: 1em;
 }
 
-html, body, #tags-list, #items-list, #reader {
+html, body, #items-list, #tags-list, #reader {
     height: 100%;
 }
 
@@ -41,7 +41,7 @@ html, body, #tags-list, #items-list, #reader {
     height: calc(100% - 2rem);
 }
 
-#tags-list, #items-list, #reader {
+#items-list, #tags-list, #reader {
     overflow-y: scroll;
 }
 

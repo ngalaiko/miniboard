@@ -14,3 +14,11 @@ func FromContext(ctx context.Context) (*Token, bool) {
 	token, ok := ctx.Value(tokenContextKey{}).(*Token)
 	return token, ok
 }
+
+func MustFromContext(ctx context.Context) *Token {
+	token, ok := ctx.Value(tokenContextKey{}).(*Token)
+	if !ok {
+		panic("token expected in context, but not found")
+	}
+	return token
+}

@@ -31,7 +31,7 @@ type subscriptionsService interface {
 }
 
 type itemsService interface {
-	Get(ctx context.Context, id string, userID string) (*items.UserItem, error)
+	Get(ctx context.Context, userID string, id string) (*items.UserItem, error)
 	List(ctx context.Context, userID string, pageSize int, createdLT *time.Time, subscriptionID *string, tagID *string) ([]*items.UserItem, error)
 }
 
@@ -64,7 +64,6 @@ func NewHandler(
 
 	staticHandler := static.NewHandler(cfg.FS)
 	render := render.Load(cfg.FS)
-	usersHandler := usersHandler(log, itemsService, tagsService, subscriptionsService, render)
 	socketsHandler := sockets.New(log, itemsService, tagsService, subscriptionsService, render)
 	signupHandler := signupHandler(log, usersService, jwtService, render)
 	loginHandler := loginHandler(log, usersService, jwtService, render)
@@ -77,14 +76,49 @@ func NewHandler(
 	r.Post("/login/", loginHandler)
 	r.Post("/signup/", signupHandler)
 	r.Get("/api/ws/", socketsHandler.Receive())
-	r.Get("/users/", func(w http.ResponseWriter, r *http.Request) {
-		_, authorized := authorizations.FromContext(r.Context())
-		if authorized {
-			usersHandler.ServeHTTP(w, r)
-		} else {
-			http.Redirect(w, r, "/login/", http.StatusSeeOther)
-		}
+
+	r.With(requireAuth).Get("/users/", usersHandler(log, render, withAllSubscriptionsByTags(tagsService, subscriptionsService)))
+	r.With(requireAuth).Get("/users/{itemID}/", func(w http.ResponseWriter, r *http.Request) {
+		usersHandler(log, render,
+			withAllSubscriptionsByTags(tagsService, subscriptionsService),
+			withItem(itemsService, chi.URLParam(r, "itemID")),
+		).ServeHTTP(w, r)
 	})
+	r.With(requireAuth).Get("/users/items/", usersHandler(log, render, withAllItems(itemsService)))
+	r.With(requireAuth).Get("/users/items/{itemID}/", func(w http.ResponseWriter, r *http.Request) {
+		usersHandler(log, render,
+			withAllSubscriptionsByTags(tagsService, subscriptionsService),
+			withAllItems(itemsService),
+			withItem(itemsService, chi.URLParam(r, "itemID")),
+		).ServeHTTP(w, r)
+	})
+	r.With(requireAuth).Get("/users/tags/{tagID}/items/", func(w http.ResponseWriter, r *http.Request) {
+		usersHandler(log, render,
+			withAllSubscriptionsByTags(tagsService, subscriptionsService),
+			withItemsByTagID(itemsService, chi.URLParam(r, "tagID")),
+		).ServeHTTP(w, r)
+	})
+	r.With(requireAuth).Get("/users/tags/{tagID}/items/{itemID}/", func(w http.ResponseWriter, r *http.Request) {
+		usersHandler(log, render,
+			withAllSubscriptionsByTags(tagsService, subscriptionsService),
+			withItemsByTagID(itemsService, chi.URLParam(r, "tagID")),
+			withItem(itemsService, chi.URLParam(r, "itemID")),
+		).ServeHTTP(w, r)
+	})
+	r.With(requireAuth).Get("/users/subscriptions/{subscriptionID}/items/", func(w http.ResponseWriter, r *http.Request) {
+		usersHandler(log, render,
+			withAllSubscriptionsByTags(tagsService, subscriptionsService),
+			withItemsBySubscriptionID(itemsService, chi.URLParam(r, "subscriptionID")),
+		).ServeHTTP(w, r)
+	})
+	r.With(requireAuth).Get("/users/subscriptions/{subscriptionID}/items/{itemID}/", func(w http.ResponseWriter, r *http.Request) {
+		usersHandler(log, render,
+			withAllSubscriptionsByTags(tagsService, subscriptionsService),
+			withItemsBySubscriptionID(itemsService, chi.URLParam(r, "subscriptionID")),
+			withItem(itemsService, chi.URLParam(r, "itemID")),
+		).ServeHTTP(w, r)
+	})
+
 	r.Get("/logout/", func(w http.ResponseWriter, r *http.Request) {
 		removeCookie(w, r.TLS != nil)
 		http.Redirect(w, r, "/", http.StatusSeeOther)

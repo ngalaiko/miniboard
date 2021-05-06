@@ -1,5 +1,5 @@
 <li class="menu-item" created="{{ .Created | timeformat }}">
-    <div class="tile tile c-hand"onclick="onItemSelected('{{ .ID }}')">
+    <div class="tile tile c-hand" onclick="onItemSelected('{{ .ID }}')">
         <div class="tile-icon">
             <figure class="avatar avatar-sm">
                 <img src="{{ with .SubscriptionIcon }}{{ . }}{{ else }}/img/rss.svg{{ end }}" alt="{{ .SubscriptionTitle }}">

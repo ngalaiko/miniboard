@@ -12,6 +12,17 @@ type errorLogger interface {
 	Error(string, ...interface{})
 }
 
+func requireAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, authorized := authorizations.FromContext(r.Context())
+		if authorized {
+			next.ServeHTTP(w, r)
+		} else {
+			http.Redirect(w, r, "/login/", http.StatusSeeOther)
+		}
+	})
+}
+
 func Authenticate(jwtService jwtService, log errorLogger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

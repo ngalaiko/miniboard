@@ -1,20 +1,37 @@
-const storeState = (key, value) => {
-    const urlParams = new URLSearchParams(window.location.search.slice(1))
+const itemUrl = (id) => {
+    const path = window.location.pathname;
+    if (path.endsWith('/items/')) return path + `${id}/`;
+    return path.split('/items')[0] + '/items/' + `${id}/`;
+}
 
-    if (urlParams.get(key) === value) return
+const subscriptionUrl = (id) => {
+    const path = window.location.pathname;
+    if (path.endsWith('/items/')) return `/users/subscriptions/${id}/items/`
+    const split = path.split('/');
+    const lastId = split[split.length-2];
+    if (path.includes('/items/')) return `/users/subscriptions/${id}/items/${lastId}/`;
+    return `/users/subscriptions/${id}/items/`;
+}
 
-    urlParams.set(key, value)
+const tagUrl = (id) => {
+    const path = window.location.pathname;
+    if (path.endsWith('/items/')) return `/users/tags/${id}/items/`
+    const split = path.split('/');
+    const lastId = split[split.length-2];
+    if (path.includes('/items/')) return `/users/tags/${id}/items/${lastId}/`;
+    return `/users/tags/${id}/items/`;
+}
 
-    let refresh = window.location.protocol +
-        "//" + window.location.host + window.location.pathname +
-        `?${urlParams.toString()}`
+const nav = (to) => {
+    let refresh = window.location.protocol + "//" + window.location.host + to;
     window.history.pushState({ path: refresh }, '', refresh)
 }
 
 const getState = (key) => {
-    const urlParams = new URLSearchParams(window.location.search.slice(1))
-    const value = urlParams.get(key)
-    return value ? value : undefined
+    const path = window.location.pathname;
+    const split = path.split('/');
+    const keyIndex = split.indexOf(key);
+    return keyIndex > 0 ? split[keyIndex + 1] : undefined;
 }
 
 const deleteState = (key) => {
@@ -28,8 +45,7 @@ const deleteState = (key) => {
 }
 
 const onSubscriptionSelected = (subscriptionId) => {
-    deleteState('tag')
-    storeState('subscription', subscriptionId)
+    nav(subscriptionUrl(subscriptionId))
 
     sendMessage("items:load", {
         subscriptionId: subscriptionId,
@@ -38,12 +54,11 @@ const onSubscriptionSelected = (subscriptionId) => {
 
 const onItemSelected = (itemId) => {
     sendMessage("items:select", {id: itemId})
-    storeState('item', itemId)
+    nav(itemUrl(itemId))
 }
 
 const onTagSelected = (tagId) => {
-    deleteState('subscription')
-    storeState('tag', tagId)
+    nav(tagUrl(tagId))
 
     sendMessage("items:load", {
         tagId: tagId,
@@ -55,8 +70,9 @@ document.querySelector('#items-list').addEventListener('scroll', (e) => {
     const needMore = scrollTop + clientHeight >= scrollHeight - 50
     if (!needMore) return
 
-    const subscriptionId = getState('subscription')
-    const tagId = getState('tag')
+    const subscriptionId = getState('subscriptions')
+    const tagId = getState('tags')
+    console.log(subscriptionId, tagId)
     const createdLt = document.querySelector('#items-list').lastElementChild.getAttribute('created')
 
     if (!createdLt) return

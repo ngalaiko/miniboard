@@ -5,7 +5,6 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"sort"
 	"text/template"
 	"time"
 
@@ -76,42 +75,20 @@ func readFiles(files fs.FS) (*template.Template, error) {
 	})
 }
 
-func (t *Templates) UsersPage(w io.Writer, i *items.UserItem, ii []*items.UserItem, tt []*tags.Tag, ss []*subscriptions.UserSubscription) error {
-	type tagSubscriptions struct {
-		Tag           *tags.Tag
-		Subscriptions []*subscriptions.UserSubscription
-	}
+type UsersTag struct {
+	Tag           *tags.Tag
+	Subscriptions []*subscriptions.UserSubscription
+}
 
-	subscriptionsByTagID := map[string][]*subscriptions.UserSubscription{}
-	noTagSubscriptions := []*subscriptions.UserSubscription{}
-	for _, s := range ss {
-		if len(s.TagIDs) == 0 {
-			noTagSubscriptions = append(noTagSubscriptions, s)
-		}
-		for _, tagID := range s.TagIDs {
-			subscriptionsByTagID[tagID] = append(subscriptionsByTagID[tagID], s)
-		}
-	}
-	tagsByTagID := map[string]*tags.Tag{}
-	for _, tag := range tt {
-		tagsByTagID[tag.ID] = tag
-	}
-	tagsSubscriptions := []*tagSubscriptions{}
-	for tagID, ss := range subscriptionsByTagID {
-		tagsSubscriptions = append(tagsSubscriptions, &tagSubscriptions{
-			Tag:           tagsByTagID[tagID],
-			Subscriptions: ss,
-		})
-	}
-	sort.Slice(tagsSubscriptions, func(i, j int) bool {
-		return tagsSubscriptions[i].Tag.Created.Before(tagsSubscriptions[j].Tag.Created)
-	})
-	return t.root().ExecuteTemplate(w, "files/users/index.html", map[string]interface{}{
-		"Item":          i,
-		"Items":         ii,
-		"Tags":          tagsSubscriptions,
-		"Subscriptions": noTagSubscriptions,
-	})
+type UsersData struct {
+	Item          *items.UserItem
+	Items         []*items.UserItem
+	Subscriptions []*subscriptions.UserSubscription
+	Tags          []*UsersTag
+}
+
+func (t *Templates) UsersPage(w io.Writer, data *UsersData) error {
+	return t.root().ExecuteTemplate(w, "files/users/index.html", data)
 }
 
 func (t *Templates) SignupPage(w io.Writer, err error) error {
