@@ -7,20 +7,11 @@
     outline: none;
 }
 
-.item-subscription-title, .subscription-title, .tag-title, .item-title {
+.item-subscription-title, .item-title {
     text-overflow: ellipsis;
     white-space: normal;
     overflow: hidden;
     word-break: break-word;
-}
-
-.tag-title {
-    width: calc(100% - 2em);
-    text-align: left;
-}
-
-.tag, .subscription {
-    padding: .25em .5em;
 }
 
 .item-title {
@@ -32,6 +23,10 @@
 
 .item-subscription-title {
     color: #999;
+}
+
+.tag, .subscription {
+    padding: .25em .5em;
 }
 
 #reader {

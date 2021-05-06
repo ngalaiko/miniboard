@@ -2,7 +2,7 @@
     <input type="checkbox" id="accordion-{{ .Tag.ID }}" name="accordion-checkbox" hidden>
     <label class="accordion-header c-hand" for="accordion-{{ .Tag.ID }}">
         <i class="icon icon-arrow-right mr-1"></i>
-        <button class="tag-title button-hidden c-hand" onclick="onTagSelected('{{ .Tag.ID }}')">{{ .Tag.Title }}</button>
+        <button class="button-hidden c-hand" onclick="onTagSelected('{{ .Tag.ID }}')">{{ .Tag.Title }}</button>
     </label>
     <div class="accordion-body">
         <ul id="children-{{ .Tag.ID }}" class="menu">

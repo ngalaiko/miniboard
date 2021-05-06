@@ -27,12 +27,6 @@ const deleteState = (key) => {
     window.history.pushState({ path: refresh }, '', refresh)
 }
 
-const toggleTag = (tagId) => {
-    const children = document.getElementById(`${tagId}-children`)
-    children.hidden = !children.hidden
-    document.getElementById(`${tagId}-arrow`).classList.toggle('rotate-90')
-}
-
 const onSubscriptionSelected = (subscriptionId) => {
     deleteState('tag')
     storeState('subscription', subscriptionId)
