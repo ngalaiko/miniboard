@@ -37,8 +37,12 @@
     padding: 1em;
 }
 
-html, body, #tags-list, #reader {
+html, body, #reader {
     height: 100%;
+}
+
+#tags-list {
+    height: calc(100% - 0.2rem);
 }
 
 #layout, #items-list {
