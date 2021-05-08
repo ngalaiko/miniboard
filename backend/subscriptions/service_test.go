@@ -58,10 +58,6 @@ func Test__Create(t *testing.T) {
 		t.Fatalf("failed to create a subscription %s", err)
 	}
 
-	if subscription.UserID != "user id" {
-		t.Errorf("user id expected: %s, got %s", "user id", subscription.UserID)
-	}
-
 	if subscription.Title != "Sample Subscription" {
 		t.Errorf("title expected: %s, got %s", "Sample Subscription", subscription.Title)
 	}

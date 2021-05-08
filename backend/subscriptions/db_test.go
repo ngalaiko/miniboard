@@ -13,10 +13,9 @@ import (
 	"github.com/ngalaiko/miniboard/backend/tags"
 )
 
-func testSubscription() *UserSubscription {
-	subscription := &UserSubscription{}
+func testSubscription() *Subscription {
+	subscription := &Subscription{}
 	subscription.ID = "test id"
-	subscription.UserID = "user"
 	subscription.URL = "https://example.com"
 	subscription.Title = "title"
 	subscription.Created = time.Now().Add(-1 * time.Hour)
@@ -34,7 +33,7 @@ func Test_db__Create(t *testing.T) {
 
 	subscription := testSubscription()
 
-	if err := db.Create(ctx, subscription); err != nil {
+	if err := db.Create(ctx, "user", subscription); err != nil {
 		t.Fatalf("failed to create a subscription: %s", err)
 	}
 }
@@ -47,11 +46,11 @@ func Test_db__Create_twice(t *testing.T) {
 
 	subscription := testSubscription()
 
-	if err := db.Create(ctx, subscription); err != nil {
+	if err := db.Create(ctx, "user", subscription); err != nil {
 		t.Fatalf("failed to create a subscription: %s", err)
 	}
 
-	if err := db.Create(ctx, subscription); err == nil {
+	if err := db.Create(ctx, "user", subscription); err == nil {
 		t.Fatalf("second create shoud've failed")
 	}
 }
@@ -63,9 +62,8 @@ func Test_db__Create_twice_for_different_users(t *testing.T) {
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
 	subscription1 := testSubscription()
-	subscription1.UserID = "user1"
 
-	if err := db.Create(ctx, subscription1); err != nil {
+	if err := db.Create(ctx, "user1", subscription1); err != nil {
 		t.Fatalf("failed to create a subscription: %s", err)
 	}
 	fromDB1, err := db.Get(ctx, "user1", subscription1.ID)
@@ -77,8 +75,7 @@ func Test_db__Create_twice_for_different_users(t *testing.T) {
 	}
 
 	subscription2 := subscription1
-	subscription2.UserID = "user2"
-	if err := db.Create(ctx, subscription1); err != nil {
+	if err := db.Create(ctx, "user2", subscription1); err != nil {
 		t.Fatalf("failed to create a subscription: %s", err)
 	}
 	fromDB2, err := db.Get(ctx, "user2", subscription2.ID)
@@ -98,7 +95,7 @@ func Test_db__Get_not_found(t *testing.T) {
 
 	subscription := testSubscription()
 
-	fromDB, err := db.Get(ctx, subscription.UserID, subscription.ID)
+	fromDB, err := db.Get(ctx, "user", subscription.ID)
 	if fromDB != nil {
 		t.Fatalf("nothing should be returned, got %+v", fromDB)
 	}
@@ -118,11 +115,11 @@ func Test_db__Get_without_tags(t *testing.T) {
 	subscription.Updated = new(time.Time)
 	*subscription.Updated = time.Now().Truncate(time.Nanosecond)
 
-	if err := db.Create(ctx, subscription); err != nil {
+	if err := db.Create(ctx, "user", subscription); err != nil {
 		t.Fatalf("failed to create a subscription: %s", err)
 	}
 
-	fromDB, err := db.Get(ctx, subscription.UserID, subscription.ID)
+	fromDB, err := db.Get(ctx, "user", subscription.ID)
 	if err != nil {
 		t.Fatalf("failed to get subscription from the db: %s", err)
 	}
@@ -155,11 +152,11 @@ func Test_db__Get_with_tags(t *testing.T) {
 	subscription.Updated = new(time.Time)
 	*subscription.Updated = time.Now().Truncate(time.Nanosecond)
 
-	if err := db.Create(ctx, subscription); err != nil {
+	if err := db.Create(ctx, "user", subscription); err != nil {
 		t.Fatalf("failed to create a subscription: %s", err)
 	}
 
-	fromDB, err := db.Get(ctx, subscription.UserID, subscription.ID)
+	fromDB, err := db.Get(ctx, "user", subscription.ID)
 	if err != nil {
 		t.Fatalf("failed to get subscription from the db: %s", err)
 	}
@@ -175,14 +172,14 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	created := map[string]*UserSubscription{}
+	created := map[string]*Subscription{}
 	for i := 0; i < 100; i++ {
 		subscription := testSubscription()
 		subscription.ID = fmt.Sprint(i)
 		subscription.URL = fmt.Sprintf("https://example%d.com", i)
 		subscription.Title = fmt.Sprintf("%d title", i)
 
-		if err := db.Create(ctx, subscription); err != nil {
+		if err := db.Create(ctx, "user", subscription); err != nil {
 			t.Fatal(err)
 		}
 		created[subscription.ID] = subscription

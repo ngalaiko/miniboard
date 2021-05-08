@@ -79,7 +79,7 @@ func NewService(db *sql.DB, crawler crawler, logger logger, cfg *Config, itemsSe
 }
 
 // Create creates a subscription from URL.
-func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagIDs []string) (*UserSubscription, error) {
+func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagIDs []string) (*Subscription, error) {
 	if exists, err := s.db.GetByURL(ctx, userID, url.String()); err == nil && exists != nil {
 		return nil, ErrAlreadyExists
 	}
@@ -96,9 +96,8 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagID
 		return nil, ErrFailedToParseSubscription
 	}
 
-	subscription := &UserSubscription{}
+	subscription := &Subscription{}
 	subscription.ID = uuid.New().String()
-	subscription.UserID = userID
 	subscription.URL = url.String()
 	subscription.Title = parsedSubscription.Title
 	subscription.Created = time.Now().Truncate(time.Nanosecond)
@@ -108,7 +107,7 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagID
 		subscription.IconURL = &parsedSubscription.Image.URL
 	}
 
-	if err := s.db.Create(ctx, subscription); err != nil {
+	if err := s.db.Create(ctx, userID, subscription); err != nil {
 		return nil, fmt.Errorf("failed to store subscription: %w", err)
 	}
 
@@ -126,13 +125,13 @@ func (s *Service) Create(ctx context.Context, userID string, url *url.URL, tagID
 		}
 	}
 
-	s.watchUpdates(&subscription.Subscription)
+	s.watchUpdates(subscription)
 
 	return subscription, nil
 }
 
 // Get returns a subscription by it's id.
-func (s *Service) Get(ctx context.Context, id string, userID string) (*UserSubscription, error) {
+func (s *Service) Get(ctx context.Context, id string, userID string) (*Subscription, error) {
 	subscription, err := s.db.Get(ctx, id, userID)
 	switch {
 	case err == nil:
@@ -145,7 +144,7 @@ func (s *Service) Get(ctx context.Context, id string, userID string) (*UserSubsc
 }
 
 // List returns a list of user subscriptions.
-func (s *Service) List(ctx context.Context, userID string, pageSize int, createdLT *time.Time) ([]*UserSubscription, error) {
+func (s *Service) List(ctx context.Context, userID string, pageSize int, createdLT *time.Time) ([]*Subscription, error) {
 	subscriptions, err := s.db.List(ctx, userID, pageSize, createdLT)
 	switch {
 	case err == nil:

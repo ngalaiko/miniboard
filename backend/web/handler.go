@@ -26,8 +26,8 @@ type tagsService interface {
 }
 
 type subscriptionsService interface {
-	Create(ctx context.Context, userID string, url *url.URL, tagIDs []string) (*subscriptions.UserSubscription, error)
-	List(ctx context.Context, userID string, pageSize int, createdLT *time.Time) ([]*subscriptions.UserSubscription, error)
+	Create(ctx context.Context, userID string, url *url.URL, tagIDs []string) (*subscriptions.Subscription, error)
+	List(ctx context.Context, userID string, pageSize int, createdLT *time.Time) ([]*subscriptions.Subscription, error)
 }
 
 type itemsService interface {

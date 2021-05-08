@@ -27,8 +27,8 @@ func withAllSubscriptionsByTags(tagsService tagsService, subscriptionsService su
 		if err != nil {
 			return fmt.Errorf("failed to load subscriptions for user '%s': %w", token.UserID, err)
 		}
-		subscriptionsByTagID := map[string][]*subscriptions.UserSubscription{}
-		noTagSubscriptions := []*subscriptions.UserSubscription{}
+		subscriptionsByTagID := map[string][]*subscriptions.Subscription{}
+		noTagSubscriptions := []*subscriptions.Subscription{}
 		for _, s := range ss {
 			if len(s.TagIDs) == 0 {
 				noTagSubscriptions = append(noTagSubscriptions, s)

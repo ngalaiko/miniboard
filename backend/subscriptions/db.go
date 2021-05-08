@@ -24,7 +24,6 @@ func newDB(sqldb *sql.DB, logger logger) *database {
 func sqlFields(db *sql.DB) string {
 	return `
 		subscriptions.id,
-		users_subscriptions.user_id,
 		subscriptions.url,
 		subscriptions.title,
 		subscriptions.created_epoch,
@@ -35,7 +34,7 @@ func sqlFields(db *sql.DB) string {
 }
 
 // Create creates a subscription in the database.
-func (d *database) Create(ctx context.Context, subscription *UserSubscription) error {
+func (d *database) Create(ctx context.Context, userID string, subscription *Subscription) error {
 	var updatedEpoch *int64
 	if subscription.Updated != nil {
 		updatedEpoch = new(int64)
@@ -73,7 +72,7 @@ func (d *database) Create(ctx context.Context, subscription *UserSubscription) e
 		); err != nil {
 			return onError(tx, err)
 		}
-		existingSubscription = &subscription.Subscription
+		existingSubscription = subscription
 		fallthrough
 	case err == nil:
 		if _, err := tx.ExecContext(ctx, `
@@ -81,7 +80,7 @@ func (d *database) Create(ctx context.Context, subscription *UserSubscription) e
 			user_id, subscription_id
 		) VALUES (
 			$1, $2
-		)`, subscription.UserID, existingSubscription.ID,
+		)`, userID, existingSubscription.ID,
 		); err != nil {
 			return onError(tx, err)
 		}
@@ -127,7 +126,8 @@ func getByURL(ctx context.Context, tx *sql.Tx, url string) (*Subscription, error
 		subscriptions.title,
 		subscriptions.created_epoch,
 		subscriptions.updated_epoch,
-		subscriptions.icon_url
+		subscriptions.icon_url,
+		NULL
 	FROM
 		subscriptions
 	WHERE
@@ -146,7 +146,8 @@ func (d *database) GetByID(ctx context.Context, id string) (*Subscription, error
 		subscriptions.title,
 		subscriptions.created_epoch,
 		subscriptions.updated_epoch,
-		subscriptions.icon_url
+		subscriptions.icon_url,
+		NULL
 	FROM
 		subscriptions
 	WHERE
@@ -157,32 +158,28 @@ func (d *database) GetByID(ctx context.Context, id string) (*Subscription, error
 }
 
 // Get returns a subscription from the db with the given url and user id.
-func (d *database) GetByURL(ctx context.Context, userID string, url string) (*UserSubscription, error) {
-	row := d.db.QueryRowContext(ctx, fmt.Sprintf(`
+func (d *database) GetByURL(ctx context.Context, userID string, url string) (*Subscription, error) {
+	row := d.db.QueryRowContext(ctx, `
 	SELECT
-		%s
-	FROM
-		subscriptions
-			JOIN users_subscriptions ON subscriptions.id = users_subscriptions.subscription_id AND users_subscriptions.user_id = $1
-			LEFT JOIN tags_subscriptions ON subscriptions.id = tags_subscriptions.subscription_id
-			LEFT JOIN tags ON tags.id = tags_subscriptions.tag_id AND tags.user_id = users_subscriptions.user_id
-	WHERE
-		subscriptions.url = $2
-	GROUP BY
 		subscriptions.id,
-		users_subscriptions.user_id,
 		subscriptions.url,
 		subscriptions.title,
 		subscriptions.created_epoch,
 		subscriptions.updated_epoch,
-		subscriptions.icon_url
-	`, sqlFields(d.db)), userID, url)
+		subscriptions.icon_url,
+		NULL
+	FROM
+		subscriptions
+			JOIN users_subscriptions ON subscriptions.id = users_subscriptions.subscription_id AND users_subscriptions.user_id = $1
+	WHERE
+		subscriptions.url = $2
+	`, userID, url)
 
-	return scanUserSubscriptionRow(row)
+	return scanSubscriptionRow(row)
 }
 
 // Get returns a subscription from the db with the given id and user id.
-func (d *database) Get(ctx context.Context, userID string, id string) (*UserSubscription, error) {
+func (d *database) Get(ctx context.Context, userID string, id string) (*Subscription, error) {
 	row := d.db.QueryRowContext(ctx, fmt.Sprintf(`
 	SELECT
 		%s
@@ -195,7 +192,6 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*UserSubs
 		subscriptions.id = $2
 	GROUP BY
 		subscriptions.id,
-		users_subscriptions.user_id,
 		subscriptions.url,
 		subscriptions.title,
 		subscriptions.created_epoch,
@@ -203,7 +199,7 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*UserSubs
 		subscriptions.icon_url
 	`, sqlFields(d.db)), userID, id)
 
-	return scanUserSubscriptionRow(row)
+	return scanSubscriptionRow(row)
 }
 
 // List returns a list of subscriptions from the database.
@@ -211,7 +207,7 @@ func (d *database) List(ctx context.Context,
 	userID string,
 	limit int,
 	createdLT *time.Time,
-) ([]*UserSubscription, error) {
+) ([]*Subscription, error) {
 	query := &strings.Builder{}
 	query.WriteString(fmt.Sprintf(`
 	SELECT
@@ -241,7 +237,6 @@ func (d *database) List(ctx context.Context,
 	query.WriteString(fmt.Sprintf(`
 	GROUP BY
 		subscriptions.id,
-		users_subscriptions.user_id,
 		subscriptions.url,
 		subscriptions.title,
 		subscriptions.created_epoch,
@@ -256,9 +251,9 @@ func (d *database) List(ctx context.Context,
 		return nil, err
 	}
 
-	subscriptions := []*UserSubscription{}
+	subscriptions := []*Subscription{}
 	for rows.Next() {
-		subscription, err := scanUserSubscriptionRow(rows)
+		subscription, err := scanSubscriptionRow(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -285,7 +280,8 @@ func (d *database) ListAll(ctx context.Context) ([]*Subscription, error) {
 		subscriptions.title,
 		subscriptions.created_epoch,
 		subscriptions.updated_epoch,
-		subscriptions.icon_url
+		subscriptions.icon_url,
+		NULL
 	FROM
 		subscriptions`
 
@@ -324,32 +320,6 @@ func scanSubscriptionRow(row scannable) (*Subscription, error) {
 	var updatedEpoch *int64
 	if err := row.Scan(
 		&subscription.ID,
-		&subscription.URL,
-		&subscription.Title,
-		&createdEpoch,
-		&updatedEpoch,
-		&subscription.IconURL,
-	); err != nil {
-		return nil, err
-	}
-
-	subscription.Created = time.Unix(0, createdEpoch).Round(time.Nanosecond)
-
-	if updatedEpoch != nil {
-		subscription.Updated = new(time.Time)
-		*subscription.Updated = time.Unix(0, *updatedEpoch).Round(time.Nanosecond)
-	}
-
-	return subscription, nil
-}
-
-func scanUserSubscriptionRow(row scannable) (*UserSubscription, error) {
-	subscription := &UserSubscription{}
-	var createdEpoch int64
-	var updatedEpoch *int64
-	if err := row.Scan(
-		&subscription.ID,
-		&subscription.UserID,
 		&subscription.URL,
 		&subscription.Title,
 		&createdEpoch,

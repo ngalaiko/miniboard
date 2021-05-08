@@ -80,13 +80,13 @@ func readFiles(files fs.FS) (*template.Template, error) {
 
 type UsersTag struct {
 	Tag           *tags.Tag
-	Subscriptions []*subscriptions.UserSubscription
+	Subscriptions []*subscriptions.Subscription
 }
 
 type UsersData struct {
 	Item          *items.Item
 	Items         []*items.Item
-	Subscriptions []*subscriptions.UserSubscription
+	Subscriptions []*subscriptions.Subscription
 	Tags          []*UsersTag
 	URL           *url.URL
 }
@@ -115,11 +115,11 @@ func (t *Templates) Item(w io.Writer, item *items.Item) error {
 	return t.root().ExecuteTemplate(w, "files/components/item.html", item)
 }
 
-func (t *Templates) Subscription(w io.Writer, subscription *subscriptions.UserSubscription) error {
+func (t *Templates) Subscription(w io.Writer, subscription *subscriptions.Subscription) error {
 	return t.root().ExecuteTemplate(w, "files/components/subscription.html", subscription)
 }
 
-func (t *Templates) Tag(w io.Writer, tag *tags.Tag, ss []*subscriptions.UserSubscription) error {
+func (t *Templates) Tag(w io.Writer, tag *tags.Tag, ss []*subscriptions.Subscription) error {
 	return t.root().ExecuteTemplate(w, "files/components/tag.html", map[string]interface{}{
 		"Tag":           tag,
 		"Subscriptions": ss,
