@@ -107,8 +107,8 @@ func Test_service__Get(t *testing.T) {
 		t.Fatalf("failed to get a item: %s", err)
 	}
 
-	if !cmp.Equal(*item, from.Item) {
-		t.Error(cmp.Diff(*item, from.Item))
+	if !cmp.Equal(item, from) {
+		t.Error(cmp.Diff(item, from))
 	}
 }
 

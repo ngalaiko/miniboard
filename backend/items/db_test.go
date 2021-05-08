@@ -12,17 +12,14 @@ import (
 	"github.com/ngalaiko/miniboard/backend/db"
 )
 
-func testUserItem() *UserItem {
-	return &UserItem{
-		UserID: "user",
-		Item: Item{
-			ID:             "test id",
-			URL:            "https://example.com",
-			Title:          "title",
-			SubscriptionID: "sid",
-			Created:        nil,
-			Summary:        nil,
-		},
+func testItem() *Item {
+	return &Item{
+		ID:             "test id",
+		URL:            "https://example.com",
+		Title:          "title",
+		SubscriptionID: "sid",
+		Created:        nil,
+		Summary:        nil,
 	}
 }
 
@@ -32,7 +29,7 @@ func Test_db__Create(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	if err := db.Create(ctx, &testUserItem().Item); err != nil {
+	if err := db.Create(ctx, testItem()); err != nil {
 		t.Fatalf("failed to create a item: %s", err)
 	}
 }
@@ -43,13 +40,13 @@ func Test_db__Create_twice(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	item := testUserItem()
+	item := testItem()
 
-	if err := db.Create(ctx, &item.Item); err != nil {
+	if err := db.Create(ctx, item); err != nil {
 		t.Fatalf("failed to create a item: %s", err)
 	}
 
-	if err := db.Create(ctx, &item.Item); err == nil {
+	if err := db.Create(ctx, item); err == nil {
 		t.Fatalf("second create shoud've failed")
 	}
 }
@@ -60,9 +57,9 @@ func Test_db__GetByURL_not_found(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	item := testUserItem()
+	item := testItem()
 
-	fromDB, err := db.Get(ctx, item.UserID, item.URL)
+	fromDB, err := db.Get(ctx, "user", item.URL)
 	if fromDB != nil {
 		t.Fatalf("nothing should be returned, got %+v", fromDB)
 	}
@@ -83,9 +80,9 @@ func Test_db__GetByURL(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	item := testUserItem()
+	item := testItem()
 
-	if err := db.Create(ctx, &item.Item); err != nil {
+	if err := db.Create(ctx, item); err != nil {
 		t.Fatalf("failed to create a item: %s", err)
 	}
 
@@ -94,8 +91,8 @@ func Test_db__GetByURL(t *testing.T) {
 		t.Fatalf("failed to get item from the db: %s", err)
 	}
 
-	if !cmp.Equal(&item.Item, fromDB) {
-		t.Error(cmp.Diff(&item.Item, fromDB))
+	if !cmp.Equal(item, fromDB) {
+		t.Error(cmp.Diff(item, fromDB))
 	}
 }
 
@@ -105,9 +102,9 @@ func Test_db__Get_not_found(t *testing.T) {
 	ctx := context.TODO()
 	db := newDB(createTestDB(ctx, t), &testLogger{})
 
-	item := testUserItem()
+	item := testItem()
 
-	fromDB, err := db.Get(ctx, item.UserID, item.ID)
+	fromDB, err := db.Get(ctx, "user", item.ID)
 	if fromDB != nil {
 		t.Fatalf("nothing should be returned, got %+v", fromDB)
 	}
@@ -128,13 +125,13 @@ func Test_db__Get(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	item := testUserItem()
+	item := testItem()
 
-	if err := db.Create(ctx, &item.Item); err != nil {
+	if err := db.Create(ctx, item); err != nil {
 		t.Fatalf("failed to create a item: %s", err)
 	}
 
-	fromDB, err := db.Get(ctx, item.UserID, item.ID)
+	fromDB, err := db.Get(ctx, "user", item.ID)
 	if err != nil {
 		t.Fatalf("failed to get item from the db: %s", err)
 	}
@@ -155,7 +152,7 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	created := map[string]*UserItem{}
+	created := map[string]*Item{}
 	for i := 0; i < 100; i++ {
 		createdTS := time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond)
 		item := &Item{
@@ -169,10 +166,7 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 		if err := db.Create(ctx, item); err != nil {
 			t.Fatal(err)
 		}
-		created[item.ID] = &UserItem{
-			UserID: "user",
-			Item:   *item,
-		}
+		created[item.ID] = item
 	}
 
 	var createdLT *time.Time
@@ -207,24 +201,21 @@ func Test_db__List_filtered_by_tag(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	db := newDB(sqldb, &testLogger{})
 
-	created := map[string]*UserItem{}
+	created := map[string]*Item{}
 	for i := 0; i < 100; i++ {
 		createdTS := time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond)
-		item := &UserItem{
-			UserID: "user",
-			Item: Item{
-				ID:             fmt.Sprint(i),
-				URL:            fmt.Sprintf("https://example%d.com", i),
-				Title:          fmt.Sprintf("%d title", i),
-				Created:        &createdTS,
-				SubscriptionID: fmt.Sprint(i % 5),
-			},
+		item := &Item{
+			ID:             fmt.Sprint(i),
+			URL:            fmt.Sprintf("https://example%d.com", i),
+			Title:          fmt.Sprintf("%d title", i),
+			Created:        &createdTS,
+			SubscriptionID: fmt.Sprint(i % 5),
 		}
 
 		_, _ = sqldb.Exec(`INSERT INTO users_subscriptions (user_id, subscription_id) VALUES ("user", $1)`, item.SubscriptionID)
 		_, _ = sqldb.Exec(`INSERT INTO tags_subscriptions (tag_id, subscription_id) VALUES ("tag", $1)`, item.SubscriptionID)
 
-		if err := db.Create(ctx, &item.Item); err != nil {
+		if err := db.Create(ctx, item); err != nil {
 			t.Fatal(err)
 		}
 		created[item.ID] = item
@@ -254,24 +245,21 @@ func Test_db__List_filtered_by_subscription_and_tag(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	db := newDB(sqldb, &testLogger{})
 
-	created := map[string]*UserItem{}
+	created := map[string]*Item{}
 	for i := 0; i < 100; i++ {
 		createdTS := time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond)
-		item := &UserItem{
-			UserID: "user",
-			Item: Item{
-				ID:             fmt.Sprint(i),
-				URL:            fmt.Sprintf("https://example%d.com", i),
-				Title:          fmt.Sprintf("%d title", i),
-				Created:        &createdTS,
-				SubscriptionID: fmt.Sprint(i % 5),
-			},
+		item := &Item{
+			ID:             fmt.Sprint(i),
+			URL:            fmt.Sprintf("https://example%d.com", i),
+			Title:          fmt.Sprintf("%d title", i),
+			Created:        &createdTS,
+			SubscriptionID: fmt.Sprint(i % 5),
 		}
 
 		_, _ = sqldb.Exec(`INSERT INTO users_subscriptions (user_id, subscription_id) VALUES ("user", $1)`, item.SubscriptionID)
 		_, _ = sqldb.Exec(`INSERT INTO tags_subscriptions (tag_id, subscription_id) VALUES ("tag", $1)`, item.SubscriptionID)
 
-		if err := db.Create(ctx, &item.Item); err != nil {
+		if err := db.Create(ctx, item); err != nil {
 			t.Fatal(err)
 		}
 		created[item.ID] = item
@@ -302,23 +290,20 @@ func Test_db__List_filtered_by_subscription(t *testing.T) {
 	sqldb := createTestDB(ctx, t)
 	db := newDB(sqldb, &testLogger{})
 
-	created := map[string]*UserItem{}
+	created := map[string]*Item{}
 	for i := 0; i < 100; i++ {
 		createdTS := time.Now().Add(-1 * time.Hour).Truncate(time.Nanosecond)
-		item := &UserItem{
-			UserID: "user",
-			Item: Item{
-				ID:             fmt.Sprint(i),
-				URL:            fmt.Sprintf("https://example%d.com", i),
-				Title:          fmt.Sprintf("%d title", i),
-				Created:        &createdTS,
-				SubscriptionID: fmt.Sprint(i % 5),
-			},
+		item := &Item{
+			ID:             fmt.Sprint(i),
+			URL:            fmt.Sprintf("https://example%d.com", i),
+			Title:          fmt.Sprintf("%d title", i),
+			Created:        &createdTS,
+			SubscriptionID: fmt.Sprint(i % 5),
 		}
 
 		_, _ = sqldb.Exec(`INSERT INTO users_subscriptions (user_id, subscription_id) VALUES ("user", $1)`, item.SubscriptionID)
 
-		if err := db.Create(ctx, &item.Item); err != nil {
+		if err := db.Create(ctx, item); err != nil {
 			t.Fatal(err)
 		}
 		created[item.ID] = item

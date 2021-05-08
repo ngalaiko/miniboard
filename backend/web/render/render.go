@@ -84,8 +84,8 @@ type UsersTag struct {
 }
 
 type UsersData struct {
-	Item          *items.UserItem
-	Items         []*items.UserItem
+	Item          *items.Item
+	Items         []*items.Item
 	Subscriptions []*subscriptions.UserSubscription
 	Tags          []*UsersTag
 	URL           *url.URL
@@ -111,7 +111,7 @@ func (t *Templates) Reader(w io.Writer, item *items.Item) error {
 	return t.root().ExecuteTemplate(w, "files/components/reader.html", item)
 }
 
-func (t *Templates) Item(w io.Writer, item *items.UserItem) error {
+func (t *Templates) Item(w io.Writer, item *items.Item) error {
 	return t.root().ExecuteTemplate(w, "files/components/item.html", item)
 }
 

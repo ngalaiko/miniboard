@@ -57,7 +57,9 @@ func (d *database) GetByURL(ctx context.Context, url string) (*Item, error) {
 		items.title,
 		items.subscription_id,
 		items.created_epoch,
-		items.summary
+		items.summary,
+		NULL,
+		NULL
 	FROM
 		items
 	WHERE
@@ -68,11 +70,10 @@ func (d *database) GetByURL(ctx context.Context, url string) (*Item, error) {
 }
 
 // Get returns a item from the db with the given id and user id.
-func (d *database) Get(ctx context.Context, userID string, id string) (*UserItem, error) {
+func (d *database) Get(ctx context.Context, userID string, id string) (*Item, error) {
 	row := d.db.QueryRowContext(ctx, `
 	SELECT
 		items.id,
-		users_subscriptions.user_id,
 		items.url,
 		items.title,
 		items.subscription_id,
@@ -88,7 +89,7 @@ func (d *database) Get(ctx context.Context, userID string, id string) (*UserItem
 		items.id = $2
 	`, userID, id)
 
-	return d.scanUserItemRow(row)
+	return d.scanItemRow(row)
 }
 
 // List returns a list of items from the database.
@@ -98,12 +99,11 @@ func (d *database) List(ctx context.Context,
 	createdLT *time.Time,
 	subscriptionID *string,
 	tagID *string,
-) ([]*UserItem, error) {
+) ([]*Item, error) {
 	query := &strings.Builder{}
 	query.WriteString(`
 	SELECT
 		items.id,
-		users_subscriptions.user_id,
 		items.url,
 		items.title,
 		items.subscription_id,
@@ -160,9 +160,9 @@ func (d *database) List(ctx context.Context,
 		return nil, err
 	}
 
-	items := []*UserItem{}
+	items := []*Item{}
 	for rows.Next() {
-		item, err := d.scanUserItemRow(rows)
+		item, err := d.scanItemRow(rows)
 		if err != nil {
 			return nil, err
 		}
@@ -194,29 +194,6 @@ func (d *database) scanItemRow(row scannable) (*Item, error) {
 		&item.SubscriptionID,
 		&createdEpoch,
 		&item.Summary,
-	); err != nil {
-		return nil, err
-	}
-
-	if createdEpoch != nil {
-		item.Created = new(time.Time)
-		*item.Created = time.Unix(0, *createdEpoch).Round(time.Nanosecond)
-	}
-
-	return item, nil
-}
-
-func (d *database) scanUserItemRow(row scannable) (*UserItem, error) {
-	item := &UserItem{}
-	var createdEpoch *int64
-	if err := row.Scan(
-		&item.ID,
-		&item.UserID,
-		&item.URL,
-		&item.Title,
-		&item.SubscriptionID,
-		&createdEpoch,
-		&item.Summary,
 		&item.SubscriptionTitle,
 		&item.SubscriptionIcon,
 	); err != nil {
@@ -227,5 +204,6 @@ func (d *database) scanUserItemRow(row scannable) (*UserItem, error) {
 		item.Created = new(time.Time)
 		*item.Created = time.Unix(0, *createdEpoch).Round(time.Nanosecond)
 	}
+
 	return item, nil
 }

@@ -31,8 +31,8 @@ type subscriptionsService interface {
 }
 
 type itemsService interface {
-	Get(ctx context.Context, userID string, id string) (*items.UserItem, error)
-	List(ctx context.Context, userID string, pageSize int, createdLT *time.Time, subscriptionID *string, tagID *string) ([]*items.UserItem, error)
+	Get(ctx context.Context, userID string, id string) (*items.Item, error)
+	List(ctx context.Context, userID string, pageSize int, createdLT *time.Time, subscriptionID *string, tagID *string) ([]*items.Item, error)
 }
 
 // Config contains web configuration.

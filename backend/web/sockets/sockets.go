@@ -21,8 +21,8 @@ import (
 )
 
 type itemsService interface {
-	Get(ctx context.Context, id string, userID string) (*items.UserItem, error)
-	List(ctx context.Context, userID string, pageSize int, createdLT *time.Time, subscriptionID *string, tagID *string) ([]*items.UserItem, error)
+	Get(ctx context.Context, id string, userID string) (*items.Item, error)
+	List(ctx context.Context, userID string, pageSize int, createdLT *time.Time, subscriptionID *string, tagID *string) ([]*items.Item, error)
 }
 
 type subscriptionsService interface {
