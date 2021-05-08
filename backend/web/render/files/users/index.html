@@ -17,13 +17,15 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="mask-icon" href="/img/safari-pinned-tab.svg" color="#5bbad5" />
+
+    <script src="/users/script.js"></script>
 </head>
 
 <body>
     <div class="container" style="height: 100%";>
         <header class="navbar">
             <section class="navbar-section">
-                <button id="add-button" class="btn btn-action">
+                <button id="add-button" class="btn btn-action" onclick="showModal()">
                     <i class="icon icon-plus"></i>
                 </button>
             </section>
@@ -48,7 +50,7 @@
             </div>
             <div id="items" class="column col-3 {{ if not $items }}d-hide{{ end }}" style="height: 100%;">
                 <button class="btn btn-link" onclick="hideItems()"><i class="icon icon-arrow-left"></i>Back</button>
-                <ul id="items-list" class="menu">
+                <ul id="items-list" class="menu" onscroll="onItemsScroll(this)">
                     {{ range .Items }}
                         {{ template "files/components/item.html" . }}
                     {{ end }}
@@ -61,12 +63,12 @@
     </div>
 
     <div id="modal" class="modal modal-sm">
-        <div id="background"></div>
+        <div id="background" onclick="closeModal()"></div>
         <div class="modal-container">
             <div class="modal-body">
                 <div class="content input-group">
                     <input id="input-url" class="input-group-addon  addon-lg" placeholder="Link, RSS" />
-                    <input type="file" class="input-group-addon addon-lg" id="input-file" />
+                    <input type="file" class="input-group-addon addon-lg" id="input-file" onchange="onInputChange(this)" />
                     <label for="input-file" class="m-2 c-hand">
                         <i class="icon icon-2x icon-upload"></i>
                     </label>
@@ -74,34 +76,6 @@
             </div>
         </div>
     </div>
-
-    <script src="/users/script.js"></script>
-    <script>
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const webdockerUrl = protocol + '//' + window.location.hostname + '/api/ws/';
-        const socket = new WebSocket(webdockerUrl);
-
-        const sendMessage = (event, params) => {
-            const request = JSON.stringify({
-                id: Math.floor(performance.now()),
-                event: event,
-                params: params,
-            });
-            socket.send(request);
-        }
-
-        socket.onmessage = (message) => {
-            const data = JSON.parse(message.data);
-            if (data.error) {
-                console.error(data.error);
-                return;
-            }
-            const target = document.querySelector(data.target);
-            if (data.reset) target.innerHTML = '';
-            if (data.html === "") return;
-            target.insertAdjacentHTML(data.insert, data.html);
-        }
-    </script>
 </body>
 
 </html>

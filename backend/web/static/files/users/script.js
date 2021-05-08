@@ -77,8 +77,8 @@ const showTagsSubscriptions = () => {
     document.querySelector('#items').classList.add('d-hide')
 }
 
-document.querySelector('#items-list').addEventListener('scroll', (e) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.target
+const onItemsScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e
     const needMore = scrollTop + clientHeight >= scrollHeight - 50
     if (!needMore) return
 
@@ -95,7 +95,7 @@ document.querySelector('#items-list').addEventListener('scroll', (e) => {
         subscriptionId: subscriptionId,
         createdLt: createdLt,
     })
-})
+}
 
 window.addEventListener('keydown', (e) => {
     if (isModalClosed()) return
@@ -119,8 +119,8 @@ window.addEventListener('keydown', (e) => {
     }
 })
 
-document.querySelector("#input-file").addEventListener('change', async (e) => {
-    const files = e.target.files
+const onInputChange = async (e) => {
+    const files = e.files
 
     closeModal()
 
@@ -135,7 +135,7 @@ document.querySelector("#input-file").addEventListener('change', async (e) => {
         reader.onerror = () => reject(new Error('failed to read file'))
     })
     .then((raw) => sendMessage("subscriptions:import", { file: raw }))
-})
+}
 
 const isModalClosed = () => {
     return !document.querySelector('#modal').classList.contains('active')
@@ -149,10 +149,27 @@ const showModal = () => {
     document.querySelector('#modal').classList.add('active')
 }
 
-document.querySelector("#background").addEventListener('click', () => {
-    if (!isModalClosed()) closeModal()
-})
+const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+const webdockerUrl = protocol + '//' + window.location.hostname + '/api/ws/';
+const socket = new WebSocket(webdockerUrl);
 
-document.querySelector('#add-button').addEventListener('click', () => {
-    showModal()
-})
+const sendMessage = (event, params) => {
+    const request = JSON.stringify({
+        id: Math.floor(performance.now()),
+        event: event,
+        params: params,
+    });
+    socket.send(request);
+}
+
+socket.onmessage = (message) => {
+    const data = JSON.parse(message.data);
+    if (data.error) {
+        console.error(data.error);
+        return;
+    }
+    const target = document.querySelector(data.target);
+    if (data.reset) target.innerHTML = '';
+    if (data.html === "") return;
+    target.insertAdjacentHTML(data.insert, data.html);
+}
