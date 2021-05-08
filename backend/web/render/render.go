@@ -4,7 +4,9 @@ import (
 	"embed"
 	"io"
 	"io/fs"
+	"net/url"
 	"os"
+	"strings"
 	"text/template"
 	"time"
 
@@ -21,6 +23,7 @@ var (
 		"timeformat": func(t *time.Time) string {
 			return t.Format(time.RFC3339)
 		},
+		"contains": strings.Contains,
 	}
 )
 
@@ -85,6 +88,7 @@ type UsersData struct {
 	Items         []*items.UserItem
 	Subscriptions []*subscriptions.UserSubscription
 	Tags          []*UsersTag
+	URL           *url.URL
 }
 
 func (t *Templates) UsersPage(w io.Writer, data *UsersData) error {

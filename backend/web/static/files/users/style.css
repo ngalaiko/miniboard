@@ -33,11 +33,11 @@
     padding: 1em;
 }
 
-html, body, #items-list, #tags-list, #reader {
+html, body, #tags-list, #reader {
     height: 100%;
 }
 
-#layout {
+#layout, #items-list {
     height: calc(100% - 2rem);
 }
 

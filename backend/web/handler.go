@@ -77,9 +77,15 @@ func NewHandler(
 	r.Post("/signup/", signupHandler)
 	r.Get("/api/ws/", socketsHandler.Receive())
 
-	r.With(requireAuth).Get("/users/", usersHandler(log, render, withAllSubscriptionsByTags(tagsService, subscriptionsService)))
+	r.With(requireAuth).Get("/users/", func(w http.ResponseWriter, r *http.Request) {
+		usersHandler(log, render,
+			withURL(r.URL),
+			withAllSubscriptionsByTags(tagsService, subscriptionsService),
+		).ServeHTTP(w, r)
+	})
 	r.With(requireAuth).Get("/users/{itemID}/", func(w http.ResponseWriter, r *http.Request) {
 		usersHandler(log, render,
+			withURL(r.URL),
 			withAllSubscriptionsByTags(tagsService, subscriptionsService),
 			withItem(itemsService, chi.URLParam(r, "itemID")),
 		).ServeHTTP(w, r)
@@ -87,6 +93,7 @@ func NewHandler(
 	r.With(requireAuth).Get("/users/items/", usersHandler(log, render, withAllItems(itemsService)))
 	r.With(requireAuth).Get("/users/items/{itemID}/", func(w http.ResponseWriter, r *http.Request) {
 		usersHandler(log, render,
+			withURL(r.URL),
 			withAllSubscriptionsByTags(tagsService, subscriptionsService),
 			withAllItems(itemsService),
 			withItem(itemsService, chi.URLParam(r, "itemID")),
@@ -94,12 +101,14 @@ func NewHandler(
 	})
 	r.With(requireAuth).Get("/users/tags/{tagID}/items/", func(w http.ResponseWriter, r *http.Request) {
 		usersHandler(log, render,
+			withURL(r.URL),
 			withAllSubscriptionsByTags(tagsService, subscriptionsService),
 			withItemsByTagID(itemsService, chi.URLParam(r, "tagID")),
 		).ServeHTTP(w, r)
 	})
 	r.With(requireAuth).Get("/users/tags/{tagID}/items/{itemID}/", func(w http.ResponseWriter, r *http.Request) {
 		usersHandler(log, render,
+			withURL(r.URL),
 			withAllSubscriptionsByTags(tagsService, subscriptionsService),
 			withItemsByTagID(itemsService, chi.URLParam(r, "tagID")),
 			withItem(itemsService, chi.URLParam(r, "itemID")),
@@ -107,12 +116,14 @@ func NewHandler(
 	})
 	r.With(requireAuth).Get("/users/subscriptions/{subscriptionID}/items/", func(w http.ResponseWriter, r *http.Request) {
 		usersHandler(log, render,
+			withURL(r.URL),
 			withAllSubscriptionsByTags(tagsService, subscriptionsService),
 			withItemsBySubscriptionID(itemsService, chi.URLParam(r, "subscriptionID")),
 		).ServeHTTP(w, r)
 	})
 	r.With(requireAuth).Get("/users/subscriptions/{subscriptionID}/items/{itemID}/", func(w http.ResponseWriter, r *http.Request) {
 		usersHandler(log, render,
+			withURL(r.URL),
 			withAllSubscriptionsByTags(tagsService, subscriptionsService),
 			withItemsBySubscriptionID(itemsService, chi.URLParam(r, "subscriptionID")),
 			withItem(itemsService, chi.URLParam(r, "itemID")),

@@ -10,7 +10,7 @@ const subscriptionUrl = (id) => {
     const split = path.split('/');
     const lastId = split[split.length-2];
     if (path.includes('/items/')) return `/users/subscriptions/${id}/items/${lastId}/`;
-    return `/users/subscriptions/${id}/items/`;
+    return `/users/subscriptions/${id}/items/` + path.replace('/users/', '');
 }
 
 const tagUrl = (id) => {
@@ -19,7 +19,7 @@ const tagUrl = (id) => {
     const split = path.split('/');
     const lastId = split[split.length-2];
     if (path.includes('/items/')) return `/users/tags/${id}/items/${lastId}/`;
-    return `/users/tags/${id}/items/`;
+    return `/users/tags/${id}/items/` + path.replace('/users/', '');
 }
 
 const nav = (to) => {
@@ -34,18 +34,9 @@ const getState = (key) => {
     return keyIndex > 0 ? split[keyIndex + 1] : undefined;
 }
 
-const deleteState = (key) => {
-    const urlParams = new URLSearchParams(window.location.search.slice(1))
-    urlParams.delete(key)
-
-    let refresh = window.location.protocol +
-        "//" + window.location.host + window.location.pathname +
-        `?${urlParams.toString()}`
-    window.history.pushState({ path: refresh }, '', refresh)
-}
-
 const onSubscriptionSelected = (subscriptionId) => {
     nav(subscriptionUrl(subscriptionId))
+    showItems()
 
     sendMessage("items:load", {
         subscriptionId: subscriptionId,
@@ -59,10 +50,31 @@ const onItemSelected = (itemId) => {
 
 const onTagSelected = (tagId) => {
     nav(tagUrl(tagId))
+    showItems()
 
     sendMessage("items:load", {
         tagId: tagId,
     })
+}
+
+const hideItems = () => {
+    showTagsSubscriptions()
+    const itemId = getState('items')
+    if (itemId) {
+        nav(`/users/${itemId}/`)
+    } else {
+        nav("/users/")
+    }
+}
+
+const showItems = () => {
+    document.querySelector('#tags-subscriptions').classList.add('d-hide')
+    document.querySelector('#items').classList.remove('d-hide')
+}
+
+const showTagsSubscriptions = () => {
+    document.querySelector('#tags-subscriptions').classList.remove('d-hide')
+    document.querySelector('#items').classList.add('d-hide')
 }
 
 document.querySelector('#items-list').addEventListener('scroll', (e) => {
@@ -72,7 +84,6 @@ document.querySelector('#items-list').addEventListener('scroll', (e) => {
 
     const subscriptionId = getState('subscriptions')
     const tagId = getState('tags')
-    console.log(subscriptionId, tagId)
     const createdLt = document.querySelector('#items-list').lastElementChild.getAttribute('created')
 
     if (!createdLt) return

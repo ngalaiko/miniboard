@@ -20,37 +20,43 @@
 </head>
 
 <body>
-    <header class="navbar">
-        <section class="navbar-section">
-            <button id="add-button" class="btn btn-action">
-                <i class="icon icon-plus"></i>
-            </button>
-        </section>
-        <section class="navbar-section">
-            <a href="/logout/">Logout</a>
-        </section>
-    </header>
-    <div id="layout" class="columns">
-        <div class="column col-3" style="height: 100%;">
-            <ul id="tags-list" class="menu">
-                {{ range .Tags }}
-                    {{ template "files/components/tag.html" . }}
-                {{ end }}
-                <li id="no-tags-list"></li>
-                {{ range .Subscriptions }}
-                    {{ template "files/components/subscription.html" . }}
-                {{ end }}
-            </ul>
-        </div>
-        <div class="column col-3" style="height: 100%;">
-            <ul id="items-list" class="menu">
-                {{ range .Items }}
-                    {{ template "files/components/item.html" . }}
-                {{ end }}
-            </ul>
-        </div>
-        <div id="reader" class="column col-6">
-            {{ template "files/components/reader.html" .Item }}
+    <div class="container" style="height: 100%";>
+        <header class="navbar">
+            <section class="navbar-section">
+                <button id="add-button" class="btn btn-action">
+                    <i class="icon icon-plus"></i>
+                </button>
+            </section>
+            <section class="navbar-section">
+                <a href="/logout/">Logout</a>
+            </section>
+        </header>
+        <div id="layout" class="columns">
+            {{ $tagsItems := contains .URL.Path "/tags/" }}
+            {{ $subscriptionsItems := contains .URL.Path  "/subscriptions/" }}
+            {{ $items := or $tagsItems $subscriptionsItems }}
+            <div id="tags-subscriptions" class="column col-3 {{ if $items }}d-hide{{ end }}" style="height: 100%;">
+                <ul id="tags-list" class="menu">
+                    {{ range .Tags }}
+                        {{ template "files/components/tag.html" . }}
+                    {{ end }}
+                    <li id="no-tags-list"></li>
+                    {{ range .Subscriptions }}
+                        {{ template "files/components/subscription.html" . }}
+                    {{ end }}
+                </ul>
+            </div>
+            <div id="items" class="column col-3 {{ if not $items }}d-hide{{ end }}" style="height: 100%;">
+                <button class="btn btn-link" onclick="hideItems()"><i class="icon icon-arrow-left"></i>Back</button>
+                <ul id="items-list" class="menu">
+                    {{ range .Items }}
+                        {{ template "files/components/item.html" . }}
+                    {{ end }}
+                </ul>
+            </div>
+            <div id="reader" class="column col-9">
+                {{ template "files/components/reader.html" .Item }}
+            </div>
         </div>
     </div>
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 	"sort"
 
 	"github.com/ngalaiko/miniboard/backend/authorizations"
@@ -112,6 +113,13 @@ func withItem(itemsService itemsService, itemID string) usersDataProvider {
 
 		data.Item = item
 
+		return nil
+	}
+}
+
+func withURL(u *url.URL) usersDataProvider {
+	return func(ctx context.Context, data *render.UsersData) error {
+		data.URL = u
 		return nil
 	}
 }
