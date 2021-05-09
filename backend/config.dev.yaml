@@ -1,8 +1,7 @@
 http:
   addr: ":80"
 db:
-  driver: sqlite3
-  addr: "./db.dev.sqlite3?_cache_size=128000&cache=shared&_journal_mode=wal&_synchronous=normal&_busy_timeout=5000"
+  addr: "sqlite3://db.dev.sqlite3?_cache_size=128000&cache=shared&_journal_mode=wal&_synchronous=normal&_busy_timeout=5000"
   max_open_connections: 1
 web:
   fs: true

@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"net/url"
 
 	// supported drivers
 	_ "github.com/mattn/go-sqlite3"
@@ -14,7 +15,6 @@ type logger interface {
 
 // Config contains database configuration.
 type Config struct {
-	Driver             string `yaml:"driver"`
 	Addr               string `yaml:"addr"`
 	MaxOpenConnections int    `yaml:"max_open_connections"`
 }
@@ -25,21 +25,17 @@ func New(cfg *Config, logger logger) (*sql.DB, error) {
 		cfg = &Config{}
 	}
 
-	if cfg.Driver == "" {
-		return nil, fmt.Errorf("driver is not set")
-	}
-
-	if _, supported := map[string]bool{
-		"sqlite3": true,
-	}[cfg.Driver]; !supported {
-		return nil, fmt.Errorf("'%s' is not supported", cfg.Driver)
-	}
-
 	if cfg.Addr == "" {
 		return nil, fmt.Errorf("addr is not set")
 	}
 
-	db, err := sql.Open(cfg.Driver, cfg.Addr)
+	u, err := url.Parse(cfg.Addr)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse addr: %w", err)
+	}
+
+	addr := fmt.Sprintf("%s%s?%s", u.Hostname(), u.Path, u.RawQuery)
+	db, err := sql.Open(u.Scheme, addr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}

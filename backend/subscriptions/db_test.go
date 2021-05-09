@@ -212,8 +212,7 @@ func Test_db__List_paginated_by_created(t *testing.T) {
 
 func createTestDB(ctx context.Context, t *testing.T) *sql.DB {
 	sqlite, err := db.New(&db.Config{
-		Driver: "sqlite3",
-		Addr:   "file::memory:",
+		Addr: "sqlite3://file::memory::",
 	}, &testLogger{})
 	if err != nil {
 		t.Fatalf("failed to create database: %s", err)

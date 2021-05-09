@@ -34,8 +34,7 @@ func Test_Migrate_twice(t *testing.T) {
 
 func testDB(t *testing.T) *sql.DB {
 	sqldb, err := New(&Config{
-		Driver: "sqlite3",
-		Addr:   "file::memory:",
+		Addr: "sqlite3://file::memory::",
 	}, &testLogger{})
 	if err != nil {
 		t.Fatalf("failed to create a db: %s", err)

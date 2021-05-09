@@ -328,8 +328,7 @@ func Test_db__List_filtered_by_subscription(t *testing.T) {
 
 func createTestDB(ctx context.Context, t *testing.T) *sql.DB {
 	sqlite, err := db.New(&db.Config{
-		Driver: "sqlite3",
-		Addr:   "file::memory:",
+		Addr: "sqlite3://file::memory::",
 	}, &testLogger{})
 	if err != nil {
 		t.Fatalf("failed to create database: %s", err)

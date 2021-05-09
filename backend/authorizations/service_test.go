@@ -4,8 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"io/ioutil"
-	"os"
 	"reflect"
 	"testing"
 
@@ -104,20 +102,8 @@ func Test_Verify(t *testing.T) {
 }
 
 func createTestDB(ctx context.Context, t *testing.T) *sql.DB {
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "testdb-")
-	if err != nil {
-		t.Fatalf("failed to create a temporary db file: %s", err)
-	}
-
-	t.Cleanup(func() {
-		if err := os.Remove(tmpFile.Name()); err != nil {
-			t.Fatalf("failed to delete file for test db: %s", err)
-		}
-	})
-
 	sqlite, err := db.New(&db.Config{
-		Driver: "sqlite3",
-		Addr:   tmpFile.Name(),
+		Addr: "sqlite3://file::memory::",
 	}, &testLogger{})
 	if err != nil {
 		t.Fatalf("failed to create database: %s", err)
