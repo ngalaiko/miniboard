@@ -10,11 +10,10 @@ services:
   http_port: 8080
   instance_count: 1
   instance_size_slug: basic-xxs
-  environment_slug: go
   github:
     repo: ngalaiko/miniboard
     branch: master
-  source_dir: backend
+  dockerfile_path: Dockerfile
   envs:
   - key: MINIBOARD_HTTP_ADDR
     scope: RUN_TIME
@@ -28,5 +27,8 @@ services:
   - key: "MINIBOARD_WEB_GZIP_LEVEL"
     scope: RUN_TIME
     value: "5"
+  - key: LITESTREAM_REPLICA_URL
+    scope: RUN_TIME
+    value: "s3://miniboard.ams3.digitaloceanspaces.com"
   routes:
   - path: /
