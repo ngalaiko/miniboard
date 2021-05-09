@@ -6,3 +6,4 @@ db:
   max_open_connections: 1
 web:
   fs: true
+  gzip_level: 5

@@ -126,6 +126,8 @@ func withURL(u *url.URL) usersDataProvider {
 
 func usersHandler(log logger, rdr *render.Templates, dataProviders ...usersDataProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+
 		usersData := &render.UsersData{}
 		for _, provide := range dataProviders {
 			if err := provide(r.Context(), usersData); err != nil {

@@ -33,7 +33,8 @@ subsciptions:
 users:
   bcrypt_cose: 14 # bcrypt cost
 web:
-  fs: true # if true, files will be served from the filesystem
+  fs: true      # if true, files will be served from the filesystem
+  gzip_level: 5 # gzip compression level
 ```
 
 #### Environment variables

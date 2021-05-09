@@ -37,7 +37,8 @@ type itemsService interface {
 
 // Config contains web configuration.
 type Config struct {
-	FS bool `yaml:"fs"`
+	FS        bool `yaml:"fs"`
+	GZIPLevel int  `yaml:"gzip_level"`
 }
 
 type logger interface {
@@ -72,6 +73,7 @@ func NewHandler(
 	r.Use(Log(log))
 	r.Use(middleware.Recoverer)
 	r.Use(Authenticate(jwtService, log))
+	r.Use(middleware.NewCompressor(cfg.GZIPLevel, "text/*", "application/*", "image/*").Handler)
 
 	r.Post("/login/", loginHandler)
 	r.Post("/signup/", signupHandler)

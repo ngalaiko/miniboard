@@ -28,5 +28,8 @@ services:
   - key: MINIBOARD_DB_MAX_OPEN_CONNECTIONS
     scope: RUN_TIME
     value: "1"
+  - key: "MINIBOARD_WEB_GZIP_LEVEL"
+    scope: RUN_TIME
+    value: "5"
   routes:
   - path: /
