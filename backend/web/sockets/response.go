@@ -3,9 +3,10 @@ package sockets
 type position string
 
 const (
-	afterbegin position = "afterbegin"
-	beforeend  position = "beforeend"
-	afterend   position = "afterend"
+	beforebegin position = "beforebegin"
+	afterbegin  position = "afterbegin"
+	beforeend   position = "beforeend"
+	afterend    position = "afterend"
 )
 
 type response struct {

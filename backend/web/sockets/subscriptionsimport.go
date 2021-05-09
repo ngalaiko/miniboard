@@ -92,8 +92,8 @@ func (s *Sockets) getOrCreateTag(ctx context.Context, userID string, title strin
 		s.broadcast(userID, &response{
 			ID:     req.ID,
 			HTML:   html.String(),
-			Target: "#tags-list",
-			Insert: afterbegin,
+			Target: "#no-tags-list",
+			Insert: beforebegin,
 		})
 		return newTag, err
 	default:
