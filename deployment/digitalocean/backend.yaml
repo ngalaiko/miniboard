@@ -19,12 +19,9 @@ services:
   - key: MINIBOARD_HTTP_ADDR
     scope: RUN_TIME
     value: ":8080"
-  - key: MINIBOARD_DB_DRIVER
-    scope: RUN_TIME
-    value: sqlite3
   - key: MINIBOARD_DB_ADDR
     scope: RUN_TIME
-    value: "./db.sqlite3?_cache_size=128000&cache=shared"
+    value: "sqlite3://db.sqlite3?_cache_size=128000&cache=shared&_journal_mode=wal&_synchronous=normal&_busy_timeout=5000"
   - key: MINIBOARD_DB_MAX_OPEN_CONNECTIONS
     scope: RUN_TIME
     value: "1"

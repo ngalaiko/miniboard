@@ -17,9 +17,8 @@
 
 ```yaml
 db:
-  driver: "sqlite3"       # available values: "sqlite3"
-  addr: "./db.sqilite3"   # db address
-  max_open_connections: 0 # max open connections to db
+  addr: "sqlite3://db.sqilite3" # db address
+  max_open_connections: 1       # max open connections to db
 http:
   addr: ":8080" # address to listen on
   tls:
@@ -28,7 +27,7 @@ http:
     cert_path: "./crt.pem" # path to tls certificate
 subsciptions:
   updates:
-    workers: 10 # number of workers that update subscriptions in background
+    workers: 10  # number of workers that update subscriptions in background
     interval: 5m # interval between feed updates
 users:
   bcrypt_cose: 14 # bcrypt cost
