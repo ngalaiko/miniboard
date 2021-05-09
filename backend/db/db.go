@@ -35,11 +35,18 @@ func New(cfg *Config, logger logger) (*sql.DB, error) {
 	}
 
 	addr := fmt.Sprintf("%s%s?%s", u.Hostname(), u.Path, u.RawQuery)
+
+	logger.Debug("connecting to ':%s' on '%s'", u.Scheme, addr)
+
 	db, err := sql.Open(u.Scheme, addr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 	db.SetMaxOpenConns(cfg.MaxOpenConnections)
+
+	if err := db.Ping(); err != nil {
+		return nil, fmt.Errorf("failed to ping the database: %w", err)
+	}
 
 	return db, nil
 }
