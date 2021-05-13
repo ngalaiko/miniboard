@@ -46,6 +46,7 @@ const onSubscriptionSelected = (subscriptionId) => {
 const onItemSelected = (itemId) => {
     sendMessage("items:select", {id: itemId})
     nav(itemUrl(itemId))
+    showItem()
 }
 
 const onTagSelected = (tagId) => {
@@ -55,6 +56,19 @@ const onTagSelected = (tagId) => {
     sendMessage("items:load", {
         tagId: tagId,
     })
+}
+
+const hideItem = () => {
+    const s = window.location.pathname.split('/')
+    nav(s.slice(0, s.length-2).join('/') + '/')
+
+    document.querySelector('#item').classList.add('hide-md')
+    document.querySelector('#menu').classList.remove('hide-md')
+}
+
+const showItem = () => {
+    document.querySelector('#item').classList.remove('hide-md')
+    document.querySelector('#menu').classList.add('hide-md')
 }
 
 const hideItems = () => {

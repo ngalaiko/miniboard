@@ -23,7 +23,8 @@ var (
 		"timeformat": func(t *time.Time) string {
 			return t.Format(time.RFC3339)
 		},
-		"contains": strings.Contains,
+		"contains":  strings.Contains,
+		"hasSuffix": strings.HasSuffix,
 	}
 )
 
