@@ -5,7 +5,7 @@ go 1.16
 require (
 	github.com/go-chi/chi/v5 v5.0.4
 	github.com/google/go-cmp v0.5.5
-	github.com/google/uuid v1.2.0
+	github.com/google/uuid v1.3.0
 	github.com/mattn/go-sqlite3 v1.14.8
 	github.com/rs/zerolog v1.25.0
 	github.com/vrischmann/envconfig v1.3.0
