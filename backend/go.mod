@@ -7,10 +7,10 @@ require (
 	github.com/google/go-cmp v0.5.6
 	github.com/google/uuid v1.3.0
 	github.com/mattn/go-sqlite3 v1.14.8
-	github.com/rs/zerolog v1.25.0
+	github.com/rs/zerolog v1.26.1
 	github.com/vrischmann/envconfig v1.3.0
-	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
-	golang.org/x/net v0.0.0-20210414194228-064579744ee0
+	golang.org/x/crypto v0.0.0-20211215165025-cf75a172585e
+	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1
 	gopkg.in/square/go-jose.v2 v2.6.0
