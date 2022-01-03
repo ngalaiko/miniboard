@@ -6,7 +6,7 @@ require (
 	github.com/go-chi/chi/v5 v5.0.4
 	github.com/google/go-cmp v0.5.6
 	github.com/google/uuid v1.3.0
-	github.com/mattn/go-sqlite3 v1.14.8
+	github.com/mattn/go-sqlite3 v1.14.10
 	github.com/rs/zerolog v1.25.0
 	github.com/vrischmann/envconfig v1.3.0
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad
